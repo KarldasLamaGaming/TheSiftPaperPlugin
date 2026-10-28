@@ -39,9 +39,9 @@
             "down": "false",
             "east": "true",
             "north": "true",
-            "south": "true",
+            "south": "false",
             "up": "false",
-            "west": "false"
+            "west": "true"
           }
         }
       },

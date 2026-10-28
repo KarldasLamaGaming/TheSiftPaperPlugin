@@ -24,9 +24,9 @@
           "down": "false",
           "east": "false",
           "north": "true",
-          "south": "true",
+          "south": "false",
           "up": "false",
-          "west": "false"
+          "west": "true"
         }
       }
     }

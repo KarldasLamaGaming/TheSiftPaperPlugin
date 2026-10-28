@@ -80,6 +80,17 @@ class DatapackImporterTest {
     }
 
     @Test
+    void directionalStatesInProcessorOutputsAreAnError() {
+        run(Map.of("worldgen/processor_list/p.json", """
+                {"processors": [{"processor_type": "minecraft:rule", "rules": [{
+                  "input_predicate": {"predicate_type": "minecraft:block_match", "block": "minecraft:coal_ore"},
+                  "location_predicate": {"predicate_type": "minecraft:always_true"},
+                  "output_state": "the_sift:siftslate_diamond_ore"}]}]}"""));
+        assertEquals(1, report.errors().size());
+        assertTrue(report.errors().getFirst().contains("rotation-invariant"));
+    }
+
+    @Test
     void oreTargetsOnModTagsBecomeExactStates() {
         Map<String, JsonElement> out = run(Map.of(
                 "tags/block/replaceables.json", "{\"values\": [\"the_sift:siftslate\", \"minecraft:stone\"]}",

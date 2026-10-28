@@ -8,6 +8,9 @@
 # substitute: custom blocks that are replaced by a vanilla block (no own look). Properties of the
 #   original state are passed through unless the target fixes them in brackets.
 # particles: custom particle types replaced by vanilla particle types.
+# rotation-invariant: repurposed blocks that vanilla may place rotated or mirrored (inside structure
+#   templates, e.g. the fossil processor output). They get states with all horizontal faces equal, as
+#   rotation would otherwise turn them into another custom block. packgen fails if such a block is missing.
 # strip-properties: properties the mod adds to vanilla blocks; removed wherever they appear.
 
 pools:
@@ -115,6 +118,10 @@ substitute:
 
 particles:
   sift_note: minecraft:note
+
+rotation-invariant:
+  - siftslate
+  - siftslate_coal_ore
 
 strip-properties:
   - ichorlogged

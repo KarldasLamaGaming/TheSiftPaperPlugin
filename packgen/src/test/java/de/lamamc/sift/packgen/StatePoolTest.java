@@ -2,6 +2,7 @@ package de.lamamc.sift.packgen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
@@ -42,5 +43,20 @@ class StatePoolTest {
     void unknownFilterPropertyIsRejected() {
         assertThrows(IllegalArgumentException.class,
                 () -> new StatePool("minecraft:tripwire", List.of("powered"), Map.of("axis", "x"), List.of()));
+    }
+
+    @Test
+    void rotationInvariantStatesHaveEqualHorizontalFacesAndAreNotHandedOutTwice() {
+        StatePool pool = new StatePool("minecraft:mushroom_stem", MUSHROOM, Map.of("down", "false"), List.of());
+        BlockState first = pool.takeRotationInvariant();
+        assertEquals("minecraft:mushroom_stem[down=false,east=false,north=false,south=false,up=false,west=false]",
+                first.toString());
+        BlockState ordinary = pool.take();
+        assertEquals("minecraft:mushroom_stem[down=false,east=false,north=false,south=false,up=false,west=true]",
+                ordinary.toString());
+        BlockState second = pool.takeRotationInvariant();
+        assertTrue(StatePool.isRotationInvariant(second));
+        assertEquals("minecraft:mushroom_stem[down=false,east=true,north=true,south=true,up=false,west=true]",
+                second.toString());
     }
 }

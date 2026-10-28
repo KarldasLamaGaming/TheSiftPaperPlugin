@@ -64,6 +64,7 @@ public final class DatapackImporter {
                 cleanBiome(path, json.getAsJsonObject());
             }
         });
+        checkRotatedStates(files);
         Map<String, List<String>> originalTags = readBlockTags(files);
         files.forEach((path, json) -> {
             if (path.startsWith(FEATURE)) {
@@ -217,6 +218,20 @@ public final class DatapackImporter {
                 }
             }
         }
+    }
+
+    /** Processor lists change blocks of structure templates, which vanilla places rotated and mirrored. */
+    private void checkRotatedStates(Map<String, JsonElement> files) {
+        files.forEach((path, json) -> {
+            if (path.startsWith("worldgen/processor_list/")) {
+                collectStrings(json, null, (key, value) -> {
+                    if (mapping.isRepurposed(value) && !mapping.survivesRotation(value)) {
+                        report.error(path + ": " + value + " is placed in rotated templates; list it under "
+                                + "rotation-invariant in block-mapping.yml");
+                    }
+                });
+            }
+        });
     }
 
     // ---- ores and tags ------------------------------------------------------------------------------

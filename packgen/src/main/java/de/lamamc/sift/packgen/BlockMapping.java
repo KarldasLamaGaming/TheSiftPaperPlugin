@@ -30,6 +30,7 @@ public final class BlockMapping {
     private final Map<String, BlockState> substitutes = new LinkedHashMap<>();
     private final Map<String, String> particles = new LinkedHashMap<>();
     private final java.util.Set<String> strippedProperties = new java.util.TreeSet<>();
+    private final Map<String, Boolean> rotationInvariant = new LinkedHashMap<>();
 
     public static BlockMapping loadDefault() {
         try (InputStream in = BlockMapping.class.getResourceAsStream("/block-mapping.yml")) {
@@ -60,16 +61,38 @@ public final class BlockMapping {
             pools.put(block, new StatePool("minecraft:" + block, props, filter, exclude));
         });
 
+        // rotation-invariant entries first, so they get their states before the ordinary ones fill the pool
+        java.util.Set<String> invariant = new java.util.HashSet<>();
+        for (Object entry : (List<Object>) root.getOrDefault("rotation-invariant", List.of())) {
+            invariant.add(BlockState.parse(String.valueOf(entry), MOD_NAMESPACE).toString());
+        }
         Map<String, Object> repurposedSection = (Map<String, Object>) root.getOrDefault("repurposed", Map.of());
+        Map<BlockState, BlockState> assigned = new java.util.HashMap<>();
+        for (boolean invariantPass : new boolean[] {true, false}) {
+            repurposedSection.forEach((block, raw) -> {
+                StatePool pool = pools.get(block);
+                if (pool == null) {
+                    throw new IllegalArgumentException("No pool defined for " + block);
+                }
+                for (Object entry : (List<Object>) raw) {
+                    BlockState custom = BlockState.parse(String.valueOf(entry), MOD_NAMESPACE);
+                    if (invariant.contains(custom.toString()) == invariantPass) {
+                        assigned.put(custom, invariantPass ? pool.takeRotationInvariant() : pool.take());
+                    }
+                }
+            });
+        }
+        invariant.removeAll(assigned.keySet().stream().map(BlockState::toString).toList());
+        if (!invariant.isEmpty()) {
+            throw new IllegalArgumentException("rotation-invariant lists blocks that are not repurposed: " + invariant);
+        }
+        // keep the order of the YAML file in the mapping
         repurposedSection.forEach((block, raw) -> {
-            StatePool pool = pools.get(block);
-            if (pool == null) {
-                throw new IllegalArgumentException("No pool defined for " + block);
-            }
             for (Object entry : (List<Object>) raw) {
                 BlockState custom = BlockState.parse(String.valueOf(entry), MOD_NAMESPACE);
                 mapping.repurposed.computeIfAbsent(custom.id(), k -> new ArrayList<>())
-                        .add(new Entry(custom, pool.take()));
+                        .add(new Entry(custom, assigned.get(custom)));
+                mapping.rotationInvariant.put(custom.id(), StatePool.isRotationInvariant(assigned.get(custom)));
             }
         });
 
@@ -146,6 +169,11 @@ public final class BlockMapping {
     /** The vanilla block id a mapped block becomes, for places that only know block ids (tags, predicates). */
     public String baseBlock(String id) {
         return allStates(id).getFirst().id();
+    }
+
+    /** Whether every stand-in state of a repurposed block survives vanilla rotating or mirroring it. */
+    public boolean survivesRotation(String id) {
+        return rotationInvariant.getOrDefault(id, true);
     }
 
     /** Properties the mod adds to vanilla blocks, removed from vanilla states. */

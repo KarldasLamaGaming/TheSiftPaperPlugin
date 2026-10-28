@@ -95,4 +95,12 @@ class BlockMappingTest {
         assertEquals("the_sift:foo[a=1,b=2]", state.toString());
         assertThrows(IllegalArgumentException.class, () -> BlockState.parse("foo[a=1", "x"));
     }
+
+    @Test
+    void blocksPlacedInRotatedTemplatesGetRotationInvariantStates() {
+        BlockMapping mapping = BlockMapping.loadDefault();
+        assertTrue(mapping.survivesRotation("the_sift:siftslate_coal_ore"));
+        assertTrue(mapping.survivesRotation("the_sift:siftslate"));
+        assertFalse(mapping.survivesRotation("the_sift:siftslate_diamond_ore"));
+    }
 }

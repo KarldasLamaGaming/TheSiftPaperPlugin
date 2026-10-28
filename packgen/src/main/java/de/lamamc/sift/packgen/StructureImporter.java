@@ -129,6 +129,10 @@ public final class StructureImporter {
             for (String key : properties.keySet()) {
                 props.put(key, properties.getString(key));
             }
+            if (!mapping.survivesRotation(name)) {
+                report.note("Templates with directional stand-in states (place unrotated or remap after rotating)",
+                        path + ": " + name);
+            }
             BlockState state = mapping.resolve(BlockState.of(name, props));
             CompoundBinaryTag.Builder newProps = CompoundBinaryTag.builder();
             state.properties().forEach((k, v) -> newProps.put(k, StringBinaryTag.stringBinaryTag(v)));

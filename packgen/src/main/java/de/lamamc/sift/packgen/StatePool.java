@@ -13,6 +13,7 @@ public final class StatePool {
 
     private final String baseBlock;
     private final List<BlockState> states;
+    private final java.util.Set<BlockState> used = new java.util.HashSet<>();
     private int next;
 
     public StatePool(String baseBlock, List<String> properties, Map<String, String> filter,
@@ -61,13 +62,40 @@ public final class StatePool {
     }
 
     public int remaining() {
-        return states.size() - next;
+        return (int) states.stream().filter(st -> !used.contains(st)).count();
     }
 
+    /** The next free state. */
     public BlockState take() {
+        while (next < states.size() && used.contains(states.get(next))) {
+            next++;
+        }
         if (next >= states.size()) {
             throw new IllegalStateException("No free states left for " + baseBlock + " (" + states.size() + " in pool)");
         }
-        return states.get(next++);
+        BlockState state = states.get(next++);
+        used.add(state);
+        return state;
+    }
+
+    /**
+     * The next free state that stays the same when vanilla rotates or mirrors it (all horizontal faces
+     * equal). Structure templates are placed rotated, which would turn a directional state into the state
+     * of another custom block.
+     */
+    public BlockState takeRotationInvariant() {
+        for (BlockState state : states) {
+            if (!used.contains(state) && isRotationInvariant(state)) {
+                used.add(state);
+                return state;
+            }
+        }
+        throw new IllegalStateException("No rotation-invariant states left for " + baseBlock);
+    }
+
+    public static boolean isRotationInvariant(BlockState state) {
+        var horizontal = java.util.stream.Stream.of("north", "east", "south", "west")
+                .map(state.properties()::get).filter(java.util.Objects::nonNull).distinct().count();
+        return horizontal <= 1;
     }
 }

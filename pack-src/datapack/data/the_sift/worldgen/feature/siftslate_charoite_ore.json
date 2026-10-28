@@ -22,11 +22,11 @@
         "id": "minecraft:mushroom_stem",
         "properties": {
           "down": "false",
-          "east": "true",
+          "east": "false",
           "north": "true",
-          "south": "false",
+          "south": "true",
           "up": "false",
-          "west": "false"
+          "west": "true"
         }
       }
     }
