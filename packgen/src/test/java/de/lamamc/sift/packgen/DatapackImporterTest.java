@@ -64,6 +64,22 @@ class DatapackImporterTest {
     }
 
     @Test
+    void blockIdStringsInStateFieldsAreRewrittenEvenIfAFeatureHasTheSameName() {
+        Map<String, JsonElement> out = run(Map.of(
+                "worldgen/placed_feature/siftslate_coal_ore.json", "{\"feature\": \"minecraft:ore_coal\", \"placement\": []}",
+                "worldgen/processor_list/fossil.json", """
+                        {"processors": [{"processor_type": "minecraft:rule", "rules": [{
+                          "input_predicate": {"predicate_type": "minecraft:block_match", "block": "minecraft:coal_ore"},
+                          "location_predicate": {"predicate_type": "minecraft:always_true"},
+                          "output_state": "the_sift:siftslate_coal_ore"}]}]}"""));
+        JsonObject output = out.get("worldgen/processor_list/fossil.json").getAsJsonObject()
+                .getAsJsonArray("processors").get(0).getAsJsonObject().getAsJsonArray("rules").get(0)
+                .getAsJsonObject().getAsJsonObject("output_state");
+        assertEquals("minecraft:mushroom_stem", output.get("id").getAsString());
+        assertTrue(report.errors().isEmpty(), report.errors().toString());
+    }
+
+    @Test
     void oreTargetsOnModTagsBecomeExactStates() {
         Map<String, JsonElement> out = run(Map.of(
                 "tags/block/replaceables.json", "{\"values\": [\"the_sift:siftslate\", \"minecraft:stone\"]}",

@@ -36,6 +36,9 @@ public final class DatapackImporter {
     private static final String PLACED = "worldgen/placed_feature/";
     private static final String BIOME = "worldgen/biome/";
     private static final String BLOCK_TAGS = "tags/block/";
+    /** Keys whose value is a block state, which 26.x also accepts as a plain block id string. */
+    private static final Set<String> STATE_KEYS = Set.of(
+            "output_state", "input_state", "block_state", "state", "default_block", "default_fluid");
 
     private final BlockMapping mapping;
     private final ImportReport report;
@@ -329,7 +332,10 @@ public final class DatapackImporter {
         JsonObject result = new JsonObject();
         boolean matchingBlocks = "minecraft:matching_blocks".equals(typeOf(object));
         for (var e : object.entrySet()) {
-            if (matchingBlocks && e.getKey().equals("blocks")) {
+            if (STATE_KEYS.contains(e.getKey()) && e.getValue() instanceof JsonPrimitive p && p.isString()
+                    && mapping.isMapped(p.getAsString())) {
+                result.add(e.getKey(), stateJson(mapping.resolve(BlockState.of(p.getAsString())), "id", "properties"));
+            } else if (matchingBlocks && e.getKey().equals("blocks")) {
                 result.add("blocks", rewriteBlockIds(path, e.getValue()));
             } else {
                 result.add(e.getKey(), rewrite(path, e.getValue()));
@@ -403,7 +409,11 @@ public final class DatapackImporter {
                 known.add("#" + id);
             }
         }
-        files.forEach((path, json) -> collectStrings(json, null, s -> {
+        files.forEach((path, json) -> collectStrings(json, null, (key, s) -> {
+            if (STATE_KEYS.contains(key) && mapping.isMapped(s)) {
+                report.error(path + ": block " + s + " in '" + key + "' was not rewritten");
+                return;
+            }
             // features are often named like the block they place, so a known file id wins
             if (!MOD_ID.matcher(s).matches() || known.contains(s)) {
                 return;
@@ -425,11 +435,12 @@ public final class DatapackImporter {
         return pathWithoutExt.indexOf('/');
     }
 
-    private static void collectStrings(JsonElement json, String key, java.util.function.Consumer<String> sink) {
+    private static void collectStrings(JsonElement json, String key,
+                                       java.util.function.BiConsumer<String, String> sink) {
         if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isString()) {
             // random sequence names are free-form ids, not references
             if (!"random_name".equals(key)) {
-                sink.accept(json.getAsString());
+                sink.accept(key, json.getAsString());
             }
         } else if (json.isJsonObject()) {
             json.getAsJsonObject().entrySet().forEach(e -> collectStrings(e.getValue(), e.getKey(), sink));

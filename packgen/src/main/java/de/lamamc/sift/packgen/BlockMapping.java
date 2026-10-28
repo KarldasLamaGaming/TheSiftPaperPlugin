@@ -29,6 +29,7 @@ public final class BlockMapping {
     private final Map<String, List<Entry>> repurposed = new LinkedHashMap<>();
     private final Map<String, BlockState> substitutes = new LinkedHashMap<>();
     private final Map<String, String> particles = new LinkedHashMap<>();
+    private final java.util.Set<String> strippedProperties = new java.util.TreeSet<>();
 
     public static BlockMapping loadDefault() {
         try (InputStream in = BlockMapping.class.getResourceAsStream("/block-mapping.yml")) {
@@ -81,6 +82,9 @@ public final class BlockMapping {
             mapping.substitutes.put(id, BlockState.parse(String.valueOf(target), "minecraft"));
         });
 
+        for (Object property : (List<Object>) root.getOrDefault("strip-properties", List.of())) {
+            mapping.strippedProperties.add(String.valueOf(property));
+        }
         stringMap(root.get("particles")).forEach((particle, target) ->
                 mapping.particles.put(MOD_NAMESPACE + ":" + particle, target));
         return mapping;
@@ -142,6 +146,11 @@ public final class BlockMapping {
     /** The vanilla block id a mapped block becomes, for places that only know block ids (tags, predicates). */
     public String baseBlock(String id) {
         return allStates(id).getFirst().id();
+    }
+
+    /** Properties the mod adds to vanilla blocks, removed from vanilla states. */
+    public boolean isStrippedProperty(String property) {
+        return strippedProperties.contains(property);
     }
 
     public Optional<String> particle(String id) {

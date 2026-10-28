@@ -15,7 +15,17 @@
           "location_predicate": {
             "predicate_type": "minecraft:always_true"
           },
-          "output_state": "the_sift:siftslate_coal_ore"
+          "output_state": {
+            "id": "minecraft:mushroom_stem",
+            "properties": {
+              "down": "false",
+              "east": "false",
+              "north": "true",
+              "south": "false",
+              "up": "false",
+              "west": "true"
+            }
+          }
         }
       ]
     },

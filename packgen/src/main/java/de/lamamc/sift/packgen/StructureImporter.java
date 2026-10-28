@@ -32,13 +32,28 @@ public final class StructureImporter {
         try {
             CompoundBinaryTag root = BinaryTagIO.unlimitedReader()
                     .read(new ByteArrayInputStream(gzipped), BinaryTagIO.Compression.GZIP);
-            CompoundBinaryTag result = rewrite(path, root);
+            CompoundBinaryTag result = (CompoundBinaryTag) sorted(rewrite(path, root));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             BinaryTagIO.writer().write(result, out, BinaryTagIO.Compression.GZIP);
             return out.toByteArray();
         } catch (IOException e) {
             throw new UncheckedIOException("Could not convert structure " + path, e);
         }
+    }
+
+    /** Copies the tag with compound keys in sorted order, so repeated imports produce identical files. */
+    static BinaryTag sorted(BinaryTag tag) {
+        if (tag instanceof CompoundBinaryTag compound) {
+            CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder();
+            compound.keySet().stream().sorted().forEach(key -> builder.put(key, sorted(compound.get(key))));
+            return builder.build();
+        }
+        if (tag instanceof ListBinaryTag list) {
+            List<BinaryTag> elements = new ArrayList<>();
+            list.forEach(element -> elements.add(sorted(element)));
+            return ListBinaryTag.listBinaryTag(list.elementType(), elements);
+        }
+        return tag;
     }
 
     CompoundBinaryTag rewrite(String path, CompoundBinaryTag root) {
@@ -81,6 +96,22 @@ public final class StructureImporter {
         return root;
     }
 
+    /** The mod adds properties (e.g. ichorlogged) to vanilla blocks; vanilla does not know them. */
+    private CompoundBinaryTag stripModProperties(String path, CompoundBinaryTag entry) {
+        CompoundBinaryTag properties = entry.getCompound("Properties");
+        CompoundBinaryTag cleaned = properties;
+        for (String key : properties.keySet()) {
+            if (mapping.isStrippedProperty(key)) {
+                cleaned = cleaned.remove(key);
+                report.note("Removed mod properties of vanilla blocks", key + " in " + path);
+            }
+        }
+        if (cleaned == properties) {
+            return entry;
+        }
+        return cleaned.isEmpty() ? entry.remove("Properties") : entry.put("Properties", cleaned);
+    }
+
     private ListBinaryTag rewritePalette(String path, ListBinaryTag palette, Set<Integer> customIndices) {
         List<BinaryTag> converted = new ArrayList<>();
         for (int i = 0; i < palette.size(); i++) {
@@ -90,7 +121,7 @@ public final class StructureImporter {
                 if (name.startsWith(BlockMapping.MOD_NAMESPACE + ":")) {
                     report.error(path + ": unmapped block " + name);
                 }
-                converted.add(entry);
+                converted.add(stripModProperties(path, entry));
                 continue;
             }
             Map<String, String> props = new TreeMap<>();

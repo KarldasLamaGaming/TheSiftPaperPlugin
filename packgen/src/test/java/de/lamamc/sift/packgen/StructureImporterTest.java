@@ -40,4 +40,19 @@ class StructureImporterTest {
         assertNull(result.getList("blocks").getCompound(0).get("nbt"));
         assertTrue(report.errors().isEmpty());
     }
+
+    @Test
+    void modPropertiesOfVanillaBlocksAreRemoved() {
+        CompoundBinaryTag root = CompoundBinaryTag.builder()
+                .put("palette", ListBinaryTag.listBinaryTag(BinaryTagTypes.COMPOUND, List.of(
+                        CompoundBinaryTag.builder().putString("Name", "minecraft:chest")
+                                .put("Properties", CompoundBinaryTag.builder()
+                                        .putString("ichorlogged", "false").putString("facing", "east").build())
+                                .build())))
+                .build();
+        CompoundBinaryTag entry = new StructureImporter(BlockMapping.loadDefault(), new ImportReport())
+                .rewrite("t.nbt", root).getList("palette").getCompound(0);
+        assertNull(entry.getCompound("Properties").get("ichorlogged"));
+        assertEquals("east", entry.getCompound("Properties").getString("facing"));
+    }
 }

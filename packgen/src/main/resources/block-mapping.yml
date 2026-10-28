@@ -8,6 +8,7 @@
 # substitute: custom blocks that are replaced by a vanilla block (no own look). Properties of the
 #   original state are passed through unless the target fixes them in brackets.
 # particles: custom particle types replaced by vanilla particle types.
+# strip-properties: properties the mod adds to vanilla blocks; removed wherever they appear.
 
 pools:
   # Only boolean properties are supported; states are enumerated with the first property changing slowest.
@@ -114,3 +115,6 @@ substitute:
 
 particles:
   sift_note: minecraft:note
+
+strip-properties:
+  - ichorlogged
