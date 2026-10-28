@@ -1,6 +1,7 @@
 # The Sift – Admin-Handbuch
 
-Stand: Phase 1, Schritte 1–4 (Dimension, Datapack, eigene Blöcke). Wird mit jeder Phase ergänzt.
+Stand: Phase 1, Schritte 1–4 und 8 (Dimension, Datapack, eigene Blöcke, Resource Pack). Wird mit jeder
+Phase ergänzt.
 
 ## Installation und erster Start
 
@@ -17,6 +18,27 @@ Stand: Phase 1, Schritte 1–4 (Dimension, Datapack, eigene Blöcke). Wird mit j
 für die Sift schrieb. Das war wirkungslos (siehe nächster Abschnitt) und ist entfernt. Eine von
 älteren Versionen angelegte Datei `<welt>/dimensions/the_sift/the_sift/paper-world.yml` mit
 `block-updates`-Einträgen schadet nicht und kann gelöscht werden.
+
+## Resource Pack
+
+Spieler brauchen das Resource Pack der Sift (Texturen, Modelle, Sounds, deutsche Texte). Das Plugin
+schickt es beim Betreten des Servers.
+
+- Jedes GitHub-Release (`v<version>`) enthält `TheSift-<version>.jar`, `the-sift-pack.zip` und
+  `the-sift-pack.zip.sha1`. Plugin und Pack eines Releases gehören zusammen.
+- `resource-pack.url` zeigt standardmäßig auf das Pack des Releases, das zur Plugin-Version passt
+  (`{version}` wird ersetzt). Eigener Webspace: dort die ZIP hochladen und die URL eintragen.
+- `resource-pack.sha1`: leer lassen, dann lädt das Plugin das Pack beim Start einmal herunter und
+  berechnet die SHA-1 selbst (Log: `Resource pack … (SHA-1 …)`). Alternativ den Inhalt von
+  `the-sift-pack.zip.sha1` eintragen; dann wird beim Start nichts heruntergeladen.
+- `resource-pack.required: true`: Wer das Pack ablehnt, wird mit `kick-on-decline` getrennt.
+- Nach Änderungen: `/sift pack reload`. `/sift pack info` zeigt URL und SHA-1, `/sift pack send <spieler>`
+  schickt das Pack erneut.
+- Das Pack ersetzt nur die Blockstates von Pilzblöcken, Stolperdraht und Chorus-Pflanze; deren normale
+  Zustände sehen weiter wie in Vanilla aus. Andere Server-Packs bleiben aktiv (das Plugin ersetzt sie nicht).
+
+Selbst bauen: `./gradlew :packgen:resourcePack` legt `packgen/build/pack/the-sift-pack.zip` und die
+`.sha1` an.
 
 ## Wie eigene Blöcke funktionieren
 
@@ -90,6 +112,7 @@ Sift-Block so lange braucht wie im Original. Drops, Glück, Behutsamkeit und Erf
 |---|---|
 | `/sift tp` | In die Sift bzw. zurück in die Hauptwelt |
 | `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben |
+| `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug>` | Abbauzeit, Drops und XP eines Sift-Blocks in der Sift berechnen |
 | `/sift debug populator` | Zähler des Test-Populators |

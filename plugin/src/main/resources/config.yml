@@ -71,3 +71,18 @@ plant-support:
   - "the_sift:dry_healthy_sculk"
   - "the_sift:dry_healthy_sculk_growth"
   - "#minecraft:supports_vegetation"
+
+resource-pack:
+  # Pack an alle Spieler beim Betreten senden
+  enabled: true
+  # Download-Adresse; {version} wird durch die Plugin-Version ersetzt (Release-Tag ohne "v")
+  url: "https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/releases/download/v{version}/the-sift-pack.zip"
+  # SHA-1 des Packs. Leer = beim Start herunterladen und berechnen (Release-Datei the-sift-pack.zip.sha1)
+  sha1: ""
+  # true = Spieler müssen das Pack annehmen, sonst werden sie getrennt
+  required: true
+  # Fester Schlüssel des Packs beim Client; nur ändern, wenn mehrere Server unterschiedliche Packs senden
+  uuid: "5f1a7c2e-3b84-4d6e-9a10-7c3e2b9d4f61"
+  prompt: "<gold>The Sift</gold> <gray>braucht ein Resource Pack für Blöcke, Items und Texte.</gray>"
+  kick-on-decline: "<red>Ohne das Resource Pack von The Sift kannst du hier nicht spielen.</red>\n<gray>Bitte nimm das Pack beim nächsten Verbinden an.</gray>"
+  failed-message: "<red>Das Resource Pack von The Sift konnte nicht geladen werden.</red> <gray>Melde dich bitte bei einem Admin.</gray>"

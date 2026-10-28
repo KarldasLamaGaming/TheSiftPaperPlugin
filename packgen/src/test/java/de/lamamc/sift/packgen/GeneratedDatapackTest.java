@@ -49,4 +49,31 @@ class GeneratedDatapackTest {
         assertTrue(Files.isRegularFile(root.resolve("dimension_type/the_sift.json")));
         assertTrue(Files.isRegularFile(root.resolve("worldgen/noise_settings/the_sift.json")));
     }
+
+    @Test
+    void everyRepurposedStateHasAnOverrideWithAModModel() throws IOException {
+        Path packSrc = datapack().getParent().getParent().getParent();
+        var mapping = com.google.gson.JsonParser.parseString(Files.readString(packSrc.resolve("block-mapping.json")))
+                .getAsJsonObject().getAsJsonObject("repurposed");
+        List<String> missing = new ArrayList<>();
+        for (var e : mapping.entrySet()) {
+            String vanilla = e.getValue().getAsString();
+            String block = vanilla.substring("minecraft:".length(), vanilla.indexOf('['));
+            String props = vanilla.substring(vanilla.indexOf('[') + 1, vanilla.length() - 1);
+            String blockstate = Files.readString(packSrc.resolve("resourcepack/assets/minecraft/blockstates/" + block + ".json"));
+            var json = com.google.gson.JsonParser.parseString(blockstate).getAsJsonObject();
+            String id = e.getKey().replaceFirst("\\[.*", "").substring("the_sift:".length());
+            boolean found;
+            if (json.has("variants")) {
+                var variant = json.getAsJsonObject("variants").get(props);
+                found = variant != null && variant.toString().contains("the_sift:block/");
+            } else {
+                found = blockstate.contains("the_sift:block/" + id);
+            }
+            if (!found) {
+                missing.add(e.getKey());
+            }
+        }
+        assertTrue(missing.isEmpty(), "no override for " + missing);
+    }
 }

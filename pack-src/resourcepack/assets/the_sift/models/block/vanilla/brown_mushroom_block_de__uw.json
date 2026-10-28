@@ -1,0 +1,47 @@
+{
+  "textures": {
+    "outside": "minecraft:block/brown_mushroom_block",
+    "inside": "minecraft:block/mushroom_block_inside",
+    "particle": "minecraft:block/brown_mushroom_block"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#outside",
+          "cullface": "down"
+        },
+        "east": {
+          "texture": "#outside",
+          "cullface": "east"
+        },
+        "north": {
+          "texture": "#inside",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#inside",
+          "cullface": "south"
+        },
+        "up": {
+          "texture": "#outside",
+          "cullface": "up"
+        },
+        "west": {
+          "texture": "#outside",
+          "cullface": "west"
+        }
+      }
+    }
+  ]
+}

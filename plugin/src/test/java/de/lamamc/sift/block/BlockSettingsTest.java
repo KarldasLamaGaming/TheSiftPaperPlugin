@@ -84,4 +84,16 @@ class BlockSettingsTest {
         assertEquals(BlockSettings.Fallback.DENY, settings.fallback());
         assertEquals(ToolType.NONE, settings.profile("x").tool());
     }
+
+    /** Reproduces the plugin start with an old config.yml: the defaults only reach the file, not memory. */
+    @Test
+    void configWithoutBlocksSectionStillGetsTheDefaultsAfterReload() throws Exception {
+        YamlConfiguration config = new YamlConfiguration();
+        config.loadFromString("resource-pack:\n  url: x\n");
+        config.setDefaults(defaults());
+        config.options().copyDefaults(true);
+        YamlConfiguration reloaded = new YamlConfiguration();
+        reloaded.loadFromString(config.saveToString());
+        assertTrue(BlockSettings.load(reloaded, LOG).profile("reinforced_siftslate").unbreakable());
+    }
 }

@@ -1,3 +1,5 @@
+import java.security.MessageDigest
+
 plugins {
     id("sift.java-conventions")
     application
@@ -39,4 +41,38 @@ tasks.register<JavaExec>("importSift") {
 tasks.test {
     inputs.dir(rootDir.resolve("pack-src")).withPropertyName("packSrc").optional()
     systemProperty("sift.packSrc", rootDir.resolve("pack-src").path)
+}
+
+// The resource pack players download: imported assets + generated overrides (pack-src/resourcepack)
+// and hand-written files (pack-src/resourcepack-overlay, e.g. de_de.json). Reproducible, so the SHA-1
+// only changes with the content.
+val resourcePack = tasks.register<Zip>("resourcePack") {
+    group = "sift"
+    description = "Builds the resource pack zip and its SHA-1"
+    archiveFileName.set("the-sift-pack.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("pack"))
+    from(rootDir.resolve("pack-src/resourcepack"))
+    from(rootDir.resolve("pack-src/resourcepack-overlay"))
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+    doLast {
+        val zip = archiveFile.get().asFile
+        val digest = MessageDigest.getInstance("SHA-1")
+        zip.inputStream().use { input ->
+            val buffer = ByteArray(8192)
+            while (true) {
+                val read = input.read(buffer)
+                if (read < 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        val hex = digest.digest().joinToString("") { "%02x".format(it) }
+        zip.resolveSibling(zip.name + ".sha1").writeText(hex + "\n")
+        logger.lifecycle("Resource pack ${zip.name}: SHA-1 $hex")
+    }
+}
+
+tasks.assemble {
+    dependsOn(resourcePack)
 }

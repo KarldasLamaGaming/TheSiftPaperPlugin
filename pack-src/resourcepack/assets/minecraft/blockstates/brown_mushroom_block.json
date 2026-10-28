@@ -1,0 +1,207 @@
+{
+  "variants": {
+    "down=false,east=false,north=false,south=false,up=false,west=false": [
+      {
+        "model": "the_sift:block/healthy_sculk"
+      },
+      {
+        "model": "the_sift:block/healthy_sculk_rot90"
+      },
+      {
+        "model": "the_sift:block/healthy_sculk_rot180"
+      },
+      {
+        "model": "the_sift:block/healthy_sculk_rot270"
+      }
+    ],
+    "down=true,east=false,north=false,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_____"
+    },
+    "down=false,east=true,north=false,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e____"
+    },
+    "down=true,east=true,north=false,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de____"
+    },
+    "down=false,east=false,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___n___"
+    },
+    "down=true,east=false,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_n___"
+    },
+    "down=false,east=true,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__en___"
+    },
+    "down=true,east=true,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_den___"
+    },
+    "down=false,east=false,north=false,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block____s__"
+    },
+    "down=true,east=false,north=false,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d__s__"
+    },
+    "down=false,east=true,north=false,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e_s__"
+    },
+    "down=true,east=true,north=false,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de_s__"
+    },
+    "down=false,east=false,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___ns__"
+    },
+    "down=true,east=false,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_ns__"
+    },
+    "down=false,east=true,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__ens__"
+    },
+    "down=true,east=true,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_dens__"
+    },
+    "down=false,east=false,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_____u_"
+    },
+    "down=true,east=false,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d___u_"
+    },
+    "down=false,east=true,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e__u_"
+    },
+    "down=true,east=true,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de__u_"
+    },
+    "down=false,east=false,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___n_u_"
+    },
+    "down=true,east=false,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_n_u_"
+    },
+    "down=false,east=true,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__en_u_"
+    },
+    "down=true,east=true,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_den_u_"
+    },
+    "down=false,east=false,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block____su_"
+    },
+    "down=true,east=false,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d__su_"
+    },
+    "down=false,east=true,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e_su_"
+    },
+    "down=true,east=true,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de_su_"
+    },
+    "down=false,east=false,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___nsu_"
+    },
+    "down=true,east=false,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_nsu_"
+    },
+    "down=false,east=true,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__ensu_"
+    },
+    "down=true,east=true,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_densu_"
+    },
+    "down=false,east=false,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block______w"
+    },
+    "down=true,east=false,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d____w"
+    },
+    "down=false,east=true,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e___w"
+    },
+    "down=true,east=true,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de___w"
+    },
+    "down=false,east=false,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___n__w"
+    },
+    "down=true,east=false,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_n__w"
+    },
+    "down=false,east=true,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__en__w"
+    },
+    "down=true,east=true,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_den__w"
+    },
+    "down=false,east=false,north=false,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block____s_w"
+    },
+    "down=true,east=false,north=false,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d__s_w"
+    },
+    "down=false,east=true,north=false,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e_s_w"
+    },
+    "down=true,east=true,north=false,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de_s_w"
+    },
+    "down=false,east=false,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___ns_w"
+    },
+    "down=true,east=false,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_ns_w"
+    },
+    "down=false,east=true,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__ens_w"
+    },
+    "down=true,east=true,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_dens_w"
+    },
+    "down=false,east=false,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_____uw"
+    },
+    "down=true,east=false,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d___uw"
+    },
+    "down=false,east=true,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e__uw"
+    },
+    "down=true,east=true,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de__uw"
+    },
+    "down=false,east=false,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___n_uw"
+    },
+    "down=true,east=false,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_n_uw"
+    },
+    "down=false,east=true,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__en_uw"
+    },
+    "down=true,east=true,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_den_uw"
+    },
+    "down=false,east=false,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block____suw"
+    },
+    "down=true,east=false,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d__suw"
+    },
+    "down=false,east=true,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__e_suw"
+    },
+    "down=true,east=true,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_de_suw"
+    },
+    "down=false,east=false,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block___nsuw"
+    },
+    "down=true,east=false,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_d_nsuw"
+    },
+    "down=false,east=true,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block__ensuw"
+    },
+    "down=true,east=true,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/brown_mushroom_block_densuw"
+    }
+  }
+}

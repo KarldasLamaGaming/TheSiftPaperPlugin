@@ -1,0 +1,244 @@
+{
+  "variants": {
+    "down=false,east=false,north=false,south=false,up=false,west=false": [
+      {
+        "model": "the_sift:block/siftslate"
+      },
+      {
+        "model": "the_sift:block/siftslate_mirrored"
+      }
+    ],
+    "down=true,east=false,north=false,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_____"
+    },
+    "down=false,east=true,north=false,south=false,up=false,west=false": {
+      "model": "the_sift:block/reinforced_siftslate"
+    },
+    "down=true,east=true,north=false,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de____"
+    },
+    "down=false,east=false,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/chiseled_siftslate"
+    },
+    "down=true,east=false,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_n___"
+    },
+    "down=false,east=true,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/siftslate_siftite_ore"
+    },
+    "down=true,east=true,north=true,south=false,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_den___"
+    },
+    "down=false,east=false,north=false,south=true,up=false,west=false": [
+      {
+        "model": "the_sift:block/siftslate_growth"
+      },
+      {
+        "model": "the_sift:block/siftslate_growth",
+        "y": 90
+      },
+      {
+        "model": "the_sift:block/siftslate_growth",
+        "y": 180
+      },
+      {
+        "model": "the_sift:block/siftslate_growth",
+        "y": 270
+      },
+      {
+        "model": "the_sift:block/siftslate_growth_mirrored"
+      },
+      {
+        "model": "the_sift:block/siftslate_growth_mirrored",
+        "y": 90
+      },
+      {
+        "model": "the_sift:block/siftslate_growth_mirrored",
+        "y": 180
+      },
+      {
+        "model": "the_sift:block/siftslate_growth_mirrored",
+        "y": 270
+      }
+    ],
+    "down=true,east=false,north=false,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d__s__"
+    },
+    "down=false,east=true,north=false,south=true,up=false,west=false": {
+      "model": "the_sift:block/sonorous_deepslate_note"
+    },
+    "down=true,east=true,north=false,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de_s__"
+    },
+    "down=false,east=false,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/siftslate_emerald_ore"
+    },
+    "down=true,east=false,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_ns__"
+    },
+    "down=false,east=true,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/ichor_snow_block"
+    },
+    "down=true,east=true,north=true,south=true,up=false,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_dens__"
+    },
+    "down=false,east=false,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/siftslate_coal_ore"
+    },
+    "down=true,east=false,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d___u_"
+    },
+    "down=false,east=true,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem__e__u_"
+    },
+    "down=true,east=true,north=false,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de__u_"
+    },
+    "down=false,east=false,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem___n_u_"
+    },
+    "down=true,east=false,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_n_u_"
+    },
+    "down=false,east=true,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem__en_u_"
+    },
+    "down=true,east=true,north=true,south=false,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_den_u_"
+    },
+    "down=false,east=false,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem____su_"
+    },
+    "down=true,east=false,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d__su_"
+    },
+    "down=false,east=true,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem__e_su_"
+    },
+    "down=true,east=true,north=false,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de_su_"
+    },
+    "down=false,east=false,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem___nsu_"
+    },
+    "down=true,east=false,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_nsu_"
+    },
+    "down=false,east=true,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem__ensu_"
+    },
+    "down=true,east=true,north=true,south=true,up=true,west=false": {
+      "model": "the_sift:block/vanilla/mushroom_stem_densu_"
+    },
+    "down=false,east=false,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/cobbled_siftslate"
+    },
+    "down=true,east=false,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d____w"
+    },
+    "down=false,east=true,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/sonorous_deepslate_horn"
+    },
+    "down=true,east=true,north=false,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de___w"
+    },
+    "down=false,east=false,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/siftslate_diamond_ore"
+    },
+    "down=true,east=false,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_n__w"
+    },
+    "down=false,east=true,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/sift_rubble"
+    },
+    "down=true,east=true,north=true,south=false,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_den__w"
+    },
+    "down=false,east=false,north=false,south=true,up=false,west=true": [
+      {
+        "model": "the_sift:block/siftslate_growth_ichor_snowy"
+      },
+      {
+        "model": "the_sift:block/siftslate_growth_ichor_snowy",
+        "y": 90
+      },
+      {
+        "model": "the_sift:block/siftslate_growth_ichor_snowy",
+        "y": 180
+      },
+      {
+        "model": "the_sift:block/siftslate_growth_ichor_snowy",
+        "y": 270
+      }
+    ],
+    "down=true,east=false,north=false,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d__s_w"
+    },
+    "down=false,east=true,north=false,south=true,up=false,west=true": {
+      "model": "the_sift:block/siftslate_bricks"
+    },
+    "down=true,east=true,north=false,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de_s_w"
+    },
+    "down=false,east=false,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/siftslate_charoite_ore"
+    },
+    "down=true,east=false,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_ns_w"
+    },
+    "down=false,east=true,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem__ens_w"
+    },
+    "down=true,east=true,north=true,south=true,up=false,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_dens_w"
+    },
+    "down=false,east=false,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/soul_block"
+    },
+    "down=true,east=false,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d___uw"
+    },
+    "down=false,east=true,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem__e__uw"
+    },
+    "down=true,east=true,north=false,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de__uw"
+    },
+    "down=false,east=false,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem___n_uw"
+    },
+    "down=true,east=false,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_n_uw"
+    },
+    "down=false,east=true,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem__en_uw"
+    },
+    "down=true,east=true,north=true,south=false,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_den_uw"
+    },
+    "down=false,east=false,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem____suw"
+    },
+    "down=true,east=false,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d__suw"
+    },
+    "down=false,east=true,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem__e_suw"
+    },
+    "down=true,east=true,north=false,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_de_suw"
+    },
+    "down=false,east=false,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem___nsuw"
+    },
+    "down=true,east=false,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_d_nsuw"
+    },
+    "down=false,east=true,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem__ensuw"
+    },
+    "down=true,east=true,north=true,south=true,up=true,west=true": {
+      "model": "the_sift:block/vanilla/mushroom_stem_densuw"
+    }
+  }
+}

@@ -27,7 +27,9 @@ import java.util.zip.ZipFile;
  * Imports Mielon's The Sift (Fabric jar) into {@code pack-src/}: the datapack with dimension and worldgen
  * (blocks mapped to vanilla stand-ins) and the assets of the resource pack.
  *
- * <p>Usage: {@code Main --jar <path|url> --out <pack-src> [--cache <dir>] [--vanilla-blocks <blocks.json>]}
+ * <p>Usage: {@code Main --jar <path|url> --out <pack-src> [--cache <dir>] [--vanilla-blocks <blocks.json>]
+ * [--minecraft <version>]}. The vanilla client jar of that version (default 26.3) is downloaded from
+ * Mojang into the cache; it provides the vanilla blockstates that the pack overrides.
  */
 public final class Main {
 
@@ -53,9 +55,13 @@ public final class Main {
 
         BlockMapping mapping = BlockMapping.loadDefault();
         ImportReport report = new ImportReport();
-        try (ZipFile zip = new ZipFile(jar.toFile())) {
+        Path clientJar = obtainClientJar(options.getOrDefault("--minecraft", "26.3"), cache);
+        try (ZipFile zip = new ZipFile(jar.toFile()); ZipFile client = new ZipFile(clientJar.toFile())) {
             importDatapack(zip, mapping, report, out.resolve("datapack"));
-            importAssets(zip, report, out.resolve("resourcepack"));
+            Path pack = out.resolve("resourcepack");
+            importAssets(zip, report, pack);
+            writeBlockstateOverrides(zip, client, mapping, report, pack);
+            new PackValidator(pack, path -> client.getEntry(path) != null, report).validate();
         }
         writeResolvedMapping(mapping, out.resolve("block-mapping.json"));
         if (options.containsKey("--vanilla-blocks")) {
@@ -140,6 +146,62 @@ public final class Main {
         copyLicense(zip, root);
     }
 
+    private static void writeBlockstateOverrides(ZipFile mod, ZipFile client, BlockMapping mapping,
+                                                 ImportReport report, Path pack) throws IOException {
+        deleteTree(pack.resolve("assets/minecraft"));
+        BlockstateOverrides overrides = new BlockstateOverrides(mapping,
+                id -> readJsonEntry(mod, ASSET_PREFIX + "blockstates/" + id + ".json"), report);
+        Map<String, JsonElement> files = overrides.generate(
+                block -> readJsonEntry(client, "assets/minecraft/blockstates/" + block + ".json"));
+        for (var e : files.entrySet()) {
+            writeJson(pack.resolve(e.getKey()), e.getValue());
+        }
+    }
+
+    private static JsonObject readJsonEntry(ZipFile zip, String name) {
+        ZipEntry entry = zip.getEntry(name);
+        if (entry == null) {
+            return null;
+        }
+        try (InputStream in = zip.getInputStream(entry)) {
+            return JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    /** The vanilla client jar of a version, via Mojang's version manifest. */
+    private static Path obtainClientJar(String version, Path cache) throws IOException, InterruptedException {
+        Path target = cache.resolve("client-" + version + ".jar");
+        if (Files.isRegularFile(target)) {
+            return target;
+        }
+        String manifest = httpGet("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
+        String versionUrl = null;
+        for (JsonElement v : JsonParser.parseString(manifest).getAsJsonObject().getAsJsonArray("versions")) {
+            if (v.getAsJsonObject().get("id").getAsString().equals(version)) {
+                versionUrl = v.getAsJsonObject().get("url").getAsString();
+            }
+        }
+        if (versionUrl == null) {
+            throw new IOException("Minecraft version " + version + " not in Mojang's version manifest");
+        }
+        String clientUrl = JsonParser.parseString(httpGet(versionUrl)).getAsJsonObject()
+                .getAsJsonObject("downloads").getAsJsonObject("client").get("url").getAsString();
+        return download(clientUrl, target);
+    }
+
+    private static String httpGet(String url) throws IOException, InterruptedException {
+        try (HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()) {
+            HttpResponse<String> response = client.send(HttpRequest.newBuilder(URI.create(url)).build(),
+                    HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new IOException("HTTP " + response.statusCode() + ": " + url);
+            }
+            return response.body();
+        }
+    }
+
     private static void writeResolvedMapping(BlockMapping mapping, Path target) throws IOException {
         JsonObject root = new JsonObject();
         JsonObject repurposed = new JsonObject();
@@ -183,19 +245,22 @@ public final class Main {
         String fileName = URI.create(location).getPath();
         fileName = fileName.substring(fileName.lastIndexOf('/') + 1).replace("%27", "");
         Path target = cache.resolve(fileName);
-        if (Files.isRegularFile(target)) {
-            return target;
-        }
-        Files.createDirectories(cache);
-        System.out.println("Downloading " + location);
+        return Files.isRegularFile(target) ? target : download(location, target);
+    }
+
+    private static Path download(String url, Path target) throws IOException, InterruptedException {
+        Files.createDirectories(target.getParent());
+        System.out.println("Downloading " + url);
+        Path partial = target.resolveSibling(target.getFileName() + ".part");
         try (HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()) {
-            HttpResponse<Path> response = client.send(HttpRequest.newBuilder(URI.create(location)).build(),
-                    HttpResponse.BodyHandlers.ofFile(target));
+            HttpResponse<Path> response = client.send(HttpRequest.newBuilder(URI.create(url)).build(),
+                    HttpResponse.BodyHandlers.ofFile(partial));
             if (response.statusCode() != 200) {
-                Files.deleteIfExists(target);
-                throw new IOException("Download failed with HTTP " + response.statusCode() + ": " + location);
+                Files.deleteIfExists(partial);
+                throw new IOException("Download failed with HTTP " + response.statusCode() + ": " + url);
             }
         }
+        Files.move(partial, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         return target;
     }
 

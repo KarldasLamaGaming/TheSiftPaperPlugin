@@ -1,0 +1,47 @@
+name: Release
+
+# A tag v<version> (e.g. v0.1.0-alpha.1) builds the plugin and the resource pack and publishes both as
+# a GitHub release. The plugin's default resource-pack.url points to the pack of the release that
+# matches its version. Tags with a "-" (alpha, beta, rc) become pre-releases.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Temurin 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build, test and pack
+        run: ./gradlew build -PreleaseVersion="${GITHUB_REF_NAME#v}" --console=plain
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          prerelease=""
+          if [[ "$version" == *-* ]]; then prerelease="--prerelease"; fi
+          sha1="$(cat packgen/build/pack/the-sift-pack.zip.sha1)"
+          gh release create "$TAG" $prerelease --title "The Sift $version" --notes "Plugin und Resource Pack für Paper 26.3.
+
+          Resource Pack SHA-1: \`$sha1\`
+
+          Die Standard-URL in config.yml zeigt auf das Pack dieses Releases." \
+            "plugin/build/libs/TheSift-$version.jar" \
+            packgen/build/pack/the-sift-pack.zip \
+            packgen/build/pack/the-sift-pack.zip.sha1

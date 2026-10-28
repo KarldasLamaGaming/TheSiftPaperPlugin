@@ -69,6 +69,27 @@ public final class SiftCommand {
                                         .executes(ctx -> give(ctx, 1))
                                         .then(Commands.argument("amount", IntegerArgumentType.integer(1, 6400))
                                                 .executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount")))))))
+                .then(Commands.literal("pack")
+                        .then(Commands.literal("info").executes(ctx -> {
+                            ctx.getSource().getSender().sendPlainMessage("Resource Pack: " + plugin.resourcePack().describe());
+                            return Command.SINGLE_SUCCESS;
+                        }))
+                        .then(Commands.literal("reload").executes(ctx -> {
+                            plugin.reloadResourcePack();
+                            ctx.getSource().getSender().sendRichMessage(
+                                    "<gray>Resource-Pack-Einstellungen neu geladen; die SHA-1 wird neu ermittelt.");
+                            return Command.SINGLE_SUCCESS;
+                        }))
+                        .then(Commands.literal("send")
+                                .then(Commands.argument("player", ArgumentTypes.player()).executes(ctx -> {
+                                    Player target = ctx.getArgument("player", PlayerSelectorArgumentResolver.class)
+                                            .resolve(ctx.getSource()).getFirst();
+                                    boolean sent = plugin.resourcePack().send(target);
+                                    ctx.getSource().getSender().sendRichMessage(sent
+                                            ? "<gray>Resource Pack an " + target.getName() + " gesendet."
+                                            : "<red>Das Resource Pack ist abgeschaltet.");
+                                    return Command.SINGLE_SUCCESS;
+                                }))))
                 .then(Commands.literal("debug")
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
