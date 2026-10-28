@@ -2,16 +2,72 @@
 # Änderungen an Abschnitten, die beim Serverstart gelesen werden (markiert mit [Start]),
 # wirken erst nach einem Neustart.
 
-server-config:
-  # [Start] Paper-Welt-Config der Sift-Welt anlegen bzw. ergänzen (block-updates-Schalter), bevor
-  # die Welten geladen werden. Bei false wird nur gewarnt, wenn die Schalter fehlen.
-  manage-sift-world-config: true
-  # [Start] Weltordner relativ zum Serverordner. Leer = level-name aus server.properties.
-  world-folder: ""
-
 debug:
   # [Start] Test-Populator: zählt neu generierte Sift-Chunks und setzt einen Glowstone-Marker auf
   # die höchste Stelle der Chunkmitte. Nur für Tests, nie auf dem Produktivserver aktivieren.
   populator-marker: false
   # Nach wie vielen Chunks der Test-Populator den Zählerstand loggt
   populator-log-interval: 64
+
+custom-blocks:
+  # Eigene Blöcke nur in der Sift platzieren. Andere Welten brauchen dann die block-updates-Schalter nicht.
+  place-only-in-sift: true
+  # Was außerhalb der Sift passiert: deny = nicht platzieren (Hinweis an den Spieler),
+  # vanilla = den unter blocks.<id>.fallback eingetragenen Vanilla-Block setzen
+  outside-sift-fallback: deny
+
+# Verhalten der eigenen Blöcke (Werte nach Mielon's The Sift 1.1.1).
+#   hardness       Abbauhärte wie Vanilla (Tiefenschiefer 3.0); unbreakable: true = unzerstörbar
+#   tool           pickaxe | shovel | axe | hoe | shears | none
+#   requires-tool  true = droppt nur mit passendem Werkzeug (und baut ohne es langsam ab)
+#   tier           Mindeststufe: wood | stone | copper | iron | diamond | netherite
+#   drops.type     self | silk-or | ore | chance | shears-or-silk | silk-only | none
+#                  (item, min, max, chances je nach Typ; ore: Glück wie Vanilla-Erze)
+#   xp             [min, max] Erfahrung beim Abbau ohne Behutsamkeit
+#   explosion-proof true = Explosionen lassen den Block stehen
+#   support        Untergrund für Pflanzen: face below|above, blocks = erlaubte Blöcke
+#                  (Sift-Ids, minecraft:-Ids, #minecraft:tags; leer = jeder feste Block)
+#   fallback       Vanilla-Block für outside-sift-fallback: vanilla
+blocks:
+  siftslate: {hardness: 3.0, tool: pickaxe, requires-tool: true, drops: {type: silk-or, item: "the_sift:cobbled_siftslate"}, fallback: "minecraft:deepslate"}
+  cobbled_siftslate: {hardness: 3.5, tool: pickaxe, requires-tool: true, drops: {type: self}, fallback: "minecraft:cobbled_deepslate"}
+  siftslate_growth: {hardness: 1.5, tool: pickaxe, requires-tool: true, drops: {type: silk-or, item: "the_sift:siftslate"}, fallback: "minecraft:deepslate"}
+  reinforced_siftslate: {unbreakable: true, explosion-proof: true, drops: {type: none}, fallback: "minecraft:reinforced_deepslate"}
+  sonorous_deepslate: {hardness: 55.0, tool: none, explosion-proof: true, drops: {type: none}, fallback: "minecraft:reinforced_deepslate"}
+  siftslate_bricks: {hardness: 3.5, tool: pickaxe, requires-tool: true, drops: {type: self}, fallback: "minecraft:deepslate_bricks"}
+  chiseled_siftslate: {hardness: 3.5, tool: pickaxe, requires-tool: true, drops: {type: self}, fallback: "minecraft:chiseled_deepslate"}
+  siftslate_coal_ore: {hardness: 4.5, tool: pickaxe, requires-tool: true, tier: wood, drops: {type: ore, item: "minecraft:coal", min: 1, max: 1}, xp: [0, 2], fallback: "minecraft:deepslate"}
+  siftslate_diamond_ore: {hardness: 4.5, tool: pickaxe, requires-tool: true, tier: iron, drops: {type: ore, item: "minecraft:diamond", min: 1, max: 1}, xp: [3, 7], fallback: "minecraft:deepslate"}
+  siftslate_emerald_ore: {hardness: 4.5, tool: pickaxe, requires-tool: true, tier: iron, drops: {type: ore, item: "minecraft:emerald", min: 1, max: 1}, xp: [3, 7], fallback: "minecraft:deepslate"}
+  siftslate_charoite_ore: {hardness: 4.5, tool: pickaxe, requires-tool: true, tier: stone, drops: {type: ore, item: "the_sift:charoite", min: 4, max: 9}, xp: [2, 5], fallback: "minecraft:deepslate"}
+  siftslate_siftite_ore: {hardness: 4.5, tool: pickaxe, requires-tool: true, tier: diamond, drops: {type: ore, item: "the_sift:siftite_nugget", min: 1, max: 1}, xp: [3, 7], fallback: "minecraft:deepslate"}
+  sift_rubble: {hardness: 0.6, tool: shovel, drops: {type: chance, item: "the_sift:ichor_shard", chances: [0.1, 0.14285715, 0.25, 1.0]}, fallback: "minecraft:gravel"}
+  ichor_snow_block: {hardness: 0.2, tool: shovel, requires-tool: true, drops: {type: silk-or, item: "the_sift:ichor_snowball", min: 4, max: 4}, fallback: "minecraft:snow_block"}
+  soul_block: {hardness: 0.35, tool: shovel, drops: {type: none}, fallback: "minecraft:soul_soil"}
+  healthy_sculk: {hardness: 0.2, tool: hoe, drops: {type: self}, fallback: "minecraft:sculk"}
+  dry_healthy_sculk: {hardness: 0.2, tool: hoe, drops: {type: self}, fallback: "minecraft:sculk"}
+  dry_healthy_sculk_growth: {hardness: 0.2, tool: hoe, drops: {type: silk-or, item: "the_sift:dry_healthy_sculk"}, fallback: "minecraft:sculk"}
+  ichor_glass: {hardness: 0.3, tool: none, drops: {type: silk-only}, fallback: "minecraft:purple_stained_glass"}
+  siftslate_stalks: {hardness: 0, drops: {type: shears-or-silk}, support: {face: below, blocks: [sift]}, fallback: "minecraft:short_grass"}
+  healthy_sculk_sprouts: {hardness: 0, drops: {type: shears-or-silk}, support: {face: below, blocks: [sift]}, fallback: "minecraft:short_grass"}
+  dry_healthy_sculk_sprouts: {hardness: 0, drops: {type: shears-or-silk}, support: {face: below, blocks: [sift]}, fallback: "minecraft:short_grass"}
+  overgrown_chard: {hardness: 0, drops: {type: shears-or-silk}, support: {face: below, blocks: [sift]}, fallback: "minecraft:fern"}
+  overgrown_stalks: {hardness: 0, drops: {type: shears-or-silk}, support: {face: below, blocks: [sift]}, fallback: "minecraft:short_grass"}
+  overgrown_fronds: {hardness: 0, drops: {type: shears-or-silk}, support: {face: below, blocks: [sift]}, fallback: "minecraft:fern"}
+  sunburst_plant: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:dandelion"}
+  whisperbloom: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:allium"}
+  sculkflower: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:torchflower"}
+  sculkflower_crop: {hardness: 0, drops: {type: self, item: "the_sift:sculkflower_seeds"}, support: {face: below, blocks: [sift]}, fallback: "minecraft:air"}
+  overgrown_willow_sapling: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:mangrove_propagule"}
+  siftslate_hanging_roots: {hardness: 0, drops: {type: shears-or-silk}, support: {face: above, blocks: []}, fallback: "minecraft:hanging_roots"}
+  overgrown_hanging_roots: {hardness: 0, drops: {type: shears-or-silk}, support: {face: above, blocks: []}, fallback: "minecraft:hanging_roots"}
+
+# Untergrund "sift" in support.blocks steht für diese Liste (Tag sift_plant_support des Originals
+# plus #minecraft:supports_vegetation, wie SiftPlantBlock#mayPlaceOn)
+plant-support:
+  - "the_sift:siftslate"
+  - "the_sift:siftslate_growth"
+  - "the_sift:healthy_sculk"
+  - "the_sift:dry_healthy_sculk"
+  - "the_sift:dry_healthy_sculk_growth"
+  - "#minecraft:supports_vegetation"

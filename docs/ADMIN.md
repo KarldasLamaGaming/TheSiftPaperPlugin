@@ -1,66 +1,102 @@
 # The Sift – Admin-Handbuch
 
-Stand: Phase 1, Schritte 1–3 (Dimension, Datapack, Bootstrapper). Wird mit jeder Phase ergänzt.
+Stand: Phase 1, Schritte 1–4 (Dimension, Datapack, eigene Blöcke). Wird mit jeder Phase ergänzt.
 
-## Installation
+## Installation und erster Start
 
-1. `TheSift-<version>.jar` nach `plugins/` legen (Paper 26.3, Java 25).
-2. Server starten. Das Plugin installiert sein Datapack nach `plugins/TheSift/datapack/`
-   und meldet es bei Paper an (`/datapack list` zeigt `TheSift/the_sift`).
-3. Die Sift wird automatisch als eigene Welt geladen:
-   - Key `the_sift:the_sift`, Bukkit-Name `<level-name>_the_sift_the_sift`
-   - Ordner `<level-name>/dimensions/the_sift/the_sift/`
-4. **Beim allerersten Start einmal neu starten** (siehe unten). Das Log sagt es mit `RESTART`.
+1. `TheSift-<version>.jar` nach `plugins/` legen (Paper 26.3, Java 25). Die Welt muss neu sein,
+   damit die Sift-Generierung von Anfang an greift.
+2. Server starten. Im Log stehen:
+   - `[TheSift] Datapack installed to plugins/TheSift/datapack (… files)`
+   - `Found new data pack TheSift/the_sift, loading it automatically`
+   - `[TheSift] The Sift is loaded as world 'world_the_sift_the_sift' (the_sift:the_sift, …)`
+3. Prüfen: `/datapack list` zeigt `TheSift/the_sift` als aktiv, `/sift tp` bringt dich in die Sift.
+4. Danach können Spieler die Sift betreten. **Ein Neustart nach dem ersten Start ist nicht nötig.**
 
-## Paper-Welt-Config der Sift
+Ältere Stände dieses Handbuchs verlangten einen Neustart, weil das Plugin eine `paper-world.yml`
+für die Sift schrieb. Das war wirkungslos (siehe nächster Abschnitt) und ist entfernt. Eine von
+älteren Versionen angelegte Datei `<welt>/dimensions/the_sift/the_sift/paper-world.yml` mit
+`block-updates`-Einträgen schadet nicht und kann gelöscht werden.
 
-Die eigenen Blöcke der Sift nutzen sonst ungenutzte Zustände von Pilzblöcken, Stolperdraht und
-Chorus-Pflanzen. Vanilla würde diese Zustände bei Nachbar-Updates verändern, daher braucht die
-Sift-Welt in ihrer `paper-world.yml`:
+## Wie eigene Blöcke funktionieren
 
-```yaml
-block-updates:
-  disable-mushroom-block-updates: true
-  disable-tripwire-updates: true
-  disable-chorus-plant-updates: true
-```
+Paper kennt keine neuen Blöcke. Die Blöcke der Sift nutzen Zustände von Vanilla-Blöcken, die im
+normalen Spiel nicht vorkommen; das Resource Pack gibt ihnen das Aussehen aus der Original-Mod:
 
-- Die Schalter gehören zur **Welt-Config** (Paper `WorldConfiguration.BlockUpdates`), nicht zu
-  `paper-global.yml`.
-- Das Plugin setzt sie selbst in
-  `<level-name>/dimensions/the_sift/the_sift/paper-world.yml` (abschaltbar mit
-  `server-config.manage-sift-world-config: false`, dann wird nur gewarnt).
-- Paper liest die Welt-Config beim Anlegen der Welt. Existiert die Sift-Welt noch nicht, darf das
-  Plugin den Ordner vorher nicht anlegen (Paper hielte die Welt sonst für vorhanden und bricht ab).
-  Deshalb schreibt es die Datei beim ersten Start direkt nach dem Anlegen; wirksam wird sie nach
-  einem Neustart. Bis dahin sollte niemand die Sift betreten.
+| Vanilla-Block | Sift-Blöcke |
+|---|---|
+| Pilzstiel (`mushroom_stem`) | Siftschiefer-Familie, Erze, Geröll, Seelenblock, Ichorschneeblock |
+| Brauner/roter Pilzblock | Gesunder bzw. trockener Sculk |
+| Stolperdraht (`tripwire`) | Pflanzen, hängende Wurzeln, Setzling, Sculkblume |
+| Chorus-Pflanze | Ichorglas |
 
-### Nebenwirkungen – nicht in `paper-world-defaults.yml` setzen
+Die genaue Zuordnung steht in `pack-src/block-mapping.json`.
 
-In einer Welt mit diesen Schaltern:
+### Schutz vor Nachbar-Updates
 
-- verbinden sich Stolperdrähte nicht und lösen keine Fallen aus,
-- verbinden sich Chorus-Pflanzen nicht und brechen nicht ab, Chorus-Farmen funktionieren nicht,
-- passen Pilzblöcke ihre Seiten nicht an Nachbarn an.
+Vanilla berechnet die Seiten von Pilzblöcken und die Verbindungen von Stolperdraht und
+Chorus-Pflanzen neu, sobald sich ein Nachbar ändert. Dabei würde aus einem Sift-Block ein anderer.
 
-Deshalb nur für die Sift-Welt setzen. Die Option `custom-blocks.place-only-in-sift` (kommt mit den
-Custom-Blöcken in Phase 1, Schritt 4; Standard `true`) erlaubt das Platzieren von Custom-Blöcken nur in
-der Sift, damit keine andere Welt die Schalter braucht.
+- Paper hat dafür Schalter (`block-updates.disable-mushroom-block-updates` usw.). Sie stehen in
+  **`paper-global.yml`** und gelten für **alle** Welten: Stolperdraht-Fallen und Chorus-Farmen
+  funktionieren dann nirgends mehr. Das Plugin braucht sie nicht; **bitte nicht setzen**.
+- Stattdessen schützt das Plugin die Sift-Blöcke selbst: Ändert sich ein Block neben einem
+  Sift-Block, unterdrückt es das Form-Update und erledigt für die Vanilla-Nachbarn das Wichtige
+  einen Tick später (Blöcke ohne Halt brechen ab, Wasser und Lava fließen nach).
+- Mit `custom-blocks.place-only-in-sift: true` (Standard) gilt das nur in der Sift.
 
-Bekannte Einschränkung: Spieler können in anderen Welten (mit Updates) Pilzblöcke so stapeln, dass
-Vanilla genau einen der verwendeten Zustände erzeugt (z. B. der obere von zwei gestapelten
-Pilzstielen). Mit dem Resource Pack sieht dieser Block dann wie ein Sift-Block aus. Er verhält sich
-weiter wie ein Pilzblock.
+Nebenwirkungen in der Sift, direkt neben Sift-Blöcken: Zäune, Mauern, Glasscheiben und Treppen
+verbinden sich dort nicht neu; Redstone funktioniert normal.
+
+### Befehle und Werkzeuge, die Blöcke setzen
+
+`/setblock` und `/fill` berechnen Blockformen neu und verwandeln damit Sift-Blöcke. Für Sift-Zustände
+immer den Modus `strict` verwenden, z. B.
+`/execute in the_sift:the_sift run setblock 0 100 0 minecraft:mushroom_stem[…] strict`.
+Einfacher ist `/sift give` und Setzen von Hand. Für WorldEdit & Co. gilt: Platzieren ohne
+Nachbar-Updates (Standard bei WorldEdit) erhält die Zustände.
+
+### Konfiguration (`config.yml`)
+
+- `custom-blocks.place-only-in-sift` (Standard `true`): Sift-Blöcke lassen sich nur in der Sift setzen.
+- `custom-blocks.outside-sift-fallback`: `deny` (Hinweis, nichts passiert) oder `vanilla`
+  (setzt stattdessen `blocks.<id>.fallback`, z. B. Tiefenschiefer für Siftschiefer).
+- `blocks.<id>`: Härte, Werkzeug, Mindeststufe, Drops, Erfahrung, Explosionsfestigkeit,
+  Untergrund für Pflanzen. Die Standardwerte entsprechen dem Original (Siftschiefer wie
+  Tiefenschiefer, Erze wie Tiefenschiefer-Erze, Siftiterz braucht eine Diamantspitzhacke).
+- Neue Einstellungen späterer Versionen werden beim Start automatisch in die bestehende
+  `config.yml` übernommen.
+
+### Abbauen
+
+Das Plugin passt beim Abbauen die Abbaugeschwindigkeit an (Attribut `block_break_speed`), damit ein
+Sift-Block so lange braucht wie im Original. Drops, Glück, Behutsamkeit und Erfahrung kommen aus
+`blocks.<id>.drops`.
+
+### Bekannte Einschränkungen
+
+- Schritt- und Abbaugeräusche bestimmt der Client nach dem Vanilla-Block: Siftschiefer und Sculk
+  klingen nach Holz (Pilzblock), Pflanzen nach Faden.
+- Explosionen werden vereinfacht: Sift-Blöcke ohne `explosion-proof` gehen bei jeder Explosion kaputt
+  (keine Strahlstärke-Rechnung wie bei Vanilla).
+- Seelenblock leuchtet noch nicht, Sift-Geröll fällt noch nicht (folgen mit der Weltgenerierung).
+- In anderen Welten (mit Nachbar-Updates) können Spieler Pilzblöcke so aneinandersetzen, dass Vanilla
+  zufällig einen der verwendeten Zustände erzeugt; mit dem Resource Pack sieht der Block dann wie ein
+  Sift-Block aus. Er bleibt ein Pilzblock.
 
 ## Befehle (`thesift.admin`)
 
 | Befehl | Wirkung |
 |---|---|
 | `/sift tp` | In die Sift bzw. zurück in die Hauptwelt |
+| `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben |
+| `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
+| `/sift debug break <x> <y> <z> <werkzeug>` | Abbauzeit, Drops und XP eines Sift-Blocks in der Sift berechnen |
 | `/sift debug populator` | Zähler des Test-Populators |
-| `/sift debug scan [radius] [chunkX chunkZ]` | Lädt/generiert Chunks der Sift und zählt die Ersatz-Blockzustände |
+| `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
 
 ## Test-Populator
 
-`debug.populator-marker: true` setzt in jedem neu generierten Sift-Chunk einen Glowstone-Block auf die
-höchste Stelle der Chunkmitte. Nur für Tests, nie auf dem Produktivserver.
+`debug.populator-marker` (Standard `false`) setzt in jedem neu generierten Sift-Chunk einen
+Glowstone-Block auf die höchste Stelle der Chunkmitte. Nur für Tests, nie auf dem Produktivserver.
+Er wird mit der echten Generierung (Phase 1, Schritt 6) entfernt.

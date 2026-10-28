@@ -1,14 +1,16 @@
 package de.lamamc.sift;
 
-import de.lamamc.sift.bootstrap.SiftWorldConfig;
+import de.lamamc.sift.block.BlockSettings;
+import de.lamamc.sift.block.BreakSpeedListener;
+import de.lamamc.sift.block.CustomBlockListener;
+import de.lamamc.sift.block.CustomBlockRegistry;
+import de.lamamc.sift.block.PhysicsGuard;
 import de.lamamc.sift.command.SiftCommand;
+import de.lamamc.sift.item.SiftItems;
+import de.lamamc.sift.item.Translations;
 import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.logging.Level;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,15 +21,28 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class SiftPlugin extends JavaPlugin implements Listener {
 
     private DebugPopulator debugPopulator;
+    private CustomBlockRegistry blocks;
+    private BlockSettings blockSettings;
+    private SiftItems items;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        // new settings of an update land in the existing config.yml
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         if (getConfig().getBoolean("debug.populator-marker", false)) {
             debugPopulator = new DebugPopulator(getLogger(), getConfig().getInt("debug.populator-log-interval", 64));
             getLogger().warning("Debug populator is enabled: every new Sift chunk gets a glowstone marker");
         }
+        blocks = CustomBlockRegistry.loadFromJar();
+        blockSettings = BlockSettings.load(getConfig(), getLogger());
+        items = new SiftItems(blocks, Translations.loadFromJar());
         getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(new CustomBlockListener(this, blocks, blockSettings, items), this);
+        getServer().getPluginManager().registerEvents(new BreakSpeedListener(blocks, blockSettings), this);
+        getServer().getPluginManager().registerEvents(
+                new PhysicsGuard(this, blocks, blockSettings.placeOnlyInSift()), this);
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
         // load: STARTUP enables the plugin before the worlds exist; this only matters after a reload
@@ -38,33 +53,6 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     @EventHandler
     public void onWorldInit(WorldInitEvent event) {
         attach(event.getWorld());
-        if (SiftWorlds.isSift(event.getWorld())) {
-            checkWorldConfig(event.getWorld());
-        }
-    }
-
-    /**
-     * On the very first start the bootstrapper cannot prepare the Paper world config (see SiftBootstrap), and
-     * Paper has read it already when this event fires; the switches then take effect after a restart.
-     */
-    private void checkWorldConfig(World world) {
-        Path file = world.getWorldPath().resolve("paper-world.yml");
-        try {
-            List<String> missing = SiftWorldConfig.missingSwitches(file);
-            if (missing.isEmpty()) {
-                return;
-            }
-            if (getConfig().getBoolean("server-config.manage-sift-world-config", true)) {
-                SiftWorldConfig.ensureSwitches(file);
-                getLogger().warning("Set " + missing + " in " + file + ". RESTART the server before players enter "
-                        + "The Sift, until then custom blocks there can change their look.");
-            } else {
-                getLogger().warning("The Sift needs " + missing + " = true in " + file
-                        + "; custom blocks there will change their look without it.");
-            }
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Could not check the Paper world config of the Sift", e);
-        }
     }
 
     @EventHandler
@@ -85,7 +73,24 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getLogger().info("Debug populator attached to " + world.getKey());
     }
 
+    @Override
+    public void onDisable() {
+        getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
+    }
+
     public DebugPopulator debugPopulator() {
         return debugPopulator;
+    }
+
+    public CustomBlockRegistry blocks() {
+        return blocks;
+    }
+
+    public BlockSettings blockSettings() {
+        return blockSettings;
+    }
+
+    public SiftItems items() {
+        return items;
     }
 }

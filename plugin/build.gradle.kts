@@ -13,6 +13,11 @@ tasks.processResources {
     from(rootDir.resolve("pack-src/datapack")) {
         into("datapack")
     }
+    // custom block <-> vanilla state mapping and the German names (fallback for item names)
+    from(rootDir.resolve("pack-src/block-mapping.json"))
+    from(rootDir.resolve("pack-src/resourcepack-overlay/assets/the_sift/lang/de_de.json")) {
+        into("lang")
+    }
 }
 
 tasks.runServer {
