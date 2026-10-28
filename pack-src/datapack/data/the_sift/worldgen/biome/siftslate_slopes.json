@@ -1,0 +1,94 @@
+{
+  "attributes": {
+    "minecraft:visual/sky_color": "#ffffff",
+    "minecraft:visual/ambient_particles": {
+      "argument": [
+        {
+          "particle": {
+            "type": "minecraft:note"
+          },
+          "probability": 0.000144
+        }
+      ],
+      "modifier": "append"
+    },
+    "minecraft:gameplay/natural_mob_spawns": {
+      "spawn_costs": {},
+      "spawns_by_category": {
+        "ambient": [],
+        "axolotls": [],
+        "creature": [
+          {
+            "type": "minecraft:sniffer",
+            "count": {
+              "type": "minecraft:uniform",
+              "min_inclusive": 2,
+              "max_inclusive": 3
+            },
+            "weight": 3
+          }
+        ],
+        "misc": [],
+        "monster": [],
+        "underground_water_creature": [],
+        "water_ambient": [],
+        "water_creature": []
+      }
+    },
+    "minecraft:gameplay/creature_world_gen_spawn_probability": 0.025
+  },
+  "carvers": [
+    "the_sift:cave",
+    "the_sift:cave_extra_underground",
+    "the_sift:canyon"
+  ],
+  "downfall": 0.32,
+  "effects": {
+    "water_color": "#4adce8"
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "the_sift:siftslate_coal_ore",
+      "the_sift:siftslate_coal_ore_surface",
+      "the_sift:siftslate_diamond_ore",
+      "the_sift:siftslate_emerald_ore",
+      "the_sift:siftslate_charoite_ore",
+      "the_sift:siftslate_siftite_ore",
+      "the_sift:cobbled_siftslate_blob",
+      "the_sift:sift_rubble_blob",
+      "the_sift:healthy_sculk_underground_blob",
+      "the_sift:dry_healthy_sculk_underground_blob",
+      "the_sift:sift_fossil"
+    ],
+    [
+      "the_sift:ichor_underground_lake",
+      "the_sift:siftslate_hanging_roots_cave",
+      "the_sift:siftslate_stalks_cave",
+      "the_sift:healthy_sculk_sprouts_cave",
+      "the_sift:dry_healthy_sculk_sprouts_cave",
+      "the_sift:siftslate_stalks_on_healthy_cave",
+      "the_sift:siftslate_stalks_on_dry_cave"
+    ],
+    [],
+    [
+      "the_sift:siftslate_stalks_surface",
+      "the_sift:overgrown_fronds_on_siftslate",
+      "the_sift:siftslate_stalks_on_healthy",
+      "the_sift:siftslate_stalks_on_dry",
+      "the_sift:healthy_sculk_sprouts_main",
+      "the_sift:healthy_sculk_sprouts_on_dry",
+      "the_sift:dry_healthy_sculk_sprouts_main",
+      "the_sift:dry_healthy_sculk_sprouts_on_healthy",
+      "the_sift:overgrown_chard_dense"
+    ],
+    []
+  ],
+  "has_precipitation": true,
+  "temperature": 0.46
+}

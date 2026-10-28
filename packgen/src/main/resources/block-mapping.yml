@@ -1,0 +1,127 @@
+# How the blocks of the_sift are represented on a vanilla server.
+#
+# repurposed: custom blocks that get an otherwise unused state of a vanilla block. The resource pack
+#   later gives these states the original textures. States are taken in order from the pool of the
+#   base block (see "pools"), so appending entries keeps all existing assignments stable; reordering
+#   or removing entries changes them (and with that every world generated so far).
+#   An entry "block[prop=value]" maps one state of a custom block with properties.
+# substitute: custom blocks that are replaced by a vanilla block (no own look). Properties of the
+#   original state are passed through unless the target fixes them in brackets.
+# particles: custom particle types replaced by vanilla particle types.
+# rotation-invariant: repurposed blocks that vanilla may place rotated or mirrored (inside structure
+#   templates, e.g. the fossil processor output). They get states with all horizontal faces equal, as
+#   rotation would otherwise turn them into another custom block. packgen fails if such a block is missing.
+# strip-properties: properties the mod adds to vanilla blocks; removed wherever they appear.
+
+pools:
+  # Only boolean properties are supported; states are enumerated with the first property changing slowest.
+  # Huge mushroom features never produce down=false (stems: up=false,down=false and all sides true;
+  # caps keep down=true), so the down=false states only appear when players clump mushroom blocks
+  # together in worlds with block updates enabled.
+  mushroom_stem:
+    properties: [up, down, north, east, south, west]
+    filter: { down: "false" }
+    exclude:
+      - { up: "false", down: "false", north: "true", east: "true", south: "true", west: "true" }
+  brown_mushroom_block:
+    properties: [up, down, north, east, south, west]
+    filter: { down: "false" }
+  red_mushroom_block:
+    properties: [up, down, north, east, south, west]
+    filter: { down: "false" }
+  # String that is both powered and disarmed only exists for a moment in vanilla
+  tripwire:
+    properties: [attached, disarmed, east, north, powered, south, west]
+    filter: { powered: "true", disarmed: "true" }
+  # A chorus plant without a block below cannot survive in vanilla
+  chorus_plant:
+    properties: [up, down, north, east, south, west]
+    filter: { down: "false" }
+
+repurposed:
+  mushroom_stem:
+    - siftslate
+    - cobbled_siftslate
+    - siftslate_growth[snowy=false]
+    - siftslate_growth[snowy=true]
+    - reinforced_siftslate
+    - sonorous_deepslate[mode=horn]
+    - sonorous_deepslate[mode=note]
+    - siftslate_bricks
+    - chiseled_siftslate
+    - siftslate_coal_ore
+    - siftslate_diamond_ore
+    - siftslate_emerald_ore
+    - siftslate_charoite_ore
+    - siftslate_siftite_ore
+    - sift_rubble
+    - ichor_snow_block
+    - soul_block
+  brown_mushroom_block:
+    - healthy_sculk
+  red_mushroom_block:
+    - dry_healthy_sculk
+    - dry_healthy_sculk_growth
+  tripwire:
+    - siftslate_stalks
+    - healthy_sculk_sprouts
+    - dry_healthy_sculk_sprouts
+    - overgrown_chard
+    - overgrown_stalks
+    - overgrown_fronds
+    - sunburst_plant
+    - whisperbloom
+    - sculkflower
+    - siftslate_hanging_roots
+    - overgrown_hanging_roots
+    - overgrown_willow_sapling
+    - sculkflower_crop[age=0]
+    - sculkflower_crop[age=1]
+    - sculkflower_crop[age=2]
+  chorus_plant:
+    - ichor_glass
+
+substitute:
+  ichor: minecraft:water
+  sift_portal: minecraft:air
+  ichor_snow: minecraft:snow
+  ichor_cauldron: minecraft:water_cauldron
+  ichor_glass_pane: minecraft:purple_stained_glass_pane
+  overgrown_lotus: minecraft:lily_pad
+  cobbled_siftslate_slab: minecraft:cobbled_deepslate_slab
+  cobbled_siftslate_stairs: minecraft:cobbled_deepslate_stairs
+  cobbled_siftslate_wall: minecraft:cobbled_deepslate_wall
+  siftslate_brick_slab: minecraft:deepslate_brick_slab
+  siftslate_brick_stairs: minecraft:deepslate_brick_stairs
+  siftslate_brick_wall: minecraft:deepslate_brick_wall
+  overgrown_willow_log: minecraft:mangrove_log
+  overgrown_willow_wood: minecraft:mangrove_wood
+  stripped_overgrown_willow_log: minecraft:stripped_mangrove_log
+  stripped_overgrown_willow_wood: minecraft:stripped_mangrove_wood
+  overgrown_willow_planks: minecraft:mangrove_planks
+  overgrown_willow_foliage: minecraft:mangrove_leaves[persistent=true]
+  overgrown_willow_vines: minecraft:vine
+  overgrown_willow_vines_plant: minecraft:vine
+  overgrown_willow_slab: minecraft:mangrove_slab
+  overgrown_willow_stairs: minecraft:mangrove_stairs
+  overgrown_willow_fence: minecraft:mangrove_fence
+  overgrown_willow_fence_gate: minecraft:mangrove_fence_gate
+  overgrown_willow_door: minecraft:mangrove_door
+  overgrown_willow_trapdoor: minecraft:mangrove_trapdoor
+  overgrown_willow_button: minecraft:mangrove_button
+  overgrown_willow_pressure_plate: minecraft:mangrove_pressure_plate
+  overgrown_willow_sign: minecraft:mangrove_sign
+  overgrown_willow_wall_sign: minecraft:mangrove_wall_sign
+  overgrown_willow_hanging_sign: minecraft:mangrove_hanging_sign
+  overgrown_willow_wall_hanging_sign: minecraft:mangrove_wall_hanging_sign
+  overgrown_willow_shelf: minecraft:mangrove_shelf
+
+particles:
+  sift_note: minecraft:note
+
+rotation-invariant:
+  - siftslate
+  - siftslate_coal_ore
+
+strip-properties:
+  - ichorlogged

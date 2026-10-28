@@ -1,0 +1,14 @@
+name: TheSift
+version: '${version}'
+main: de.lamamc.sift.SiftPlugin
+bootstrapper: de.lamamc.sift.bootstrap.SiftBootstrap
+api-version: '26.3'
+# STARTUP: the plugin has to be enabled before the worlds load, so it sees the Sift world being created
+load: STARTUP
+description: The Sift für Lama Kingdom (nach Mielon's The Sift, MIT)
+authors: [KarldasLamaGaming]
+website: https://github.com/KarldasLamaGaming/TheSiftPaperPlugin
+permissions:
+  thesift.admin:
+    description: Admin-Befehle von /sift
+    default: op
