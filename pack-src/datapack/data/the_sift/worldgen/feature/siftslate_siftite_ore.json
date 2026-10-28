@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:ore",
+  "discard_chance_on_air_exposure": 0,
+  "size": 8,
+  "targets": [
+    {
+      "target": {
+        "predicate_type": "minecraft:blockstate_match",
+        "block_state": {
+          "id": "minecraft:mushroom_stem",
+          "properties": {
+            "down": "false",
+            "east": "false",
+            "north": "false",
+            "south": "false",
+            "up": "false",
+            "west": "false"
+          }
+        }
+      },
+      "state": {
+        "id": "minecraft:mushroom_stem",
+        "properties": {
+          "down": "false",
+          "east": "true",
+          "north": "true",
+          "south": "false",
+          "up": "false",
+          "west": "true"
+        }
+      }
+    }
+  ]
+}

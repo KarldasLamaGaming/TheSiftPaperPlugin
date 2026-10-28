@@ -1,0 +1,169 @@
+{
+  "type": "minecraft:ore",
+  "discard_chance_on_air_exposure": 0.0,
+  "size": 32,
+  "targets": [
+    {
+      "target": {
+        "predicate_type": "minecraft:blockstate_match",
+        "block_state": {
+          "id": "minecraft:mushroom_stem",
+          "properties": {
+            "down": "false",
+            "east": "false",
+            "north": "false",
+            "south": "false",
+            "up": "false",
+            "west": "false"
+          }
+        }
+      },
+      "state": {
+        "id": "minecraft:brown_mushroom_block",
+        "properties": {
+          "down": "false",
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "up": "false",
+          "west": "false"
+        }
+      }
+    },
+    {
+      "target": {
+        "predicate_type": "minecraft:blockstate_match",
+        "block_state": {
+          "id": "minecraft:mushroom_stem",
+          "properties": {
+            "down": "false",
+            "east": "false",
+            "north": "false",
+            "south": "true",
+            "up": "false",
+            "west": "false"
+          }
+        }
+      },
+      "state": {
+        "id": "minecraft:brown_mushroom_block",
+        "properties": {
+          "down": "false",
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "up": "false",
+          "west": "false"
+        }
+      }
+    },
+    {
+      "target": {
+        "predicate_type": "minecraft:blockstate_match",
+        "block_state": {
+          "id": "minecraft:mushroom_stem",
+          "properties": {
+            "down": "false",
+            "east": "false",
+            "north": "false",
+            "south": "true",
+            "up": "false",
+            "west": "true"
+          }
+        }
+      },
+      "state": {
+        "id": "minecraft:brown_mushroom_block",
+        "properties": {
+          "down": "false",
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "up": "false",
+          "west": "false"
+        }
+      }
+    },
+    {
+      "target": {
+        "predicate_type": "minecraft:blockstate_match",
+        "block_state": {
+          "id": "minecraft:brown_mushroom_block",
+          "properties": {
+            "down": "false",
+            "east": "false",
+            "north": "false",
+            "south": "false",
+            "up": "false",
+            "west": "false"
+          }
+        }
+      },
+      "state": {
+        "id": "minecraft:brown_mushroom_block",
+        "properties": {
+          "down": "false",
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "up": "false",
+          "west": "false"
+        }
+      }
+    },
+    {
+      "target": {
+        "predicate_type": "minecraft:blockstate_match",
+        "block_state": {
+          "id": "minecraft:red_mushroom_block",
+          "properties": {
+            "down": "false",
+            "east": "false",
+            "north": "false",
+            "south": "false",
+            "up": "false",
+            "west": "false"
+          }
+        }
+      },
+      "state": {
+        "id": "minecraft:brown_mushroom_block",
+        "properties": {
+          "down": "false",
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "up": "false",
+          "west": "false"
+        }
+      }
+    },
+    {
+      "target": {
+        "predicate_type": "minecraft:blockstate_match",
+        "block_state": {
+          "id": "minecraft:mushroom_stem",
+          "properties": {
+            "down": "false",
+            "east": "true",
+            "north": "true",
+            "south": "true",
+            "up": "false",
+            "west": "false"
+          }
+        }
+      },
+      "state": {
+        "id": "minecraft:brown_mushroom_block",
+        "properties": {
+          "down": "false",
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "up": "false",
+          "west": "false"
+        }
+      }
+    }
+  ]
+}
