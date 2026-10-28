@@ -9,4 +9,22 @@ Dieses Projekt ist keine Portierung, sondern eine Neuumsetzung für Paper
 (ohne Client-Mod, mit Resource Pack). Texturen, Modelle, Sounds und Daten der
 Original-Mod werden unter der MIT-Lizenz mit Namensnennung wiederverwendet.
 
-Status: in Planung.
+Status: Phase 1 in Arbeit (Dimension und Datapack laufen).
+
+## Aufbau
+
+- `packgen/`: Import-Tool. Liest das Jar der Original-Mod und erzeugt `pack-src/`
+  (Datapack mit Dimension und Worldgen, Assets für das Resource Pack). Eigene Blöcke werden dabei
+  auf ungenutzte Vanilla-Blockzustände abgebildet (`packgen/src/main/resources/block-mapping.yml`).
+  Neu importieren: `./gradlew :packgen:importSift` (optional `-PsiftJar=<pfad>`).
+- `pack-src/`: generierte Pack-Quellen, eingecheckt; `IMPORT-REPORT.md` listet, was entfallen ist.
+- `plugin/`: Paper-Plugin. Liefert das Datapack aus und setzt die Welt-Config der Sift.
+- `docs/ADMIN.md`: Installation, Konfiguration, Befehle.
+
+## Bauen und testen
+
+```
+scripts/setup-jdk.sh
+./gradlew build
+./gradlew :plugin:runServer
+```

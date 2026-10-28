@@ -1,0 +1,17 @@
+# The Sift – Konfiguration
+# Änderungen an Abschnitten, die beim Serverstart gelesen werden (markiert mit [Start]),
+# wirken erst nach einem Neustart.
+
+server-config:
+  # [Start] Paper-Welt-Config der Sift-Welt anlegen bzw. ergänzen (block-updates-Schalter), bevor
+  # die Welten geladen werden. Bei false wird nur gewarnt, wenn die Schalter fehlen.
+  manage-sift-world-config: true
+  # [Start] Weltordner relativ zum Serverordner. Leer = level-name aus server.properties.
+  world-folder: ""
+
+debug:
+  # [Start] Test-Populator: zählt neu generierte Sift-Chunks und setzt einen Glowstone-Marker auf
+  # die höchste Stelle der Chunkmitte. Nur für Tests, nie auf dem Produktivserver aktivieren.
+  populator-marker: false
+  # Nach wie vielen Chunks der Test-Populator den Zählerstand loggt
+  populator-log-interval: 64
