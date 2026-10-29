@@ -42,8 +42,11 @@ public final class SiftPopulator extends BlockPopulator {
         public final java.util.Map<String, Integer> portalRejects = new java.util.concurrent.ConcurrentHashMap<>();
     }
 
+    private final PortalReservation reservation;
+
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
-                         Logger logger) {
+                         PortalReservation reservation, Logger logger) {
+        this.reservation = reservation;
         this.registry = registry;
         this.support = support;
         this.settings = settings;
@@ -57,6 +60,7 @@ public final class SiftPopulator extends BlockPopulator {
         List<String> names = new ArrayList<>(AbandonedPortals.templateNames());
         names.add(WillowTrees.SMALL);
         names.add(WillowTrees.BIG);
+        names.add(de.lamamc.sift.world.MainPortalBuilder.TEMPLATE);
         return names;
     }
 
@@ -92,6 +96,8 @@ public final class SiftPopulator extends BlockPopulator {
 
         if (settings.abandonedPortals() && portals.isSelected(seed, chunkX, chunkZ)) {
             String rejected = !settings.portalBiomes().contains(biome) ? "Biom " + biome
+                    : reservation.intersects(centerX, centerZ, 28) ? "Haupt-Portal"
+
                     : portals.place(region, random, chunkX, chunkZ, overgrown || biome.equals("ichor_snowy_peaks"), seed);
             if (rejected == null) {
                 stats.abandonedPortals.incrementAndGet();
@@ -126,7 +132,7 @@ public final class SiftPopulator extends BlockPopulator {
     }
 
     private void tree(GenRegion region, Random random, int chunkX, int chunkZ) {
-        if (willows.place(region, random, chunkX, chunkZ)) {
+        if (willows.place(region, random, chunkX, chunkZ, reservation)) {
             stats.trees.incrementAndGet();
         }
     }

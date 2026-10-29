@@ -37,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -109,6 +110,12 @@ public final class SiftCommand {
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
                         .then(Commands.literal("landmarks").executes(this::debugLandmarks))
+                        .then(Commands.literal("heights")
+                                .then(Commands.argument("x", IntegerArgumentType.integer())
+                                        .then(Commands.argument("z", IntegerArgumentType.integer())
+                                                .then(Commands.argument("radius", IntegerArgumentType.integer(1, 40))
+                                                        .then(Commands.argument("step", IntegerArgumentType.integer(1, 8))
+                                                                .executes(this::debugHeights))))))
                         .then(Commands.literal("shape")
                                 .then(Commands.argument("x", IntegerArgumentType.integer())
                                         .then(Commands.argument("y", IntegerArgumentType.integer())
@@ -283,7 +290,9 @@ public final class SiftCommand {
             return 0;
         }
         World target = SiftWorlds.isSift(player.getWorld()) ? Bukkit.getWorlds().getFirst() : sift;
-        player.teleportAsync(target.getSpawnLocation()).thenAccept(ok ->
+        Location anchor = target == sift ? de.lamamc.sift.world.MainPortalBuilder.anchor(sift) : null;
+        Location destination = anchor != null ? anchor : target.getSpawnLocation();
+        player.teleportAsync(destination).thenAccept(ok ->
                 player.sendRichMessage(ok ? "<gray>Teleportiert nach <white>" + target.getKey() : "<red>Teleport fehlgeschlagen."));
         return Command.SINGLE_SUCCESS;
     }
@@ -320,6 +329,32 @@ public final class SiftCommand {
                 + "</white> Truhen mit Beute), <white>" + s.errors.get() + "</white> Fehler");
         if (!s.portalRejects.isEmpty()) {
             sender.sendRichMessage("<gray>Verlassene Portale nicht gesetzt: <white>" + s.portalRejects);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Top block heights of the Sift around x/z as text (one character per column, '#' = highest band). */
+    private int debugHeights(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift == null) {
+            sender.sendRichMessage("<red>Die Sift-Welt ist nicht geladen.");
+            return 0;
+        }
+        int cx = IntegerArgumentType.getInteger(ctx, "x");
+        int cz = IntegerArgumentType.getInteger(ctx, "z");
+        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        int step = IntegerArgumentType.getInteger(ctx, "step");
+        String digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+        int base = sift.getHighestBlockYAt(cx, cz, org.bukkit.HeightMap.MOTION_BLOCKING_NO_LEAVES);
+        sender.sendPlainMessage("Höhen um " + cx + " " + cz + " relativ zu y " + base + " (x nach rechts, z nach unten; '-' tiefer, '+' höher als 35):");
+        for (int z = cz - radius * step; z <= cz + radius * step; z += step) {
+            StringBuilder row = new StringBuilder();
+            for (int x = cx - radius * step; x <= cx + radius * step; x += step) {
+                int d = sift.getHighestBlockYAt(x, z, org.bukkit.HeightMap.MOTION_BLOCKING_NO_LEAVES) - base;
+                row.append(x == cx && z == cz ? '@' : d < 0 ? '-' : d >= digits.length() ? '+' : digits.charAt(d));
+            }
+            sender.sendPlainMessage(row.toString());
         }
         return Command.SINGLE_SUCCESS;
     }

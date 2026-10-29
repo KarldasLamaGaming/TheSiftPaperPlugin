@@ -40,11 +40,11 @@ final class WillowTrees {
     }
 
     /** One attempt at a random spot of the chunk. */
-    boolean place(GenRegion region, Random random, int chunkX, int chunkZ) {
+    boolean place(GenRegion region, Random random, int chunkX, int chunkZ, PortalReservation reservation) {
         int rootX = (chunkX << 4) + 4 + random.nextInt(8);
         int rootZ = (chunkZ << 4) + 4 + random.nextInt(8);
         int rootY = region.height(HeightMap.WORLD_SURFACE_WG, rootX, rootZ);
-        if (!isTreeGround(region, rootX, rootY - 1, rootZ)) {
+        if (reservation.intersectsBuilt(rootX, rootZ, 12) || !isTreeGround(region, rootX, rootY - 1, rootZ)) {
             return false;
         }
         boolean big = random.nextFloat() < bigChance;

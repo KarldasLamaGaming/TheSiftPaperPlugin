@@ -20,6 +20,8 @@ import de.lamamc.sift.menu.ItemMenuListener;
 import de.lamamc.sift.pack.ResourcePackService;
 import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
+import de.lamamc.sift.world.MainPortalBuilder;
+import de.lamamc.sift.world.gen.PortalReservation;
 import de.lamamc.sift.world.gen.SiftPopulator;
 import de.lamamc.sift.world.gen.SiftTemplates;
 import de.lamamc.sift.world.gen.WorldgenSettings;
@@ -42,6 +44,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private ResourcePackService resourcePack;
     private SiftRecipes recipes;
     private SiftPopulator siftPopulator;
+    private MainPortalBuilder mainPortal;
 
     @Override
     public void onEnable() {
@@ -99,6 +102,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             getLogger().info("The Sift is loaded as world '" + world.getName() + "' (" + world.getKey()
                     + ", environment " + world.getEnvironment() + ", height " + world.getMinHeight() + ".."
                     + world.getMaxHeight() + ")");
+            if (mainPortal != null) {
+                mainPortal.ensure(world);
+            }
         }
     }
 
@@ -109,7 +115,13 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         if (siftPopulator == null) {
             WorldgenSettings worldgen = WorldgenSettings.load(getConfig());
             SiftTemplates templates = new SiftTemplates(blocks, SiftPopulator.templateNames(), getLogger());
-            siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, getLogger());
+            PortalReservation reservation = new PortalReservation();
+            if (worldgen.mainPortal()) {
+                mainPortal = new MainPortalBuilder(this, blocks, templates, reservation);
+                mainPortal.reserve(world);
+            }
+            siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
+                    getLogger());
             world.getPopulators().add(siftPopulator);
             getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
         }
