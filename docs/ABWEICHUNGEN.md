@@ -39,8 +39,9 @@ lila Glasscheibe; Ichorschnee → Schnee.
 
 ## Sift-Items und ihre Vanilla-Basis
 
-Sift-Items bauen auf Vanilla-Items auf (Papier, Netherit, Schneeball). Alle geschützten Items (siehe
-`docs/ADMIN.md`, Schutz) verhalten sich nicht wie ihre Basis. Im Original gibt es diese Frage nicht,
+Sift-Items bauen auf Vanilla-Items auf (Papier, Netherit, Schneeball; Block-Items auf Faden, Glas oder
+Pilzblöcken). Alle Sift-Items, seit alpha.6 auch die Block-Items (siehe `docs/ADMIN.md`, Schutz), verhalten
+sich nicht wie ihre Basis. Im Original gibt es diese Frage nicht,
 weil die Items eigene Item-Typen sind.
 
 ## Weidenholz brennt (seit alpha.5)
@@ -86,8 +87,9 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   Die übrigen Unterschiede ohne Phase 3 kommen vom Zufall (Vorlage, Spiegelung, erste Drehung) und davon,
   dass das Plugin das Haupt-Portal schon beim ersten Start baut. Im vollständigen Original blockieren
   Seelenschluchten, Ichor-Seen, Lavaböden, Monolithen und Dornen viele Plätze (sie reservieren ihre Fläche
-  vorher). Bis Phase 3 entstehen hier also etwa drei- bis viermal so viele verlassene Portale wie im
-  Original; mit Phase 3 gleicht sich das an.
+  vorher). Deshalb darf bis Phase 3 nur ein Viertel der Kandidaten bauen
+  (`worldgen.abandoned-portals.chance: 0.25`): 7 von 49 statt 24 von 49, das Original hat 6. Andere Plätze
+  als im Original, aber dieselbe Menge. Mit Phase 3 wird der Wert 1.0.
 - Das Haupt-Portal wird beim ersten Start gebaut, nachdem die Chunks um 0/0 generiert sind (das Original
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.

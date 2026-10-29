@@ -174,10 +174,14 @@ Werte gelten für Items, die nach dem Neustart entstehen; schon vorhandene Items
 
 ### Schutz: Sift-Items sind keine Vanilla-Items
 
-Siftit-Ausrüstung, alle Sift-Materialien (Charoit, Ichorscherbe, Siftitklumpen und -barren, Vorlage),
-Samen, Ichorschneeball, Essen, Ichorflasche und Schallplatten (in `items.yml` alle mit `protect: true`;
-`ItemRegistryTest` prüft, dass keines fehlt) werden nie wie das Vanilla-Item behandelt, auf dem sie
-aufbauen (Netherit, Papier, Schneeball). Charoit gibt also kein Buch und wird nicht als Papier gehandelt:
+Alle Sift-Items werden nie wie das Vanilla-Item behandelt, auf dem sie aufbauen: Siftit-Ausrüstung, alle
+Sift-Materialien (Charoit, Ichorscherbe, Siftitklumpen und -barren, Vorlage), Samen, Ichorschneeball,
+Essen, Ichorflasche und Schallplatten (in `items.yml` alle mit `protect: true`; `ItemRegistryTest` prüft,
+dass keines fehlt) und seit alpha.6 auch alle Block-Items (Pflanzen auf Faden-Basis, Ichorglas auf
+Glas-Basis, Siftschiefer, Weidenholz usw. auf Pilzblock-Basis). Charoit gibt also kein Buch, Überwucherte
+Wedel geben keinen Bogen, Ichorglas keine Glasscheiben oder Leuchtfeuer. Die Sift-Rezepte (Namensraum
+`the_sift`, z. B. Weidenbretter → Stöcke/Werkbank, Weidenstamm → Holzkohle, 6 Ichorglas →
+Ichorglasscheibe, Siftschiefer an der Steinsäge) nehmen sie weiter an:
 
 - Werkbank und Crafter: Vanilla-Rezepte nehmen sie nicht an (z. B. kein Reparieren durch Kombinieren).
 - Schmiedetisch: keine Vanilla-Aufwertung mit Siftit-Vorlage, -Barren oder -Teil; Rüstungsbesätze auf
@@ -185,7 +189,9 @@ aufbauen (Netherit, Papier, Schneeball). Charoit gibt also kein Buch und wird ni
 - Amboss: Siftit-Teile nur mit Siftitbarren reparieren oder mit demselben Siftit-Teil kombinieren;
   Verzauberungsbücher und Umbenennen gehen. Netherit-Teile lassen sich nicht mit Siftit reparieren.
 - Schleifstein: zwei Teile nur, wenn beide dasselbe Siftit-Teil sind.
-- Steinsäge, Webstuhl, Kartentisch, Dorfbewohner-Handel: geschützte Items werden nicht angenommen.
+- Steinsäge: nur die Sift-Rezepte (Siftschiefer → Treppen, Stufen, Mauern, Ziegel …).
+- Webstuhl, Kartentisch, Dorfbewohner-Handel: geschützte Items werden nicht angenommen.
+- Ofen-Brennstoff ist davon nicht betroffen (Weidenholz brennt weiter, siehe Feuer und Brennstoff).
 
 Echtes Netherit und alle Vanilla-Rezepte bleiben unverändert (belegt durch `SiftiteGuardRulesTest` und
 `/sift debug selftest`).
@@ -230,7 +236,7 @@ Neustart nötig, gilt nur für neue Chunks):
 | Blumenflecken (Lotus, Sonnenstrahl, Flüsterblüte) | alle außer Ödland; Ödland seltener | jeder 9. Chunk, Ödland jeder 7. |
 | Pflanzenflecken auf Siftschiefer | alle | jeder 10. Chunk |
 | Oberflächen-Sculk (Vanilla-Sculk mit Sensoren, Kreischern, die Wärter rufen können, Katalysatoren) | alle außer Ichorschnee-Gipfel und Tiefes Dunkel | höchstens eine Region (50–120 Blöcke) je 512 × 512 |
-| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 20 × 20 Chunks (im mittleren Drittel der Zelle), nur auf passendem Gelände |
+| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 20 × 20 Chunks (im mittleren Drittel der Zelle), davon baut nur der Anteil `chance` (Standard 0.25, siehe unten), nur auf passendem Gelände |
 
 Weiden, Lotus, Sonnenstrahlpflanze usw. entstehen aus den Vorlagen und Werten des Originals; Abweichungen
 in `docs/ABWEICHUNGEN.md`.
@@ -251,8 +257,16 @@ Gelände aus. Das Plugin protokolliert seit alpha.6 jeden Kandidaten im Weltspei
 
 Chunks, die vor alpha.6 generiert wurden, stehen nicht im Protokoll.
 
-**Update auf alpha.6:** Eine vorhandene `config.yml` behält `worldgen.abandoned-portals.cell-chunks: 32`;
-für die Verteilung des Originals auf `20` setzen. Das neue Raster gilt nur für neue Chunks; zum Testen
+`worldgen.abandoned-portals.chance` (0.0–1.0, Standard 0.25) legt fest, welcher Anteil der Kandidaten
+überhaupt bauen darf; die Auswahl hängt nur von Seed und Chunk ab. Im Original stehen auf vielen Plätzen
+schon Seelenschluchten, Ichor-Seen, Lavaböden und Monolithen, die erst mit Phase 3 kommen. Mit 0.25 entsteht
+bis dahin etwa die Menge des Originals (Seed `lamakingdom`, 49 Kandidaten: 7 gebaut, Original 6). Mit
+Phase 3 wird der Wert 1.0. Nicht ausgewählte Kandidaten stehen in `/sift debug portals` als „nicht
+ausgewählt (chance 0.25)“.
+
+**Update auf alpha.6:** Eine vorhandene `config.yml` behält `worldgen.abandoned-portals.cell-chunks: 32`
+und hat noch kein `chance`; für die Verteilung des Originals `cell-chunks: 20` und `chance: 0.25` setzen
+(fehlt `chance`, gilt 0.25). Das neue Raster gilt nur für neue Chunks; zum Testen
 am besten eine frische Sift-Welt.
 
 ### Haupt-Portal
