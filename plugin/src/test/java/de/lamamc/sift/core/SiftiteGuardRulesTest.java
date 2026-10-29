@@ -23,14 +23,15 @@ class SiftiteGuardRulesTest {
     private static final Input HELMET = Input.sift("siftite_helmet", true);
     private static final Input INGOT = Input.sift("siftite_ingot", true);
     private static final Input TEMPLATE = Input.sift("siftite_upgrade_smithing_template", true);
-    private static final Input CHAROITE = Input.sift("charoite", false); // Sift item, not Siftite
+    private static final Input CHAROITE = Input.sift("charoite", true);   // Sift material on paper
+    private static final Input SIFTSLATE = Input.sift("siftslate", false); // block item, not protected
 
     // ---- vanilla and netherite unchanged ---------------------------------------------------------
 
     @Test
     void vanillaRecipesWithVanillaItemsAreAllowed() {
         assertTrue(rules.recipeAllowed(false, List.of(VANILLA, VANILLA, EMPTY)));
-        assertTrue(rules.recipeAllowed(false, List.of(VANILLA, CHAROITE))); // only Siftite is protected
+        assertTrue(rules.recipeAllowed(false, List.of(VANILLA, SIFTSLATE))); // only protected items are refused
     }
 
     @Test
@@ -85,6 +86,15 @@ class SiftiteGuardRulesTest {
         assertTrue(rules.grindstoneAllowed(SWORD, OTHER_SWORD));
         assertFalse(rules.grindstoneAllowed(SWORD, VANILLA));
         assertFalse(rules.otherStationAllowed(INGOT, VANILLA)); // e.g. trading Siftite as paper
-        assertTrue(rules.otherStationAllowed(CHAROITE));
+        assertTrue(rules.otherStationAllowed(SIFTSLATE));
+    }
+
+    @Test
+    void siftMaterialsAreNotPaper() {
+        // charoite, ichor shards, nuggets ... are built on paper: no book, map or trade with them
+        assertFalse(rules.recipeAllowed(false, List.of(CHAROITE, CHAROITE, CHAROITE, VANILLA)));
+        assertFalse(rules.otherStationAllowed(CHAROITE, EMPTY));          // cartography table, librarian trade
+        assertTrue(rules.recipeAllowed(true, List.of(CHAROITE)));         // Sift recipes still use them
+        assertTrue(rules.anvilAllowed(CHAROITE, EMPTY));                  // renaming
     }
 }
