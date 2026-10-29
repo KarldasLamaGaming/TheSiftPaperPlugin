@@ -157,6 +157,9 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Schallplatten Rift und Wellspring im Plattenspieler: Musik mit Titelanzeige.
 - [ ] Truhen-Loot: Truhe mit `/setblock ~ ~ ~ chest{LootTable:"the_sift:chests/abandoned_portal"}` setzen und
       öffnen: echte Sift-Items (deutsche Namen, stapelbar mit Items aus `/sift items`).
+- [ ] Vanilla-Truhen-Loot unverändert (alpha.6-Blocker): `/setblock ~ ~ ~ chest{LootTable:"minecraft:chests/simple_dungeon"}`
+      in der Hauptwelt öffnen: normaler Inhalt, nicht leer. `/sift debug selftest` füllt dafür selbst je eine
+      Truhe mit einer Vanilla- und einer Sift-Tabelle („Truhe mit … gefüllt“).
 - [ ] Advancements: Reiter „Die Sift“ beim Betreten der Sift; Charoiterz/Siftiterz abbauen, Holz in der
       Sift anzünden, volle Siftitrüstung (Herausforderung) werden vergeben.
 

@@ -1,6 +1,5 @@
 package de.lamamc.sift.item;
 
-import java.util.List;
 import java.util.ListIterator;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,10 +19,13 @@ public final class LootNormalizer implements Listener {
         this.items = items;
     }
 
+    /**
+     * Replaces Sift items in place. getLoot() is the event's own mutable list; never pass it back to
+     * setLoot(), which clears that list first and so empties every chest.
+     */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onLoot(LootGenerateEvent event) {
-        List<ItemStack> loot = event.getLoot();
-        ListIterator<ItemStack> it = loot.listIterator();
+        ListIterator<ItemStack> it = event.getLoot().listIterator();
         while (it.hasNext()) {
             ItemStack stack = it.next();
             ItemStack real = normalize(stack);
@@ -31,11 +33,13 @@ public final class LootNormalizer implements Listener {
                 it.set(real);
             }
         }
-        event.setLoot(loot);
     }
 
-    /** The registry item for a stack with a Sift id, keeping the amount; other stacks unchanged. */
+    /** The registry item for a stack with a Sift id, keeping the amount; other stacks (and null = air) unchanged. */
     public ItemStack normalize(ItemStack stack) {
+        if (stack == null) {
+            return null;
+        }
         String id = SiftItems.idOf(stack);
         if (id == null) {
             return stack;

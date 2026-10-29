@@ -16,7 +16,11 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.advancement.Advancement;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
@@ -196,5 +200,56 @@ public final class ItemSelfTest {
             }
         }
         check(siftItems > 0 && complete == siftItems, "Truhen-Loot: " + complete + " von " + siftItems + " Sift-Items vervollständigt");
+
+        // fill real chests through the server's loot path (LootGenerateEvent with all listeners, as when opened)
+        chestLoot(Bukkit.getWorlds().getFirst(), NamespacedKey.minecraft("chests/simple_dungeon"), false);
+        chestLoot(world, new NamespacedKey("the_sift", "chests/abandoned_portal"), true);
+    }
+
+    /** Places a chest high above spawn, fills it from the table, checks the content and restores the block. */
+    private void chestLoot(World world, NamespacedKey key, boolean siftTable) {
+        LootTable table = Bukkit.getLootTable(key);
+        if (table == null) {
+            check(false, "Loot-Tabelle " + key + " fehlt");
+            return;
+        }
+        Location spawn = world.getSpawnLocation();
+        Block block = world.getBlockAt(spawn.getBlockX(), world.getMaxHeight() - 2, spawn.getBlockZ());
+        BlockData before = block.getBlockData();
+        int stacks = 0;
+        int siftStacks = 0;
+        int complete = 0;
+        try {
+            block.setType(Material.CHEST, false);
+            if (!(block.getState(false) instanceof Chest chest)) {
+                check(false, "Truhe für " + key + " ließ sich nicht setzen");
+                return;
+            }
+            Inventory inventory = chest.getBlockInventory();
+            inventory.clear();
+            Random random = new Random(7);
+            for (int round = 0; round < 5 && stacks == 0; round++) {
+                table.fillInventory(inventory, random, new LootContext.Builder(block.getLocation()).build());
+                for (ItemStack stack : inventory.getContents()) {
+                    if (stack != null && !stack.isEmpty()) {
+                        stacks++;
+                        String id = SiftItems.idOf(stack);
+                        if (id != null) {
+                            siftStacks++;
+                            if (stack.getData(DataComponentTypes.ITEM_NAME) != null) {
+                                complete++;
+                            }
+                        }
+                    }
+                }
+            }
+            inventory.clear();
+        } finally {
+            block.setBlockData(before, false);
+        }
+        check(stacks > 0, "Truhe mit " + key + " gefüllt: " + stacks + " Stapel (darf nicht leer sein)");
+        if (siftTable) {
+            check(complete == siftStacks, "Truhe mit " + key + ": " + complete + " von " + siftStacks + " Sift-Items vervollständigt");
+        }
     }
 }
