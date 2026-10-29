@@ -1,0 +1,11 @@
+# Sift items that are not blocks (blocks come from block-mapping.json automatically).
+# Only identity data: category in /sift items, the vanilla base item and the order. Behavior and
+# balancing values (tools, armor, food) live in config.yml.
+#   category: blocks | ores | plants_wood | tools | armor | materials | misc
+#   base:     vanilla item the Sift item is built on
+items:
+  charoite: {category: materials, base: "minecraft:paper"}
+  siftite_nugget: {category: materials, base: "minecraft:paper"}
+  ichor_shard: {category: materials, base: "minecraft:paper"}
+  sculkflower_seeds: {category: plants_wood, base: "minecraft:paper"}
+  ichor_snowball: {category: misc, base: "minecraft:snowball"}

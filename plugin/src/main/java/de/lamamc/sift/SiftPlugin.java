@@ -4,15 +4,19 @@ import de.lamamc.sift.block.BlockSettings;
 import de.lamamc.sift.block.BreakSpeedListener;
 import de.lamamc.sift.block.CustomBlockListener;
 import de.lamamc.sift.block.CustomBlockRegistry;
+import de.lamamc.sift.block.MappingEntry;
 import de.lamamc.sift.block.PhysicsGuard;
 import de.lamamc.sift.bootstrap.SiftBootstrap;
 import de.lamamc.sift.command.SiftCommand;
+import de.lamamc.sift.item.ItemRegistry;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.item.Translations;
+import de.lamamc.sift.menu.ItemMenuListener;
 import de.lamamc.sift.pack.ResourcePackService;
 import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import java.util.List;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -45,14 +49,16 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             debugPopulator = new DebugPopulator(getLogger(), getConfig().getInt("debug.populator-log-interval", 64));
             getLogger().warning("Debug populator is enabled: every new Sift chunk gets a glowstone marker");
         }
-        blocks = CustomBlockRegistry.loadFromJar();
+        List<MappingEntry> mapping = MappingEntry.bundled();
+        blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
-        items = new SiftItems(blocks, Translations.loadFromJar());
+        items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar());
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new CustomBlockListener(this, blocks, blockSettings, items), this);
         getServer().getPluginManager().registerEvents(new BreakSpeedListener(blocks, blockSettings), this);
         getServer().getPluginManager().registerEvents(
                 new PhysicsGuard(this, blocks, blockSettings.placeOnlyInSift()), this);
+        getServer().getPluginManager().registerEvents(new ItemMenuListener(items, SiftCommand.ITEMS_PERMISSION), this);
         resourcePack = new ResourcePackService(this);
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
         getServer().getPluginManager().registerEvents(resourcePack, this);

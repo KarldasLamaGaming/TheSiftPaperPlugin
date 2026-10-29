@@ -2,11 +2,6 @@ package de.lamamc.sift.block;
 
 import de.lamamc.sift.core.BreakTimeCalculator;
 import de.lamamc.sift.core.ToolType;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,17 +28,6 @@ public final class CustomBlockRegistry {
             CustomBlock block = new CustomBlock(entry.id(), entry.properties(), data);
             byState.put(data.getAsString(), block);
             defaults.putIfAbsent(entry.id(), block);
-        }
-    }
-
-    public static CustomBlockRegistry loadFromJar() {
-        try (InputStream in = CustomBlockRegistry.class.getResourceAsStream("/block-mapping.json")) {
-            if (in == null) {
-                throw new IllegalStateException("block-mapping.json missing from the plugin jar");
-            }
-            return new CustomBlockRegistry(MappingEntry.read(new InputStreamReader(in, StandardCharsets.UTF_8)));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
@@ -89,15 +73,6 @@ public final class CustomBlockRegistry {
             case MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK -> BreakTimeCalculator.MUSHROOM_BLOCK_HARDNESS;
             case CHORUS_PLANT -> BreakTimeCalculator.CHORUS_PLANT_HARDNESS;
             default -> 0.0;
-        };
-    }
-
-    /** The item that places a block of this material, the base of the custom block item. */
-    public static Material itemBase(Material standIn) {
-        return switch (standIn) {
-            case TRIPWIRE -> Material.STRING;
-            case CHORUS_PLANT -> Material.GLASS;
-            default -> standIn;
         };
     }
 }

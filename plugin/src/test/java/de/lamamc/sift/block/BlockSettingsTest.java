@@ -9,6 +9,7 @@ import de.lamamc.sift.core.BlockProfile;
 import de.lamamc.sift.core.DropSpec;
 import de.lamamc.sift.core.ToolTier;
 import de.lamamc.sift.core.ToolType;
+import de.lamamc.sift.item.ItemRegistry;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -20,9 +21,6 @@ import org.junit.jupiter.api.Test;
 class BlockSettingsTest {
 
     private static final Logger LOG = Logger.getLogger("test");
-    /** Items that blocks may drop; must match SiftItems.MATERIALS plus the block ids. */
-    private static final List<String> MATERIALS = List.of("charoite", "siftite_nugget", "ichor_shard",
-            "ichor_snowball", "sculkflower_seeds");
 
     private static YamlConfiguration defaults() throws IOException {
         try (var in = BlockSettingsTest.class.getResourceAsStream("/config.yml")) {
@@ -38,12 +36,12 @@ class BlockSettingsTest {
             assertNotNull(config.getConfigurationSection("blocks." + entry.id()), "no config for " + entry.id());
         }
         BlockSettings settings = BlockSettings.load(config, LOG);
+        ItemRegistry registry = ItemRegistry.loadFromJar(entries);
         for (MappingEntry entry : entries) {
             String item = settings.profile(entry.id()).drops().item();
             if (item != null && item.startsWith("the_sift:")) {
                 String id = item.substring("the_sift:".length());
-                boolean known = MATERIALS.contains(id) || entries.stream().anyMatch(e -> e.id().equals(id));
-                assertTrue(known, entry.id() + " drops unknown " + item);
+                assertNotNull(registry.get(id), entry.id() + " drops unknown " + item);
             }
         }
     }

@@ -15,7 +15,9 @@ import de.lamamc.sift.core.BlockProfile;
 import de.lamamc.sift.core.BreakTimeCalculator;
 import de.lamamc.sift.core.BlockMining;
 import de.lamamc.sift.core.HeldTool;
+import de.lamamc.sift.item.ItemCategory;
 import de.lamamc.sift.item.SiftItems;
+import de.lamamc.sift.menu.ItemMenu;
 import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -44,7 +46,10 @@ import org.bukkit.inventory.ItemStack;
 /** {@code /sift}: admin commands. */
 public final class SiftCommand {
 
-    private static final String PERMISSION = "thesift.admin";
+    /** All /sift commands; includes {@link #ITEMS_PERMISSION}. */
+    public static final String PERMISSION = "thesift.admin";
+    /** /sift items and /sift give only, for team members who just need the items. */
+    public static final String ITEMS_PERMISSION = "thesift.admin.items";
     /** Blocks that stand in for mod blocks (see pack-src/block-mapping.json) plus the debug marker. */
     private static final Set<Material> SCANNED = Set.of(Material.MUSHROOM_STEM, Material.BROWN_MUSHROOM_BLOCK,
             Material.RED_MUSHROOM_BLOCK, Material.TRIPWIRE, Material.CHORUS_PLANT, Material.GLOWSTONE,
@@ -58,9 +63,10 @@ public final class SiftCommand {
 
     public void register(Commands commands) {
         LiteralCommandNode<CommandSourceStack> root = Commands.literal("sift")
-                .requires(source -> source.getSender().hasPermission(PERMISSION))
-                .then(Commands.literal("tp").executes(this::teleport))
-                .then(Commands.literal("give")
+                .requires(source -> admin(source) || items(source))
+                .then(Commands.literal("tp").requires(SiftCommand::admin).executes(this::teleport))
+                .then(Commands.literal("items").requires(SiftCommand::items).executes(this::openMenu))
+                .then(Commands.literal("give").requires(SiftCommand::items)
                         .then(Commands.argument("player", ArgumentTypes.player())
                                 .then(Commands.argument("item", StringArgumentType.word())
                                         .suggests((ctx, builder) -> {
@@ -72,7 +78,7 @@ public final class SiftCommand {
                                         .executes(ctx -> give(ctx, 1))
                                         .then(Commands.argument("amount", IntegerArgumentType.integer(1, 6400))
                                                 .executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount")))))))
-                .then(Commands.literal("pack")
+                .then(Commands.literal("pack").requires(SiftCommand::admin)
                         .then(Commands.literal("info").executes(ctx -> {
                             ctx.getSource().getSender().sendPlainMessage("Resource Pack: " + plugin.resourcePack().describe());
                             return Command.SINGLE_SUCCESS;
@@ -93,7 +99,7 @@ public final class SiftCommand {
                                             : "<red>Das Resource Pack ist abgeschaltet.");
                                     return Command.SINGLE_SUCCESS;
                                 }))))
-                .then(Commands.literal("debug")
+                .then(Commands.literal("debug").requires(SiftCommand::admin)
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
                         .then(breakNode())
@@ -121,6 +127,23 @@ public final class SiftCommand {
                                                                 IntegerArgumentType.getInteger(ctx, "chunkZ"))))))))
                 .build();
         commands.register(root, "The Sift: Admin-Befehle");
+    }
+
+    private static boolean admin(CommandSourceStack source) {
+        return source.getSender().hasPermission(PERMISSION);
+    }
+
+    private static boolean items(CommandSourceStack source) {
+        return source.getSender().hasPermission(ITEMS_PERMISSION);
+    }
+
+    private int openMenu(CommandContext<CommandSourceStack> ctx) {
+        if (!(ctx.getSource().getExecutor() instanceof Player player)) {
+            ctx.getSource().getSender().sendRichMessage("<red>Nur für Spieler.");
+            return 0;
+        }
+        ItemMenu.open(player, plugin.items(), ItemCategory.BLOCKS, 0);
+        return Command.SINGLE_SUCCESS;
     }
 
     /** /sift debug break <x> <y> <z> <tool> [none|silk|fortune1..3] [rolls] */
