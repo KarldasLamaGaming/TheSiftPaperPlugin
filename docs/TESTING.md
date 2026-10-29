@@ -30,6 +30,28 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
       (sonst „Kann hier nicht wachsen.“), hängende Wurzeln nur unter festen Blöcken.
 - [ ] Platzieren in der Overworld: abgelehnt mit „Sift-Blöcke lassen sich nur in der Sift platzieren.“
 
+## Weide, Lotus, Ichorglas, Ichor (ab alpha.3)
+
+- [ ] Weidenstamm, -holz und die entrindeten Varianten an Boden, Decke und alle vier Seiten setzen:
+      Stamm liegt in Richtung der angeklickten Fläche (stehend auf Boden/Decke, liegend an Seiten),
+      Ringe an den Stirnseiten wie im Original.
+- [ ] Rechtsklick mit Axt auf Weidenstamm/-holz: wird entrindet, Achse bleibt, Entrinden-Geräusch,
+      Axt verliert 1 Haltbarkeit (im Kreativmodus nicht). Rechtsklick ohne Axt: nichts passiert.
+- [ ] Abbau: Weidenstamm mit Diamantaxt ≈ 0,4 s, von Hand ≈ 3 s, droppt sich selbst.
+      Weidenlaub mit Eisenhacke ≈ 0,2 s, droppt sich selbst. Gegenprobe mit `/sift debug break`.
+- [ ] Weidenbretter und -laub sehen wie im Original aus (Laub ist deckend, keine Löcher).
+- [ ] Lotus: nur auf Sift-Boden setzbar, Original-Optik, ohne Kollision, droppt sich selbst.
+- [ ] Ichorglas in Grafik **„Schnell“** und **„Schön“/„Fabelhaft“**: durchscheinend lila, Blöcke
+      dahinter sichtbar; zwei Glasblöcke nebeneinander zeigen die Innenflächen (anders als im Original
+      nicht ausgeblendet, bekannte Einschränkung).
+- [ ] Ichorglas: man kann darauf stehen und läuft nicht mehr halb hinein; seitlich bleibt ein kleiner
+      Spalt an den Ecken (Kreuzform). `/sift debug shape <x> <y> <z>` zeigt 4 Boxen, ≈ 61 %.
+- [ ] Ichorglas aus alpha.2 (vorher gesetzt): sieht weiter wie Ichorglas aus, `shape` zeigt ≈ 24 %;
+      abbauen und neu setzen ergibt die neue Form.
+- [ ] Wasser in der Sift (Seen, Eimer, Kessel) ist ichorfarben hellblau-lila, in der Overworld normal.
+- [ ] Gegenprobe Chorus im End: `/sift debug chorus 6 0 100` (und weitere Stellen) meldet
+      „0 in Sift-Zuständen“.
+
 ## Abbau
 
 - [ ] Siftschiefer: Diamantspitzhacke ≈ 0,6 s, von Hand ≈ 15 s ohne Drop, Axt langsam wie von Hand.
@@ -40,6 +62,7 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
 ## Drops
 
 - [ ] Siftschiefer → Siftschiefer-Bruchstein; mit Behutsamkeit → Siftschiefer.
+- [ ] Ichorglas droppt nur mit Behutsamkeit.
 - [ ] Erze ohne Behutsamkeit: Kohle/Diamant/Smaragd/Charoit (4–9)/Siftitklumpen, mit XP;
       mit Glück III mehr; mit Behutsamkeit das Erz selbst ohne XP.
 - [ ] Sift-Geröll: meist Geröll, etwa jedes 10. Mal ein Ichorsplitter; mit Glück III immer
