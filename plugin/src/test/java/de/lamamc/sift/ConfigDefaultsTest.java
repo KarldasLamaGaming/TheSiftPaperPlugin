@@ -18,10 +18,11 @@ class ConfigDefaultsTest {
     }
 
     @Test
-    void testPopulatorIsOff() throws Exception {
+    void testPopulatorIsGoneAndWorldgenIsOn() throws Exception {
         YamlConfiguration config = shipped();
-        assertTrue(config.isBoolean("debug.populator-marker"));
-        assertFalse(config.getBoolean("debug.populator-marker"));
+        assertFalse(config.contains("debug.populator-marker"));
+        assertTrue(config.getBoolean("worldgen.willow-trees.enabled"));
+        assertTrue(config.getBoolean("worldgen.main-portal.enabled"));
     }
 
     @Test

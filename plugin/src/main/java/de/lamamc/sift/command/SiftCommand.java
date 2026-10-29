@@ -19,7 +19,6 @@ import de.lamamc.sift.item.ItemCategory;
 import de.lamamc.sift.item.ItemSelfTest;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.menu.ItemMenu;
-import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -37,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -54,7 +54,8 @@ public final class SiftCommand {
     /** Blocks that stand in for mod blocks (see pack-src/block-mapping.json) plus the debug marker. */
     private static final Set<Material> SCANNED = Set.of(Material.MUSHROOM_STEM, Material.BROWN_MUSHROOM_BLOCK,
             Material.RED_MUSHROOM_BLOCK, Material.TRIPWIRE, Material.CHORUS_PLANT, Material.GLOWSTONE,
-            Material.WATER, Material.LAVA);
+            Material.WATER, Material.LAVA, Material.SCULK, Material.SCULK_SENSOR, Material.SCULK_SHRIEKER,
+            Material.SCULK_CATALYST, Material.SCULK_VEIN, Material.VINE, Material.CHEST);
 
     private final SiftPlugin plugin;
 
@@ -106,6 +107,14 @@ public final class SiftCommand {
                         .then(breakNode())
                         .then(Commands.literal("menu").executes(this::debugMenu))
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
+                        .then(Commands.literal("worldgen").executes(this::debugWorldgen))
+                        .then(Commands.literal("landmarks").executes(this::debugLandmarks))
+                        .then(Commands.literal("heights")
+                                .then(Commands.argument("x", IntegerArgumentType.integer())
+                                        .then(Commands.argument("z", IntegerArgumentType.integer())
+                                                .then(Commands.argument("radius", IntegerArgumentType.integer(1, 40))
+                                                        .then(Commands.argument("step", IntegerArgumentType.integer(1, 8))
+                                                                .executes(this::debugHeights))))))
                         .then(Commands.literal("shape")
                                 .then(Commands.argument("x", IntegerArgumentType.integer())
                                         .then(Commands.argument("y", IntegerArgumentType.integer())
@@ -127,7 +136,6 @@ public final class SiftCommand {
                                         .executes(ctx -> find(ctx, 4))
                                         .then(Commands.argument("radius", IntegerArgumentType.integer(0, 12))
                                                 .executes(ctx -> find(ctx, IntegerArgumentType.getInteger(ctx, "radius"))))))
-                        .then(Commands.literal("populator").executes(this::populatorStats))
                         .then(Commands.literal("scan")
                                 .executes(ctx -> scan(ctx, 2, 0, 0))
                                 .then(Commands.argument("radius", IntegerArgumentType.integer(0, 8))
@@ -280,7 +288,9 @@ public final class SiftCommand {
             return 0;
         }
         World target = SiftWorlds.isSift(player.getWorld()) ? Bukkit.getWorlds().getFirst() : sift;
-        player.teleportAsync(target.getSpawnLocation()).thenAccept(ok ->
+        Location anchor = target == sift ? de.lamamc.sift.world.MainPortalBuilder.anchor(sift) : null;
+        Location destination = anchor != null ? anchor : target.getSpawnLocation();
+        player.teleportAsync(destination).thenAccept(ok ->
                 player.sendRichMessage(ok ? "<gray>Teleportiert nach <white>" + target.getKey() : "<red>Teleport fehlgeschlagen."));
         return Command.SINGLE_SUCCESS;
     }
@@ -302,6 +312,80 @@ public final class SiftCommand {
     }
 
     /** Prints the components of a Sift item (for tests without a client). */
+    private int debugWorldgen(CommandContext<CommandSourceStack> ctx) {
+        var populator = plugin.siftPopulator();
+        var sender = ctx.getSource().getSender();
+        if (populator == null) {
+            sender.sendRichMessage("<red>Die Sift-Weltgenerierung ist nicht aktiv.");
+            return 0;
+        }
+        var s = populator.stats();
+        sender.sendRichMessage("<gray>Sift-Weltgenerierung seit dem Start: <white>" + s.chunks.get() + "</white> Chunks, <white>"
+                + s.trees.get() + "</white> Weiden, <white>" + s.flowerPatches.get() + "</white> Blumenflecken, <white>"
+                + s.plantPatches.get() + "</white> Pflanzenflecken, <white>" + s.sculkChunks.get() + "</white> Chunks mit Sculk, <white>"
+                + s.abandonedPortals.get() + "</white> verlassene Portale (<white>" + populator.lootChests()
+                + "</white> Truhen mit Beute), <white>" + s.errors.get() + "</white> Fehler");
+        if (!s.portalRejects.isEmpty()) {
+            sender.sendRichMessage("<gray>Verlassene Portale nicht gesetzt: <white>" + s.portalRejects);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Top block heights of the Sift around x/z as text (one character per column, '#' = highest band). */
+    private int debugHeights(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift == null) {
+            sender.sendRichMessage("<red>Die Sift-Welt ist nicht geladen.");
+            return 0;
+        }
+        int cx = IntegerArgumentType.getInteger(ctx, "x");
+        int cz = IntegerArgumentType.getInteger(ctx, "z");
+        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        int step = IntegerArgumentType.getInteger(ctx, "step");
+        String digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+        int base = sift.getHighestBlockYAt(cx, cz, org.bukkit.HeightMap.MOTION_BLOCKING_NO_LEAVES);
+        sender.sendPlainMessage("Höhen um " + cx + " " + cz + " relativ zu y " + base + " (x nach rechts, z nach unten; '-' tiefer, '+' höher als 35):");
+        for (int z = cz - radius * step; z <= cz + radius * step; z += step) {
+            StringBuilder row = new StringBuilder();
+            for (int x = cx - radius * step; x <= cx + radius * step; x += step) {
+                int d = sift.getHighestBlockYAt(x, z, org.bukkit.HeightMap.MOTION_BLOCKING_NO_LEAVES) - base;
+                row.append(x == cx && z == cz ? '@' : d < 0 ? '-' : d >= digits.length() ? '+' : digits.charAt(d));
+            }
+            sender.sendPlainMessage(row.toString());
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Candidate chunks of the abandoned portals in the 3×3 cells around 0/0 (each may still fail its terrain check). */
+    private int debugLandmarks(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift == null) {
+            sender.sendRichMessage("<red>Die Sift-Welt ist nicht geladen.");
+            return 0;
+        }
+        int cell = plugin.getConfig().getInt("worldgen.abandoned-portals.cell-chunks", 32);
+        sender.sendRichMessage("<gray>Kandidaten für verlassene Portale (Chunk x z, Blockmitte):");
+        for (int cx = -1; cx <= 1; cx++) {
+            for (int cz = -1; cz <= 1; cz++) {
+                var chunk = de.lamamc.sift.core.worldgen.LandmarkPlacement.candidateChunk(sift.getSeed(), cx, cz, cell,
+                        de.lamamc.sift.core.worldgen.LandmarkPlacement.ABANDONED_PORTAL_SALT, 0);
+                sender.sendPlainMessage("  landmark " + chunk.x() + " " + chunk.z() + "  (" + (chunk.x() * 16 + 8) + " "
+                        + (chunk.z() * 16 + 8) + ")");
+            }
+        }
+        sender.sendRichMessage("<gray>Sculk-Regionen (Mitte, Durchmesser) in den Zellen um 0/0:");
+        for (int cx = -1; cx <= 1; cx++) {
+            for (int cz = -1; cz <= 1; cz++) {
+                var region = de.lamamc.sift.core.worldgen.SculkRegions.create(sift.getSeed(), cx, cz);
+                sender.sendPlainMessage("  sculk " + (int) region.centerX() + " " + (int) region.centerZ() + "  ("
+                        + Math.round(region.majorRadius() * 2) + ")");
+            }
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
     private int debugSelfTest(CommandContext<CommandSourceStack> ctx) {
         World world = Bukkit.getWorld(SiftWorlds.DIMENSION);
         if (world == null) {
@@ -457,17 +541,6 @@ public final class SiftCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private int populatorStats(CommandContext<CommandSourceStack> ctx) {
-        DebugPopulator populator = plugin.debugPopulator();
-        if (populator == null) {
-            ctx.getSource().getSender().sendRichMessage("<yellow>Test-Populator ist aus (debug.populator-marker).");
-            return 0;
-        }
-        ctx.getSource().getSender().sendRichMessage("<gray>Test-Populator: <white>" + populator.chunks()
-                + "</white> Chunks, <white>" + populator.markers() + "</white> Marker");
-        return Command.SINGLE_SUCCESS;
-    }
-
     /** Generates/loads the chunks around a chunk of the Sift and counts the stand-in block states. */
     private int scan(CommandContext<CommandSourceStack> ctx, int radius, int centerX, int centerZ) {
         var sender = ctx.getSource().getSender();
@@ -486,7 +559,7 @@ public final class SiftCommand {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     List<ChunkSnapshot> snapshots = futures.stream().map(f -> f.join().getChunkSnapshot()).toList();
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        Map<String, Integer> counts = count(snapshots, sift.getMinHeight(), sift.getMaxHeight());
+                        Map<String, Integer> counts = count(plugin.blocks(), snapshots, sift.getMinHeight(), sift.getMaxHeight());
                         Bukkit.getScheduler().runTask(plugin, () -> report(sender, snapshots.size(), counts));
                     });
                 }));
@@ -494,7 +567,7 @@ public final class SiftCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static Map<String, Integer> count(List<ChunkSnapshot> snapshots, int minY, int maxY) {
+    private static Map<String, Integer> count(CustomBlockRegistry blocks, List<ChunkSnapshot> snapshots, int minY, int maxY) {
         Map<String, Integer> counts = new HashMap<>();
         for (ChunkSnapshot snapshot : snapshots) {
             for (int x = 0; x < 16; x++) {
@@ -502,7 +575,10 @@ public final class SiftCommand {
                     for (int y = minY; y < maxY; y++) {
                         var data = snapshot.getBlockData(x, y, z);
                         if (SCANNED.contains(data.getMaterial())) {
-                            counts.merge(data.getAsString(), 1, Integer::sum);
+                            var custom = blocks.of(data);
+                            String name = custom != null ? "the_sift:" + custom.id()
+                                    : data.getMaterial().getKey().toString();
+                            counts.merge(name, 1, Integer::sum);
                         }
                     }
                 }
@@ -512,10 +588,10 @@ public final class SiftCommand {
     }
 
     private static void report(org.bukkit.command.CommandSender sender, int chunks, Map<String, Integer> counts) {
-        sender.sendRichMessage("<gray>Scan von <white>" + chunks + "</white> Chunks, Ersatz-Blockzustände:");
+        sender.sendRichMessage("<gray>Scan von <white>" + chunks + "</white> Chunks, Sift-Blöcke und Vanilla-Marker:");
         counts.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .limit(30)
+                .limit(40)
                 .forEach(e -> sender.sendPlainMessage("  " + e.getValue() + "  " + e.getKey()));
     }
 }

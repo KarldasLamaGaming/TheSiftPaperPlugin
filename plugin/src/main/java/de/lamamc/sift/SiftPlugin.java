@@ -18,8 +18,15 @@ import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.item.Translations;
 import de.lamamc.sift.menu.ItemMenuListener;
 import de.lamamc.sift.pack.ResourcePackService;
-import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
+import de.lamamc.sift.world.MainPortalBuilder;
+import de.lamamc.sift.world.gen.PortalReservation;
+import de.lamamc.sift.world.gen.SiftPopulator;
+import de.lamamc.sift.world.gen.SiftTemplates;
+import de.lamamc.sift.world.gen.WorldgenSettings;
+import de.lamamc.sift.block.PlantSupport;
+import de.lamamc.sift.block.SiftFire;
+import de.lamamc.sift.item.SiftFuel;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.util.List;
 import org.bukkit.World;
@@ -31,12 +38,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SiftPlugin extends JavaPlugin implements Listener {
 
-    private DebugPopulator debugPopulator;
     private CustomBlockRegistry blocks;
     private BlockSettings blockSettings;
     private SiftItems items;
     private ResourcePackService resourcePack;
     private SiftRecipes recipes;
+    private SiftPopulator siftPopulator;
+    private MainPortalBuilder mainPortal;
 
     @Override
     public void onEnable() {
@@ -51,10 +59,6 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getConfig().options().copyDefaults(true);
         saveConfig();
         reloadConfig();
-        if (getConfig().getBoolean("debug.populator-marker", false)) {
-            debugPopulator = new DebugPopulator(getLogger(), getConfig().getInt("debug.populator-log-interval", 64));
-            getLogger().warning("Debug populator is enabled: every new Sift chunk gets a glowstone marker");
-        }
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
@@ -69,6 +73,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         recipes = new SiftRecipes(items, getLogger());
         recipes.register();
         getServer().getPluginManager().registerEvents(new SiftiteGuard(items), this);
+        getServer().getPluginManager().registerEvents(new SiftFire(this, blocks, blockSettings), this);
+        getServer().getPluginManager().registerEvents(new SiftFuel(blockSettings), this);
         getServer().getPluginManager().registerEvents(new LootNormalizer(items), this);
         getServer().getPluginManager().registerEvents(new SiftAdvancements(blocks, recipes,
                 getConfig().getBoolean("recipes.discover-on-join", true), getLogger()), this);
@@ -94,15 +100,29 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             getLogger().info("The Sift is loaded as world '" + world.getName() + "' (" + world.getKey()
                     + ", environment " + world.getEnvironment() + ", height " + world.getMinHeight() + ".."
                     + world.getMaxHeight() + ")");
+            if (mainPortal != null) {
+                mainPortal.ensure(world);
+            }
         }
     }
 
     private void attach(World world) {
-        if (!SiftWorlds.isSift(world) || debugPopulator == null || world.getPopulators().contains(debugPopulator)) {
+        if (!SiftWorlds.isSift(world)) {
             return;
         }
-        world.getPopulators().add(debugPopulator);
-        getLogger().info("Debug populator attached to " + world.getKey());
+        if (siftPopulator == null) {
+            WorldgenSettings worldgen = WorldgenSettings.load(getConfig());
+            SiftTemplates templates = new SiftTemplates(blocks, SiftPopulator.templateNames(), getLogger());
+            PortalReservation reservation = new PortalReservation();
+            if (worldgen.mainPortal()) {
+                mainPortal = new MainPortalBuilder(this, blocks, templates, reservation);
+                mainPortal.reserve(world);
+            }
+            siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
+                    getLogger());
+            world.getPopulators().add(siftPopulator);
+            getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
+        }
     }
 
     @Override
@@ -110,10 +130,6 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
         }
-    }
-
-    public DebugPopulator debugPopulator() {
-        return debugPopulator;
     }
 
     public CustomBlockRegistry blocks() {
@@ -126,6 +142,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public SiftItems items() {
         return items;
+    }
+
+    public SiftPopulator siftPopulator() {
+        return siftPopulator;
     }
 
     public SiftRecipes recipes() {

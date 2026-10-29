@@ -4,10 +4,10 @@
 diese Minecraft-Version gebaut. Auf einer anderen Version lädt das Plugin die Sift nicht, deaktiviert
 sich und schreibt beim Start, welche Version es erwartet (der Server selbst startet normal).
 
-Stand: Phase 1, Schritte 1–5 und 8 (Dimension, Datapack, eigene Blöcke, Items und Rezepte, Resource Pack)
-plus Item-Menü; ab alpha.3 mit Weidenholz, Lotus, neuem Ichorglas und Ichorfarbe, ab alpha.4 mit
-Siftit-Ausrüstung, Rezepten, Truhen-Loot und Advancements.
-Wird mit jeder Phase ergänzt. Testablauf: `docs/TESTING.md`.
+Stand: Phase 1, Schritte 1–6 und 8 (Dimension, Datapack, eigene Blöcke, Items und Rezepte,
+Weltgenerierung mit Haupt-Portal, Resource Pack) plus Item-Menü. alpha.3: Weidenholz, Lotus, Ichorglas,
+Ichorfarbe; alpha.4: Siftit-Ausrüstung, Rezepte, Loot, Advancements; alpha.5: Weidenbäume, Pflanzenflecken,
+Oberflächen-Sculk, verlassene Portale, Haupt-Portal, brennbares Weidenholz.
 
 ## Installation
 
@@ -17,7 +17,10 @@ Wird mit jeder Phase ergänzt. Testablauf: `docs/TESTING.md`.
    - `[TheSift] Datapack installed to plugins/TheSift/datapack (… files)`
    - `Found new data pack TheSift/the_sift, loading it automatically`
    - `[TheSift] The Sift is loaded as world 'world_the_sift_the_sift' (the_sift:the_sift, …)`
-3. Prüfen: `/datapack list` zeigt `TheSift/the_sift` als aktiv, `/sift tp` bringt dich in die Sift.
+3. Prüfen: `/datapack list` zeigt `TheSift/the_sift` als aktiv. Beim ersten Start baut das Plugin das
+   Haupt-Portal der Sift (Log: `Selecting a location for the main Sift portal (generating 441 chunks once)`,
+   kurz danach `Main Sift portal ready at x y z`; dauert je nach Server ein bis wenige Minuten).
+   `/sift tp` bringt dich danach direkt ans Haupt-Portal.
    Danach können Spieler die Sift betreten.
 
 Hinweis zu 0.1.0-alpha.1: Eine von dieser Version angelegte Datei
@@ -127,7 +130,7 @@ Alle Abweichungen vom Original, die bewusst so bleiben, sammelt `docs/ABWEICHUNG
   aber nicht, sieht dort mit dem Pack Ichorglas. Der Block bleibt Chorus; natürlich wächst das nicht.
 - Explosionen werden vereinfacht: Sift-Blöcke ohne `explosion-proof` gehen bei jeder Explosion kaputt
   (keine Strahlstärke-Rechnung wie bei Vanilla).
-- Seelenblock leuchtet noch nicht, Sift-Geröll fällt noch nicht (folgen mit der Weltgenerierung).
+- Seelenblock leuchtet noch nicht, Sift-Geröll fällt noch nicht (folgen später).
 - In anderen Welten (mit Nachbar-Updates) können Spieler Pilzblöcke so aneinandersetzen, dass Vanilla
   zufällig einen der verwendeten Zustände erzeugt; mit dem Resource Pack sieht der Block dann wie ein
   Sift-Block aus. Er bleibt ein Pilzblock.
@@ -214,6 +217,40 @@ ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-It
   der Sift anzünden. Die übrigen (Mobs, Riss, Ichor, Charoit-Verzaubern, Siftit-Erhalt) kommen mit ihren
   Funktionen.
 
+## Weltgenerierung
+
+Das Datapack erzeugt Gelände, Biome, Erze und die einfachen Features des Originals. Die Features, die
+im Original Java-Code sind, setzt das Plugin beim Generieren neuer Chunks (`config.yml` → `worldgen`,
+Neustart nötig, gilt nur für neue Chunks):
+
+| Feature | Wo (Biome) | Häufigkeit (Standard wie Original) |
+|---|---|---|
+| Überwucherte Weiden (klein/groß, 38 % groß) | Wald, Waldhänge, Gipfel dicht; Lichtung, Hänge, Ichorschnee-Gipfel vereinzelt | dicht 5 Versuche je Chunk, vereinzelt jeder 7. Chunk |
+| Blumenflecken (Lotus, Sonnenstrahl, Flüsterblüte) | alle außer Ödland; Ödland seltener | jeder 9. Chunk, Ödland jeder 7. |
+| Pflanzenflecken auf Siftschiefer | alle | jeder 10. Chunk |
+| Oberflächen-Sculk (Vanilla-Sculk mit Sensoren, Kreischern, die Wärter rufen können, Katalysatoren) | alle außer Ichorschnee-Gipfel und Tiefes Dunkel | höchstens eine Region (50–120 Blöcke) je 512 × 512 |
+| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 32 × 32 Chunks, nur auf passendem Gelände |
+
+Weiden, Lotus, Sonnenstrahlpflanze usw. entstehen aus den Vorlagen und Werten des Originals; Abweichungen
+in `docs/ABWEICHUNGEN.md`.
+
+### Haupt-Portal
+
+Beim ersten Start mit der Sift sucht das Plugin in der Nähe von 0/0 (±96 Blöcke) die flachste Stelle,
+gleicht das Gelände an (Fundament, Klippen an beiden Enden, niedriger Vorplatz vor den Öffnungen) und
+setzt das Haupt-Portal des Originals. Der Ankunftspunkt steht im Weltspeicher der Sift
+(`the_sift:portal_anchor`); `/sift tp` nutzt ihn. Das Portal wird nur einmal gebaut, auch nach Neustarts.
+Weiden halten danach 12 Blöcke, verlassene Portale 28 Blöcke Abstand vom Portal (plus 15 Blöcke Rand).
+Das Portal selbst (Durchgang, Schlüssel, Reisen) kommt mit Schritt 7.
+
+`worldgen.main-portal.enabled: false` schaltet das Bauen ab (dann gibt es keinen Ankunftspunkt).
+
+### Feuer und Brennstoff
+
+Weidenstamm, -holz, -bretter, -laub und -setzling brennen wie im Original und taugen als Ofen-Brennstoff
+(`blocks.<id>.fire`, `blocks.<id>.fuel`; Einzelheiten in `docs/ABWEICHUNGEN.md`). Die Gamerule
+`fire_spread_radius_around_player` gilt auch dafür.
+
 ## Drops und Erze
 
 - Sift-Geröll wie im Original (und wie Vanilla-Kies/Feuerstein): mit Behutsamkeit das Geröll, sonst
@@ -236,21 +273,17 @@ ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-It
 
 | Befehl | Wirkung |
 |---|---|
-| `/sift tp` | In die Sift bzw. zurück in die Hauptwelt |
+| `/sift tp` | In die Sift (zum Haupt-Portal) bzw. zurück in die Hauptwelt |
 | `/sift items` | Item-Menü (auch mit `thesift.admin.items`) |
 | `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben (auch mit `thesift.admin.items`) |
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
-| `/sift debug populator` | Zähler des Test-Populators |
+| `/sift debug worldgen` | Was die Weltgenerierung seit dem Start gesetzt hat (Weiden, Flecken, Sculk, verlassene Portale) und warum Portale ausfielen |
+| `/sift debug landmarks` | Kandidaten-Chunks der verlassenen Portale und Mitten der Sculk-Regionen um 0/0 |
+| `/sift debug heights <x> <z> <radius> <schritt>` | Höhenkarte der Sift als Text |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
 | `/sift debug selftest` | Items, Rezepte, Siftit-Schutz, Loot und Advancements ohne Spieler prüfen |
 | `/sift debug shape <x> <y> <z>` | Kollisionsboxen eines Blocks in der Sift (Pixel, Anteil am Würfel) |
 | `/sift debug chorus <radius> <chunkX> <chunkZ>` | End-Chunks laden und zählen, ob Chorus dort Zustände der Sift hat (sollte 0 sein) |
-
-## Test-Populator
-
-`debug.populator-marker` (Standard `false`) setzt in jedem neu generierten Sift-Chunk einen
-Glowstone-Block auf die höchste Stelle der Chunkmitte. Nur für Tests, nie auf dem Produktivserver.
-Er wird mit der echten Generierung (Phase 1, Schritt 6) entfernt.

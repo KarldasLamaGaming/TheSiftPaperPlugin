@@ -10,7 +10,8 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
       `The Sift is loaded as world …`, `Resource pack … (SHA-1 …)`; keine `ERROR`-Zeilen von TheSift.
 - [ ] `/datapack list` (TheSift/the_sift aktiv), `/sift pack info` (URL und SHA-1 wie
       `the-sift-pack.zip.sha1` im Release).
-- [ ] `config.yml`: `debug.populator-marker: false` (keine Glowstone-Blöcke im 16er-Raster in der Sift).
+- [ ] Erster Start mit neuer Welt: Log `Main Sift portal ready at x y z` (nach `Selecting a location ...`).
+      Zweiter Start: diese Zeilen erscheinen nicht noch einmal.
 
 ## Resource Pack
 
@@ -134,6 +135,29 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
       öffnen: echte Sift-Items (deutsche Namen, stapelbar mit Items aus `/sift items`).
 - [ ] Advancements: Reiter „Die Sift“ beim Betreten der Sift; Charoiterz/Siftiterz abbauen, Holz in der
       Sift anzünden, volle Siftitrüstung (Herausforderung) werden vergeben.
+
+## Weltgenerierung und Haupt-Portal (ab alpha.5)
+
+- [ ] `/sift tp`: Ankunft am Haupt-Portal (nicht im Boden, nicht in der Luft); Rahmen aus verstärktem
+      Siftschiefer, Hügel mit Klippen an beiden Enden, freier Vorplatz vor den Öffnungen, Pflanzen auf den
+      Simsen. Kein Baum im Portal.
+- [ ] Überwucherter Wald (`/execute in the_sift:the_sift run locate biome the_sift:overgrown_forest`): viele
+      Weiden, klein und groß, verschieden gedreht, Stämme mit Ringen in der richtigen Richtung, Wurzeln am
+      Boden, hängende Ranken (kletterbar); Laub wie im Original.
+- [ ] Weide abbauen: Stamm/Holz droppen sich, Ranken fallen nicht von selbst ab, solange sie hängen.
+- [ ] Blumen- und Pflanzenflecken (Lotus, Sonnenstrahlpflanze, Flüsterblüte; Halme, Wedel usw. auf
+      Siftschiefer) in allen Biomen.
+- [ ] Oberflächen-Sculk: `/sift debug landmarks` zeigt die Mitten der Sculk-Regionen; dort große Flecken
+      aus Vanilla-Sculk mit Sensoren und Kreischern (Kreischer können einen Wärter rufen!), Adern am Rand.
+- [ ] Verlassene Portale: `/sift debug landmarks` zeigt Kandidaten (nicht jeder wird gebaut, siehe
+      `/sift debug worldgen`); Truhe öffnen: Beute aus `the_sift:chests/abandoned_portal` (echte Sift-Items,
+      oft die Aufwertungsvorlage oder die Schallplatte Rift).
+- [ ] `/sift debug worldgen` nach dem Herumfliegen: Zähler steigen, `0 Fehler`.
+- [ ] Weidenholz brennt: Feuerzeug an einen Weidenstamm, Laub, Bretter; Feuer bleibt an Weidenblöcken und
+      frisst sie langsam (Laub schnell), springt auf benachbarte Weidenblöcke über. Gamerule
+      `fire_spread_radius_around_player 0` stoppt es.
+- [ ] Ofen: Weidenstamm, -holz, -bretter (je 1,5 Items) und -setzling (0,5) per Klick und Shift-Klick in den
+      Brennstoff-Slot; der Ofen brennt. Weidenlaub geht nicht hinein.
 
 ## Overworld unberührt
 
