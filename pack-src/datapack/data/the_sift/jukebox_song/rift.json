@@ -1,0 +1,11 @@
+{
+  "comparator_output": 15,
+  "description": {
+    "translate": "jukebox_song.the_sift.rift",
+    "fallback": "Fuzja Jądrowa - Rift"
+  },
+  "length_in_seconds": 184.1894,
+  "sound_event": {
+    "sound_id": "the_sift:music_disc.rift"
+  }
+}

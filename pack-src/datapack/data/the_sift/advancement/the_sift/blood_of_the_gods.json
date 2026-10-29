@@ -1,0 +1,38 @@
+{
+  "parent": "the_sift:the_sift/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:ichor_bucket"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.blood_of_the_gods.title",
+      "fallback": "Blut der Götter"
+    },
+    "description": {
+      "translate": "advancement.the_sift.blood_of_the_gods.description",
+      "fallback": "Fülle einen Eimer mit Ichor"
+    }
+  },
+  "criteria": {
+    "ichor_bucket": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:custom_data": "{PublicBukkitValues:{\"the_sift:id\":\"ichor_bucket\"}}"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ichor_bucket"
+    ]
+  ]
+}

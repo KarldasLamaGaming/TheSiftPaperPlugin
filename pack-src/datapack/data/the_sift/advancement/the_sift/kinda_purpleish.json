@@ -1,0 +1,29 @@
+{
+  "parent": "the_sift:the_sift/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:siftslate_charoite_ore"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.kinda_purpleish.title",
+      "fallback": "Irgendwie lila"
+    },
+    "description": {
+      "translate": "advancement.the_sift.kinda_purpleish.description",
+      "fallback": "Baue Charoiterz ab"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

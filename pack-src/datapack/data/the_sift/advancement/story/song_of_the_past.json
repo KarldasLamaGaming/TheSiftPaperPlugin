@@ -1,0 +1,26 @@
+{
+  "parent": "the_sift:story/fallen_civilization",
+  "display": {
+    "icon": {
+      "id": "minecraft:goat_horn"
+    },
+    "title": {
+      "translate": "advancement.the_sift.story.song_of_the_past.title",
+      "fallback": "Lied der Vergangenheit"
+    },
+    "description": {
+      "translate": "advancement.the_sift.story.song_of_the_past.description",
+      "fallback": "Blase das Ziegenhorn im Zentrum einer antiken Stätte"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

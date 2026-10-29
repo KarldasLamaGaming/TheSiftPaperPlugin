@@ -57,7 +57,8 @@ public final class Main {
         ImportReport report = new ImportReport();
         Path clientJar = obtainClientJar(options.getOrDefault("--minecraft", "26.3"), cache);
         try (ZipFile zip = new ZipFile(jar.toFile()); ZipFile client = new ZipFile(clientJar.toFile())) {
-            importDatapack(zip, mapping, report, out.resolve("datapack"));
+            importDatapack(zip, mapping, report, out.resolve("datapack"), out.resolve("item-data"),
+                    german(out.resolve("resourcepack-overlay/assets/the_sift/lang/de_de.json")));
             Path pack = out.resolve("resourcepack");
             importAssets(zip, report, pack);
             writeBlockstateOverrides(zip, client, mapping, report, pack);
@@ -77,8 +78,8 @@ public final class Main {
         System.out.println("Imported " + jar.getFileName() + " into " + out);
     }
 
-    private static void importDatapack(ZipFile zip, BlockMapping mapping, ImportReport report, Path root)
-            throws IOException {
+    private static void importDatapack(ZipFile zip, BlockMapping mapping, ImportReport report, Path root,
+                                       Path itemData, Map<String, String> german) throws IOException {
         Map<String, JsonElement> json = new TreeMap<>();
         Map<String, byte[]> structures = new TreeMap<>();
         for (ZipEntry entry : zip.stream().toList()) {
@@ -107,6 +108,15 @@ public final class Main {
         deleteTree(data);
         for (var e : new DatapackImporter(mapping, report, biomeEffects()).run(json).entrySet()) {
             writeJson(data.resolve(e.getKey()), e.getValue());
+        }
+        // recipes and item tags for the plugin; chest loot, advancements and songs into the datapack
+        ItemDataImporter items = new ItemDataImporter(mapping, german, report);
+        for (var e : items.datapackFiles(json).entrySet()) {
+            writeJson(data.resolve(e.getKey()), e.getValue());
+        }
+        deleteTree(itemData);
+        for (var e : items.pluginFiles(json).entrySet()) {
+            writeJson(itemData.resolve(e.getKey()), e.getValue());
         }
         StructureImporter structureImporter = new StructureImporter(mapping, report);
         for (var e : structures.entrySet()) {
@@ -144,6 +154,16 @@ public final class Main {
         }
         writePackMeta(root, "The Sift für Lama Kingdom (Assets: Mielon's The Sift, MIT)", RESOURCE_FORMAT);
         copyLicense(zip, root);
+    }
+
+    /** The hand-written German lang file (pack-src/resourcepack-overlay). */
+    private static Map<String, String> german(Path langFile) throws IOException {
+        Map<String, String> german = new TreeMap<>();
+        if (Files.isRegularFile(langFile)) {
+            JsonParser.parseString(Files.readString(langFile)).getAsJsonObject().entrySet()
+                    .forEach(e -> german.put(e.getKey(), e.getValue().getAsString()));
+        }
+        return german;
     }
 
     /** "biome-effects" of worldgen-overrides.yml. */

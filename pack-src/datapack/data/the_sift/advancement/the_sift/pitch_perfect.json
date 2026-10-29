@@ -1,0 +1,29 @@
+{
+  "parent": "the_sift:the_sift/friend_of_the_sift",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:singer_spawn_egg"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.pitch_perfect.title",
+      "fallback": "Absolutes Gehör"
+    },
+    "description": {
+      "translate": "advancement.the_sift.pitch_perfect.description",
+      "fallback": "Tausche mit einem Sänger gegen einen Seelenblock"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "the_sift:story/song_of_the_past",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:siftslate_growth"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.story.brave_the_unknown.title",
+      "fallback": "Wage das Unbekannte"
+    },
+    "description": {
+      "translate": "advancement.the_sift.story.brave_the_unknown.description",
+      "fallback": "Betritt die Sift"
+    }
+  },
+  "criteria": {
+    "entered_sift": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "the_sift:the_sift"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "entered_sift"
+    ]
+  ]
+}

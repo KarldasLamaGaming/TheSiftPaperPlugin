@@ -61,7 +61,7 @@ public final class DatapackImporter {
         source.forEach((path, json) -> {
             if (IMPORTED_DIRS.stream().anyMatch(path::startsWith)) {
                 files.put(path, json.deepCopy());
-            } else {
+            } else if (!ItemDataImporter.handles(path)) {
                 report.note("Not imported in this step", path);
             }
         });

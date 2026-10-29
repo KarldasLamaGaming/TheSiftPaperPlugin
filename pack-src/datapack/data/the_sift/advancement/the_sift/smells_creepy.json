@@ -1,0 +1,38 @@
+{
+  "parent": "the_sift:the_sift/certified_sifter",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:sculkflower_seeds"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.smells_creepy.title",
+      "fallback": "Riecht unheimlich"
+    },
+    "description": {
+      "translate": "advancement.the_sift.smells_creepy.description",
+      "fallback": "Erhalte Sculkblumensamen"
+    }
+  },
+  "criteria": {
+    "seeds": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:custom_data": "{PublicBukkitValues:{\"the_sift:id\":\"sculkflower_seeds\"}}"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "seeds"
+    ]
+  ]
+}
