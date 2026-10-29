@@ -7,7 +7,8 @@ sich und schreibt beim Start, welche Version es erwartet (der Server selbst star
 Stand: Phase 1, Schritte 1–6 und 8 (Dimension, Datapack, eigene Blöcke, Items und Rezepte,
 Weltgenerierung mit Haupt-Portal, Resource Pack) plus Item-Menü. alpha.3: Weidenholz, Lotus, Ichorglas,
 Ichorfarbe; alpha.4: Siftit-Ausrüstung, Rezepte, Loot, Advancements; alpha.5: Weidenbäume, Pflanzenflecken,
-Oberflächen-Sculk, verlassene Portale, Haupt-Portal, brennbares Weidenholz.
+Oberflächen-Sculk, verlassene Portale, Haupt-Portal, brennbares Weidenholz; alpha.6: verlassene Portale
+wie im Original 1.1.1, Protokoll und `/sift debug portals`.
 
 ## Installation
 
@@ -229,10 +230,30 @@ Neustart nötig, gilt nur für neue Chunks):
 | Blumenflecken (Lotus, Sonnenstrahl, Flüsterblüte) | alle außer Ödland; Ödland seltener | jeder 9. Chunk, Ödland jeder 7. |
 | Pflanzenflecken auf Siftschiefer | alle | jeder 10. Chunk |
 | Oberflächen-Sculk (Vanilla-Sculk mit Sensoren, Kreischern, die Wärter rufen können, Katalysatoren) | alle außer Ichorschnee-Gipfel und Tiefes Dunkel | höchstens eine Region (50–120 Blöcke) je 512 × 512 |
-| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 32 × 32 Chunks, nur auf passendem Gelände |
+| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 20 × 20 Chunks (im mittleren Drittel der Zelle), nur auf passendem Gelände |
 
 Weiden, Lotus, Sonnenstrahlpflanze usw. entstehen aus den Vorlagen und Werten des Originals; Abweichungen
 in `docs/ABWEICHUNGEN.md`.
+
+### Verlassene Portale finden
+
+Verlassene Portale bestehen nur aus Siftschiefer, Sculk und einer Truhe und sehen deshalb fast wie
+Gelände aus. Das Plugin protokolliert seit alpha.6 jeden Kandidaten im Weltspeicher der Sift
+(`the_sift:abandoned_portal_log`):
+
+- `/sift debug portals` listet alle gebauten Portale (Klick auf die Koordinaten teleportiert zur Truhe)
+  und alle abgelehnten Kandidaten mit Position und Grund, z. B. „Gelände zu steil (Höhenunterschied 25 >
+  18)“, „Platz belegt durch the_sift:…“, „kein Sift-Boden in der Chunkmitte (verdeckt durch …)“,
+  „Fundament: Boden 10 Blöcke vom Vorlagenboden entfernt (> 8)“ oder „zu nah am Haupt-Portal“. Das Plugin
+  probiert alle vier Drehungen; passt keine, stehen ihre Gründe hintereinander.
+- `/sift debug landmarks [x z [zellen]]` zeigt die Kandidaten um eine Position mit Status: gebaut,
+  abgelehnt (Grund), noch nicht generiert oder „generiert vor alpha.6, kein Protokoll“.
+
+Chunks, die vor alpha.6 generiert wurden, stehen nicht im Protokoll.
+
+**Update auf alpha.6:** Eine vorhandene `config.yml` behält `worldgen.abandoned-portals.cell-chunks: 32`;
+für die Verteilung des Originals auf `20` setzen. Das neue Raster gilt nur für neue Chunks; zum Testen
+am besten eine frische Sift-Welt.
 
 ### Haupt-Portal
 
@@ -281,7 +302,8 @@ Weidenstamm, -holz, -bretter, -laub und -setzling brennen wie im Original und ta
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
 | `/sift debug worldgen` | Was die Weltgenerierung seit dem Start gesetzt hat (Weiden, Flecken, Sculk, verlassene Portale) und warum Portale ausfielen |
-| `/sift debug landmarks` | Kandidaten-Chunks der verlassenen Portale und Mitten der Sculk-Regionen um 0/0 |
+| `/sift debug portals` | Alle protokollierten verlassenen Portale: gebaute mit Teleport, abgelehnte mit Grund |
+| `/sift debug landmarks [x z [zellen]]` | Kandidaten-Chunks der verlassenen Portale um eine Position (Standard 0/0, ±1 Zelle) mit Status, dazu die Mitten der Sculk-Regionen |
 | `/sift debug heights <x> <z> <radius> <schritt>` | Höhenkarte der Sift als Text |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
 | `/sift debug selftest` | Items, Rezepte, Siftit-Schutz, Loot und Advancements ohne Spieler prüfen |

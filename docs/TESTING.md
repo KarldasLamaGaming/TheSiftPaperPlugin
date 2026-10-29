@@ -149,9 +149,15 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
       Siftschiefer) in allen Biomen.
 - [ ] Oberflächen-Sculk: `/sift debug landmarks` zeigt die Mitten der Sculk-Regionen; dort große Flecken
       aus Vanilla-Sculk mit Sensoren und Kreischern (Kreischer können einen Wärter rufen!), Adern am Rand.
-- [ ] Verlassene Portale: `/sift debug landmarks` zeigt Kandidaten (nicht jeder wird gebaut, siehe
-      `/sift debug worldgen`); Truhe öffnen: Beute aus `the_sift:chests/abandoned_portal` (echte Sift-Items,
-      oft die Aufwertungsvorlage oder die Schallplatte Rift).
+- [ ] Verlassene Portale: nach dem Generieren (z. B. Chunky) listet `/sift debug portals` die gebauten
+      Portale; Klick auf die Koordinaten teleportiert zur Truhe. Dort steht ein Portal aus Siftschiefer und
+      Sculk mit sanft angeglichenem Gelände drumherum. Truhe öffnen: Beute aus
+      `the_sift:chests/abandoned_portal` (echte Sift-Items, oft die Aufwertungsvorlage oder die Schallplatte
+      Rift).
+- [ ] Abgelehnte Kandidaten aus `/sift debug portals` stichprobenartig anschauen: Der Grund passt zum
+      Gelände (steiler Hang, Baum oder Ichor in der Chunkmitte …).
+- [ ] `/sift debug landmarks <x> <z>` um eine besuchte Gegend: jeder Kandidat hat einen Status (gebaut,
+      abgelehnt mit Grund, noch nicht generiert).
 - [ ] `/sift debug worldgen` nach dem Herumfliegen: Zähler steigen, `0 Fehler`.
 - [ ] Weidenholz brennt: Feuerzeug an einen Weidenstamm, Laub, Bretter; Feuer bleibt an Weidenblöcken und
       frisst sie langsam (Laub schnell), springt auf benachbarte Weidenblöcke über. Gamerule
