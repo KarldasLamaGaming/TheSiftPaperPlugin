@@ -58,7 +58,7 @@ class ItemRegistryTest {
     }
 
     @Test
-    void siftiteItemsAreProtectedLikeTheOriginalTag() throws java.io.IOException {
+    void siftiteAndAllSiftMaterialsAreProtected() throws java.io.IOException {
         ItemRegistry registry = bundled();
         java.nio.file.Path tag = java.nio.file.Path.of(System.getProperty("sift.packSrc", "../pack-src"),
                 "item-data", "tags", "item", "siftite_items.json");
@@ -66,7 +66,15 @@ class ItemRegistryTest {
         java.util.Set<String> expected = new java.util.TreeSet<>();
         com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(tag)).getAsJsonObject()
                 .getAsJsonArray("values").forEach(v -> expected.add(v.getAsString().substring("the_sift:".length())));
+        // Siftite (original tag) plus every Sift material and other item of items.yml
+        java.util.Set<String> blocks = new java.util.TreeSet<>();
+        MappingEntry.bundled().forEach(e -> blocks.add(e.id()));
+        registry.all().stream().map(ItemDefinition::id).filter(id -> !blocks.contains(id)).forEach(expected::add);
         assertEquals(expected, registry.protectedIds());
+        for (String material : List.of("charoite", "ichor_shard", "siftite_nugget", "sculkflower_seeds", "ichor_snowball")) {
+            assertTrue(registry.get(material).protectedItem(), material);
+        }
+        assertTrue(!registry.get("siftslate").protectedItem());
         assertEquals(ItemKind.SIFTITE_TOOL, registry.get("siftite_spear").kind());
         assertEquals(ItemKind.SIFTITE_ARMOR, registry.get("siftite_boots").kind());
         assertEquals("minecraft:netherite_boots", registry.get("siftite_boots").baseItem());

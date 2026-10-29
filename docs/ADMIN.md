@@ -117,6 +117,8 @@ zeigt, welche Form ein Block hat.
 
 ### Bekannte Einschränkungen
 
+Alle Abweichungen vom Original, die bewusst so bleiben, sammelt `docs/ABWEICHUNGEN.md`.
+
 - Schritt- und Abbaugeräusche bestimmt der Client nach dem Vanilla-Block: Siftschiefer, Sculk und
   Weidenlaub klingen nach Holz (Pilzblock), Pflanzen nach Faden, Ichorglas nach Chorus.
 - Weidenholz und -laub brennen nicht, Weidenlaub zerfällt nicht und taugt nicht als Brennstoff.
@@ -166,10 +168,12 @@ Besätze bleiben). Die Vorlage liegt in Truhen verlassener Portale (Schritt 6) u
 
 Werte gelten für Items, die nach dem Neustart entstehen; schon vorhandene Items behalten ihre Werte.
 
-### Schutz: Siftit ist kein Netherit
+### Schutz: Sift-Items sind keine Vanilla-Items
 
-Siftit-Items (in `items.yml` mit `protect: true`, entspricht dem Original-Tag `the_sift:siftite_items`)
-werden nie wie das Vanilla-Item behandelt, auf dem sie aufbauen:
+Siftit-Ausrüstung, alle Sift-Materialien (Charoit, Ichorscherbe, Siftitklumpen und -barren, Vorlage),
+Samen, Ichorschneeball, Essen, Ichorflasche und Schallplatten (in `items.yml` alle mit `protect: true`;
+`ItemRegistryTest` prüft, dass keines fehlt) werden nie wie das Vanilla-Item behandelt, auf dem sie
+aufbauen (Netherit, Papier, Schneeball). Charoit gibt also kein Buch und wird nicht als Papier gehandelt:
 
 - Werkbank und Crafter: Vanilla-Rezepte nehmen sie nicht an (z. B. kein Reparieren durch Kombinieren).
 - Schmiedetisch: keine Vanilla-Aufwertung mit Siftit-Vorlage, -Barren oder -Teil; Rüstungsbesätze auf
@@ -177,7 +181,7 @@ werden nie wie das Vanilla-Item behandelt, auf dem sie aufbauen:
 - Amboss: Siftit-Teile nur mit Siftitbarren reparieren oder mit demselben Siftit-Teil kombinieren;
   Verzauberungsbücher und Umbenennen gehen. Netherit-Teile lassen sich nicht mit Siftit reparieren.
 - Schleifstein: zwei Teile nur, wenn beide dasselbe Siftit-Teil sind.
-- Steinsäge, Webstuhl, Kartentisch, Dorfbewohner-Handel: Siftit wird nicht angenommen.
+- Steinsäge, Webstuhl, Kartentisch, Dorfbewohner-Handel: geschützte Items werden nicht angenommen.
 
 Echtes Netherit und alle Vanilla-Rezepte bleiben unverändert (belegt durch `SiftiteGuardRulesTest` und
 `/sift debug selftest`).
@@ -191,11 +195,7 @@ ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-It
 - Ergebnisse, die es hier nur als Vanilla-Block gibt, ergeben diesen: Siftschiefer-Treppen/-Stufen/-Mauern
   → Tiefenschiefer-Varianten, Weiden-Tür/-Zaun/-Schild/-Boot usw. → Mangrove, Ichorglasscheibe → lila
   Glasscheibe, Ichorschnee → Schnee.
-- Ausgelassen (3): gemeißelter Siftschiefer aus Siftschieferziegelstufen (die Stufen sind hier
-  Tiefenschieferziegelstufen; Vanilla macht daraus schon gemeißelten Tiefenschiefer; aus Siftschiefer und
-  Siftschieferziegeln per Steinsäge geht es weiter) und das Weiden-Truhenboot (das Boot ist ein Mangrovenboot).
-- Zusätzlich (im Original über die Vanilla-Tags `#planks`/`#logs`): Weidenbretter → Stöcke und Werkbank,
-  Weidenstämme → Holzkohle. Andere Holzrezepte (Truhe, Fass, Werkzeuge) nehmen Weidenbretter nicht an.
+- 3 Rezepte fehlen, 3 sind hinzugekommen: siehe `docs/ABWEICHUNGEN.md`.
 
 ### Weitere Items
 

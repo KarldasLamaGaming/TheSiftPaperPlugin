@@ -5,15 +5,16 @@
 #   base:     vanilla item the Sift item is built on
 #   kind:     plain (default) | siftite-tool | siftite-armor | smithing-template | food | drink | music-disc
 #   protect:  true = the item is never used like its vanilla base: vanilla recipes, smithing, anvil
-#             repairs and trades refuse it (original tag the_sift:siftite_items)
+#             repairs and trades refuse it. Set for every item here (all Sift materials, Siftite gear,
+#             food, discs); ItemRegistryTest checks that none is missing.
 items:
-  charoite: {category: materials, base: "minecraft:paper"}
+  charoite: {category: materials, base: "minecraft:paper", protect: true}
   siftite_nugget: {category: materials, base: "minecraft:paper", protect: true}
   siftite_ingot: {category: materials, base: "minecraft:paper", protect: true}
   siftite_upgrade_smithing_template: {category: materials, base: "minecraft:paper", kind: smithing-template, protect: true}
-  ichor_shard: {category: materials, base: "minecraft:paper"}
-  sculkflower_seeds: {category: plants_wood, base: "minecraft:paper"}
-  ichor_snowball: {category: misc, base: "minecraft:snowball"}
+  ichor_shard: {category: materials, base: "minecraft:paper", protect: true}
+  sculkflower_seeds: {category: plants_wood, base: "minecraft:paper", protect: true}
+  ichor_snowball: {category: misc, base: "minecraft:snowball", protect: true}
   siftite_sword: {category: tools, base: "minecraft:netherite_sword", kind: siftite-tool, protect: true}
   siftite_shovel: {category: tools, base: "minecraft:netherite_shovel", kind: siftite-tool, protect: true}
   siftite_pickaxe: {category: tools, base: "minecraft:netherite_pickaxe", kind: siftite-tool, protect: true}
@@ -24,11 +25,11 @@ items:
   siftite_chestplate: {category: armor, base: "minecraft:netherite_chestplate", kind: siftite-armor, protect: true}
   siftite_leggings: {category: armor, base: "minecraft:netherite_leggings", kind: siftite-armor, protect: true}
   siftite_boots: {category: armor, base: "minecraft:netherite_boots", kind: siftite-armor, protect: true}
-  raw_sifter_meat: {category: misc, base: "minecraft:paper", kind: food}
-  cooked_sifter_meat: {category: misc, base: "minecraft:paper", kind: food}
-  ichor_bottle: {category: misc, base: "minecraft:paper", kind: drink}
-  music_disc_rift: {category: misc, base: "minecraft:paper", kind: music-disc}
-  music_disc_wellspring: {category: misc, base: "minecraft:paper", kind: music-disc}
+  raw_sifter_meat: {category: misc, base: "minecraft:paper", kind: food, protect: true}
+  cooked_sifter_meat: {category: misc, base: "minecraft:paper", kind: food, protect: true}
+  ichor_bottle: {category: misc, base: "minecraft:paper", kind: drink, protect: true}
+  music_disc_rift: {category: misc, base: "minecraft:paper", kind: music-disc, protect: true}
+  music_disc_wellspring: {category: misc, base: "minecraft:paper", kind: music-disc, protect: true}
 
 # Blocks whose items are protected like the items above (also in the_sift:siftite_items)
 protected-blocks:
