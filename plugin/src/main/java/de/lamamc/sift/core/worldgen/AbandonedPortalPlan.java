@@ -15,6 +15,13 @@ public final class AbandonedPortalPlan {
     public static final int FOUNDATION_BLEND_RADIUS = 12;
     public static final int MAX_EARTHWORK = 8;
     public static final int TEMPLATE_VARIANTS = 5;
+    /**
+     * Share of the candidates that may try to build. 1.0 is the original; until the phase 3 features
+     * (soul canyons, ichor lakes, lava floors, monoliths, spikes) take their space, 0.25 brings the count
+     * close to it (seed "lamakingdom", 49 candidates: original 6 built, plugin 24 without this chance).
+     */
+    public static final double DEFAULT_CHANCE = 0.25;
+    private static final long CHANCE_SALT = 0x5A1F7C0DE1A5B0B5L;
     /** Half size of the square the portal reserves against other solid features (centre −23 … +22). */
     public static final int RESERVE_BELOW = 23;
     public static final int RESERVE_ABOVE = 22;
@@ -61,6 +68,20 @@ public final class AbandonedPortalPlan {
     /** Under the template the natural ground may be at most this far from the floor. */
     public static boolean coreFits(int floorY, int naturalTop) {
         return Math.abs(floorY - naturalTop) <= MAX_EARTHWORK;
+    }
+
+    /** Whether the candidate in this chunk may try to build; fixed per seed and chunk. */
+    public static boolean passesChance(long seed, int chunkX, int chunkZ, double chance) {
+        if (chance >= 1.0) {
+            return true;
+        }
+        long value = seed ^ CHANCE_SALT ^ (long) chunkX * -7046029254386353131L ^ (long) chunkZ * -4417276706812531889L;
+        value ^= value >>> 30;
+        value *= -4658895280553007687L;
+        value ^= value >>> 27;
+        value *= -7723592293110705685L;
+        value ^= value >>> 31;
+        return (value >>> 11) * 0x1.0p-53 < chance;
     }
 
     /** Vanilla BlockPos#asLong (26 bits x, 26 bits z, 12 bits y); seeds the foundation noise. */

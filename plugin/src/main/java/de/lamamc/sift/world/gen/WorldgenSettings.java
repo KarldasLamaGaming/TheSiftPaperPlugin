@@ -1,5 +1,6 @@
 package de.lamamc.sift.world.gen;
 
+import de.lamamc.sift.core.worldgen.AbandonedPortalPlan;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,7 +12,8 @@ public record WorldgenSettings(boolean willowTrees, double bigWillowChance, int 
                                int wastesFlowerRarity, Set<String> wastesFlowerBiomes,
                                boolean plantPatches, int plantRarity, Set<String> plantBiomes,
                                boolean surfaceSculk, Set<String> sculkBiomes,
-                               boolean abandonedPortals, int portalCellChunks, Set<String> portalBiomes, String portalChestLoot,
+                               boolean abandonedPortals, int portalCellChunks, double portalChance, Set<String> portalBiomes,
+                               String portalChestLoot,
                                boolean mainPortal) {
 
     public static WorldgenSettings load(ConfigurationSection root) {
@@ -30,6 +32,7 @@ public record WorldgenSettings(boolean willowTrees, double bigWillowChance, int 
                 set(w, "plant-patches.biomes"),
                 w.getBoolean("surface-sculk.enabled", true), set(w, "surface-sculk.biomes"),
                 w.getBoolean("abandoned-portals.enabled", true), Math.max(1, w.getInt("abandoned-portals.cell-chunks", 20)),
+                Math.clamp(w.getDouble("abandoned-portals.chance", AbandonedPortalPlan.DEFAULT_CHANCE), 0.0, 1.0),
                 set(w, "abandoned-portals.biomes"),
                 w.getString("abandoned-portals.chest-loot", "the_sift:chests/abandoned_portal"),
                 w.getBoolean("main-portal.enabled", true));

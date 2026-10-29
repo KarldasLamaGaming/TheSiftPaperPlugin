@@ -101,6 +101,9 @@ worldgen:
     enabled: true
     # ein Kandidat je Zelle aus N × N Chunks (Original 1.1.1: 20), immer im mittleren Drittel der Zelle
     cell-chunks: 20
+    # Anteil der Kandidaten, die bauen dürfen (0.0–1.0). Original = 1.0; bis Phase 3 (Schluchten, Seen,
+    # Monolithen nehmen dort Platz weg) ergibt 0.25 etwa die Menge des Originals. Mit Phase 3 auf 1.0.
+    chance: 0.25
     biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_wastes, siftslate_peaks, siftslate_slopes]
     chest-loot: "the_sift:chests/abandoned_portal"
   main-portal:

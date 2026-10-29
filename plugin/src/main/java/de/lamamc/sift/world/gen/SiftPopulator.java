@@ -2,6 +2,7 @@ package de.lamamc.sift.world.gen;
 
 import de.lamamc.sift.block.CustomBlockRegistry;
 import de.lamamc.sift.block.PlantSupport;
+import de.lamamc.sift.core.worldgen.AbandonedPortalPlan;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -106,6 +107,9 @@ public final class SiftPopulator extends BlockPopulator {
                     ? AbandonedPortals.rejected(chunkX, chunkZ, centerX, surfaceY, centerZ, "Biom " + biome + " ohne verlassene Portale")
                     : reservation.intersects(centerX, centerZ, 28)
                     ? AbandonedPortals.rejected(chunkX, chunkZ, centerX, surfaceY, centerZ, "zu nah am Haupt-Portal")
+                    : !AbandonedPortalPlan.passesChance(seed, chunkX, chunkZ, settings.portalChance())
+                    ? AbandonedPortals.rejected(chunkX, chunkZ, centerX, surfaceY, centerZ,
+                    "nicht ausgewählt (chance " + settings.portalChance() + ")")
                     : portals.place(region, random, chunkX, chunkZ, overgrown || biome.equals("ichor_snowy_peaks"), seed,
                     reservation);
             log.record(entry);

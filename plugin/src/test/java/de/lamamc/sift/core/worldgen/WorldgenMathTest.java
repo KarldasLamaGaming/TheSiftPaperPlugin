@@ -184,4 +184,38 @@ class WorldgenMathTest {
         assertEquals(0xFFFL, AbandonedPortalPlan.packPos(0, -1, 0));
         assertEquals(-1L, AbandonedPortalPlan.packPos(-1, -1, -1));
     }
+
+    @Test
+    void portalChanceThinsCandidatesDeterministically() {
+        int passed = 0;
+        int total = 0;
+        for (int x = -100; x < 100; x++) {
+            for (int z = -100; z < 100; z++) {
+                total++;
+                if (AbandonedPortalPlan.passesChance(SEED, x, z, 0.25)) {
+                    passed++;
+                }
+                assertEquals(AbandonedPortalPlan.passesChance(SEED, x, z, 0.25), AbandonedPortalPlan.passesChance(SEED, x, z, 0.25));
+                assertTrue(AbandonedPortalPlan.passesChance(SEED, x, z, 1.0));
+                assertFalse(AbandonedPortalPlan.passesChance(SEED, x, z, 0.0));
+            }
+        }
+        assertEquals(0.25, passed / (double) total, 0.01);
+        // a chunk that passes at 0.25 also passes at any higher chance
+        for (int x = 0; x < 50; x++) {
+            if (AbandonedPortalPlan.passesChance(SEED, x, 7, 0.25)) {
+                assertTrue(AbandonedPortalPlan.passesChance(SEED, x, 7, 0.5));
+            }
+        }
+    }
+
+    @Test
+    void bundledConfigUsesTheDefaultChance() throws java.io.IOException {
+        try (var in = WorldgenMathTest.class.getResourceAsStream("/config.yml")) {
+            var config = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
+                    new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8));
+            assertEquals(AbandonedPortalPlan.DEFAULT_CHANCE, config.getDouble("worldgen.abandoned-portals.chance"));
+            assertEquals(AbandonedPortalPlan.CELL_CHUNKS, config.getInt("worldgen.abandoned-portals.cell-chunks"));
+        }
+    }
 }
