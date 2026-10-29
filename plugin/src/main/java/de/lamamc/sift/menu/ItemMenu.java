@@ -4,7 +4,9 @@ import de.lamamc.sift.core.Paging;
 import de.lamamc.sift.item.ItemCategory;
 import de.lamamc.sift.item.ItemDefinition;
 import de.lamamc.sift.item.SiftItems;
+import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -26,6 +28,10 @@ public final class ItemMenu implements InventoryHolder {
     public static final int PREVIOUS = 45;
     public static final int FIRST_TAB = 46;
     public static final int NEXT = 53;
+    /** Tooltip parts the category tabs hide. */
+    public static final List<DataComponentType> TAB_HIDDEN = List.of(DataComponentTypes.ATTRIBUTE_MODIFIERS,
+            DataComponentTypes.ENCHANTMENTS, DataComponentTypes.UNBREAKABLE, DataComponentTypes.DAMAGE_RESISTANT,
+            DataComponentTypes.JUKEBOX_PLAYABLE);
 
     private final SiftItems items;
     private final ItemCategory category;
@@ -84,6 +90,9 @@ public final class ItemMenu implements InventoryHolder {
         icon.setData(DataComponentTypes.ITEM_NAME, Component.text(tab.title(),
                 active ? NamedTextColor.GOLD : NamedTextColor.WHITE));
         icon.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, active);
+        // a tab is a symbol, not gear: no attack damage, armor or other attribute lines
+        icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+                .addHiddenComponents(TAB_HIDDEN.toArray(DataComponentType[]::new)).build());
         return icon;
     }
 

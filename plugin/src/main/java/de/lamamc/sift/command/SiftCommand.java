@@ -263,6 +263,16 @@ public final class SiftCommand {
             long filled = java.util.Arrays.stream(menu.getInventory().getContents()).filter(java.util.Objects::nonNull).count();
             sender.sendPlainMessage(category.title() + ": " + ids.size() + " Items, " + filled + " belegte Slots " + ids);
         }
+        ItemMenu menu = ItemMenu.build(plugin.items(), ItemCategory.values()[0], 0);
+        int tabsWithAttributes = 0;
+        for (int i = 0; i < ItemCategory.values().length; i++) {
+            var tooltip = menu.getInventory().getItem(ItemMenu.FIRST_TAB + i)
+                    .getData(io.papermc.paper.datacomponent.DataComponentTypes.TOOLTIP_DISPLAY);
+            if (tooltip == null || !tooltip.hiddenComponents().containsAll(ItemMenu.TAB_HIDDEN)) {
+                tabsWithAttributes++;
+            }
+        }
+        sender.sendPlainMessage("Menü-Symbole mit sichtbaren Attributen: " + tabsWithAttributes + " (sollte 0 sein)");
         return Command.SINGLE_SUCCESS;
     }
 
