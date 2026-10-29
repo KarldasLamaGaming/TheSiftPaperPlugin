@@ -81,6 +81,37 @@ plant-support:
   - "the_sift:dry_healthy_sculk_growth"
   - "#minecraft:supports_vegetation"
 
+# Weltgenerierung der Sift (Werte nach Mielon's The Sift 1.1.1). [Start] Gilt für neu generierte Chunks.
+# biomes: Biome der Sift ohne "the_sift:"; Häufigkeiten wie im Original (rarity N = in jedem N-ten Chunk).
+worldgen:
+  willow-trees:
+    enabled: true
+    # Anteil großer Weiden (sonst kleine)
+    big-chance: 0.38
+    dense: {count: 5, biomes: [overgrown_forest, overgrown_forest_slopes, overgrown_peaks]}
+    sparse: {rarity: 7, biomes: [overgrown_clearing, overgrown_slopes, ichor_snowy_peaks]}
+  flower-patches:
+    enabled: true
+    rarity: 9
+    biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_deep_dark, siftslate_peaks, siftslate_slopes]
+    wastes: {rarity: 7, biomes: [sift_wastes]}
+  plant-patches:
+    enabled: true
+    rarity: 10
+    biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_deep_dark, sift_wastes, siftslate_peaks, siftslate_slopes]
+  surface-sculk:
+    enabled: true
+    biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_wastes, siftslate_peaks, siftslate_slopes]
+  abandoned-portals:
+    enabled: true
+    # ein verlassenes Portal je Zelle aus N × N Chunks
+    cell-chunks: 32
+    biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_wastes, siftslate_peaks, siftslate_slopes]
+    chest-loot: "the_sift:chests/abandoned_portal"
+  main-portal:
+    # Haupt-Portal beim ersten Start in der Nähe von 0/0 bauen
+    enabled: true
+
 # Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
 items:
   siftite:

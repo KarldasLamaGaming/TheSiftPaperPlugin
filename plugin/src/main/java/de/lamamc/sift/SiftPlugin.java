@@ -20,6 +20,10 @@ import de.lamamc.sift.menu.ItemMenuListener;
 import de.lamamc.sift.pack.ResourcePackService;
 import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
+import de.lamamc.sift.world.gen.SiftPopulator;
+import de.lamamc.sift.world.gen.SiftTemplates;
+import de.lamamc.sift.world.gen.WorldgenSettings;
+import de.lamamc.sift.block.PlantSupport;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.util.List;
 import org.bukkit.World;
@@ -37,6 +41,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private SiftItems items;
     private ResourcePackService resourcePack;
     private SiftRecipes recipes;
+    private SiftPopulator siftPopulator;
 
     @Override
     public void onEnable() {
@@ -98,11 +103,20 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     }
 
     private void attach(World world) {
-        if (!SiftWorlds.isSift(world) || debugPopulator == null || world.getPopulators().contains(debugPopulator)) {
+        if (!SiftWorlds.isSift(world)) {
             return;
         }
-        world.getPopulators().add(debugPopulator);
-        getLogger().info("Debug populator attached to " + world.getKey());
+        if (siftPopulator == null) {
+            WorldgenSettings worldgen = WorldgenSettings.load(getConfig());
+            SiftTemplates templates = new SiftTemplates(blocks, SiftPopulator.templateNames(), getLogger());
+            siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, getLogger());
+            world.getPopulators().add(siftPopulator);
+            getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
+        }
+        if (debugPopulator != null && !world.getPopulators().contains(debugPopulator)) {
+            world.getPopulators().add(debugPopulator);
+            getLogger().info("Debug populator attached to " + world.getKey());
+        }
     }
 
     @Override
@@ -126,6 +140,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public SiftItems items() {
         return items;
+    }
+
+    public SiftPopulator siftPopulator() {
+        return siftPopulator;
     }
 
     public SiftRecipes recipes() {

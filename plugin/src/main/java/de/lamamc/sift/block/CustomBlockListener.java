@@ -54,11 +54,13 @@ public final class CustomBlockListener implements Listener {
     private final CustomBlockRegistry registry;
     private final BlockSettings settings;
     private final SiftItems items;
+    private final PlantSupport support;
 
     public CustomBlockListener(Plugin plugin, CustomBlockRegistry registry, BlockSettings settings, SiftItems items) {
         this.plugin = plugin;
         this.registry = registry;
         this.settings = settings;
+        this.support = new PlantSupport(settings, registry);
         this.items = items;
     }
 
@@ -280,34 +282,7 @@ public final class CustomBlockListener implements Listener {
     }
 
     private boolean supported(String id, Block block) {
-        BlockSettings.Support support = settings.support(id);
-        if (support == null) {
-            return true;
-        }
-        Block base = block.getRelative(support.above() ? BlockFace.UP : BlockFace.DOWN);
-        if (support.blocks().isEmpty()) {
-            return base.getType().isSolid();
-        }
-        CustomBlock baseCustom = registry.at(base);
-        for (String entry : support.blocks()) {
-            if (entry.startsWith("#")) {
-                Tag<Material> tag = Bukkit.getTag(Tag.REGISTRY_BLOCKS, NamespacedKey.fromString(entry.substring(1)),
-                        Material.class);
-                if (baseCustom == null && tag != null && tag.isTagged(base.getType())) {
-                    return true;
-                }
-            } else if (entry.startsWith("the_sift:")) {
-                if (baseCustom != null && entry.equals("the_sift:" + baseCustom.id())) {
-                    return true;
-                }
-            } else if (baseCustom == null) {
-                Material material = Material.matchMaterial(entry);
-                if (material == base.getType()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return support.supports(id, block.getRelative(support.above(id) ? BlockFace.UP : BlockFace.DOWN).getBlockData());
     }
 
     // ---- helpers ------------------------------------------------------------------------------------
