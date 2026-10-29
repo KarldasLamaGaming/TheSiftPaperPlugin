@@ -60,13 +60,6 @@ public final class ItemRegistry {
                         ItemKind.parse(section.getString(id + ".kind", "plain")),
                         section.getBoolean(id + ".protect", false)));
             }
-            for (String id : yaml.getStringList("protected-blocks")) {
-                ItemDefinition block = items.get(id);
-                if (block == null) {
-                    throw new IllegalArgumentException("items.yml: protected block " + id + " is unknown");
-                }
-                items.put(id, new ItemDefinition(id, block.category(), block.baseItem(), block.kind(), true));
-            }
         }
     }
 

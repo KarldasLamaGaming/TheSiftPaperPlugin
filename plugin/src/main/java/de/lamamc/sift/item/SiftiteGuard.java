@@ -7,6 +7,7 @@ import io.papermc.paper.event.player.PlayerTradeEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.block.Container;
@@ -25,6 +26,8 @@ import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.SmithingTrimRecipe;
+import org.bukkit.inventory.StonecutterInventory;
+import org.bukkit.inventory.StonecuttingRecipe;
 
 /**
  * Keeps protected Sift items (Siftite, items.yml {@code protect: true}) from being used like the vanilla
@@ -102,12 +105,30 @@ public final class SiftiteGuard implements Listener {
             Recipe recipe = table.getRecipe();
             allowed = rules.smithingAllowed(recipe != null && isSiftRecipe(recipe), recipe instanceof SmithingTrimRecipe,
                     input(table.getInputTemplate()), input(table.getInputEquipment()), input(table.getInputMineral()));
+        } else if (inventory instanceof StonecutterInventory cutter) {
+            // Sift block items have their own stonecutter recipes (siftslate -> stairs ...)
+            allowed = rules.recipeAllowed(isSiftStonecutting(cutter.getInputItem(), event.getResult()),
+                    inputs(cutter.getInputItem()));
         } else {
             allowed = rules.otherStationAllowed(inputs(inventory.getContents()).toArray(Input[]::new));
         }
         if (!allowed) {
             event.setResult(null);
         }
+    }
+
+    /** Whether a Sift stonecutter recipe turns this input into this result (the inventory does not say which recipe). */
+    static boolean isSiftStonecutting(ItemStack input, ItemStack result) {
+        if (input == null || input.isEmpty() || result == null || result.isEmpty()) {
+            return false;
+        }
+        for (Recipe recipe : Bukkit.getRecipesFor(result)) {
+            if (recipe instanceof StonecuttingRecipe cutting && isSiftRecipe(cutting)
+                    && cutting.getInputChoice().test(input) && cutting.getResult().isSimilar(result)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
