@@ -3,6 +3,24 @@
 Für den separaten Testserver, nie auf dem Produktivserver. Paper 26.3, frische Welt, Vanilla-Client 26.3.
 Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtbar) und Log-Auszug melden.
 
+## Sift-Welt zurücksetzen
+
+Für Tests der Weltgenerierung (z. B. nach einem Update mit neuer Verteilung) nur die Sift neu erzeugen;
+Hauptwelt, Nether, End und Spielerdaten bleiben.
+
+1. Alle Spieler aus der Sift holen (`/sift tp` in der Sift bringt zurück in die Hauptwelt), sonst landen
+   sie nach dem Neustart in einer neuen Welt an derselben Stelle.
+2. Server stoppen.
+3. Ordner `<welt>/dimensions/the_sift/the_sift/` löschen (`<welt>` = `level-name` aus
+   `server.properties`, meist `world`). Darin liegen Gelände, Haupt-Portal-Ankunftspunkt und das
+   Portal-Protokoll; sonst nichts löschen.
+4. Bei Bedarf `plugins/TheSift/config.yml` anpassen (oder löschen, dann schreibt das Plugin die neue
+   Standard-Config; eigene Werte vorher sichern).
+5. Server starten. Erwartung: Log `Selecting a location for the main Sift portal …` und
+   `Main Sift portal ready at x y z`; `/sift debug portals` ist leer.
+6. Für viele Portale auf einmal Chunks vorgenerieren (z. B. Chunky in `the_sift:the_sift`), danach
+   `/sift debug portals`.
+
 ## Vorbereitung
 
 - [ ] Plugin-Jar und `resource-pack.url` aus demselben Release (Standard passt automatisch).
@@ -92,6 +110,8 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
       vor den Spieler.
 - [ ] Items ins Menü legen, ziehen oder per Zahlentaste tauschen geht nicht.
 - [ ] Werkzeuge/Rüstung: Siftit-Werkzeuge, Speer und Rüstung mit Original-Optik.
+- [ ] Reiter-Symbole unten (z. B. Werkzeuge = Siftitschwert, Rüstung): Tooltip nur mit Namen, ohne
+      Angriffsschaden, Rüstung oder andere Attribute. Die Items im Menü selbst zeigen ihre Werte weiter.
 - [ ] `/sift give <spieler> <id> [anzahl]`: Tab-Vervollständigung zeigt alle Ids.
 - [ ] Spieler nur mit `thesift.admin.items`: `/sift items` und `/sift give` gehen, `/sift tp`,
       `/sift pack`, `/sift debug` nicht sichtbar. Spieler ohne Rechte: `/sift` unbekannt.
@@ -126,6 +146,10 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
   - [ ] Sift-Materialien wie Papier: 3 Charoit + Leder ergibt kein Buch; Ichorscherben/Charoit im
         Kartentisch und beim Bibliothekar abgelehnt; 4 Ichorschneebälle ergeben Ichorschneeblock, keinen
         Schneeblock.
+  - [ ] Block-Items (ab alpha.6): Überwucherte Wedel/Halme/Sprossen wie Faden (Bogen, Angel, Wolle) ergeben
+        nichts; Ichorglas wie Glas (Leuchtfeuer, Glasflaschen) ergibt nichts. Erlaubt: 6 Ichorglas →
+        Ichorglasscheibe, Weidenbretter → Stöcke/Werkbank, Weidenstamm → Holzkohle, Siftschiefer in der
+        Steinsäge, Weidenholz als Ofen-Brennstoff.
 - [ ] Gegenprobe Netherit unverändert: Netherit-Aufwertung, Reparatur mit Netheritbarren, zwei
       Netheritschwerter kombinieren, Netheritblock aus 9 Barren.
 - [ ] Essen: rohes/gebratenes Sifterfleisch essbar (3 bzw. 8 Hunger); Ichorflasche trinkbar
@@ -149,9 +173,17 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
       Siftschiefer) in allen Biomen.
 - [ ] Oberflächen-Sculk: `/sift debug landmarks` zeigt die Mitten der Sculk-Regionen; dort große Flecken
       aus Vanilla-Sculk mit Sensoren und Kreischern (Kreischer können einen Wärter rufen!), Adern am Rand.
-- [ ] Verlassene Portale: `/sift debug landmarks` zeigt Kandidaten (nicht jeder wird gebaut, siehe
-      `/sift debug worldgen`); Truhe öffnen: Beute aus `the_sift:chests/abandoned_portal` (echte Sift-Items,
-      oft die Aufwertungsvorlage oder die Schallplatte Rift).
+- [ ] Verlassene Portale: nach dem Generieren (z. B. Chunky) listet `/sift debug portals` die gebauten
+      Portale; Klick auf die Koordinaten teleportiert zur Truhe. Dort steht ein Portal aus Siftschiefer und
+      Sculk mit sanft angeglichenem Gelände drumherum. Truhe öffnen: Beute aus
+      `the_sift:chests/abandoned_portal` (echte Sift-Items, oft die Aufwertungsvorlage oder die Schallplatte
+      Rift).
+- [ ] Menge: nach dem Vorgenerieren ist etwa jeder siebte bis achte Kandidat gebaut; die meisten anderen
+      stehen als „nicht ausgewählt (chance 0.25)“ in `/sift debug portals`.
+- [ ] Abgelehnte Kandidaten aus `/sift debug portals` stichprobenartig anschauen: Der Grund passt zum
+      Gelände (steiler Hang, Baum oder Ichor in der Chunkmitte …).
+- [ ] `/sift debug landmarks <x> <z>` um eine besuchte Gegend: jeder Kandidat hat einen Status (gebaut,
+      abgelehnt mit Grund, noch nicht generiert).
 - [ ] `/sift debug worldgen` nach dem Herumfliegen: Zähler steigen, `0 Fehler`.
 - [ ] Weidenholz brennt: Feuerzeug an einen Weidenstamm, Laub, Bretter; Feuer bleibt an Weidenblöcken und
       frisst sie langsam (Laub schnell), springt auf benachbarte Weidenblöcke über. Gamerule

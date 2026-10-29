@@ -1,62 +1,92 @@
 package de.lamamc.sift.core.worldgen;
 
+import java.util.List;
+
 /**
- * Geometry of the abandoned portals (AbandonedMainPortalFeature of the original): one per 32×32 chunks,
- * only on terrain with at most 20 blocks of relief along the template, with a foundation that slopes
- * from the template base into the surrounding terrain within 15 blocks.
+ * Geometry of the abandoned portals (AbandonedMainPortalFeature of the original, version 1.1.1): the
+ * template's natural blocks are centred on the chunk centre, the columns under them may differ by at
+ * most 18 blocks, the template sits one block above their median, and a foundation within about 12
+ * blocks moves the surrounding terrain at most 8 blocks towards the template floor.
  */
 public final class AbandonedPortalPlan {
 
-    public static final int CELL_CHUNKS = 32;
-    public static final int PIVOT_X = 4;
-    public static final int PIVOT_Z = 19;
-    public static final int MAX_RELIEF = 20;
-    public static final int FOUNDATION_BLEND_RADIUS = 15;
+    public static final int CELL_CHUNKS = 20;
+    public static final int MAX_RELIEF = 18;
+    public static final int FOUNDATION_BLEND_RADIUS = 12;
+    public static final int MAX_EARTHWORK = 8;
     public static final int TEMPLATE_VARIANTS = 5;
+    /**
+     * Share of the candidates that may try to build. 1.0 is the original; until the phase 3 features
+     * (soul canyons, ichor lakes, lava floors, monoliths, spikes) take their space, 0.25 brings the count
+     * close to it (seed "lamakingdom", 49 candidates: original 6 built, plugin 24 without this chance).
+     */
+    public static final double DEFAULT_CHANCE = 0.25;
+    private static final long CHANCE_SALT = 0x5A1F7C0DE1A5B0B5L;
+    /** Half size of the square the portal reserves against other solid features (centre −23 … +22). */
+    public static final int RESERVE_BELOW = 23;
+    public static final int RESERVE_ABOVE = 22;
 
     private AbandonedPortalPlan() {
     }
 
-    /** Relief check along the template (3 × 5 samples, rotated with it). */
-    public static boolean terrainFits(MainPortalPlan.Heights heights, int centerX, int centerZ,
-                                      TemplateTransform.Rotation rotation) {
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
-        for (int lateral = -4; lateral <= 4; lateral += 4) {
-            for (int lengthwise = -16; lengthwise <= 16; lengthwise += 8) {
-                int[] offset = rotateOffset(lateral, lengthwise, rotation);
-                int height = heights.surfaceY(centerX + offset[0], centerZ + offset[1]);
-                min = Math.min(min, height);
-                max = Math.max(max, height);
-                if (max - min > MAX_RELIEF) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    /** Template origin on one axis so that the natural blocks {@code min … max} are centred on {@code center}. */
+    public static int centredOrigin(int center, int min, int max) {
+        return center - Math.floorDiv(min + max + 1, 2);
     }
 
-    static int[] rotateOffset(int x, int z, TemplateTransform.Rotation rotation) {
-        return switch (rotation) {
-            case NONE -> new int[] {x, z};
-            case CLOCKWISE_90 -> new int[] {-z, x};
-            case CLOCKWISE_180 -> new int[] {-x, -z};
-            case COUNTERCLOCKWISE_90 -> new int[] {z, -x};
-        };
+    /** Height difference of the sorted surface heights under the template. */
+    public static int relief(List<Integer> sortedHeights) {
+        return sortedHeights.getLast() - sortedHeights.getFirst();
+    }
+
+    /** Floor of the template: one block above the median surface. */
+    public static int groundY(List<Integer> sortedHeights) {
+        return sortedHeights.get(sortedHeights.size() / 2) + 1;
+    }
+
+    /** Noisy edge of the foundation around the template footprint. */
+    public static double foundationEdge(int x, int z, long noiseSalt) {
+        return FOUNDATION_BLEND_RADIUS + blendNoise(x, z, noiseSalt) * 1.35;
     }
 
     /**
-     * Top y of the foundation for a column at {@code distance} from the template base (0 = under the
-     * base), or Integer.MIN_VALUE beyond the noisy blend edge.
+     * New top of a foundation column. Under the template ({@code core}) the floor itself; around it the
+     * natural top moved towards the floor by at most {@link #MAX_EARTHWORK} blocks, fading out with a
+     * smoothstep towards the edge and within 3 blocks of the generation bounds.
      */
-    public static int foundationTargetY(int x, int z, double distance, boolean core, int baseY, long noiseSalt) {
-        double edge = FOUNDATION_BLEND_RADIUS + blendNoise(x, z, noiseSalt) * 1.35;
-        if (distance > edge) {
-            return Integer.MIN_VALUE;
+    public static int foundationTop(boolean core, double distance, double edge, int floorY, int naturalTop, int distanceToEdge) {
+        if (core) {
+            return floorY;
         }
-        double fineNoise = blendNoise(x * 3 + 17, z * 3 - 29, noiseSalt ^ -7046029254386353131L);
-        double erosion = distance * (0.62 + fineNoise * 0.075) + distance * distance * 0.021;
-        return core ? baseY - 1 : baseY - 1 - Math.max(1, (int) Math.floor(erosion));
+        double t = Math.max(0.0, 1.0 - distance / edge);
+        double weight = t * t * (3.0 - 2.0 * t);
+        weight *= Math.min(1.0, distanceToEdge / 3.0);
+        int adjustment = Math.max(-MAX_EARTHWORK, Math.min(MAX_EARTHWORK, floorY - naturalTop));
+        return naturalTop + (int) Math.round(adjustment * weight);
+    }
+
+    /** Under the template the natural ground may be at most this far from the floor. */
+    public static boolean coreFits(int floorY, int naturalTop) {
+        return Math.abs(floorY - naturalTop) <= MAX_EARTHWORK;
+    }
+
+    /** Whether the candidate in this chunk may try to build; fixed per seed and chunk. */
+    public static boolean passesChance(long seed, int chunkX, int chunkZ, double chance) {
+        if (chance >= 1.0) {
+            return true;
+        }
+        long value = seed ^ CHANCE_SALT ^ (long) chunkX * -7046029254386353131L ^ (long) chunkZ * -4417276706812531889L;
+        value ^= value >>> 30;
+        value *= -4658895280553007687L;
+        value ^= value >>> 27;
+        value *= -7723592293110705685L;
+        value ^= value >>> 31;
+        return (value >>> 11) * 0x1.0p-53 < chance;
+    }
+
+    /** Vanilla BlockPos#asLong (26 bits x, 26 bits z, 12 bits y); seeds the foundation noise. */
+    public static long packPos(int x, int y, int z) {
+        return ((long) x & 0x3FFFFFFL) << 38 | ((long) y & 0xFFFL) | ((long) z & 0x3FFFFFFL) << 12;
     }
 
     static double blendNoise(int x, int z, long salt) {

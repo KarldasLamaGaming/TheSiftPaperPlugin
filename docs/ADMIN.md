@@ -7,7 +7,8 @@ sich und schreibt beim Start, welche Version es erwartet (der Server selbst star
 Stand: Phase 1, Schritte 1–6 und 8 (Dimension, Datapack, eigene Blöcke, Items und Rezepte,
 Weltgenerierung mit Haupt-Portal, Resource Pack) plus Item-Menü. alpha.3: Weidenholz, Lotus, Ichorglas,
 Ichorfarbe; alpha.4: Siftit-Ausrüstung, Rezepte, Loot, Advancements; alpha.5: Weidenbäume, Pflanzenflecken,
-Oberflächen-Sculk, verlassene Portale, Haupt-Portal, brennbares Weidenholz.
+Oberflächen-Sculk, verlassene Portale, Haupt-Portal, brennbares Weidenholz; alpha.6: verlassene Portale
+wie im Original 1.1.1, Protokoll und `/sift debug portals`.
 
 ## Installation
 
@@ -173,10 +174,14 @@ Werte gelten für Items, die nach dem Neustart entstehen; schon vorhandene Items
 
 ### Schutz: Sift-Items sind keine Vanilla-Items
 
-Siftit-Ausrüstung, alle Sift-Materialien (Charoit, Ichorscherbe, Siftitklumpen und -barren, Vorlage),
-Samen, Ichorschneeball, Essen, Ichorflasche und Schallplatten (in `items.yml` alle mit `protect: true`;
-`ItemRegistryTest` prüft, dass keines fehlt) werden nie wie das Vanilla-Item behandelt, auf dem sie
-aufbauen (Netherit, Papier, Schneeball). Charoit gibt also kein Buch und wird nicht als Papier gehandelt:
+Alle Sift-Items werden nie wie das Vanilla-Item behandelt, auf dem sie aufbauen: Siftit-Ausrüstung, alle
+Sift-Materialien (Charoit, Ichorscherbe, Siftitklumpen und -barren, Vorlage), Samen, Ichorschneeball,
+Essen, Ichorflasche und Schallplatten (in `items.yml` alle mit `protect: true`; `ItemRegistryTest` prüft,
+dass keines fehlt) und seit alpha.6 auch alle Block-Items (Pflanzen auf Faden-Basis, Ichorglas auf
+Glas-Basis, Siftschiefer, Weidenholz usw. auf Pilzblock-Basis). Charoit gibt also kein Buch, Überwucherte
+Wedel geben keinen Bogen, Ichorglas keine Glasscheiben oder Leuchtfeuer. Die Sift-Rezepte (Namensraum
+`the_sift`, z. B. Weidenbretter → Stöcke/Werkbank, Weidenstamm → Holzkohle, 6 Ichorglas →
+Ichorglasscheibe, Siftschiefer an der Steinsäge) nehmen sie weiter an:
 
 - Werkbank und Crafter: Vanilla-Rezepte nehmen sie nicht an (z. B. kein Reparieren durch Kombinieren).
 - Schmiedetisch: keine Vanilla-Aufwertung mit Siftit-Vorlage, -Barren oder -Teil; Rüstungsbesätze auf
@@ -184,7 +189,9 @@ aufbauen (Netherit, Papier, Schneeball). Charoit gibt also kein Buch und wird ni
 - Amboss: Siftit-Teile nur mit Siftitbarren reparieren oder mit demselben Siftit-Teil kombinieren;
   Verzauberungsbücher und Umbenennen gehen. Netherit-Teile lassen sich nicht mit Siftit reparieren.
 - Schleifstein: zwei Teile nur, wenn beide dasselbe Siftit-Teil sind.
-- Steinsäge, Webstuhl, Kartentisch, Dorfbewohner-Handel: geschützte Items werden nicht angenommen.
+- Steinsäge: nur die Sift-Rezepte (Siftschiefer → Treppen, Stufen, Mauern, Ziegel …).
+- Webstuhl, Kartentisch, Dorfbewohner-Handel: geschützte Items werden nicht angenommen.
+- Ofen-Brennstoff ist davon nicht betroffen (Weidenholz brennt weiter, siehe Feuer und Brennstoff).
 
 Echtes Netherit und alle Vanilla-Rezepte bleiben unverändert (belegt durch `SiftiteGuardRulesTest` und
 `/sift debug selftest`).
@@ -229,10 +236,38 @@ Neustart nötig, gilt nur für neue Chunks):
 | Blumenflecken (Lotus, Sonnenstrahl, Flüsterblüte) | alle außer Ödland; Ödland seltener | jeder 9. Chunk, Ödland jeder 7. |
 | Pflanzenflecken auf Siftschiefer | alle | jeder 10. Chunk |
 | Oberflächen-Sculk (Vanilla-Sculk mit Sensoren, Kreischern, die Wärter rufen können, Katalysatoren) | alle außer Ichorschnee-Gipfel und Tiefes Dunkel | höchstens eine Region (50–120 Blöcke) je 512 × 512 |
-| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 32 × 32 Chunks, nur auf passendem Gelände |
+| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 20 × 20 Chunks (im mittleren Drittel der Zelle), davon baut nur der Anteil `chance` (Standard 0.25, siehe unten), nur auf passendem Gelände |
 
 Weiden, Lotus, Sonnenstrahlpflanze usw. entstehen aus den Vorlagen und Werten des Originals; Abweichungen
 in `docs/ABWEICHUNGEN.md`.
+
+### Verlassene Portale finden
+
+Verlassene Portale bestehen nur aus Siftschiefer, Sculk und einer Truhe und sehen deshalb fast wie
+Gelände aus. Das Plugin protokolliert seit alpha.6 jeden Kandidaten im Weltspeicher der Sift
+(`the_sift:abandoned_portal_log`):
+
+- `/sift debug portals` listet alle gebauten Portale (Klick auf die Koordinaten teleportiert zur Truhe)
+  und alle abgelehnten Kandidaten mit Position und Grund, z. B. „Gelände zu steil (Höhenunterschied 25 >
+  18)“, „Platz belegt durch the_sift:…“, „kein Sift-Boden in der Chunkmitte (verdeckt durch …)“,
+  „Fundament: Boden 10 Blöcke vom Vorlagenboden entfernt (> 8)“ oder „zu nah am Haupt-Portal“. Das Plugin
+  probiert alle vier Drehungen; passt keine, stehen ihre Gründe hintereinander.
+- `/sift debug landmarks [x z [zellen]]` zeigt die Kandidaten um eine Position mit Status: gebaut,
+  abgelehnt (Grund), noch nicht generiert oder „generiert vor alpha.6, kein Protokoll“.
+
+Chunks, die vor alpha.6 generiert wurden, stehen nicht im Protokoll.
+
+`worldgen.abandoned-portals.chance` (0.0–1.0, Standard 0.25) legt fest, welcher Anteil der Kandidaten
+überhaupt bauen darf; die Auswahl hängt nur von Seed und Chunk ab. Im Original stehen auf vielen Plätzen
+schon Seelenschluchten, Ichor-Seen, Lavaböden und Monolithen, die erst mit Phase 3 kommen. Mit 0.25 entsteht
+bis dahin etwa die Menge des Originals (Seed `lamakingdom`, 49 Kandidaten: 7 gebaut, Original 6). Mit
+Phase 3 wird der Wert 1.0. Nicht ausgewählte Kandidaten stehen in `/sift debug portals` als „nicht
+ausgewählt (chance 0.25)“.
+
+**Update auf alpha.6:** Eine vorhandene `config.yml` behält `worldgen.abandoned-portals.cell-chunks: 32`
+und hat noch kein `chance`; für die Verteilung des Originals `cell-chunks: 20` und `chance: 0.25` setzen
+(fehlt `chance`, gilt 0.25). Das neue Raster gilt nur für neue Chunks; zum Testen
+am besten eine frische Sift-Welt.
 
 ### Haupt-Portal
 
@@ -281,7 +316,8 @@ Weidenstamm, -holz, -bretter, -laub und -setzling brennen wie im Original und ta
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
 | `/sift debug worldgen` | Was die Weltgenerierung seit dem Start gesetzt hat (Weiden, Flecken, Sculk, verlassene Portale) und warum Portale ausfielen |
-| `/sift debug landmarks` | Kandidaten-Chunks der verlassenen Portale und Mitten der Sculk-Regionen um 0/0 |
+| `/sift debug portals` | Alle protokollierten verlassenen Portale: gebaute mit Teleport, abgelehnte mit Grund |
+| `/sift debug landmarks [x z [zellen]]` | Kandidaten-Chunks der verlassenen Portale um eine Position (Standard 0/0, ±1 Zelle) mit Status, dazu die Mitten der Sculk-Regionen |
 | `/sift debug heights <x> <z> <radius> <schritt>` | Höhenkarte der Sift als Text |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
 | `/sift debug selftest` | Items, Rezepte, Siftit-Schutz, Loot und Advancements ohne Spieler prüfen |

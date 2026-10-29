@@ -6,7 +6,8 @@
 #   kind:     plain (default) | siftite-tool | siftite-armor | smithing-template | food | drink | music-disc
 #   protect:  true = the item is never used like its vanilla base: vanilla recipes, smithing, anvil
 #             repairs and trades refuse it. Set for every item here (all Sift materials, Siftite gear,
-#             food, discs); ItemRegistryTest checks that none is missing.
+#             food, discs); ItemRegistryTest checks that none is missing. Block items (from
+#             block-mapping.json) are always protected; Sift recipes (namespace the_sift) still take them.
 items:
   charoite: {category: materials, base: "minecraft:paper", protect: true}
   siftite_nugget: {category: materials, base: "minecraft:paper", protect: true}
@@ -30,10 +31,6 @@ items:
   ichor_bottle: {category: misc, base: "minecraft:paper", kind: drink, protect: true}
   music_disc_rift: {category: misc, base: "minecraft:paper", kind: music-disc, protect: true}
   music_disc_wellspring: {category: misc, base: "minecraft:paper", kind: music-disc, protect: true}
-
-# Blocks whose items are protected like the items above (also in the_sift:siftite_items)
-protected-blocks:
-  - siftslate_siftite_ore
 
 # Items of the original that only exist as a vanilla item here (recipes produce the vanilla item)
 item-substitutes:

@@ -101,6 +101,18 @@ public final class ItemSelfTest {
         check(crafted(matrix(oak, oak, oak, cobbled, iron, cobbled, cobbled, redstone, cobbled), world)
                 .equals("the_sift:piston_from_cobbled_siftslate"), "Kolben aus Siftschiefer-Bruchstein");
         check(crafted(matrix(willow, null, null, willow), world).equals("the_sift:overgrown_willow_sticks"), "Weidenbretter -> Stöcke");
+        ItemStack glass = sift("ichor_glass");
+        ItemStack fronds = sift("overgrown_fronds");
+        // the guard empties the result of vanilla recipes with protected items; 6 ichor glass is a Sift recipe
+        check(items.isProtected(glass), "Ichorglas ist geschützt (kein Glas für Vanilla-Rezepte)");
+        check(crafted(matrix(glass, glass, glass, glass, glass, glass), world).startsWith("the_sift:"),
+                "6 Ichorglas -> Ichorglasscheibe (Sift-Rezept)");
+        check(items.isProtected(fronds), "Überwucherte Wedel sind geschützt (kein Faden)");
+        ItemStack cobbledSlate = sift("cobbled_siftslate");
+        check(SiftiteGuard.isSiftStonecutting(cobbledSlate, sift("chiseled_siftslate")),
+                "Steinsäge: Siftschiefer-Bruchstein -> gemeißelter Siftschiefer bleibt erlaubt");
+        check(!SiftiteGuard.isSiftStonecutting(cobbledSlate, ItemStack.of(Material.CHISELED_DEEPSLATE)),
+                "Steinsäge: kein Vanilla-Ergebnis aus Siftschiefer-Bruchstein");
 
         Recipe upgrade = Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "siftite_sword_smithing"));
         if (upgrade instanceof SmithingTransformRecipe smithing) {

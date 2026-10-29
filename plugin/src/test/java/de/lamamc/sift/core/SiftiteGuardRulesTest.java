@@ -24,14 +24,17 @@ class SiftiteGuardRulesTest {
     private static final Input INGOT = Input.sift("siftite_ingot", true);
     private static final Input TEMPLATE = Input.sift("siftite_upgrade_smithing_template", true);
     private static final Input CHAROITE = Input.sift("charoite", true);   // Sift material on paper
-    private static final Input SIFTSLATE = Input.sift("siftslate", false); // block item, not protected
+    private static final Input SIFTSLATE = Input.sift("siftslate", true);  // block item on a mushroom stem
+    private static final Input ICHOR_GLASS = Input.sift("ichor_glass", true); // block item on glass
+    private static final Input FRONDS = Input.sift("overgrown_fronds", true); // block item on string
+    private static final Input PLANKS = Input.sift("overgrown_willow_planks", true);
 
     // ---- vanilla and netherite unchanged ---------------------------------------------------------
 
     @Test
     void vanillaRecipesWithVanillaItemsAreAllowed() {
         assertTrue(rules.recipeAllowed(false, List.of(VANILLA, VANILLA, EMPTY)));
-        assertTrue(rules.recipeAllowed(false, List.of(VANILLA, SIFTSLATE))); // only protected items are refused
+        assertTrue(rules.recipeAllowed(false, List.of(VANILLA, EMPTY, VANILLA))); // e.g. real string and glass
     }
 
     @Test
@@ -86,7 +89,7 @@ class SiftiteGuardRulesTest {
         assertTrue(rules.grindstoneAllowed(SWORD, OTHER_SWORD));
         assertFalse(rules.grindstoneAllowed(SWORD, VANILLA));
         assertFalse(rules.otherStationAllowed(INGOT, VANILLA)); // e.g. trading Siftite as paper
-        assertTrue(rules.otherStationAllowed(SIFTSLATE));
+        assertTrue(rules.otherStationAllowed(VANILLA, EMPTY));
     }
 
     @Test
@@ -96,5 +99,24 @@ class SiftiteGuardRulesTest {
         assertFalse(rules.otherStationAllowed(CHAROITE, EMPTY));          // cartography table, librarian trade
         assertTrue(rules.recipeAllowed(true, List.of(CHAROITE)));         // Sift recipes still use them
         assertTrue(rules.anvilAllowed(CHAROITE, EMPTY));                  // renaming
+    }
+
+    @Test
+    void blockItemsAreNotTheirVanillaBase() {
+        // ichor glass is not glass (panes, beacon, bottles), fronds are not string (bow, wool, fishing rod)
+        assertFalse(rules.recipeAllowed(false, List.of(ICHOR_GLASS, ICHOR_GLASS, ICHOR_GLASS, ICHOR_GLASS, ICHOR_GLASS, ICHOR_GLASS)));
+        assertFalse(rules.recipeAllowed(false, List.of(VANILLA, FRONDS, VANILLA, FRONDS, VANILLA, FRONDS)));
+        assertFalse(rules.recipeAllowed(false, List.of(FRONDS, FRONDS, FRONDS, FRONDS)));
+        assertFalse(rules.otherStationAllowed(SIFTSLATE, EMPTY)); // stonecutter, loom, trades
+        assertFalse(rules.anvilAllowed(VANILLA, ICHOR_GLASS));
+    }
+
+    @Test
+    void siftRecipesStillTakeBlockItems() {
+        // willow planks -> sticks, crafting table, charcoal; ichor shards -> ichor glass etc. are Sift recipes
+        assertTrue(rules.recipeAllowed(true, List.of(PLANKS, PLANKS)));
+        assertTrue(rules.recipeAllowed(true, List.of(PLANKS, PLANKS, PLANKS, PLANKS)));
+        assertTrue(rules.recipeAllowed(true, List.of(ICHOR_GLASS)));
+        assertTrue(rules.anvilAllowed(ICHOR_GLASS, EMPTY)); // renaming
     }
 }

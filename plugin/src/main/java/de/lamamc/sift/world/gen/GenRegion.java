@@ -27,6 +27,19 @@ public final class GenRegion {
     public static final Set<String> SMALL_PLANTS = Set.of("overgrown_chard", "overgrown_stalks", "overgrown_fronds",
             "siftslate_stalks", "healthy_sculk_sprouts", "dry_healthy_sculk_sprouts");
 
+    /** Ground a landmark may stand on and replace (SiftLandmarkTerrain#isGround). */
+    public static final Set<String> LANDMARK_GROUND = Set.of("siftslate", "cobbled_siftslate", "sift_rubble", "siftslate_growth",
+            "healthy_sculk", "dry_healthy_sculk", "dry_healthy_sculk_growth", "siftslate_coal_ore", "siftslate_diamond_ore",
+            "siftslate_emerald_ore", "siftslate_charoite_ore", "siftslate_siftite_ore", "ichor_snow_block");
+    /** Further Sift blocks a landmark may overwrite (SiftLandmarkTerrain#canReplace). */
+    private static final Set<String> LANDMARK_REPLACEABLE = Set.of("ichor_snow", "siftslate_hanging_roots", "overgrown_hanging_roots");
+    private static final Set<Material> LANDMARK_GROUND_VANILLA = Set.of(Material.SCULK, Material.BONE_BLOCK);
+    private static final Set<Material> LANDMARK_REPLACEABLE_VANILLA = Set.of(Material.SCULK_VEIN, Material.SCULK_SENSOR,
+            Material.SCULK_SHRIEKER, Material.SCULK_CATALYST);
+    /** Replaceable blocks that hold a fluid (vanilla canReplace also requires an empty fluid state). */
+    private static final Set<Material> FLUIDS = Set.of(Material.WATER, Material.LAVA, Material.BUBBLE_COLUMN, Material.SEAGRASS,
+            Material.TALL_SEAGRASS, Material.KELP, Material.KELP_PLANT);
+
     private final LimitedRegion region;
     private final CustomBlockRegistry registry;
     private final PlantSupport support;
@@ -84,6 +97,12 @@ public final class GenRegion {
         return siftId.equals(id(x, y, z));
     }
 
+    /** "the_sift:x" or the vanilla block id, for messages. */
+    public String describe(int x, int y, int z) {
+        String id = id(x, y, z);
+        return id != null ? "the_sift:" + id : region.getType(x, y, z).getKey().toString();
+    }
+
     public boolean isAir(int x, int y, int z) {
         return region.getType(x, y, z).isAir();
     }
@@ -91,6 +110,51 @@ public final class GenRegion {
     public boolean isTerrain(int x, int y, int z) {
         String id = id(x, y, z);
         return id != null && TERRAIN.contains(id);
+    }
+
+    /** Distance of x/z to the edge of the writable area (SiftWorldgenBounds#distanceToEdge). */
+    public int distanceToEdge(int x, int z) {
+        return Math.max(0, Math.min(Math.min(x - minX, maxX - x), Math.min(z - minZ, maxZ - z)));
+    }
+
+    /** SiftLandmarkTerrain#isGround. */
+    public boolean isLandmarkGround(int x, int y, int z) {
+        String id = id(x, y, z);
+        return id != null ? LANDMARK_GROUND.contains(id) : LANDMARK_GROUND_VANILLA.contains(region.getType(x, y, z));
+    }
+
+    /** SiftLandmarkTerrain#canReplace: air, ground, small plants and replaceable blocks without fluid. */
+    public boolean canLandmarkReplace(int x, int y, int z) {
+        BlockData data = region.getBlockData(x, y, z);
+        CustomBlock custom = registry.of(data);
+        if (custom != null) {
+            String id = custom.id();
+            return LANDMARK_GROUND.contains(id) || SMALL_PLANTS.contains(id) || LANDMARK_REPLACEABLE.contains(id);
+        }
+        Material type = data.getMaterial();
+        if (type.isAir() || LANDMARK_GROUND_VANILLA.contains(type) || LANDMARK_REPLACEABLE_VANILLA.contains(type)) {
+            return true;
+        }
+        boolean fluid = FLUIDS.contains(type) || data instanceof org.bukkit.block.data.Waterlogged w && w.isWaterlogged();
+        return !fluid && data.isReplaceable();
+    }
+
+    /**
+     * SiftLandmarkTerrain#surfaceBlockY: the topmost landmark ground within 32 blocks below the WG
+     * surface, or Integer.MIN_VALUE when something else (a tree, ichor, a structure) is in the way.
+     */
+    public int landmarkSurfaceY(int x, int z) {
+        int top = height(HeightMap.WORLD_SURFACE_WG, x, z) - 1;
+        int minimum = Math.max(minY + 1, top - 32);
+        for (int y = top; y >= minimum; y--) {
+            if (isLandmarkGround(x, y, z)) {
+                return y;
+            }
+            if (!canLandmarkReplace(x, y, z)) {
+                return Integer.MIN_VALUE;
+            }
+        }
+        return Integer.MIN_VALUE;
     }
 
     /** Full, sturdy face towards {@code face} (vines hold on to it). */
