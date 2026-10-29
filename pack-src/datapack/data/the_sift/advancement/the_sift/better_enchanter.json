@@ -1,0 +1,30 @@
+{
+  "parent": "the_sift:the_sift/kinda_purpleish",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:charoite"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.better_enchanter.title",
+      "fallback": "Besserer Verzauberer"
+    },
+    "description": {
+      "translate": "advancement.the_sift.better_enchanter.description",
+      "fallback": "Verzaubere einen Gegenstand mit Charoit"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

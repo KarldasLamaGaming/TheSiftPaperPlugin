@@ -1,0 +1,29 @@
+{
+  "parent": "the_sift:the_sift/sifted_nugget",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:siftite_ingot"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.keep_inventory.title",
+      "fallback": "Inventar behalten"
+    },
+    "description": {
+      "translate": "advancement.the_sift.keep_inventory.description",
+      "fallback": "Habe einen Siftit-Gegenstand im Inventar und … stirb. Dann schau einfach zu …"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

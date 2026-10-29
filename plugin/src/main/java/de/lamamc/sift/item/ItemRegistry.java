@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -23,9 +26,20 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public final class ItemRegistry {
 
     private final Map<String, ItemDefinition> items = new LinkedHashMap<>();
+    private final Map<String, String> substitutes = new TreeMap<>();
 
     public ItemRegistry(List<MappingEntry> blocks, Reader itemsYaml) {
+        this(blocks, Map.of(), itemsYaml);
+    }
+
+    /** @param blockSubstitutes blocks that only exist as vanilla blocks (id -> vanilla block id) */
+    public ItemRegistry(List<MappingEntry> blocks, Map<String, String> blockSubstitutes, Reader itemsYaml) {
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(itemsYaml);
+        substitutes.putAll(blockSubstitutes);
+        ConfigurationSection itemSubstitutes = yaml.getConfigurationSection("item-substitutes");
+        if (itemSubstitutes != null) {
+            itemSubstitutes.getKeys(false).forEach(id -> substitutes.put(id, itemSubstitutes.getString(id)));
+        }
         List<String> withoutItem = yaml.getStringList("blocks-without-item");
         for (MappingEntry entry : blocks) {
             if (items.containsKey(entry.id()) || withoutItem.contains(entry.id())) {
@@ -42,7 +56,16 @@ public final class ItemRegistry {
                     throw new IllegalArgumentException("items.yml: " + id + " is already a block");
                 }
                 items.put(id, new ItemDefinition(id, ItemCategory.parse(section.getString(id + ".category", "misc")),
-                        section.getString(id + ".base", "minecraft:paper")));
+                        section.getString(id + ".base", "minecraft:paper"),
+                        ItemKind.parse(section.getString(id + ".kind", "plain")),
+                        section.getBoolean(id + ".protect", false)));
+            }
+            for (String id : yaml.getStringList("protected-blocks")) {
+                ItemDefinition block = items.get(id);
+                if (block == null) {
+                    throw new IllegalArgumentException("items.yml: protected block " + id + " is unknown");
+                }
+                items.put(id, new ItemDefinition(id, block.category(), block.baseItem(), block.kind(), true));
             }
         }
     }
@@ -52,7 +75,7 @@ public final class ItemRegistry {
             if (in == null) {
                 throw new IllegalStateException("items.yml missing from the plugin jar");
             }
-            return new ItemRegistry(blocks, new InputStreamReader(in, StandardCharsets.UTF_8));
+            return new ItemRegistry(blocks, MappingEntry.bundledSubstitutes(), new InputStreamReader(in, StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -69,6 +92,22 @@ public final class ItemRegistry {
 
     public ItemDefinition get(String id) {
         return items.get(id.startsWith("the_sift:") ? id.substring("the_sift:".length()) : id);
+    }
+
+    /** The vanilla item of a Sift block or item of the original that only exists as vanilla item, or null. */
+    public String substitute(String id) {
+        return substitutes.get(id.startsWith("the_sift:") ? id.substring("the_sift:".length()) : id);
+    }
+
+    /** Ids of the items that must not be used like their vanilla base item. */
+    public Set<String> protectedIds() {
+        Set<String> ids = new TreeSet<>();
+        items.values().forEach(def -> {
+            if (def.protectedItem()) {
+                ids.add(def.id());
+            }
+        });
+        return ids;
     }
 
     public Collection<ItemDefinition> all() {

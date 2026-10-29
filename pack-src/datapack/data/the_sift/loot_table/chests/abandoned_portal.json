@@ -1,0 +1,547 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 4,
+        "max": 7
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 12,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:overgrown_fronds",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "overgrown_fronds"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 10,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:overgrown_chard",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "overgrown_chard"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 12,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:overgrown_stalks",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "overgrown_stalks"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 12,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:siftslate_stalks",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "siftslate_stalks"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 9,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:healthy_sculk_sprouts",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "healthy_sculk_sprouts"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 9,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:dry_healthy_sculk_sprouts",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "dry_healthy_sculk_sprouts"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 5,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:overgrown_lotus",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "overgrown_lotus"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 5,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:sunburst_plant",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "sunburst_plant"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 5,
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:whisperbloom",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "whisperbloom"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 12,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 6
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:siftslate",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "siftslate"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 10,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 4
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:siftslate_growth",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "siftslate_growth"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 7,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 3
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:healthy_sculk",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "healthy_sculk"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 7,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 3
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:dry_healthy_sculk",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "dry_healthy_sculk"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 11,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 5
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:overgrown_willow_log",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "overgrown_willow_log"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 12,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 7
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:overgrown_willow_planks",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "overgrown_willow_planks"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 9,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 4
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:overgrown_willow_foliage",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "overgrown_willow_foliage"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 2
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sculk",
+          "weight": 8,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 4
+              },
+              "type": "minecraft:set_count"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "weight": 10,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 4
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:charoite",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "charoite"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "weight": 4,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 3
+              },
+              "type": "minecraft:set_count"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond",
+          "weight": 2,
+          "modifier": [
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 2
+              },
+              "type": "minecraft:set_count"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:music_disc_rift",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "music_disc_rift"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "condition": {
+        "chance": 0.5,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:paper",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "the_sift:siftite_upgrade_smithing_template",
+                "minecraft:custom_data": {
+                  "PublicBukkitValues": {
+                    "the_sift:id": "siftite_upgrade_smithing_template"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "condition": {
+        "chance": 0.4,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:paper",
+              "condition": {
+                "chance": 0.1,
+                "type": "minecraft:random_chance"
+              },
+              "modifier": [
+                {
+                  "count": 2,
+                  "type": "minecraft:set_count"
+                },
+                {
+                  "type": "minecraft:set_components",
+                  "components": {
+                    "minecraft:item_model": "the_sift:siftite_nugget",
+                    "minecraft:custom_data": {
+                      "PublicBukkitValues": {
+                        "the_sift:id": "siftite_nugget"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:paper",
+              "modifier": [
+                {
+                  "type": "minecraft:set_components",
+                  "components": {
+                    "minecraft:item_model": "the_sift:siftite_nugget",
+                    "minecraft:custom_data": {
+                      "PublicBukkitValues": {
+                        "the_sift:id": "siftite_nugget"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "condition": {
+        "chance": 0.2,
+        "type": "minecraft:random_chance"
+      }
+    }
+  ],
+  "random_sequence": "the_sift:chests/abandoned_portal"
+}

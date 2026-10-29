@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:story/smelt_iron",
+  "display": {
+    "icon": {
+      "id": "minecraft:reinforced_deepslate"
+    },
+    "title": {
+      "translate": "advancement.the_sift.story.fallen_civilization.title",
+      "fallback": "Gefallene Zivilisation"
+    },
+    "description": {
+      "translate": "advancement.the_sift.story.fallen_civilization.description",
+      "fallback": "Besuche eine antike Stätte"
+    }
+  },
+  "criteria": {
+    "ancient_city": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ancient_city"
+            }
+          },
+          "type": "minecraft:entity_properties"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ancient_city"
+    ]
+  ]
+}

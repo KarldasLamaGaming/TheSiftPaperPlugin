@@ -1,0 +1,11 @@
+{
+  "comparator_output": 15,
+  "description": {
+    "translate": "jukebox_song.the_sift.wellspring",
+    "fallback": "Echo_Dev - Wellspring"
+  },
+  "length_in_seconds": 182.0175,
+  "sound_event": {
+    "sound_id": "the_sift:music_disc.wellspring"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "parent": "the_sift:the_sift/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:sift_rift"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.rifter.title",
+      "fallback": "Rissgänger"
+    },
+    "description": {
+      "translate": "advancement.the_sift.rifter.description",
+      "fallback": "Reise durch einen Sift-Riss"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

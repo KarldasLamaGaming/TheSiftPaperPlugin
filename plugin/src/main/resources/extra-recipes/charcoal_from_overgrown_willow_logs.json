@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 0.15,
+  "ingredient": "#the_sift:overgrown_willow_logs",
+  "result": {
+    "id": "minecraft:charcoal"
+  }
+}

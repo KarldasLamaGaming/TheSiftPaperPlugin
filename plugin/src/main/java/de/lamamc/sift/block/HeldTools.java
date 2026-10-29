@@ -3,11 +3,17 @@ package de.lamamc.sift.block;
 import de.lamamc.sift.core.HeldTool;
 import de.lamamc.sift.core.ToolTier;
 import de.lamamc.sift.core.ToolType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Tool;
+import net.kyori.adventure.util.TriState;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-/** Reads the tool kind and tier of a held item. Sift tools (step 5) are added here later. */
+/**
+ * Reads the tool kind and tier of a held item. Sift tools are built on netherite tools; their mining
+ * speed comes from their tool component (Siftite: items.siftite.tools.mining-speed).
+ */
 public final class HeldTools {
 
     private HeldTools() {
@@ -36,7 +42,24 @@ public final class HeldTools {
         } else {
             return HeldTool.HAND;
         }
-        return HeldTool.of(type, tier(name));
+        HeldTool held = HeldTool.of(type, tier(name));
+        Float componentSpeed = type == ToolType.SWORD ? null : correctToolSpeed(stack);
+        return componentSpeed == null ? held : new HeldTool(type, componentSpeed, held.level());
+    }
+
+    /** The fastest speed of the tool component's rules that count as the correct tool, or null. */
+    private static Float correctToolSpeed(ItemStack stack) {
+        Tool tool = stack.getData(DataComponentTypes.TOOL);
+        if (tool == null) {
+            return null;
+        }
+        Float best = null;
+        for (Tool.Rule rule : tool.rules()) {
+            if (rule.speed() != null && rule.correctForDrops() == TriState.TRUE && (best == null || rule.speed() > best)) {
+                best = rule.speed();
+            }
+        }
+        return best;
     }
 
     private static ToolTier tier(String name) {

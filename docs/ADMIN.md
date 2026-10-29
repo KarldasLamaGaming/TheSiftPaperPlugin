@@ -4,8 +4,9 @@
 diese Minecraft-Version gebaut. Auf einer anderen Version lädt das Plugin die Sift nicht, deaktiviert
 sich und schreibt beim Start, welche Version es erwartet (der Server selbst startet normal).
 
-Stand: Phase 1, Schritte 1–4 und 8 (Dimension, Datapack, eigene Blöcke, Resource Pack) plus Item-Menü,
-ab alpha.3 mit Weidenholz, Lotus, neuem Ichorglas und Ichorfarbe.
+Stand: Phase 1, Schritte 1–5 und 8 (Dimension, Datapack, eigene Blöcke, Items und Rezepte, Resource Pack)
+plus Item-Menü; ab alpha.3 mit Weidenholz, Lotus, neuem Ichorglas und Ichorfarbe, ab alpha.4 mit
+Siftit-Ausrüstung, Rezepten, Truhen-Loot und Advancements.
 Wird mit jeder Phase ergänzt. Testablauf: `docs/TESTING.md`.
 
 ## Installation
@@ -118,8 +119,7 @@ zeigt, welche Form ein Block hat.
 
 - Schritt- und Abbaugeräusche bestimmt der Client nach dem Vanilla-Block: Siftschiefer, Sculk und
   Weidenlaub klingen nach Holz (Pilzblock), Pflanzen nach Faden, Ichorglas nach Chorus.
-- Weidenholz und -laub brennen nicht, Weidenlaub zerfällt nicht; Rezepte (z. B. Bretter) folgen mit
-  Schritt 5.
+- Weidenholz und -laub brennen nicht, Weidenlaub zerfällt nicht und taugt nicht als Brennstoff.
 - Zwei Ichorglas-Blöcke nebeneinander blenden die Innenflächen nicht aus.
 - Wer im End gezielt Chorus so baut, dass ein Stück oben und an allen vier Seiten Chorus hat, unten
   aber nicht, sieht dort mit dem Pack Ichorglas. Der Block bleibt Chorus; natürlich wächst das nicht.
@@ -139,8 +139,80 @@ zeigt, welche Form ein Block hat.
 - Rechte (Standard jeweils op):
   - `thesift.admin`: alle `/sift`-Befehle, schließt `thesift.admin.items` ein.
   - `thesift.admin.items`: nur `/sift items` und `/sift give` (z. B. für Bauteam-Mitglieder).
-- Die Items kommen aus derselben Registry wie Drops (und ab Schritt 5 Rezepte und Loot): Neue Items
-  erscheinen automatisch im Menü. Werkzeuge und Rüstung folgen mit Schritt 5.
+- Die Items kommen aus derselben Registry wie Drops, Rezepte und Loot: Neue Items erscheinen automatisch
+  im Menü.
+
+## Items, Rezepte, Siftit
+
+### Siftit-Ausrüstung
+
+Siftit-Werkzeuge, -Waffen und -Rüstung bauen auf den Netherit-Items auf und übernehmen alles, was gleich
+bleibt (Rüstungspunkte, Angriffstempo, Feuerfestigkeit, Verzauberbarkeit, Rüstungsbesätze). Geändert
+werden nur die Werte aus `config.yml` → `items.siftite`:
+
+| Wert | Siftit (Standard) | Netherit |
+|---|---|---|
+| Haltbarkeit Werkzeuge/Waffen (`tools.durability`) | 2200 | 2031 |
+| Abbautempo (`tools.mining-speed`) | 9,5 | 9 |
+| Schadensbonus (`tools.attack-damage-bonus`, Schwert 8,5 statt 8) | 4,5 | 4 |
+| Rüstungs-Haltbarkeit (`armor.durability-multiplier`; Helm/Brust/Beine/Stiefel) | 39 (429/624/585/507) | 37 (407/592/555/481) |
+| Härte je Teil (`armor.toughness`) | 3 | 3 |
+| Rückstoßresistenz je Teil (`armor.knockback-resistance`) | 0,12 | 0,1 |
+
+Weg dorthin wie im Original: Siftiterz → Siftitklumpen → 9 Klumpen = Siftitbarren. Am Schmiedetisch
+ergibt Aufwertungsvorlage + Netherit-Teil + Siftitbarren das Siftit-Teil (Verzauberungen, Name und
+Besätze bleiben). Die Vorlage liegt in Truhen verlassener Portale (Schritt 6) und lässt sich mit
+7 Diamanten und 1 Siftschiefer verdoppeln. Repariert wird am Amboss mit Siftitbarren.
+
+Werte gelten für Items, die nach dem Neustart entstehen; schon vorhandene Items behalten ihre Werte.
+
+### Schutz: Siftit ist kein Netherit
+
+Siftit-Items (in `items.yml` mit `protect: true`, entspricht dem Original-Tag `the_sift:siftite_items`)
+werden nie wie das Vanilla-Item behandelt, auf dem sie aufbauen:
+
+- Werkbank und Crafter: Vanilla-Rezepte nehmen sie nicht an (z. B. kein Reparieren durch Kombinieren).
+- Schmiedetisch: keine Vanilla-Aufwertung mit Siftit-Vorlage, -Barren oder -Teil; Rüstungsbesätze auf
+  Siftit-Rüstung gehen.
+- Amboss: Siftit-Teile nur mit Siftitbarren reparieren oder mit demselben Siftit-Teil kombinieren;
+  Verzauberungsbücher und Umbenennen gehen. Netherit-Teile lassen sich nicht mit Siftit reparieren.
+- Schleifstein: zwei Teile nur, wenn beide dasselbe Siftit-Teil sind.
+- Steinsäge, Webstuhl, Kartentisch, Dorfbewohner-Handel: Siftit wird nicht angenommen.
+
+Echtes Netherit und alle Vanilla-Rezepte bleiben unverändert (belegt durch `SiftiteGuardRulesTest` und
+`/sift debug selftest`).
+
+### Rezepte
+
+Das Plugin registriert die 76 Rezepte des Originals (Werkbank, Ofen/Räucherofen/Lagerfeuer, Steinsäge,
+Schmiedetisch) beim Start; sie stehen im Rezeptbuch (`recipes.discover-on-join`). Sift-Zutaten werden an
+ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-Items.
+
+- Ergebnisse, die es hier nur als Vanilla-Block gibt, ergeben diesen: Siftschiefer-Treppen/-Stufen/-Mauern
+  → Tiefenschiefer-Varianten, Weiden-Tür/-Zaun/-Schild/-Boot usw. → Mangrove, Ichorglasscheibe → lila
+  Glasscheibe, Ichorschnee → Schnee.
+- Ausgelassen (3): gemeißelter Siftschiefer aus Siftschieferziegelstufen (die Stufen sind hier
+  Tiefenschieferziegelstufen; Vanilla macht daraus schon gemeißelten Tiefenschiefer; aus Siftschiefer und
+  Siftschieferziegeln per Steinsäge geht es weiter) und das Weiden-Truhenboot (das Boot ist ein Mangrovenboot).
+- Zusätzlich (im Original über die Vanilla-Tags `#planks`/`#logs`): Weidenbretter → Stöcke und Werkbank,
+  Weidenstämme → Holzkohle. Andere Holzrezepte (Truhe, Fass, Werkzeuge) nehmen Weidenbretter nicht an.
+
+### Weitere Items
+
+| Item | Werte (`config.yml` → `items`) |
+|---|---|
+| Rohes/Gebratenes Sifterfleisch | `food`: 3/1,8 und 8/12,8 (wie Schweinefleisch); Quelle: Sifter (Phase 2) |
+| Ichorflasche | `drinks`: Farbe, 3 s Regeneration; Füllen am Ichor kommt mit Phase 3 |
+| Schallplatten Rift, Wellspring | `music-discs`: Lied aus dem Datapack; Rift liegt in Truhen verlassener Portale |
+
+### Loot und Advancements
+
+- Truhen-Loot verlassener Portale (`the_sift:chests/abandoned_portal`) kommt mit dem Datapack; das Plugin
+  ersetzt die Sift-Items beim Erzeugen der Beute durch die echten Items.
+- Die 22 Advancements des Originals sind im Datapack. Automatisch: Sift betreten, Biome erkunden, Siftit-
+  Rüstung, Sculkblumensamen, antike Stätte. Vom Plugin vergeben: Charoiterz und Siftiterz abbauen, Holz in
+  der Sift anzünden. Die übrigen (Mobs, Riss, Ichor, Charoit-Verzaubern, Siftit-Erhalt) kommen mit ihren
+  Funktionen.
 
 ## Drops und Erze
 
@@ -173,6 +245,7 @@ zeigt, welche Form ein Block hat.
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
 | `/sift debug populator` | Zähler des Test-Populators |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
+| `/sift debug selftest` | Items, Rezepte, Siftit-Schutz, Loot und Advancements ohne Spieler prüfen |
 | `/sift debug shape <x> <y> <z>` | Kollisionsboxen eines Blocks in der Sift (Pixel, Anteil am Würfel) |
 | `/sift debug chorus <radius> <chunkX> <chunkZ>` | End-Chunks laden und zählen, ob Chorus dort Zustände der Sift hat (sollte 0 sein) |
 

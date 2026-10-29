@@ -1,0 +1,29 @@
+{
+  "parent": "the_sift:the_sift/friend_of_the_sift",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:soul_block"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.blub.title",
+      "fallback": "Blub"
+    },
+    "description": {
+      "translate": "advancement.the_sift.blub.description",
+      "fallback": "Zähme den Blub"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

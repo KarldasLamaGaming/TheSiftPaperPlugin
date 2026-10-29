@@ -18,6 +18,10 @@ tasks.processResources {
     from(rootDir.resolve("pack-src/datapack")) {
         into("datapack")
     }
+    // recipes and item tags of the original, registered by the plugin
+    from(rootDir.resolve("pack-src/item-data")) {
+        into("item-data")
+    }
     // custom block <-> vanilla state mapping and the German names (fallback for item names)
     from(rootDir.resolve("pack-src/block-mapping.json"))
     from(rootDir.resolve("pack-src/resourcepack-overlay/assets/the_sift/lang/de_de.json")) {

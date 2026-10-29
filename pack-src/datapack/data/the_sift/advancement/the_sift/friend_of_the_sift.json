@@ -1,0 +1,26 @@
+{
+  "parent": "the_sift:the_sift/like_father_and_son",
+  "display": {
+    "icon": {
+      "id": "minecraft:echo_shard"
+    },
+    "title": {
+      "translate": "advancement.the_sift.friend_of_the_sift.title",
+      "fallback": "Freund der Sift"
+    },
+    "description": {
+      "translate": "advancement.the_sift.friend_of_the_sift.description",
+      "fallback": "Gewinne die Zuneigung des Echogolems und nimm dann den Seelenblock"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

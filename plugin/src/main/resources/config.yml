@@ -81,6 +81,41 @@ plant-support:
   - "the_sift:dry_healthy_sculk_growth"
   - "#minecraft:supports_vegetation"
 
+# Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
+items:
+  siftite:
+    # Werkzeuge und Waffen (Basis: Netherit 2031 / 9 / +4)
+    tools:
+      durability: 2200
+      # Abbaugeschwindigkeit auf passenden Blöcken
+      mining-speed: 9.5
+      # Schadensbonus wie bei Werkzeugmaterialien (Schwert: 1 + 3 + Bonus = 8,5 statt 8)
+      attack-damage-bonus: 4.5
+    # Rüstung (Basis: Netherit 37 / 3 / 0,1); Rüstungspunkte wie Netherit
+    armor:
+      # Haltbarkeit = Faktor × 11/16/15/13 (Helm/Brustpanzer/Beinschutz/Stiefel)
+      durability-multiplier: 39
+      toughness: 3.0
+      knockback-resistance: 0.12
+  # Essen: Nahrungspunkte und Sättigung (wie Schweinefleisch roh/gebraten)
+  food:
+    raw_sifter_meat: {nutrition: 3, saturation: 1.8}
+    cooked_sifter_meat: {nutrition: 8, saturation: 12.8}
+  # Getränke: Farbe und Effekte (Dauer in Ticks, Stufe 0 = I)
+  drinks:
+    ichor_bottle:
+      color: "#5a2a83"
+      effects:
+        - {type: regeneration, duration: 60, amplifier: 0}
+  # Schallplatten: Lied aus dem Datapack
+  music-discs:
+    music_disc_rift: "the_sift:rift"
+    music_disc_wellspring: "the_sift:wellspring"
+
+recipes:
+  # Rezepte der Sift beim Betreten im Rezeptbuch freischalten
+  discover-on-join: true
+
 resource-pack:
   # Pack an alle Spieler beim Betreten senden
   enabled: true

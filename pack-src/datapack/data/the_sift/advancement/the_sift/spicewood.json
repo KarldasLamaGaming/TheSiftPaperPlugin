@@ -1,0 +1,29 @@
+{
+  "parent": "the_sift:the_sift/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:overgrown_willow_log"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.spicewood.title",
+      "fallback": "Würzholz"
+    },
+    "description": {
+      "translate": "advancement.the_sift.spicewood.description",
+      "fallback": "Setze in der Sift Holz in Brand"
+    }
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "parent": "the_sift:the_sift/smells_creepy",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:sculkflower"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.planting_the_dark.title",
+      "fallback": "Das Dunkel pflanzen"
+    },
+    "description": {
+      "translate": "advancement.the_sift.planting_the_dark.description",
+      "fallback": "Pflanze die Sculkblume auf Sculk"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

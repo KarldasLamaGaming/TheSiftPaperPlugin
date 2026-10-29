@@ -1,0 +1,30 @@
+{
+  "parent": "the_sift:the_sift/blub",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:dark_sniffer_spawn_egg"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.food_chain.title",
+      "fallback": "Nahrungskette"
+    },
+    "description": {
+      "translate": "advancement.the_sift.food_chain.description",
+      "fallback": "Lass deinen zahmen Blub den Dunklen Schnüffler besiegen"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}

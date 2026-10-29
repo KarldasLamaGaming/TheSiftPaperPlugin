@@ -9,6 +9,11 @@ import de.lamamc.sift.block.PhysicsGuard;
 import de.lamamc.sift.bootstrap.SiftBootstrap;
 import de.lamamc.sift.command.SiftCommand;
 import de.lamamc.sift.item.ItemRegistry;
+import de.lamamc.sift.item.ItemSettings;
+import de.lamamc.sift.item.LootNormalizer;
+import de.lamamc.sift.item.SiftAdvancements;
+import de.lamamc.sift.item.SiftRecipes;
+import de.lamamc.sift.item.SiftiteGuard;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.item.Translations;
 import de.lamamc.sift.menu.ItemMenuListener;
@@ -31,6 +36,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private BlockSettings blockSettings;
     private SiftItems items;
     private ResourcePackService resourcePack;
+    private SiftRecipes recipes;
 
     @Override
     public void onEnable() {
@@ -52,13 +58,20 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
-        items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar());
+        items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar(),
+                ItemSettings.load(getConfig().getConfigurationSection("items")));
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new CustomBlockListener(this, blocks, blockSettings, items), this);
         getServer().getPluginManager().registerEvents(new BreakSpeedListener(blocks, blockSettings), this);
         getServer().getPluginManager().registerEvents(
                 new PhysicsGuard(this, blocks, blockSettings.placeOnlyInSift()), this);
         getServer().getPluginManager().registerEvents(new ItemMenuListener(items, SiftCommand.ITEMS_PERMISSION), this);
+        recipes = new SiftRecipes(items, getLogger());
+        recipes.register();
+        getServer().getPluginManager().registerEvents(new SiftiteGuard(items), this);
+        getServer().getPluginManager().registerEvents(new LootNormalizer(items), this);
+        getServer().getPluginManager().registerEvents(new SiftAdvancements(blocks, recipes,
+                getConfig().getBoolean("recipes.discover-on-join", true), getLogger()), this);
         resourcePack = new ResourcePackService(this);
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
         getServer().getPluginManager().registerEvents(resourcePack, this);
@@ -113,6 +126,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public SiftItems items() {
         return items;
+    }
+
+    public SiftRecipes recipes() {
+        return recipes;
     }
 
     public ResourcePackService resourcePack() {
