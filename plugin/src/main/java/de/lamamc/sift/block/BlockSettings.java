@@ -17,6 +17,10 @@ public final class BlockSettings {
 
     public enum Fallback { DENY, VANILLA }
 
+    /** Vanilla fire odds of a block: chance to catch fire (ignite) and to burn away (burn). */
+    public record Flammability(int ignite, int burn) {
+    }
+
     /** Where a plant needs its support block and which blocks count ("sift" = the plant-support list). */
     public record Support(boolean above, List<String> blocks) {
     }
@@ -26,6 +30,8 @@ public final class BlockSettings {
     private final Map<String, BlockProfile> profiles = new HashMap<>();
     private final Map<String, Support> supports = new HashMap<>();
     private final Map<String, String> fallbackBlocks = new HashMap<>();
+    private final Map<String, Flammability> flammability = new HashMap<>();
+    private final Map<String, Integer> fuel = new HashMap<>();
 
     private BlockSettings(boolean placeOnlyInSift, Fallback fallback) {
         this.placeOnlyInSift = placeOnlyInSift;
@@ -48,6 +54,13 @@ public final class BlockSettings {
                 continue;
             }
             settings.profiles.put(id, profile(id, section, logger));
+            List<Integer> fire = section.getIntegerList("fire");
+            if (fire.size() == 2) {
+                settings.flammability.put(id, new Flammability(fire.get(0), fire.get(1)));
+            }
+            if (section.getInt("fuel", 0) > 0) {
+                settings.fuel.put(id, section.getInt("fuel"));
+            }
             String fallbackBlock = section.getString("fallback");
             if (fallbackBlock != null) {
                 settings.fallbackBlocks.put(id, fallbackBlock);
@@ -107,6 +120,16 @@ public final class BlockSettings {
     }
 
     /** Profile of a custom block; blocks missing in the config break instantly and drop themselves. */
+    /** Fire odds of a custom block, or null if it does not burn. */
+    public Flammability flammability(String id) {
+        return flammability.get(id);
+    }
+
+    /** Furnace burn time of the block's item in ticks, 0 if it is no fuel. */
+    public int fuel(String id) {
+        return fuel.getOrDefault(id, 0);
+    }
+
     public BlockProfile profile(String id) {
         return profiles.getOrDefault(id, new BlockProfile(id, 0.0, ToolType.NONE, false, ToolTier.WOOD, false, false,
                 DropSpec.of(DropSpec.Kind.SELF), 0, 0));

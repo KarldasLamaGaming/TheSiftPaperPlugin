@@ -19,7 +19,6 @@ import de.lamamc.sift.item.ItemCategory;
 import de.lamamc.sift.item.ItemSelfTest;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.menu.ItemMenu;
-import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -137,7 +136,6 @@ public final class SiftCommand {
                                         .executes(ctx -> find(ctx, 4))
                                         .then(Commands.argument("radius", IntegerArgumentType.integer(0, 12))
                                                 .executes(ctx -> find(ctx, IntegerArgumentType.getInteger(ctx, "radius"))))))
-                        .then(Commands.literal("populator").executes(this::populatorStats))
                         .then(Commands.literal("scan")
                                 .executes(ctx -> scan(ctx, 2, 0, 0))
                                 .then(Commands.argument("radius", IntegerArgumentType.integer(0, 8))
@@ -540,17 +538,6 @@ public final class SiftCommand {
                         });
                     });
                 }));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private int populatorStats(CommandContext<CommandSourceStack> ctx) {
-        DebugPopulator populator = plugin.debugPopulator();
-        if (populator == null) {
-            ctx.getSource().getSender().sendRichMessage("<yellow>Test-Populator ist aus (debug.populator-marker).");
-            return 0;
-        }
-        ctx.getSource().getSender().sendRichMessage("<gray>Test-Populator: <white>" + populator.chunks()
-                + "</white> Chunks, <white>" + populator.markers() + "</white> Marker");
         return Command.SINGLE_SUCCESS;
     }
 

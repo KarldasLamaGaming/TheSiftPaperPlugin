@@ -2,13 +2,6 @@
 # Änderungen an Abschnitten, die beim Serverstart gelesen werden (markiert mit [Start]),
 # wirken erst nach einem Neustart.
 
-debug:
-  # [Start] Test-Populator: zählt neu generierte Sift-Chunks und setzt einen Glowstone-Marker auf
-  # die höchste Stelle der Chunkmitte. Nur für Tests, nie auf dem Produktivserver aktivieren.
-  populator-marker: false
-  # Nach wie vielen Chunks der Test-Populator den Zählerstand loggt
-  populator-log-interval: 64
-
 custom-blocks:
   # Eigene Blöcke nur in der Sift platzieren. Andere Welten brauchen dann die block-updates-Schalter nicht.
   place-only-in-sift: true
@@ -28,6 +21,8 @@ custom-blocks:
 #   support        Untergrund für Pflanzen: face below|above, blocks = erlaubte Blöcke
 #                  (Sift-Ids, minecraft:-Ids, #minecraft:tags; leer = jeder feste Block)
 #   fallback       Vanilla-Block für outside-sift-fallback: vanilla
+#   fire           [Entzünden, Verbrennen] wie Vanilla-Brennbarkeit (Stamm 5/5, Bretter 5/20, Laub 30/60)
+#   fuel           Brenndauer im Ofen in Ticks (Stamm/Bretter 300, Setzling 100)
 blocks:
   siftslate: {hardness: 3.0, tool: pickaxe, requires-tool: true, drops: {type: silk-or, item: "the_sift:cobbled_siftslate"}, fallback: "minecraft:deepslate"}
   cobbled_siftslate: {hardness: 3.5, tool: pickaxe, requires-tool: true, drops: {type: self}, fallback: "minecraft:cobbled_deepslate"}
@@ -58,16 +53,16 @@ blocks:
   whisperbloom: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:allium"}
   sculkflower: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:torchflower"}
   sculkflower_crop: {hardness: 0, drops: {type: self, item: "the_sift:sculkflower_seeds"}, support: {face: below, blocks: [sift]}, fallback: "minecraft:air"}
-  overgrown_willow_sapling: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:mangrove_propagule"}
+  overgrown_willow_sapling: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:mangrove_propagule", fire: [60, 100], fuel: 100}
   overgrown_lotus: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:fern"}
   # Weiden-Set: Achse beim Setzen nach angeklickter Fläche, Entrinden mit Axt (Rechtsklick)
-  overgrown_willow_log: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_log"}
-  overgrown_willow_wood: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_wood"}
-  stripped_overgrown_willow_log: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:stripped_mangrove_log"}
-  stripped_overgrown_willow_wood: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:stripped_mangrove_wood"}
-  overgrown_willow_planks: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_planks"}
+  overgrown_willow_log: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_log", fire: [5, 5], fuel: 300}
+  overgrown_willow_wood: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_wood", fire: [5, 5], fuel: 300}
+  stripped_overgrown_willow_log: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:stripped_mangrove_log", fire: [5, 5], fuel: 300}
+  stripped_overgrown_willow_wood: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:stripped_mangrove_wood", fire: [5, 5], fuel: 300}
+  overgrown_willow_planks: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_planks", fire: [5, 20], fuel: 300}
   # Original: Laub-Kopie mit Härte 0.7, droppt immer sich selbst; zerfällt hier nicht (fester Block)
-  overgrown_willow_foliage: {hardness: 0.7, tool: hoe, drops: {type: self}, fallback: "minecraft:mangrove_leaves"}
+  overgrown_willow_foliage: {hardness: 0.7, tool: hoe, drops: {type: self}, fallback: "minecraft:mangrove_leaves", fire: [30, 60]}
   siftslate_hanging_roots: {hardness: 0, drops: {type: shears-or-silk}, support: {face: above, blocks: []}, fallback: "minecraft:hanging_roots"}
   overgrown_hanging_roots: {hardness: 0, drops: {type: shears-or-silk}, support: {face: above, blocks: []}, fallback: "minecraft:hanging_roots"}
 
