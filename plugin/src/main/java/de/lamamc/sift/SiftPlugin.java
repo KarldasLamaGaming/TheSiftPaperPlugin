@@ -5,6 +5,7 @@ import de.lamamc.sift.block.BreakSpeedListener;
 import de.lamamc.sift.block.CustomBlockListener;
 import de.lamamc.sift.block.CustomBlockRegistry;
 import de.lamamc.sift.block.PhysicsGuard;
+import de.lamamc.sift.bootstrap.SiftBootstrap;
 import de.lamamc.sift.command.SiftCommand;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.item.Translations;
@@ -29,6 +30,11 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        if (SiftBootstrap.incompatibility() != null) {
+            getLogger().severe(SiftBootstrap.incompatibility());
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         saveDefaultConfig();
         // new settings of an update land in the existing config.yml; reading the merged file back, because
         // sections that only exist in the defaults show up empty in memory until then
@@ -82,7 +88,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
+        if (blocks != null) {
+            getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
+        }
     }
 
     public DebugPopulator debugPopulator() {
