@@ -99,8 +99,8 @@ worldgen:
     biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_wastes, siftslate_peaks, siftslate_slopes]
   abandoned-portals:
     enabled: true
-    # ein verlassenes Portal je Zelle aus N × N Chunks
-    cell-chunks: 32
+    # ein Kandidat je Zelle aus N × N Chunks (Original 1.1.1: 20), immer im mittleren Drittel der Zelle
+    cell-chunks: 20
     biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_wastes, siftslate_peaks, siftslate_slopes]
     chest-loot: "the_sift:chests/abandoned_portal"
   main-portal:

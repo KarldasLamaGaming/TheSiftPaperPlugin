@@ -29,7 +29,7 @@ public record WorldgenSettings(boolean willowTrees, double bigWillowChance, int 
                 w.getBoolean("plant-patches.enabled", true), Math.max(1, w.getInt("plant-patches.rarity", 10)),
                 set(w, "plant-patches.biomes"),
                 w.getBoolean("surface-sculk.enabled", true), set(w, "surface-sculk.biomes"),
-                w.getBoolean("abandoned-portals.enabled", true), Math.max(1, w.getInt("abandoned-portals.cell-chunks", 32)),
+                w.getBoolean("abandoned-portals.enabled", true), Math.max(1, w.getInt("abandoned-portals.cell-chunks", 20)),
                 set(w, "abandoned-portals.biomes"),
                 w.getString("abandoned-portals.chest-loot", "the_sift:chests/abandoned_portal"),
                 w.getBoolean("main-portal.enabled", true));

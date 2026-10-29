@@ -20,6 +20,7 @@ import de.lamamc.sift.menu.ItemMenuListener;
 import de.lamamc.sift.pack.ResourcePackService;
 import de.lamamc.sift.world.SiftWorlds;
 import de.lamamc.sift.world.MainPortalBuilder;
+import de.lamamc.sift.world.gen.LandmarkLog;
 import de.lamamc.sift.world.gen.PortalReservation;
 import de.lamamc.sift.world.gen.SiftPopulator;
 import de.lamamc.sift.world.gen.SiftTemplates;
@@ -118,8 +119,12 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 mainPortal = new MainPortalBuilder(this, blocks, templates, reservation);
                 mainPortal.reserve(world);
             }
+            LandmarkLog landmarkLog = new LandmarkLog();
+            landmarkLog.load(world);
             siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
-                    getLogger());
+                    landmarkLog, getLogger());
+            // worldgen threads record, the main thread writes into the world's persistent data
+            getServer().getScheduler().runTaskTimer(this, () -> landmarkLog.save(world), 100L, 100L);
             world.getPopulators().add(siftPopulator);
             getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
         }
@@ -127,6 +132,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        World sift = getServer().getWorld(SiftWorlds.DIMENSION);
+        if (siftPopulator != null && sift != null) {
+            siftPopulator.log().save(sift);
+        }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
         }

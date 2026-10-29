@@ -17,23 +17,45 @@ class WorldgenMathTest {
     private static final long SEED = 123456789L;
 
     @Test
-    void exactlyOneAbandonedPortalChunkPerCell() {
+    void exactlyOneAbandonedPortalChunkPerCellInTheMiddleThird() {
         for (int cellX = -2; cellX <= 2; cellX++) {
             for (int cellZ = -2; cellZ <= 2; cellZ++) {
                 int selected = 0;
-                for (int dx = 0; dx < 32; dx++) {
-                    for (int dz = 0; dz < 32; dz++) {
-                        if (LandmarkPlacement.isSelectedChunk(SEED, cellX * 32 + dx, cellZ * 32 + dz, 32,
+                for (int dx = 0; dx < 20; dx++) {
+                    for (int dz = 0; dz < 20; dz++) {
+                        if (LandmarkPlacement.isSelectedChunk(SEED, cellX * 20 + dx, cellZ * 20 + dz, 20,
                                 LandmarkPlacement.ABANDONED_PORTAL_SALT)) {
                             selected++;
+                            // inset 6, spread 8: offsets 6..13, so candidates are at least 12 chunks apart
+                            assertTrue(dx >= 6 && dx <= 13 && dz >= 6 && dz <= 13, "offset " + dx + "/" + dz);
                         }
                     }
                 }
                 assertEquals(1, selected, "cell " + cellX + "/" + cellZ);
             }
         }
-        assertNotEquals(LandmarkPlacement.candidateChunk(SEED, 0, 0, 32, LandmarkPlacement.ABANDONED_PORTAL_SALT, 0),
-                LandmarkPlacement.candidateChunk(SEED + 1, 0, 0, 32, LandmarkPlacement.ABANDONED_PORTAL_SALT, 0));
+        assertNotEquals(LandmarkPlacement.candidateChunk(SEED, 0, 0, 20, LandmarkPlacement.ABANDONED_PORTAL_SALT, 0),
+                LandmarkPlacement.candidateChunk(SEED + 1, 0, 0, 20, LandmarkPlacement.ABANDONED_PORTAL_SALT, 0));
+    }
+
+    @Test
+    void abandonedPortalCandidatesMatchTheOriginal() {
+        // chunks where The Sift 1.1.1 (Fabric) built abandoned portals with level-seed "lamakingdom"
+        long seed = "lamakingdom".hashCode();
+        int[][] built = {{-74, 106}, {-71, 28}, {-30, -27}, {-13, -87}};
+        for (int[] chunk : built) {
+            assertTrue(LandmarkPlacement.isSelectedChunk(seed, chunk[0], chunk[1], 20, LandmarkPlacement.ABANDONED_PORTAL_SALT),
+                    chunk[0] + "/" + chunk[1]);
+        }
+    }
+
+    @Test
+    void soulCanyonCellsAreShiftedByHalfACell() {
+        long salt = LandmarkPlacement.SOUL_CANYON_SALT;
+        LandmarkPlacement.ChunkPos chunk = LandmarkPlacement.candidateChunk(SEED, 0, 0, 12, salt, 0);
+        assertTrue(chunk.x() >= 6 + 4 && chunk.x() <= 6 + 7, "x " + chunk.x());
+        assertTrue(LandmarkPlacement.isSelectedChunk(SEED, chunk.x(), chunk.z(), 12, salt));
+        assertEquals(0, LandmarkPlacement.cellOf(chunk.x(), 12, salt));
     }
 
     @Test
@@ -131,12 +153,35 @@ class WorldgenMathTest {
     }
 
     @Test
-    void abandonedPortalNeedsModestRelief() {
-        assertTrue(AbandonedPortalPlan.terrainFits((x, z) -> 70, 0, 0, Rotation.NONE));
-        assertFalse(AbandonedPortalPlan.terrainFits((x, z) -> 70 + z, 0, 0, Rotation.NONE)); // 32 blocks along z
-        assertTrue(AbandonedPortalPlan.terrainFits((x, z) -> 70 + z / 2, 0, 0, Rotation.CLOCKWISE_90)); // 4 blocks across
-        assertEquals(63, AbandonedPortalPlan.foundationTargetY(0, 0, 0, true, 64, 7L));
-        assertTrue(AbandonedPortalPlan.foundationTargetY(5, 0, 5, false, 64, 7L) < 63);
-        assertEquals(Integer.MIN_VALUE, AbandonedPortalPlan.foundationTargetY(0, 0, 30, false, 64, 7L));
+    void abandonedPortalIsCentredAndSitsOnTheMedian() {
+        assertEquals(-4, AbandonedPortalPlan.centredOrigin(0, 0, 8)); // 9 wide: x 0..8 → -4..4
+        assertEquals(-20, AbandonedPortalPlan.centredOrigin(0, 0, 39)); // 40 long: -20..19
+        assertEquals(8, AbandonedPortalPlan.centredOrigin(8, -4, 3));
+        List<Integer> heights = List.of(60, 61, 61, 64, 78);
+        assertEquals(18, AbandonedPortalPlan.relief(heights));
+        assertEquals(62, AbandonedPortalPlan.groundY(heights));
+        assertTrue(AbandonedPortalPlan.coreFits(70, 62));
+        assertFalse(AbandonedPortalPlan.coreFits(70, 61));
+    }
+
+    @Test
+    void foundationMovesTerrainAtMostEightBlocks() {
+        assertEquals(70, AbandonedPortalPlan.foundationTop(true, 0, 12, 70, 50, 10)); // under the template: the floor
+        assertEquals(58, AbandonedPortalPlan.foundationTop(false, 0, 12, 70, 50, 10)); // clamped to +8
+        assertEquals(50, AbandonedPortalPlan.foundationTop(false, 12, 12, 70, 50, 10)); // edge: unchanged
+        assertEquals(50, AbandonedPortalPlan.foundationTop(false, 1, 12, 70, 50, 0)); // at the generation bounds
+        int half = AbandonedPortalPlan.foundationTop(false, 6, 12, 70, 66, 10);
+        assertEquals(68, half); // smoothstep(0.5) = 0.5 of +4
+        double edge = AbandonedPortalPlan.foundationEdge(3, 4, 7L);
+        assertTrue(edge >= 12 - 1.35 && edge <= 12 + 1.35);
+    }
+
+    @Test
+    void packedPositionsLikeVanilla() {
+        assertEquals(0L, AbandonedPortalPlan.packPos(0, 0, 0));
+        assertEquals(1L << 38, AbandonedPortalPlan.packPos(1, 0, 0));
+        assertEquals(1L << 12, AbandonedPortalPlan.packPos(0, 0, 1));
+        assertEquals(0xFFFL, AbandonedPortalPlan.packPos(0, -1, 0));
+        assertEquals(-1L, AbandonedPortalPlan.packPos(-1, -1, -1));
     }
 }

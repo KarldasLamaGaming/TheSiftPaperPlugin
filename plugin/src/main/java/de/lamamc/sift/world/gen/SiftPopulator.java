@@ -43,10 +43,12 @@ public final class SiftPopulator extends BlockPopulator {
     }
 
     private final PortalReservation reservation;
+    private final LandmarkLog log;
 
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
-                         PortalReservation reservation, Logger logger) {
+                         PortalReservation reservation, LandmarkLog log, Logger logger) {
         this.reservation = reservation;
+        this.log = log;
         this.registry = registry;
         this.support = support;
         this.settings = settings;
@@ -67,6 +69,10 @@ public final class SiftPopulator extends BlockPopulator {
     /** Chests of abandoned portals that got their loot table. */
     public long lootChests() {
         return portals.lootChests.get();
+    }
+
+    public LandmarkLog log() {
+        return log;
     }
 
     public Stats stats() {
@@ -95,14 +101,18 @@ public final class SiftPopulator extends BlockPopulator {
         boolean overgrown = biome.startsWith("overgrown_");
 
         if (settings.abandonedPortals() && portals.isSelected(seed, chunkX, chunkZ)) {
-            String rejected = !settings.portalBiomes().contains(biome) ? "Biom " + biome
-                    : reservation.intersects(centerX, centerZ, 28) ? "Haupt-Portal"
-
-                    : portals.place(region, random, chunkX, chunkZ, overgrown || biome.equals("ichor_snowy_peaks"), seed);
-            if (rejected == null) {
+            int surfaceY = region.height(HeightMap.WORLD_SURFACE_WG, centerX, centerZ) - 1;
+            LandmarkLog.Entry entry = !settings.portalBiomes().contains(biome)
+                    ? AbandonedPortals.rejected(chunkX, chunkZ, centerX, surfaceY, centerZ, "Biom " + biome + " ohne verlassene Portale")
+                    : reservation.intersects(centerX, centerZ, 28)
+                    ? AbandonedPortals.rejected(chunkX, chunkZ, centerX, surfaceY, centerZ, "zu nah am Haupt-Portal")
+                    : portals.place(region, random, chunkX, chunkZ, overgrown || biome.equals("ichor_snowy_peaks"), seed,
+                    reservation);
+            log.record(entry);
+            if (entry.status() == LandmarkLog.Status.BUILT) {
                 stats.abandonedPortals.incrementAndGet();
             } else {
-                stats.portalRejects.merge(rejected, 1, Integer::sum);
+                stats.portalRejects.merge(entry.reason().replaceAll(" \\(.*", "").replaceAll(" durch .*", ""), 1, Integer::sum);
             }
         }
         if (settings.willowTrees()) {
