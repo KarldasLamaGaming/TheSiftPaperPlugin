@@ -122,6 +122,9 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
         Karte).
   - [ ] Schleifstein: Siftitschwert + Netheritschwert. Erlaubt: Siftitschwert allein (entzaubern).
   - [ ] Kartograf/Bibliothekar: Siftitbarren werden nicht als Papier angenommen.
+  - [ ] Sift-Materialien wie Papier: 3 Charoit + Leder ergibt kein Buch; Ichorscherben/Charoit im
+        Kartentisch und beim Bibliothekar abgelehnt; 4 Ichorschneebälle ergeben Ichorschneeblock, keinen
+        Schneeblock.
 - [ ] Gegenprobe Netherit unverändert: Netherit-Aufwertung, Reparatur mit Netheritbarren, zwei
       Netheritschwerter kombinieren, Netheritblock aus 9 Barren.
 - [ ] Essen: rohes/gebratenes Sifterfleisch essbar (3 bzw. 8 Hunger); Ichorflasche trinkbar
