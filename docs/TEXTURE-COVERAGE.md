@@ -1,22 +1,25 @@
 # Texturen-Abdeckung: Original (Mielon's The Sift 1.1.1) → Paper-Umsetzung
 
-Stand: 0.1.0-alpha.3. Der Bericht entstand nach alpha.1 als Entscheidungsgrundlage; Abschnitt 5
+Stand: 0.1.0-alpha.4. Der Bericht entstand nach alpha.1 als Entscheidungsgrundlage; Abschnitt 5
 hält die Entscheidungen fest, Abschnitt 6 die Korrekturen an der ersten Fassung. Umgesetzt in alpha.3:
-Weiden-Vollblöcke und Weidenlaub, Lotus, Ichorglas mit voller Form, Ichorfarbe.
+Weiden-Vollblöcke und Weidenlaub, Lotus, Ichorglas mit voller Form, Ichorfarbe. In alpha.4 (Schritt 5)
+kamen Siftit-Ausrüstung, Siftitbarren, Aufwertungsvorlage, Sifterfleisch, Ichorflasche und die beiden
+Schallplatten dazu.
 
 ## 1. Zusammenfassung
 
 | | Original | mit Original-Optik im Spiel | nur Vanilla-Ersatz | noch nicht im Spiel |
 |---|---|---|---|---|
 | Blöcke (Blockstates) | 64 | 39 | 25 (davon Portal = Luft, Kessel = Wasserkessel) | – |
-| Item-Definitionen | 90 | 43 | 22 (20 Block-Items der Ersatzblöcke, 2 Boote) | 25 (Siftit-Ausrüstung, Essen, Ichor, Schallplatten, Spawn-Eier, Riss, Portal) |
-| Texturen (PNG) | 134 | 57 | 18 (Weiden-Funktionsblöcke, Ranken, Boote, Glasscheibe, Kessel) + 2 Ichor (Farbe per Biom, F2) | 57 (Items Schritt 5, Mobs Phase 2, Partikel/Umgebung/GUI) |
+| Item-Definitionen | 90 | 60 | 22 (20 Block-Items der Ersatzblöcke, 2 Boote) | 8 (Ichoreimer, Spawn-Eier, Riss, Portal) |
+| Texturen (PNG) | 134 | 77 | 18 (Weiden-Funktionsblöcke, Ranken, Boote, Glasscheibe, Kessel) + 2 Ichor (Farbe per Biom, F2) | 37 (Ichoreimer/Riss, Mobs Phase 2, Partikel/Umgebung/GUI) |
 
 - **Alle 134 Texturen und alle Modelle des Originals liegen im Pack** (nur Shader und GeckoLib-Dateien
   sind ausgelassen). „Nur teilweise übernommen“ heißt: sie liegen im Pack, werden aber von keinem
   Block oder Item im Spiel benutzt.
 - Ursachen für Unsichtbares: (a) Vanilla-Ersatzblöcke (Stein-Formblöcke, Weiden-Set, Kleinkram),
-  (b) Items, die erst Schritt 5 registriert, (c) Mobs/Partikel/Umgebung (Phase 2/3, teils Client-Code).
+  (b) Items späterer Schritte (Ichoreimer, Riss, Spawn-Eier, Portal), (c) Mobs/Partikel/Umgebung (Phase 2/3,
+  teils Client-Code).
 
 ### Prüfmethode
 
@@ -48,8 +51,8 @@ Ohne Befund geprüft:
 - **Vanilla-Pilzblöcke:** Die 64 Zustände werden mit erzeugten Würfelmodellen nachgebildet
   (außen/innen je Seite). Die Standard-UVs eines Würfels entsprechen den `uvlock`-Teilen des
   Vanilla-Multiparts; eine Abweichung ist nicht zu erwarten, die Sichtprüfung steht in `docs/TESTING.md`.
-- **Rüstungs-Optik:** `equipment/siftite.json` und die beiden Rüstungstexturen sind im Pack; sie werden
-  sichtbar, sobald Schritt 5 die Rüstung mit `equippable(asset_id=the_sift:siftite)` registriert.
+- **Rüstungs-Optik:** `equipment/siftite.json` und die beiden Rüstungstexturen sind im Pack; die
+  Siftit-Rüstung nutzt sie über `equippable(asset_id=the_sift:siftite)` (seit alpha.4).
 
 ## 3. Bestandsliste
 
@@ -127,23 +130,21 @@ Ohne Befund geprüft:
 | `siftslate_brick_stairs` | Siftschieferziegeltreppe | `deepslate_brick_stairs` | 1 |
 | `siftslate_brick_wall` | Siftschieferziegelmauer | `deepslate_brick_wall` | 1 |
 
-### C. Items mit Original-Optik im Spiel (43 von 90)
+### C. Items mit Original-Optik im Spiel (60 von 90)
 
-`charoite`, `chiseled_siftslate`, `cobbled_siftslate`, `dry_healthy_sculk`, `dry_healthy_sculk_growth`, `dry_healthy_sculk_sprouts`, `healthy_sculk`, `healthy_sculk_sprouts`, `ichor_glass`, `ichor_shard`, `ichor_snow_block`, `ichor_snowball`, `overgrown_chard`, `overgrown_fronds`, `overgrown_hanging_roots`, `overgrown_lotus`, `overgrown_stalks`, `overgrown_willow_foliage`, `overgrown_willow_log`, `overgrown_willow_planks`, `overgrown_willow_sapling`, `overgrown_willow_wood`, `reinforced_siftslate`, `sculkflower`, `sculkflower_seeds`, `sift_rubble`, `siftite_nugget`, `siftslate`, `siftslate_bricks`, `siftslate_charoite_ore`, `siftslate_coal_ore`, `siftslate_diamond_ore`, `siftslate_emerald_ore`, `siftslate_growth`, `siftslate_hanging_roots`, `siftslate_siftite_ore`, `siftslate_stalks`, `sonorous_deepslate`, `soul_block`, `stripped_overgrown_willow_log`, `stripped_overgrown_willow_wood`, `sunburst_plant`, `whisperbloom`
+`charoite`, `chiseled_siftslate`, `cobbled_siftslate`, `cooked_sifter_meat`, `dry_healthy_sculk`, `dry_healthy_sculk_growth`, `dry_healthy_sculk_sprouts`, `healthy_sculk`, `healthy_sculk_sprouts`, `ichor_bottle`, `ichor_glass`, `ichor_shard`, `ichor_snow_block`, `ichor_snowball`, `music_disc_rift`, `music_disc_wellspring`, `overgrown_chard`, `overgrown_fronds`, `overgrown_hanging_roots`, `overgrown_lotus`, `overgrown_stalks`, `overgrown_willow_foliage`, `overgrown_willow_log`, `overgrown_willow_planks`, `overgrown_willow_sapling`, `overgrown_willow_wood`, `raw_sifter_meat`, `reinforced_siftslate`, `sculkflower`, `sculkflower_seeds`, `sift_rubble`, `siftite_axe`, `siftite_boots`, `siftite_chestplate`, `siftite_helmet`, `siftite_hoe`, `siftite_ingot`, `siftite_leggings`, `siftite_nugget`, `siftite_pickaxe`, `siftite_shovel`, `siftite_spear`, `siftite_sword`, `siftite_upgrade_smithing_template`, `siftslate`, `siftslate_bricks`, `siftslate_charoite_ore`, `siftslate_coal_ore`, `siftslate_diamond_ore`, `siftslate_emerald_ore`, `siftslate_growth`, `siftslate_hanging_roots`, `siftslate_siftite_ore`, `siftslate_stalks`, `sonorous_deepslate`, `soul_block`, `stripped_overgrown_willow_log`, `stripped_overgrown_willow_wood`, `sunburst_plant`, `whisperbloom`
 
-### D. Items, die (noch) nicht als Sift-Item existieren (47)
+### D. Items, die (noch) nicht als Sift-Item existieren (30)
 
 | Gruppe | Items | Grund | Wann |
 |---|---|---|---|
 | Block-Items der Ersatzblöcke (20) | Bruchstein- und Ziegel-Treppe, -Stufe, -Mauer (6); Weiden-Ranken, -Treppe, -Stufe, -Zaun, -Zauntor, -Tür, -Falltür, -Knopf, -Druckplatte, -Schild, -Hängeschild, -Regal (12); Ichorschnee, Ichorglasscheibe (2) | Block ist Vanilla-Ersatz, es gibt das Vanilla-Item (z. B. Mangroven-Tür) | bleibt so (Abschnitt 5) |
 | Boote (2) | Weidenboot, Weiden-Truhenboot | Boote sind Entities mit fester Optik; Ersatz Mangrovenboot | nur per Display-Aufbau möglich |
-| Siftit-Ausrüstung (12) | Barren, Schwert, Schaufel, Spitzhacke, Axt, Hacke, Speer, Helm, Brustpanzer, Beinschutz, Stiefel, Aufwertungs-Vorlage | Modelle/Texturen im Pack, Item noch nicht registriert | Schritt 5 |
-| Essen/Ichor (5) | Rohes/Gebratenes Sifterfleisch, Ichorflasche, Ichoreimer, Sift-Riss | dto. | Schritt 5 / Phase 3 |
-| Schallplatten (2) | Rift, Wellspring | dto. | Schritt 5 |
+| Ichor (2) | Ichoreimer, Sift-Riss | Modelle/Texturen im Pack, Item noch nicht registriert | Phase 3 |
 | Spawn-Eier (5) | Sänger, Echogolem, Dunkler Schnüffler, Blub, Sifter | Mobs fehlen noch | Phase 2 |
 | Portal-Item (1) | Sift-Portal | Portal kommt als Display-Aufbau | Schritt 7 |
 
-### E. Texturen ohne sichtbare Verwendung (77)
+### E. Texturen ohne sichtbare Verwendung (57)
 
 | Gruppe | Anzahl | Grund |
 |---|---|---|
@@ -151,8 +152,8 @@ Ohne Befund geprüft:
 | Ichorglasscheibe, Ichorkessel | 2 | Vanilla-Ersatz |
 | Ichor still/flow | 2 | Wasser mit Biomfarbe im Ichor-Ton (F2) |
 | Sift-Portal-Nebel, Klingender-Tiefenschiefer-Strahl | 2 | Portal/Strahl kommen mit Schritt 7 / Phase 2 |
-| Item-Texturen: Siftit-Ausrüstung (13 inkl. Speer in der Hand), Essen/Ichor/Riss (5), Schallplatten (2), Spawn-Eier (5), Boote (2) | 27 | Schritt 5 / Phase 2 / Boote Ersatz |
-| Mob-Texturen inkl. Leuchtmasken, Riss (12) und Rüstungs-Layer (2) | 14 | Phase 2 bzw. Schritt 5 |
+| Item-Texturen: Ichoreimer, Riss (2), Spawn-Eier (5), Boote (2) | 9 | Phase 3 / Phase 2 / Boote Ersatz |
+| Mob-Texturen inkl. Leuchtmasken und Riss | 12 | Phase 2 |
 | Boot-Entity-Texturen, Hängeschild-GUI | 3 | Vanilla-Ersatz |
 | Partikel (Ichor, Note, Seele, Schallwelle, Portalnebel) | 9 | eigene Partikeltypen brauchen Client-Code; ggf. als Display-Partikel nachbaubar (Phase 3) |
 | Umgebung (Ichor-Regen/-Schnee), HUD (Ichor-Luftblasen), Slot-Icon Charoit, Shaderpack-Bilder | 7 | wirken global oder brauchen Client-Code |

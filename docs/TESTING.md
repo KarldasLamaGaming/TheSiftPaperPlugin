@@ -90,10 +90,47 @@ Jeder Punkt: Erwartung in Klammern. Abweichungen bitte mit Screenshot (F3 sichtb
 - [ ] Klick = 1 Item, Shift-Klick = ganzer Stapel (64, Ichorschneeball 16); volles Inventar → Item fällt
       vor den Spieler.
 - [ ] Items ins Menü legen, ziehen oder per Zahlentaste tauschen geht nicht.
-- [ ] Werkzeuge/Rüstung: „Noch keine Items in dieser Kategorie“ (kommen mit Schritt 5).
+- [ ] Werkzeuge/Rüstung: Siftit-Werkzeuge, Speer und Rüstung mit Original-Optik.
 - [ ] `/sift give <spieler> <id> [anzahl]`: Tab-Vervollständigung zeigt alle Ids.
 - [ ] Spieler nur mit `thesift.admin.items`: `/sift items` und `/sift give` gehen, `/sift tp`,
       `/sift pack`, `/sift debug` nicht sichtbar. Spieler ohne Rechte: `/sift` unbekannt.
+
+## Items, Rezepte, Siftit (ab alpha.4)
+
+- [ ] `/sift debug selftest`: alle Zeilen „OK“, am Ende „Selbsttest bestanden“.
+- [ ] Rezeptbuch: Sift-Rezepte sind nach dem Betreten freigeschaltet (Siftitbarren, Weidenbretter,
+      Ichorglas, Siftschiefer-Steinsäge …).
+- [ ] Werkbank: 9 Siftitklumpen → Siftitbarren; Siftitbarren → 9 Klumpen; Weidenstamm → 4 Weidenbretter
+      (auch umbenannt); Weidenbretter → Stöcke, Werkbank; Ichorscherben → Ichorglas; Siftschiefer-Bruchstein
+      statt Bruchstein für Spender, Werfer, Kolben, Beobachter, Hebel.
+- [ ] Steinsäge: Siftschiefer → Ziegel, Bruchstein, gemeißelt; Treppen/Stufen/Mauern ergeben die
+      Tiefenschiefer-Varianten.
+- [ ] Ofen/Räucherofen/Lagerfeuer: rohes → gebratenes Sifterfleisch; Weidenstamm → Holzkohle.
+- [ ] Schmiedetisch: Aufwertungsvorlage + Netheritschwert + Siftitbarren → Siftitschwert (Verzauberungen
+      und Name bleiben). Gleiches für alle Werkzeuge, Speer und Rüstungsteile.
+- [ ] Siftitschwert: Tooltip 8,5 Angriffsschaden, Haltbarkeit 2200 (F3+H); Siftitspitzhacke baut schneller
+      ab als Netherit; Siftitrüstung: Optik der Sift, Rüstung wie Netherit, Härte 3, Rückstoßresistenz
+      12 %; Anlegegeräusch.
+- [ ] Siftit ist kein Netherit (kein Ergebnis bzw. kein Handel):
+  - [ ] Amboss: Siftitschwert + Netheritbarren; Netheritschwert + Siftitschwert; Netheritschwert +
+        Siftitbarren; Siftitschwert + Siftithelm.
+  - [ ] Amboss erlaubt: Siftitschwert + Siftitbarren (Reparatur), zwei Siftitschwerter, Verzauberungsbuch,
+        Umbenennen.
+  - [ ] Schmiedetisch: Netherit-Aufwertung mit Siftit-Vorlage oder Siftitbarren; Siftitschwert als Basis der
+        Netherit-Aufwertung. Erlaubt: Rüstungsbesatz auf Siftitrüstung.
+  - [ ] Werkbank: zwei beschädigte Siftitschwerter kombinieren; Siftitbarren/-klumpen als Papier (Buch,
+        Karte).
+  - [ ] Schleifstein: Siftitschwert + Netheritschwert. Erlaubt: Siftitschwert allein (entzaubern).
+  - [ ] Kartograf/Bibliothekar: Siftitbarren werden nicht als Papier angenommen.
+- [ ] Gegenprobe Netherit unverändert: Netherit-Aufwertung, Reparatur mit Netheritbarren, zwei
+      Netheritschwerter kombinieren, Netheritblock aus 9 Barren.
+- [ ] Essen: rohes/gebratenes Sifterfleisch essbar (3 bzw. 8 Hunger); Ichorflasche trinkbar
+      (Regeneration 3 s, Glasflasche bleibt).
+- [ ] Schallplatten Rift und Wellspring im Plattenspieler: Musik mit Titelanzeige.
+- [ ] Truhen-Loot: Truhe mit `/setblock ~ ~ ~ chest{LootTable:"the_sift:chests/abandoned_portal"}` setzen und
+      öffnen: echte Sift-Items (deutsche Namen, stapelbar mit Items aus `/sift items`).
+- [ ] Advancements: Reiter „Die Sift“ beim Betreten der Sift; Charoiterz/Siftiterz abbauen, Holz in der
+      Sift anzünden, volle Siftitrüstung (Herausforderung) werden vergeben.
 
 ## Overworld unberührt
 
