@@ -40,6 +40,26 @@ public record MappingEntry(String id, Map<String, String> properties, String van
         }
     }
 
+    /**
+     * Blocks that only exist as a vanilla block, by id without namespace, with the vanilla block id
+     * (state properties left out), e.g. {@code siftslate_brick_stairs -> minecraft:deepslate_brick_stairs}.
+     */
+    public static Map<String, String> bundledSubstitutes() {
+        try (java.io.InputStream in = MappingEntry.class.getResourceAsStream("/block-mapping.json")) {
+            if (in == null) {
+                throw new IllegalStateException("block-mapping.json missing from the plugin jar");
+            }
+            JsonObject root = JsonParser.parseReader(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+            Map<String, String> substitutes = new TreeMap<>();
+            root.getAsJsonObject("substitute").entrySet().forEach(e -> substitutes.put(
+                    e.getKey().substring("the_sift:".length()), e.getValue().getAsString().replaceFirst("\\[.*", "")));
+            return substitutes;
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
     public static MappingEntry parse(String custom, String vanilla) {
         String id = custom;
         Map<String, String> props = new TreeMap<>();

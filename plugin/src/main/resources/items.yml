@@ -34,6 +34,11 @@ items:
 protected-blocks:
   - siftslate_siftite_ore
 
+# Items of the original that only exist as a vanilla item here (recipes produce the vanilla item)
+item-substitutes:
+  overgrown_willow_boat: "minecraft:mangrove_boat"
+  overgrown_willow_chest_boat: "minecraft:mangrove_chest_boat"
+
 # Blocks that exist only as placed blocks in the original (no item); they get no item here either.
 blocks-without-item:
   - sculkflower_crop
