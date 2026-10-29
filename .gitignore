@@ -9,3 +9,5 @@ out/
 reference/
 .env
 secrets*
+
+!gradle/wrapper/gradle-wrapper.jar
