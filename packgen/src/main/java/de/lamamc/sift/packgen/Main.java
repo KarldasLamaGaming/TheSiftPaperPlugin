@@ -105,7 +105,7 @@ public final class Main {
 
         Path data = root.resolve("data/the_sift");
         deleteTree(data);
-        for (var e : new DatapackImporter(mapping, report).run(json).entrySet()) {
+        for (var e : new DatapackImporter(mapping, report, biomeEffects()).run(json).entrySet()) {
             writeJson(data.resolve(e.getKey()), e.getValue());
         }
         StructureImporter structureImporter = new StructureImporter(mapping, report);
@@ -144,6 +144,24 @@ public final class Main {
         }
         writePackMeta(root, "The Sift für Lama Kingdom (Assets: Mielon's The Sift, MIT)", RESOURCE_FORMAT);
         copyLicense(zip, root);
+    }
+
+    /** "biome-effects" of worldgen-overrides.yml. */
+    @SuppressWarnings("unchecked")
+    static Map<String, String> biomeEffects() {
+        try (InputStream in = Main.class.getResourceAsStream("/worldgen-overrides.yml")) {
+            if (in == null) {
+                return Map.of();
+            }
+            Map<String, Object> root = new org.yaml.snakeyaml.Yaml(new org.yaml.snakeyaml.constructor.SafeConstructor(
+                    new org.yaml.snakeyaml.LoaderOptions())).load(new java.io.InputStreamReader(in, StandardCharsets.UTF_8));
+            Map<String, String> effects = new TreeMap<>();
+            ((Map<String, Object>) root.getOrDefault("biome-effects", Map.of()))
+                    .forEach((k, v) -> effects.put(k, String.valueOf(v)));
+            return effects;
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
     }
 
     private static void writeBlockstateOverrides(ZipFile mod, ZipFile client, BlockMapping mapping,

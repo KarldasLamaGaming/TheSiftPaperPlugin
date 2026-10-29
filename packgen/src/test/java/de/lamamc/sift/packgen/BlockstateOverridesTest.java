@@ -95,7 +95,29 @@ class BlockstateOverridesTest {
             }
         }
         assertTrue(customPart);
-        // 4 vanilla parts, the one for down=false is gone, plus one part for ichor glass
-        assertEquals(4, parts.size());
+        // 3 vanilla parts (the one for down=false is gone) plus one part per ichor glass state
+        assertEquals(5, parts.size());
+    }
+
+    @Test
+    void willowLogAxesAndBothIchorGlassStatesGetModModels() {
+        Map<String, JsonElement> files = generate(new ImportReport());
+        BlockMapping mapping = BlockMapping.loadDefault();
+        JsonObject brown = files.get("assets/minecraft/blockstates/brown_mushroom_block.json").getAsJsonObject()
+                .getAsJsonObject("variants");
+        BlockState logX = mapping.resolve(BlockState.of("the_sift:overgrown_willow_log", Map.of("axis", "x")));
+        String key = String.join(",", logX.properties().entrySet().stream()
+                .sorted(java.util.Map.Entry.comparingByKey(java.util.Comparator.comparingInt(
+                        k -> java.util.List.of("down", "east", "north", "south", "up", "west").indexOf(k))))
+                .map(e -> e.getKey() + "=" + e.getValue()).toList());
+        assertEquals("the_sift:block/overgrown_willow_log", brown.getAsJsonObject(key).get("model").getAsString());
+        long glassParts = 0;
+        for (JsonElement p : files.get("assets/minecraft/blockstates/chorus_plant.json").getAsJsonObject()
+                .getAsJsonArray("multipart")) {
+            if (p.toString().contains("the_sift:block/ichor_glass")) {
+                glassParts++;
+            }
+        }
+        assertEquals(2, glassParts);
     }
 }

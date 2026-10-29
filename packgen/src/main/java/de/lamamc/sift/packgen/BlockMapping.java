@@ -68,16 +68,34 @@ public final class BlockMapping {
         }
         Map<String, Object> repurposedSection = (Map<String, Object>) root.getOrDefault("repurposed", Map.of());
         Map<BlockState, BlockState> assigned = new java.util.HashMap<>();
-        for (boolean invariantPass : new boolean[] {true, false}) {
+        // pass 0: fixed states ("block = props"), pass 1: rotation-invariant, pass 2: the rest in order
+        for (int pass = 0; pass < 3; pass++) {
+            int current = pass;
             repurposedSection.forEach((block, raw) -> {
                 StatePool pool = pools.get(block);
                 if (pool == null) {
                     throw new IllegalArgumentException("No pool defined for " + block);
                 }
                 for (Object entry : (List<Object>) raw) {
-                    BlockState custom = BlockState.parse(String.valueOf(entry), MOD_NAMESPACE);
-                    if (invariant.contains(custom.toString()) == invariantPass) {
-                        assigned.put(custom, invariantPass ? pool.takeRotationInvariant() : pool.take());
+                    String text = String.valueOf(entry);
+                    int eq = text.indexOf(" = ");
+                    BlockState custom = BlockState.parse(eq >= 0 ? text.substring(0, eq).trim() : text, MOD_NAMESPACE);
+                    if (eq >= 0) {
+                        if (current == 0) {
+                            if (assigned.containsKey(custom)) {
+                                throw new IllegalArgumentException(custom + " is listed twice");
+                            }
+                            BlockState exact = BlockState.parse(block + "[" + text.substring(eq + 3).trim() + "]",
+                                    "minecraft");
+                            assigned.put(custom, pool.takeExact(exact));
+                        }
+                    } else if (current == 1 && invariant.contains(custom.toString())) {
+                        assigned.put(custom, pool.takeRotationInvariant());
+                    } else if (current == 2 && !invariant.contains(custom.toString())) {
+                        if (assigned.containsKey(custom)) {
+                            throw new IllegalArgumentException(custom + " is listed twice");
+                        }
+                        assigned.put(custom, pool.take());
                     }
                 }
             });
@@ -89,10 +107,13 @@ public final class BlockMapping {
         // keep the order of the YAML file in the mapping
         repurposedSection.forEach((block, raw) -> {
             for (Object entry : (List<Object>) raw) {
-                BlockState custom = BlockState.parse(String.valueOf(entry), MOD_NAMESPACE);
+                String text = String.valueOf(entry);
+                int eq = text.indexOf(" = ");
+                BlockState custom = BlockState.parse(eq >= 0 ? text.substring(0, eq).trim() : text, MOD_NAMESPACE);
                 mapping.repurposed.computeIfAbsent(custom.id(), k -> new ArrayList<>())
                         .add(new Entry(custom, assigned.get(custom)));
-                mapping.rotationInvariant.put(custom.id(), StatePool.isRotationInvariant(assigned.get(custom)));
+                mapping.rotationInvariant.merge(custom.id(), StatePool.isRotationInvariant(assigned.get(custom)),
+                        Boolean::logicalAnd);
             }
         });
 

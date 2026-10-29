@@ -78,6 +78,18 @@ public final class StatePool {
         return state;
     }
 
+    /** Takes exactly this state; it must belong to the pool and still be free. */
+    public BlockState takeExact(BlockState state) {
+        if (!states.contains(state)) {
+            throw new IllegalArgumentException(state + " is not in the pool of " + baseBlock
+                    + " (filter/exclude in block-mapping.yml)");
+        }
+        if (!used.add(state)) {
+            throw new IllegalArgumentException(state + " is assigned twice");
+        }
+        return state;
+    }
+
     /**
      * The next free state that stays the same when vanilla rotates or mirrors it (all horizontal faces
      * equal). Structure templates are placed rotated, which would turn a directional state into the state
