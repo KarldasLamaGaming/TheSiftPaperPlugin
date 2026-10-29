@@ -97,6 +97,17 @@ public final class SiftCommand {
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
                         .then(breakNode())
+                        .then(Commands.literal("find")
+                                .then(Commands.argument("block", StringArgumentType.word())
+                                        .suggests((ctx, builder) -> {
+                                            plugin.blocks().ids().stream()
+                                                    .filter(id -> id.startsWith(builder.getRemainingLowerCase()))
+                                                    .forEach(builder::suggest);
+                                            return builder.buildFuture();
+                                        })
+                                        .executes(ctx -> find(ctx, 4))
+                                        .then(Commands.argument("radius", IntegerArgumentType.integer(0, 12))
+                                                .executes(ctx -> find(ctx, IntegerArgumentType.getInteger(ctx, "radius"))))))
                         .then(Commands.literal("populator").executes(this::populatorStats))
                         .then(Commands.literal("scan")
                                 .executes(ctx -> scan(ctx, 2, 0, 0))
@@ -233,6 +244,79 @@ public final class SiftCommand {
                 + ", Abbauzeit " + (ticks == Integer.MAX_VALUE ? "unzerstörbar" : ticks + " Ticks")
                 + ", erntbar " + profile.canHarvest(held));
         sender.sendPlainMessage("  " + rolls + " Abbauvorgänge: Drops " + drops + ", XP gesamt " + xp);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Finds the nearest block of a custom block id in the Sift around the executor (or the Sift spawn),
+     * loading/generating the chunks within {@code radius} chunks. For testers looking for ores.
+     */
+    private int find(CommandContext<CommandSourceStack> ctx, int radius) {
+        var sender = ctx.getSource().getSender();
+        String id = StringArgumentType.getString(ctx, "block");
+        Set<String> states = plugin.blocks().statesOf(id);
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift == null || states.isEmpty()) {
+            sender.sendRichMessage(sift == null ? "<red>Die Sift-Welt ist nicht geladen."
+                    : "<red>Unbekannter Sift-Block: <white>" + id);
+            return 0;
+        }
+        org.bukkit.Location origin = ctx.getSource().getLocation();
+        if (origin == null || !SiftWorlds.isSift(origin.getWorld())) {
+            origin = sift.getSpawnLocation();
+        }
+        Material material = plugin.blocks().defaultState(id).data().getMaterial();
+        int cx = origin.getBlockX() >> 4;
+        int cz = origin.getBlockZ() >> 4;
+        List<CompletableFuture<Chunk>> futures = new ArrayList<>();
+        for (int x = cx - radius; x <= cx + radius; x++) {
+            for (int z = cz - radius; z <= cz + radius; z++) {
+                futures.add(sift.getChunkAtAsync(x, z));
+            }
+        }
+        sender.sendRichMessage("<gray>Suche <white>" + id + "</white> in " + futures.size() + " Chunks ...");
+        org.bukkit.Location center = origin;
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() ->
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    List<ChunkSnapshot> snapshots = futures.stream().map(f -> f.join().getChunkSnapshot()).toList();
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        int[] best = null;
+                        double bestDistance = Double.MAX_VALUE;
+                        int found = 0;
+                        for (ChunkSnapshot snapshot : snapshots) {
+                            for (int x = 0; x < 16; x++) {
+                                for (int z = 0; z < 16; z++) {
+                                    for (int y = sift.getMinHeight(); y < sift.getMaxHeight(); y++) {
+                                        if (snapshot.getBlockType(x, y, z) != material
+                                                || !states.contains(snapshot.getBlockData(x, y, z).getAsString())) {
+                                            continue;
+                                        }
+                                        found++;
+                                        int bx = (snapshot.getX() << 4) + x;
+                                        int bz = (snapshot.getZ() << 4) + z;
+                                        double d = center.distanceSquared(new org.bukkit.Location(sift, bx, y, bz));
+                                        if (d < bestDistance) {
+                                            bestDistance = d;
+                                            best = new int[] {bx, y, bz};
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        int[] result = best;
+                        int total = found;
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            if (result == null) {
+                                sender.sendRichMessage("<yellow>Kein <white>" + id + "</white> gefunden.");
+                                return;
+                            }
+                            String pos = result[0] + " " + result[1] + " " + result[2];
+                            sender.sendRichMessage("<gray>" + total + " Blöcke <white>" + id + "</white>, nächster bei "
+                                    + "<click:run_command:'/execute in the_sift:the_sift run tp @s " + pos
+                                    + "'><hover:show_text:'Teleport (im Zuschauermodus, der Block liegt im Gestein)'><aqua>" + pos + "</aqua></hover></click>");
+                        });
+                    });
+                }));
         return Command.SINGLE_SUCCESS;
     }
 

@@ -64,6 +64,17 @@ public final class CustomBlockRegistry {
         return defaults.get(id);
     }
 
+    /** The vanilla states (BlockData#getAsString) of all states of a custom block. */
+    public Set<String> statesOf(String id) {
+        Set<String> states = new java.util.HashSet<>();
+        byState.forEach((state, block) -> {
+            if (block.id().equals(id)) {
+                states.add(state);
+            }
+        });
+        return states;
+    }
+
     public Set<String> ids() {
         return defaults.keySet();
     }
