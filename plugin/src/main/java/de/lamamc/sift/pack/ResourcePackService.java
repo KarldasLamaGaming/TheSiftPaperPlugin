@@ -56,7 +56,7 @@ public final class ResourcePackService implements Listener {
                 config.getBoolean("enabled", true),
                 PackSource.resolveUrl(config.getString("url", ""), version),
                 PackSource.normalizeSha1(config.getString("sha1", "")),
-                config.getBoolean("required", true),
+                config.getBoolean("required", false),
                 mm.deserialize(config.getString("prompt", "")),
                 UUID.fromString(config.getString("uuid", "5f1a7c2e-3b84-4d6e-9a10-7c3e2b9d4f61")),
                 mm.deserialize(config.getString("kick-on-decline", "")),

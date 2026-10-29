@@ -103,6 +103,7 @@ public final class SiftCommand {
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
                         .then(breakNode())
+                        .then(Commands.literal("menu").executes(this::debugMenu))
                         .then(Commands.literal("find")
                                 .then(Commands.argument("block", StringArgumentType.word())
                                         .suggests((ctx, builder) -> {
@@ -143,6 +144,24 @@ public final class SiftCommand {
             return 0;
         }
         ItemMenu.open(player, plugin.items(), ItemCategory.BLOCKS, 0);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Builds every page of the item menu and lists what it shows (tests without a client). */
+    private int debugMenu(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        for (ItemCategory category : ItemCategory.values()) {
+            ItemMenu menu = ItemMenu.build(plugin.items(), category, 0);
+            List<String> ids = new ArrayList<>();
+            for (int slot = 0; slot < ItemMenu.ITEM_SLOTS; slot++) {
+                String id = menu.itemAt(slot);
+                if (id != null) {
+                    ids.add(id);
+                }
+            }
+            long filled = java.util.Arrays.stream(menu.getInventory().getContents()).filter(java.util.Objects::nonNull).count();
+            sender.sendPlainMessage(category.title() + ": " + ids.size() + " Items, " + filled + " belegte Slots " + ids);
+        }
         return Command.SINGLE_SUCCESS;
     }
 

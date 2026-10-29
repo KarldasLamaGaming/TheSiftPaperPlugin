@@ -25,15 +25,17 @@ public final class ItemRegistry {
     private final Map<String, ItemDefinition> items = new LinkedHashMap<>();
 
     public ItemRegistry(List<MappingEntry> blocks, Reader itemsYaml) {
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(itemsYaml);
+        List<String> withoutItem = yaml.getStringList("blocks-without-item");
         for (MappingEntry entry : blocks) {
-            if (items.containsKey(entry.id())) {
-                continue; // further states of the same block
+            if (items.containsKey(entry.id()) || withoutItem.contains(entry.id())) {
+                continue; // further states of the same block, or a block without item
             }
             String standIn = entry.vanillaState().replaceFirst("\\[.*", "");
             items.put(entry.id(), new ItemDefinition(entry.id(), ItemCategory.forBlock(entry.id(), standIn),
                     blockItemBase(standIn)));
         }
-        ConfigurationSection section = YamlConfiguration.loadConfiguration(itemsYaml).getConfigurationSection("items");
+        ConfigurationSection section = yaml.getConfigurationSection("items");
         if (section != null) {
             for (String id : section.getKeys(false)) {
                 if (items.containsKey(id)) {

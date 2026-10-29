@@ -31,3 +31,8 @@ tasks.runServer {
         languageVersion.set(JavaLanguageVersion.of(25))
     })
 }
+
+// tests check the shipped item ids against the committed resource pack sources
+tasks.test {
+    systemProperty("sift.packSrc", rootDir.resolve("pack-src").path)
+}

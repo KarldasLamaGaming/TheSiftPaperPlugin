@@ -48,6 +48,11 @@ public final class ItemMenu implements InventoryHolder {
         player.openInventory(new ItemMenu(items, category, page).getInventory());
     }
 
+    /** Builds the menu without a viewer (for /sift debug menu). */
+    public static ItemMenu build(SiftItems items, ItemCategory category, int page) {
+        return new ItemMenu(items, category, page);
+    }
+
     private void fill(int pages) {
         for (int slot = 0; slot < ITEM_SLOTS; slot++) {
             int index = Paging.index(page, slot, entries.size(), ITEM_SLOTS);

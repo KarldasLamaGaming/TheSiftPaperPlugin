@@ -20,7 +20,9 @@ class ItemRegistryTest {
     void everyCustomBlockIsAnItemOnce() {
         ItemRegistry registry = bundled();
         for (MappingEntry entry : MappingEntry.bundled()) {
-            assertNotNull(registry.get(entry.id()), entry.id());
+            if (!entry.id().equals("sculkflower_crop")) { // a block without item, see items.yml
+                assertNotNull(registry.get(entry.id()), entry.id());
+            }
         }
         long distinct = registry.all().stream().map(ItemDefinition::id).distinct().count();
         assertEquals(registry.all().size(), distinct);
@@ -53,5 +55,16 @@ class ItemRegistryTest {
         List<MappingEntry> blocks = List.of(MappingEntry.parse("the_sift:siftslate", "minecraft:mushroom_stem[down=false]"));
         assertThrows(IllegalArgumentException.class, () -> new ItemRegistry(blocks,
                 new StringReader("items:\n  siftslate: {category: misc, base: \"minecraft:paper\"}\n")));
+    }
+
+    @Test
+    void everyItemHasAnItemModelInTheResourcePack() {
+        java.nio.file.Path items = java.nio.file.Path.of(System.getProperty("sift.packSrc", "../pack-src"),
+                "resourcepack", "assets", "the_sift", "items");
+        org.junit.jupiter.api.Assumptions.assumeTrue(java.nio.file.Files.isDirectory(items), "pack-src not generated");
+        for (ItemDefinition def : bundled().all()) {
+            assertTrue(java.nio.file.Files.isRegularFile(items.resolve(def.id() + ".json")), "no item model for " + def.id());
+        }
+        assertEquals(null, bundled().get("sculkflower_crop"));
     }
 }

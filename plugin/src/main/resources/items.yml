@@ -9,3 +9,7 @@ items:
   ichor_shard: {category: materials, base: "minecraft:paper"}
   sculkflower_seeds: {category: plants_wood, base: "minecraft:paper"}
   ichor_snowball: {category: misc, base: "minecraft:snowball"}
+
+# Blocks that exist only as placed blocks in the original (no item); they get no item here either.
+blocks-without-item:
+  - sculkflower_crop
