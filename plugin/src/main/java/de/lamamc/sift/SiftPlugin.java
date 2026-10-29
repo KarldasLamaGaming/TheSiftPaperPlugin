@@ -9,6 +9,7 @@ import de.lamamc.sift.block.PhysicsGuard;
 import de.lamamc.sift.bootstrap.SiftBootstrap;
 import de.lamamc.sift.command.SiftCommand;
 import de.lamamc.sift.item.ItemRegistry;
+import de.lamamc.sift.item.ItemSettings;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.item.Translations;
 import de.lamamc.sift.menu.ItemMenuListener;
@@ -52,7 +53,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
-        items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar());
+        items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar(),
+                ItemSettings.load(getConfig().getConfigurationSection("items")));
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new CustomBlockListener(this, blocks, blockSettings, items), this);
         getServer().getPluginManager().registerEvents(new BreakSpeedListener(blocks, blockSettings), this);

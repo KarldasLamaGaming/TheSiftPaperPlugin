@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -42,7 +44,16 @@ public final class ItemRegistry {
                     throw new IllegalArgumentException("items.yml: " + id + " is already a block");
                 }
                 items.put(id, new ItemDefinition(id, ItemCategory.parse(section.getString(id + ".category", "misc")),
-                        section.getString(id + ".base", "minecraft:paper")));
+                        section.getString(id + ".base", "minecraft:paper"),
+                        ItemKind.parse(section.getString(id + ".kind", "plain")),
+                        section.getBoolean(id + ".protect", false)));
+            }
+            for (String id : yaml.getStringList("protected-blocks")) {
+                ItemDefinition block = items.get(id);
+                if (block == null) {
+                    throw new IllegalArgumentException("items.yml: protected block " + id + " is unknown");
+                }
+                items.put(id, new ItemDefinition(id, block.category(), block.baseItem(), block.kind(), true));
             }
         }
     }
@@ -69,6 +80,17 @@ public final class ItemRegistry {
 
     public ItemDefinition get(String id) {
         return items.get(id.startsWith("the_sift:") ? id.substring("the_sift:".length()) : id);
+    }
+
+    /** Ids of the items that must not be used like their vanilla base item. */
+    public Set<String> protectedIds() {
+        Set<String> ids = new TreeSet<>();
+        items.values().forEach(def -> {
+            if (def.protectedItem()) {
+                ids.add(def.id());
+            }
+        });
+        return ids;
     }
 
     public Collection<ItemDefinition> all() {

@@ -20,10 +20,12 @@ public final class SiftItems {
 
     private final ItemRegistry registry;
     private final Translations translations;
+    private final ItemComponents components;
 
-    public SiftItems(ItemRegistry registry, Translations translations) {
+    public SiftItems(ItemRegistry registry, Translations translations, ItemSettings settings) {
         this.registry = registry;
         this.translations = translations;
+        this.components = new ItemComponents(settings, registry, translations);
     }
 
     public ItemRegistry registry() {
@@ -51,6 +53,7 @@ public final class SiftItems {
         stack.setData(DataComponentTypes.ITEM_MODEL, Key.key("the_sift", def.id()));
         stack.setData(DataComponentTypes.ITEM_NAME, translations.itemName(def.id()));
         stack.editPersistentDataContainer(pdc -> pdc.set(ID, PersistentDataType.STRING, def.id()));
+        components.apply(def, stack);
         return stack;
     }
 
@@ -61,6 +64,13 @@ public final class SiftItems {
         }
         Material material = Material.matchMaterial(itemId);
         return material == null ? null : ItemStack.of(material, amount);
+    }
+
+    /** Whether the stack is a Sift item that must not be used like its vanilla base. */
+    public boolean isProtected(ItemStack stack) {
+        String id = idOf(stack);
+        ItemDefinition def = id == null ? null : registry.get(id);
+        return def != null && def.protectedItem();
     }
 
     /** The Sift id of a stack, or null for vanilla items. */
