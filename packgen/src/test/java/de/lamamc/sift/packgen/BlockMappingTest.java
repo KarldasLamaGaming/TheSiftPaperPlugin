@@ -49,11 +49,14 @@ class BlockMappingTest {
     @Test
     void substitutesKeepPropertiesUnlessTheTargetFixesThem() {
         BlockMapping mapping = BlockMapping.loadDefault();
-        assertEquals("minecraft:mangrove_log[axis=x]",
-                mapping.resolve(BlockState.of("the_sift:overgrown_willow_log", Map.of("axis", "x"))).toString());
+        assertEquals("minecraft:mangrove_slab[type=top]",
+                mapping.resolve(BlockState.of("the_sift:overgrown_willow_slab", Map.of("type", "top"))).toString());
+        BlockMapping fixed = BlockMapping.load(new StringReader("""
+                substitute:
+                  leaves: minecraft:mangrove_leaves[persistent=true]
+                """));
         assertEquals("minecraft:mangrove_leaves[persistent=true]",
-                mapping.resolve(BlockState.of("the_sift:overgrown_willow_foliage", Map.of("persistent", "false")))
-                        .toString());
+                fixed.resolve(BlockState.of("the_sift:leaves", Map.of("persistent", "false"))).toString());
     }
 
     @Test
@@ -102,5 +105,60 @@ class BlockMappingTest {
         assertTrue(mapping.survivesRotation("the_sift:siftslate_coal_ore"));
         assertTrue(mapping.survivesRotation("the_sift:siftslate"));
         assertFalse(mapping.survivesRotation("the_sift:siftslate_diamond_ore"));
+    }
+
+    @Test
+    void fixedStatesAreTakenBeforeTheOthers() {
+        String yaml = """
+                pools:
+                  tripwire:
+                    properties: [powered, disarmed]
+                repurposed:
+                  tripwire:
+                    - a
+                    - b = powered=false,disarmed=false
+                """;
+        BlockMapping mapping = BlockMapping.load(new StringReader(yaml));
+        assertEquals("minecraft:tripwire[disarmed=false,powered=false]", mapping.resolve(BlockState.of("the_sift:b")).toString());
+        // "a" gets the next free state, not the one reserved for "b"
+        assertEquals("minecraft:tripwire[disarmed=true,powered=false]", mapping.resolve(BlockState.of("the_sift:a")).toString());
+    }
+
+    @Test
+    void fixedStateMustBeInThePoolAndFree() {
+        String outside = """
+                pools:
+                  tripwire:
+                    properties: [powered, disarmed]
+                    filter: { powered: "true" }
+                repurposed:
+                  tripwire:
+                    - a = powered=false,disarmed=false
+                """;
+        assertThrows(IllegalArgumentException.class, () -> BlockMapping.load(new StringReader(outside)));
+        String twice = """
+                pools:
+                  tripwire:
+                    properties: [powered, disarmed]
+                repurposed:
+                  tripwire:
+                    - a = powered=false,disarmed=false
+                    - b = powered=false,disarmed=false
+                """;
+        assertThrows(IllegalArgumentException.class, () -> BlockMapping.load(new StringReader(twice)));
+    }
+
+    @Test
+    void logsHaveOneStatePerAxis() {
+        BlockMapping mapping = BlockMapping.loadDefault();
+        Set<BlockState> states = new HashSet<>();
+        for (String axis : new String[] {"x", "y", "z"}) {
+            BlockState state = mapping.resolve(BlockState.of("the_sift:overgrown_willow_log", Map.of("axis", axis)));
+            assertEquals("minecraft:brown_mushroom_block", state.id());
+            states.add(state);
+        }
+        assertEquals(3, states.size());
+        assertFalse(mapping.isMapped("minecraft:mangrove_log"));
+        assertTrue(mapping.isRepurposed("the_sift:overgrown_lotus"));
     }
 }

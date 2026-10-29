@@ -59,6 +59,15 @@ blocks:
   sculkflower: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:torchflower"}
   sculkflower_crop: {hardness: 0, drops: {type: self, item: "the_sift:sculkflower_seeds"}, support: {face: below, blocks: [sift]}, fallback: "minecraft:air"}
   overgrown_willow_sapling: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:mangrove_propagule"}
+  overgrown_lotus: {hardness: 0, drops: {type: self}, support: {face: below, blocks: [sift]}, fallback: "minecraft:fern"}
+  # Weiden-Set: Achse beim Setzen nach angeklickter Fläche, Entrinden mit Axt (Rechtsklick)
+  overgrown_willow_log: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_log"}
+  overgrown_willow_wood: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_wood"}
+  stripped_overgrown_willow_log: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:stripped_mangrove_log"}
+  stripped_overgrown_willow_wood: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:stripped_mangrove_wood"}
+  overgrown_willow_planks: {hardness: 2.0, tool: axe, drops: {type: self}, fallback: "minecraft:mangrove_planks"}
+  # Original: Laub-Kopie mit Härte 0.7, droppt immer sich selbst; zerfällt hier nicht (fester Block)
+  overgrown_willow_foliage: {hardness: 0.7, tool: hoe, drops: {type: self}, fallback: "minecraft:mangrove_leaves"}
   siftslate_hanging_roots: {hardness: 0, drops: {type: shears-or-silk}, support: {face: above, blocks: []}, fallback: "minecraft:hanging_roots"}
   overgrown_hanging_roots: {hardness: 0, drops: {type: shears-or-silk}, support: {face: above, blocks: []}, fallback: "minecraft:hanging_roots"}
 

@@ -17,9 +17,21 @@ class DatapackImporterTest {
     private final ImportReport report = new ImportReport();
 
     private Map<String, JsonElement> run(Map<String, String> files) {
+        return run(files, Map.of());
+    }
+
+    private Map<String, JsonElement> run(Map<String, String> files, Map<String, String> biomeEffects) {
         Map<String, JsonElement> source = new TreeMap<>();
         files.forEach((path, json) -> source.put(path, JsonParser.parseString(json)));
-        return new DatapackImporter(mapping, report).run(source);
+        return new DatapackImporter(mapping, report, biomeEffects).run(source);
+    }
+
+    @Test
+    void biomeEffectsAreOverridden() {
+        Map<String, JsonElement> out = run(Map.of("worldgen/biome/b.json",
+                "{\"effects\": {\"water_color\": \"#4adce8\"}, \"features\": []}"), Main.biomeEffects());
+        assertEquals("#9dc5ff", out.get("worldgen/biome/b.json").getAsJsonObject()
+                .getAsJsonObject("effects").get("water_color").getAsString());
     }
 
     @Test

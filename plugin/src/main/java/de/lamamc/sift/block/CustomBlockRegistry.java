@@ -43,6 +43,16 @@ public final class CustomBlockRegistry {
         return byState.get(data.getAsString());
     }
 
+    /** The state of a custom block with these properties (e.g. axis=x), or null. */
+    public CustomBlock state(String id, Map<String, String> properties) {
+        for (CustomBlock block : byState.values()) {
+            if (block.id().equals(id) && block.properties().equals(properties)) {
+                return block;
+            }
+        }
+        return null;
+    }
+
     /** The state a placed block item gets (the first entry of the block in the mapping). */
     public CustomBlock defaultState(String id) {
         return defaults.get(id);

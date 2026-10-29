@@ -628,9 +628,24 @@
     "attached=true,disarmed=false,east=true,north=true,powered=true,south=true,west=true": {
       "model": "minecraft:block/tripwire_attached_nsew"
     },
-    "attached=false,disarmed=true,east=true,north=true,powered=true,south=true,west=true": {
-      "model": "minecraft:block/tripwire_nsew"
-    },
+    "attached=false,disarmed=true,east=true,north=true,powered=true,south=true,west=true": [
+      {
+        "model": "the_sift:block/overgrown_lotus",
+        "y": 0
+      },
+      {
+        "model": "the_sift:block/overgrown_lotus",
+        "y": 90
+      },
+      {
+        "model": "the_sift:block/overgrown_lotus",
+        "y": 180
+      },
+      {
+        "model": "the_sift:block/overgrown_lotus",
+        "y": 270
+      }
+    ],
     "attached=true,disarmed=true,east=true,north=true,powered=true,south=true,west=true": {
       "model": "minecraft:block/tripwire_attached_nsew"
     }

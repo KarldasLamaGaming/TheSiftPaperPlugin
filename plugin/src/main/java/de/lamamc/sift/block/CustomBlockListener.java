@@ -6,12 +6,14 @@ import de.lamamc.sift.core.BlockProfile;
 import de.lamamc.sift.core.DropRoller;
 import de.lamamc.sift.core.ItemDrop;
 import de.lamamc.sift.core.ToolType;
+import de.lamamc.sift.core.WoodRules;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.world.SiftWorlds;
 import io.papermc.paper.event.player.PlayerPickBlockEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,6 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -32,7 +35,10 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -86,7 +92,41 @@ public final class CustomBlockListener implements Listener {
                     NamedTextColor.RED));
             return;
         }
+        if (custom.properties().containsKey("axis")) {
+            BlockFace face = event.getBlockAgainst().getFace(block);
+            CustomBlock oriented = registry.state(id, Map.of("axis", WoodRules.axisFor(face == null ? "UP" : face.name())));
+            if (oriented != null) {
+                custom = oriented;
+            }
+        }
         block.setBlockData(custom.data(), false);
+    }
+
+    /** Right-click with an axe strips willow logs and wood like vanilla logs, keeping the axis. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onStrip(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getHand() != EquipmentSlot.HAND
+                || event.getClickedBlock() == null) {
+            return;
+        }
+        CustomBlock custom = registry.at(event.getClickedBlock());
+        String stripped = custom == null ? null : WoodRules.strippedOf(custom.id());
+        if (stripped == null || HeldTools.of(event.getItem()).type() != ToolType.AXE) {
+            return;
+        }
+        CustomBlock target = registry.state(stripped, custom.properties());
+        if (target == null) {
+            return;
+        }
+        event.setCancelled(true);
+        Block block = event.getClickedBlock();
+        block.setBlockData(target.data(), false);
+        Player player = event.getPlayer();
+        block.getWorld().playSound(block.getLocation().toCenterLocation(), Sound.ITEM_AXE_STRIP, 1.0f, 1.0f);
+        player.swingMainHand();
+        if (player.getGameMode() != GameMode.CREATIVE) {
+            player.damageItemStack(EquipmentSlot.HAND, 1);
+        }
     }
 
     /**

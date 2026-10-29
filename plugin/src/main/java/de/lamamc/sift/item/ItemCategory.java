@@ -35,14 +35,14 @@ public enum ItemCategory {
     }
 
     /**
-     * Category of a custom block: ores by name, plants (tripwire stand-ins) and saplings to plants/wood,
-     * everything else to blocks.
+     * Category of a custom block: ores by name, plants (tripwire stand-ins), saplings and the willow wood
+     * set to plants/wood, everything else to blocks.
      */
     public static ItemCategory forBlock(String id, String standInBlock) {
         if (id.endsWith("_ore")) {
             return ORES;
         }
-        if (standInBlock.equals("minecraft:tripwire") || id.contains("sapling")) {
+        if (standInBlock.equals("minecraft:tripwire") || id.contains("sapling") || id.contains("willow")) {
             return PLANTS_WOOD;
         }
         return BLOCKS;

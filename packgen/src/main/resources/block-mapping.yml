@@ -5,6 +5,8 @@
 #   base block (see "pools"), so appending entries keeps all existing assignments stable; reordering
 #   or removing entries changes them (and with that every world generated so far).
 #   An entry "block[prop=value]" maps one state of a custom block with properties.
+#   An entry "block = prop=value,..." takes exactly that state of the base block instead of the next
+#   free one (it must be in the pool). Such entries are assigned before all others.
 # substitute: custom blocks that are replaced by a vanilla block (no own look). Properties of the
 #   original state are passed through unless the target fixes them in brackets.
 # particles: custom particle types replaced by vanilla particle types.
@@ -59,6 +61,22 @@ repurposed:
     - soul_block
   brown_mushroom_block:
     - healthy_sculk
+    # willow wood set (decided after the texture coverage report; was mangrove before)
+    - overgrown_willow_log[axis=y]
+    - overgrown_willow_log[axis=x]
+    - overgrown_willow_log[axis=z]
+    - overgrown_willow_wood[axis=y]
+    - overgrown_willow_wood[axis=x]
+    - overgrown_willow_wood[axis=z]
+    - stripped_overgrown_willow_log[axis=y]
+    - stripped_overgrown_willow_log[axis=x]
+    - stripped_overgrown_willow_log[axis=z]
+    - stripped_overgrown_willow_wood[axis=y]
+    - stripped_overgrown_willow_wood[axis=x]
+    - stripped_overgrown_willow_wood[axis=z]
+    - overgrown_willow_planks
+    # the original foliage texture has no transparent pixels, so an opaque full block fits
+    - overgrown_willow_foliage
   red_mushroom_block:
     - dry_healthy_sculk
     - dry_healthy_sculk_growth
@@ -78,8 +96,15 @@ repurposed:
     - sculkflower_crop[age=0]
     - sculkflower_crop[age=1]
     - sculkflower_crop[age=2]
+    # a ground plant in the original (SiftPlantBlock), was lily pad before
+    - overgrown_lotus
   chorus_plant:
-    - ichor_glass
+    # Chorus has a 10 px core plus one arm per connection. With arms up and to all sides the glass gets
+    # almost full collision; a vanilla chorus plant can only have this state when four chorus neighbors
+    # hold it without support below, which natural growth never builds.
+    - ichor_glass = up=true,north=true,east=true,south=true,west=true,down=false
+    # state of ichor glass up to 0.1.0-alpha.2 (core only); still recognized so placed glass stays visible
+    - ichor_glass[legacy=true] = up=false,north=false,east=false,south=false,west=false,down=false
 
 substitute:
   ichor: minecraft:water
@@ -87,19 +112,12 @@ substitute:
   ichor_snow: minecraft:snow
   ichor_cauldron: minecraft:water_cauldron
   ichor_glass_pane: minecraft:purple_stained_glass_pane
-  overgrown_lotus: minecraft:lily_pad
   cobbled_siftslate_slab: minecraft:cobbled_deepslate_slab
   cobbled_siftslate_stairs: minecraft:cobbled_deepslate_stairs
   cobbled_siftslate_wall: minecraft:cobbled_deepslate_wall
   siftslate_brick_slab: minecraft:deepslate_brick_slab
   siftslate_brick_stairs: minecraft:deepslate_brick_stairs
   siftslate_brick_wall: minecraft:deepslate_brick_wall
-  overgrown_willow_log: minecraft:mangrove_log
-  overgrown_willow_wood: minecraft:mangrove_wood
-  stripped_overgrown_willow_log: minecraft:stripped_mangrove_log
-  stripped_overgrown_willow_wood: minecraft:stripped_mangrove_wood
-  overgrown_willow_planks: minecraft:mangrove_planks
-  overgrown_willow_foliage: minecraft:mangrove_leaves[persistent=true]
   overgrown_willow_vines: minecraft:vine
   overgrown_willow_vines_plant: minecraft:vine
   overgrown_willow_slab: minecraft:mangrove_slab

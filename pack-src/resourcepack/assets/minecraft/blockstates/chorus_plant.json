@@ -203,6 +203,19 @@
     {
       "when": {
         "down": "false",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "up": "true",
+        "west": "true"
+      },
+      "apply": {
+        "model": "the_sift:block/ichor_glass"
+      }
+    },
+    {
+      "when": {
+        "down": "false",
         "east": "false",
         "north": "false",
         "south": "false",

@@ -104,6 +104,16 @@ public final class SiftCommand {
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
                         .then(breakNode())
                         .then(Commands.literal("menu").executes(this::debugMenu))
+                        .then(Commands.literal("shape")
+                                .then(Commands.argument("x", IntegerArgumentType.integer())
+                                        .then(Commands.argument("y", IntegerArgumentType.integer())
+                                                .then(Commands.argument("z", IntegerArgumentType.integer())
+                                                        .executes(this::debugShape)))))
+                        .then(Commands.literal("chorus")
+                                .then(Commands.argument("radius", IntegerArgumentType.integer(0, 16))
+                                        .then(Commands.argument("chunkX", IntegerArgumentType.integer())
+                                                .then(Commands.argument("chunkZ", IntegerArgumentType.integer())
+                                                        .executes(this::debugChorus)))))
                         .then(Commands.literal("find")
                                 .then(Commands.argument("block", StringArgumentType.word())
                                         .suggests((ctx, builder) -> {
@@ -144,6 +154,77 @@ public final class SiftCommand {
             return 0;
         }
         ItemMenu.open(player, plugin.items(), ItemCategory.BLOCKS, 0);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Collision boxes of a block in the Sift, in pixels (16 = one block). */
+    private int debugShape(CommandContext<CommandSourceStack> ctx) {
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        Block block = sift.getBlockAt(IntegerArgumentType.getInteger(ctx, "x"), IntegerArgumentType.getInteger(ctx, "y"),
+                IntegerArgumentType.getInteger(ctx, "z"));
+        CustomBlock custom = plugin.blocks().at(block);
+        List<String> boxes = new ArrayList<>();
+        double volume = 0;
+        for (var box : block.getCollisionShape().getBoundingBoxes()) {
+            boxes.add(String.format(Locale.ROOT, "[%.0f..%.0f, %.0f..%.0f, %.0f..%.0f]", box.getMinX() * 16, box.getMaxX() * 16,
+                    box.getMinY() * 16, box.getMaxY() * 16, box.getMinZ() * 16, box.getMaxZ() * 16));
+            volume += box.getVolume();
+        }
+        ctx.getSource().getSender().sendPlainMessage((custom == null ? block.getType().getKey().toString() : custom.id())
+                + ": Kollision " + boxes + String.format(Locale.ROOT, ", Volumen %.0f %%", volume * 100));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Generates/loads End chunks and counts chorus plants, and how many of them are in a state that stands
+     * in for a Sift block (should be 0: those states do not occur naturally).
+     */
+    private int debugChorus(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        World end = Bukkit.getWorld(org.bukkit.NamespacedKey.minecraft("the_end"));
+        if (end == null) {
+            sender.sendRichMessage("<red>Das End ist nicht geladen.");
+            return 0;
+        }
+        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        int cx = IntegerArgumentType.getInteger(ctx, "chunkX");
+        int cz = IntegerArgumentType.getInteger(ctx, "chunkZ");
+        List<CompletableFuture<Chunk>> futures = new ArrayList<>();
+        for (int x = cx - radius; x <= cx + radius; x++) {
+            for (int z = cz - radius; z <= cz + radius; z++) {
+                futures.add(end.getChunkAtAsync(x, z));
+            }
+        }
+        sender.sendRichMessage("<gray>Scanne " + futures.size() + " End-Chunks nach Chorus ...");
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() ->
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    List<ChunkSnapshot> snapshots = futures.stream().map(f -> f.join().getChunkSnapshot()).toList();
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        Map<String, Integer> states = new HashMap<>();
+                        for (ChunkSnapshot snapshot : snapshots) {
+                            for (int x = 0; x < 16; x++) {
+                                for (int z = 0; z < 16; z++) {
+                                    for (int y = end.getMinHeight(); y < end.getMaxHeight(); y++) {
+                                        if (snapshot.getBlockType(x, y, z) == Material.CHORUS_PLANT) {
+                                            states.merge(snapshot.getBlockData(x, y, z).getAsString(), 1, Integer::sum);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            int total = states.values().stream().mapToInt(Integer::intValue).sum();
+                            int reserved = 0;
+                            for (var e : states.entrySet()) {
+                                if (plugin.blocks().of(Bukkit.createBlockData(e.getKey())) != null) {
+                                    reserved += e.getValue();
+                                }
+                            }
+                            sender.sendPlainMessage("Chorus-Pflanzen: " + total + " in " + states.size()
+                                    + " Zuständen, davon in Sift-Zuständen: " + reserved);
+                        });
+                    });
+                }));
         return Command.SINGLE_SUCCESS;
     }
 

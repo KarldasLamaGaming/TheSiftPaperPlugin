@@ -1,0 +1,9 @@
+# Changes to the imported worldgen that are not about blocks (blocks: block-mapping.yml).
+
+# Written into "effects" of every Sift biome.
+biome-effects:
+  # Ichor is a fluid of its own in the original, with an already colored texture (average RGB 109/137/213)
+  # and no tint. Here ichor is water: the vanilla water texture is gray (average 177) and multiplied by
+  # the biome water color, so 109/137/213 * 255/177 = #9dc5ff gives the look of the original ichor.
+  # Was #4adce8 (turquoise) in the original biomes, which only colors plain water there.
+  water_color: "#9dc5ff"

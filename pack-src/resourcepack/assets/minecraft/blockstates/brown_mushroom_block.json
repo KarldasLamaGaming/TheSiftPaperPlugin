@@ -18,43 +18,49 @@
       "model": "the_sift:block/vanilla/brown_mushroom_block_d_____"
     },
     "down=false,east=true,north=false,south=false,up=false,west=false": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block__e____"
+      "model": "the_sift:block/overgrown_willow_wood"
     },
     "down=true,east=true,north=false,south=false,up=false,west=false": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_de____"
     },
     "down=false,east=false,north=true,south=false,up=false,west=false": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block___n___"
+      "model": "the_sift:block/stripped_overgrown_willow_log_horizontal",
+      "x": 90,
+      "y": 90
     },
     "down=true,east=false,north=true,south=false,up=false,west=false": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_d_n___"
     },
     "down=false,east=true,north=true,south=false,up=false,west=false": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block__en___"
+      "model": "the_sift:block/stripped_overgrown_willow_wood",
+      "x": 90
     },
     "down=true,east=true,north=true,south=false,up=false,west=false": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_den___"
     },
     "down=false,east=false,north=false,south=true,up=false,west=false": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block____s__"
+      "model": "the_sift:block/overgrown_willow_log_horizontal",
+      "x": 90,
+      "y": 90
     },
     "down=true,east=false,north=false,south=true,up=false,west=false": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_d__s__"
     },
     "down=false,east=true,north=false,south=true,up=false,west=false": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block__e_s__"
+      "model": "the_sift:block/overgrown_willow_wood",
+      "x": 90
     },
     "down=true,east=true,north=false,south=true,up=false,west=false": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_de_s__"
     },
     "down=false,east=false,north=true,south=true,up=false,west=false": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block___ns__"
+      "model": "the_sift:block/stripped_overgrown_willow_wood"
     },
     "down=true,east=false,north=true,south=true,up=false,west=false": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_d_ns__"
     },
     "down=false,east=true,north=true,south=true,up=false,west=false": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block__ens__"
+      "model": "the_sift:block/overgrown_willow_foliage"
     },
     "down=true,east=true,north=true,south=true,up=false,west=false": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_dens__"
@@ -108,43 +114,49 @@
       "model": "the_sift:block/vanilla/brown_mushroom_block_densu_"
     },
     "down=false,east=false,north=false,south=false,up=false,west=true": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block______w"
+      "model": "the_sift:block/overgrown_willow_log"
     },
     "down=true,east=false,north=false,south=false,up=false,west=true": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_d____w"
     },
     "down=false,east=true,north=false,south=false,up=false,west=true": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block__e___w"
+      "model": "the_sift:block/overgrown_willow_wood",
+      "x": 90,
+      "y": 90
     },
     "down=true,east=true,north=false,south=false,up=false,west=true": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_de___w"
     },
     "down=false,east=false,north=true,south=false,up=false,west=true": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block___n__w"
+      "model": "the_sift:block/stripped_overgrown_willow_log_horizontal",
+      "x": 90
     },
     "down=true,east=false,north=true,south=false,up=false,west=true": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_d_n__w"
     },
     "down=false,east=true,north=true,south=false,up=false,west=true": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block__en__w"
+      "model": "the_sift:block/overgrown_willow_planks"
     },
     "down=true,east=true,north=true,south=false,up=false,west=true": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_den__w"
     },
     "down=false,east=false,north=false,south=true,up=false,west=true": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block____s_w"
+      "model": "the_sift:block/overgrown_willow_log_horizontal",
+      "x": 90
     },
     "down=true,east=false,north=false,south=true,up=false,west=true": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_d__s_w"
     },
     "down=false,east=true,north=false,south=true,up=false,west=true": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block__e_s_w"
+      "model": "the_sift:block/stripped_overgrown_willow_log"
     },
     "down=true,east=true,north=false,south=true,up=false,west=true": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_de_s_w"
     },
     "down=false,east=false,north=true,south=true,up=false,west=true": {
-      "model": "the_sift:block/vanilla/brown_mushroom_block___ns_w"
+      "model": "the_sift:block/stripped_overgrown_willow_wood",
+      "x": 90,
+      "y": 90
     },
     "down=true,east=false,north=true,south=true,up=false,west=true": {
       "model": "the_sift:block/vanilla/brown_mushroom_block_d_ns_w"

@@ -43,9 +43,17 @@ public final class DatapackImporter {
     private final BlockMapping mapping;
     private final ImportReport report;
 
+    private final Map<String, String> biomeEffects;
+
     public DatapackImporter(BlockMapping mapping, ImportReport report) {
+        this(mapping, report, Map.of());
+    }
+
+    /** @param biomeEffects values written into "effects" of every biome (worldgen-overrides.yml) */
+    public DatapackImporter(BlockMapping mapping, ImportReport report, Map<String, String> biomeEffects) {
         this.mapping = mapping;
         this.report = report;
+        this.biomeEffects = biomeEffects;
     }
 
     public Map<String, JsonElement> run(Map<String, JsonElement> source) {
@@ -177,6 +185,17 @@ public final class DatapackImporter {
 
     private void cleanBiome(String path, JsonObject biome) {
         String biomeId = idOf(path, BIOME);
+        if (!biomeEffects.isEmpty()) {
+            JsonObject effects = biome.has("effects") ? biome.getAsJsonObject("effects") : new JsonObject();
+            biomeEffects.forEach((key, value) -> {
+                if (effects.has(key) && !effects.get(key).getAsString().equals(value)) {
+                    report.note("Changed biome effects (worldgen-overrides.yml)",
+                            key + ": " + effects.get(key).getAsString() + " -> " + value);
+                }
+                effects.addProperty(key, value);
+            });
+            biome.add("effects", effects);
+        }
         JsonObject attributes = biome.getAsJsonObject("attributes");
         if (attributes == null) {
             return;

@@ -4,7 +4,8 @@
 diese Minecraft-Version gebaut. Auf einer anderen Version lädt das Plugin die Sift nicht, deaktiviert
 sich und schreibt beim Start, welche Version es erwartet (der Server selbst startet normal).
 
-Stand: Phase 1, Schritte 1–4 und 8 (Dimension, Datapack, eigene Blöcke, Resource Pack) plus Item-Menü.
+Stand: Phase 1, Schritte 1–4 und 8 (Dimension, Datapack, eigene Blöcke, Resource Pack) plus Item-Menü,
+ab alpha.3 mit Weidenholz, Lotus, neuem Ichorglas und Ichorfarbe.
 Wird mit jeder Phase ergänzt. Testablauf: `docs/TESTING.md`.
 
 ## Installation
@@ -53,9 +54,15 @@ normalen Spiel nicht vorkommen; das Resource Pack gibt ihnen das Aussehen aus de
 | Vanilla-Block | Sift-Blöcke |
 |---|---|
 | Pilzstiel (`mushroom_stem`) | Siftschiefer-Familie, Erze, Geröll, Seelenblock, Ichorschneeblock |
-| Brauner/roter Pilzblock | Gesunder bzw. trockener Sculk |
-| Stolperdraht (`tripwire`) | Pflanzen, hängende Wurzeln, Setzling, Sculkblume |
+| Brauner Pilzblock | Gesunder Sculk, Weidenstamm, -holz (entrindet und nicht, je Achse), -bretter, -laub |
+| Roter Pilzblock | Trockener gesunder Sculk |
+| Stolperdraht (`tripwire`) | Pflanzen, Lotus, hängende Wurzeln, Setzling, Sculkblume |
 | Chorus-Pflanze | Ichorglas |
+
+Wasser in der Sift hat die Biomfarbe `#9dc5ff` und sieht dadurch nach Ichor aus (das Datapack setzt sie
+in allen Sift-Biomen). Weidenstämme richten sich beim Setzen nach der angeklickten Fläche aus und
+lassen sich mit einer Axt entrinden. Weiden-Treppen, -Türen, -Zäune usw. bleiben Mangrovenholz,
+Stein-Treppen/-Stufen/-Mauern Tiefenschiefer (Begründung: `docs/TEXTURE-COVERAGE.md`).
 
 Die genaue Zuordnung steht in `pack-src/block-mapping.json`.
 
@@ -100,10 +107,22 @@ Das Plugin passt beim Abbauen die Abbaugeschwindigkeit an (Attribut `block_break
 Sift-Block so lange braucht wie im Original. Drops, Glück, Behutsamkeit und Erfahrung kommen aus
 `blocks.<id>.drops`.
 
+### Ichorglas aus alpha.1/alpha.2
+
+Ab alpha.3 nutzt Ichorglas einen Chorus-Zustand mit Armen (fast volle Kollision). Bereits gesetztes
+Glas behält seinen alten Zustand: es sieht weiter wie Ichorglas aus, hat aber die alte, kleine
+Kollision. Abbauen (mit Behutsamkeit) und neu setzen ergibt die neue Form. `/sift debug shape <x> <y> <z>`
+zeigt, welche Form ein Block hat.
+
 ### Bekannte Einschränkungen
 
-- Schritt- und Abbaugeräusche bestimmt der Client nach dem Vanilla-Block: Siftschiefer und Sculk
-  klingen nach Holz (Pilzblock), Pflanzen nach Faden.
+- Schritt- und Abbaugeräusche bestimmt der Client nach dem Vanilla-Block: Siftschiefer, Sculk und
+  Weidenlaub klingen nach Holz (Pilzblock), Pflanzen nach Faden, Ichorglas nach Chorus.
+- Weidenholz und -laub brennen nicht, Weidenlaub zerfällt nicht; Rezepte (z. B. Bretter) folgen mit
+  Schritt 5.
+- Zwei Ichorglas-Blöcke nebeneinander blenden die Innenflächen nicht aus.
+- Wer im End gezielt Chorus so baut, dass ein Stück oben und an allen vier Seiten Chorus hat, unten
+  aber nicht, sieht dort mit dem Pack Ichorglas. Der Block bleibt Chorus; natürlich wächst das nicht.
 - Explosionen werden vereinfacht: Sift-Blöcke ohne `explosion-proof` gehen bei jeder Explosion kaputt
   (keine Strahlstärke-Rechnung wie bei Vanilla).
 - Seelenblock leuchtet noch nicht, Sift-Geröll fällt noch nicht (folgen mit der Weltgenerierung).
@@ -154,6 +173,8 @@ Sift-Block so lange braucht wie im Original. Drops, Glück, Behutsamkeit und Erf
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
 | `/sift debug populator` | Zähler des Test-Populators |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
+| `/sift debug shape <x> <y> <z>` | Kollisionsboxen eines Blocks in der Sift (Pixel, Anteil am Würfel) |
+| `/sift debug chorus <radius> <chunkX> <chunkZ>` | End-Chunks laden und zählen, ob Chorus dort Zustände der Sift hat (sollte 0 sein) |
 
 ## Test-Populator
 
