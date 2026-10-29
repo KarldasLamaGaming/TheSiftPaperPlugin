@@ -3,17 +3,17 @@ package de.lamamc.sift.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import de.lamamc.sift.SiftPlugin;
-import de.lamamc.sift.block.BlockSettings;
 import de.lamamc.sift.block.CustomBlock;
 import de.lamamc.sift.block.CustomBlockRegistry;
 import de.lamamc.sift.block.HeldTools;
 import de.lamamc.sift.core.BlockProfile;
 import de.lamamc.sift.core.BreakTimeCalculator;
-import de.lamamc.sift.core.DropRoller;
+import de.lamamc.sift.core.BlockMining;
 import de.lamamc.sift.core.HeldTool;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.world.DebugPopulator;
@@ -22,7 +22,9 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import java.util.Locale;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +37,7 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -93,12 +96,7 @@ public final class SiftCommand {
                 .then(Commands.literal("debug")
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
-                        .then(Commands.literal("break")
-                                .then(Commands.argument("x", IntegerArgumentType.integer())
-                                        .then(Commands.argument("y", IntegerArgumentType.integer())
-                                                .then(Commands.argument("z", IntegerArgumentType.integer())
-                                                        .then(Commands.argument("tool", StringArgumentType.word())
-                                                                .executes(this::debugBreak))))))
+                        .then(breakNode())
                         .then(Commands.literal("populator").executes(this::populatorStats))
                         .then(Commands.literal("scan")
                                 .executes(ctx -> scan(ctx, 2, 0, 0))
@@ -112,6 +110,27 @@ public final class SiftCommand {
                                                                 IntegerArgumentType.getInteger(ctx, "chunkZ"))))))))
                 .build();
         commands.register(root, "The Sift: Admin-Befehle");
+    }
+
+    /** /sift debug break <x> <y> <z> <tool> [none|silk|fortune1..3] [rolls] */
+    private LiteralArgumentBuilder<CommandSourceStack> breakNode() {
+        var rolls = Commands.argument("rolls", IntegerArgumentType.integer(1, 100_000))
+                .executes(ctx -> debugBreak(ctx, StringArgumentType.getString(ctx, "enchant"),
+                        IntegerArgumentType.getInteger(ctx, "rolls")));
+        var enchant = Commands.argument("enchant", StringArgumentType.word())
+                .suggests((ctx, builder) -> {
+                    List.of("none", "silk", "fortune1", "fortune2", "fortune3").forEach(builder::suggest);
+                    return builder.buildFuture();
+                })
+                .executes(ctx -> debugBreak(ctx, StringArgumentType.getString(ctx, "enchant"), 1))
+                .then(rolls);
+        var tool = Commands.argument("tool", StringArgumentType.word())
+                .executes(ctx -> debugBreak(ctx, "none", 1))
+                .then(enchant);
+        return Commands.literal("break")
+                .then(Commands.argument("x", IntegerArgumentType.integer())
+                        .then(Commands.argument("y", IntegerArgumentType.integer())
+                                .then(Commands.argument("z", IntegerArgumentType.integer()).then(tool))));
     }
 
     private int teleport(CommandContext<CommandSourceStack> ctx) {
@@ -164,10 +183,11 @@ public final class SiftCommand {
     }
 
     /**
-     * Shows how a custom block in the Sift would behave when mined with a tool (vanilla item id),
-     * without a client: break time, speed factor and one roll of the drops.
+     * Shows how a custom block in the Sift would behave when mined with a tool (vanilla item id, optionally
+     * enchanted), without a client: break time, speed factor and the drops of {@code rolls} breaks. The
+     * enchantments are put on a real item and read back like the break listener does.
      */
-    private int debugBreak(CommandContext<CommandSourceStack> ctx) {
+    private int debugBreak(CommandContext<CommandSourceStack> ctx, String enchant, int rolls) {
         var sender = ctx.getSource().getSender();
         World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
         if (sift == null) {
@@ -183,9 +203,15 @@ public final class SiftCommand {
         }
         Material toolMaterial = Material.matchMaterial(StringArgumentType.getString(ctx, "tool"));
         ItemStack tool = toolMaterial == null || toolMaterial == Material.AIR ? null : ItemStack.of(toolMaterial);
+        if (tool != null && enchant.equals("silk")) {
+            tool.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 1);
+        } else if (tool != null && enchant.startsWith("fortune")) {
+            tool.addUnsafeEnchantment(Enchantment.FORTUNE, Integer.parseInt(enchant.substring("fortune".length())));
+        }
         HeldTool held = HeldTools.of(tool);
-        BlockSettings settings = plugin.blockSettings();
-        BlockProfile profile = settings.profile(custom.id());
+        boolean silk = HeldTools.silkTouch(tool);
+        int fortune = HeldTools.fortune(tool);
+        BlockProfile profile = plugin.blockSettings().profile(custom.id());
         Material standIn = custom.data().getMaterial();
         double factor = BreakTimeCalculator.speedFactor(profile, held, 0, CustomBlockRegistry.standInTool(standIn),
                 CustomBlockRegistry.standInHardness(standIn));
@@ -193,14 +219,20 @@ public final class SiftCommand {
                 BreakTimeCalculator.toolSpeed(held, CustomBlockRegistry.standInTool(standIn), 0),
                 CustomBlockRegistry.standInHardness(standIn), true);
         int ticks = BreakTimeCalculator.ticks(standInProgress * factor);
-        boolean harvested = profile.canHarvest(held);
-        var drops = DropRoller.roll(profile.drops(), "the_sift:" + custom.id(), harvested, false, 0, held.type(),
-                new Random());
+        Map<String, Integer> drops = new TreeMap<>();
+        long xp = 0;
+        Random random = new Random();
+        for (int i = 0; i < rolls; i++) {
+            BlockMining.Result result = BlockMining.mine(profile, "the_sift:" + custom.id(), held, silk, fortune, random);
+            result.drops().forEach(d -> drops.merge(d.item(), d.amount(), Integer::sum));
+            xp += result.experience();
+        }
         sender.sendPlainMessage("Block " + custom.id() + custom.properties() + " (" + custom.data().getAsString() + ")");
-        sender.sendPlainMessage("  Werkzeug " + held + ", Faktor " + String.format(java.util.Locale.ROOT, "%.4f", factor)
+        sender.sendPlainMessage("  Werkzeug " + held + ", Behutsamkeit " + silk + ", Glück " + fortune
+                + ", Faktor " + String.format(Locale.ROOT, "%.4f", factor)
                 + ", Abbauzeit " + (ticks == Integer.MAX_VALUE ? "unzerstörbar" : ticks + " Ticks")
-                + ", erntbar " + harvested);
-        sender.sendPlainMessage("  Drops " + drops + ", XP " + DropRoller.experience(profile, harvested, false, new Random()));
+                + ", erntbar " + profile.canHarvest(held));
+        sender.sendPlainMessage("  " + rolls + " Abbauvorgänge: Drops " + drops + ", XP gesamt " + xp);
         return Command.SINGLE_SUCCESS;
     }
 
