@@ -28,7 +28,19 @@ public record MappingEntry(String id, Map<String, String> properties, String van
         return entries;
     }
 
-    static MappingEntry parse(String custom, String vanilla) {
+    /** block-mapping.json from the plugin jar. */
+    public static List<MappingEntry> bundled() {
+        try (java.io.InputStream in = MappingEntry.class.getResourceAsStream("/block-mapping.json")) {
+            if (in == null) {
+                throw new IllegalStateException("block-mapping.json missing from the plugin jar");
+            }
+            return read(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8));
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    public static MappingEntry parse(String custom, String vanilla) {
         String id = custom;
         Map<String, String> props = new TreeMap<>();
         int bracket = custom.indexOf('[');

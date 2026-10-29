@@ -3,26 +3,30 @@ package de.lamamc.sift.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import de.lamamc.sift.SiftPlugin;
-import de.lamamc.sift.block.BlockSettings;
 import de.lamamc.sift.block.CustomBlock;
 import de.lamamc.sift.block.CustomBlockRegistry;
 import de.lamamc.sift.block.HeldTools;
 import de.lamamc.sift.core.BlockProfile;
 import de.lamamc.sift.core.BreakTimeCalculator;
-import de.lamamc.sift.core.DropRoller;
+import de.lamamc.sift.core.BlockMining;
 import de.lamamc.sift.core.HeldTool;
+import de.lamamc.sift.item.ItemCategory;
 import de.lamamc.sift.item.SiftItems;
+import de.lamamc.sift.menu.ItemMenu;
 import de.lamamc.sift.world.DebugPopulator;
 import de.lamamc.sift.world.SiftWorlds;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import java.util.Locale;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,13 +39,17 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /** {@code /sift}: admin commands. */
 public final class SiftCommand {
 
-    private static final String PERMISSION = "thesift.admin";
+    /** All /sift commands; includes {@link #ITEMS_PERMISSION}. */
+    public static final String PERMISSION = "thesift.admin";
+    /** /sift items and /sift give only, for team members who just need the items. */
+    public static final String ITEMS_PERMISSION = "thesift.admin.items";
     /** Blocks that stand in for mod blocks (see pack-src/block-mapping.json) plus the debug marker. */
     private static final Set<Material> SCANNED = Set.of(Material.MUSHROOM_STEM, Material.BROWN_MUSHROOM_BLOCK,
             Material.RED_MUSHROOM_BLOCK, Material.TRIPWIRE, Material.CHORUS_PLANT, Material.GLOWSTONE,
@@ -55,9 +63,10 @@ public final class SiftCommand {
 
     public void register(Commands commands) {
         LiteralCommandNode<CommandSourceStack> root = Commands.literal("sift")
-                .requires(source -> source.getSender().hasPermission(PERMISSION))
-                .then(Commands.literal("tp").executes(this::teleport))
-                .then(Commands.literal("give")
+                .requires(source -> admin(source) || items(source))
+                .then(Commands.literal("tp").requires(SiftCommand::admin).executes(this::teleport))
+                .then(Commands.literal("items").requires(SiftCommand::items).executes(this::openMenu))
+                .then(Commands.literal("give").requires(SiftCommand::items)
                         .then(Commands.argument("player", ArgumentTypes.player())
                                 .then(Commands.argument("item", StringArgumentType.word())
                                         .suggests((ctx, builder) -> {
@@ -69,7 +78,7 @@ public final class SiftCommand {
                                         .executes(ctx -> give(ctx, 1))
                                         .then(Commands.argument("amount", IntegerArgumentType.integer(1, 6400))
                                                 .executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "amount")))))))
-                .then(Commands.literal("pack")
+                .then(Commands.literal("pack").requires(SiftCommand::admin)
                         .then(Commands.literal("info").executes(ctx -> {
                             ctx.getSource().getSender().sendPlainMessage("Resource Pack: " + plugin.resourcePack().describe());
                             return Command.SINGLE_SUCCESS;
@@ -90,15 +99,22 @@ public final class SiftCommand {
                                             : "<red>Das Resource Pack ist abgeschaltet.");
                                     return Command.SINGLE_SUCCESS;
                                 }))))
-                .then(Commands.literal("debug")
+                .then(Commands.literal("debug").requires(SiftCommand::admin)
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
-                        .then(Commands.literal("break")
-                                .then(Commands.argument("x", IntegerArgumentType.integer())
-                                        .then(Commands.argument("y", IntegerArgumentType.integer())
-                                                .then(Commands.argument("z", IntegerArgumentType.integer())
-                                                        .then(Commands.argument("tool", StringArgumentType.word())
-                                                                .executes(this::debugBreak))))))
+                        .then(breakNode())
+                        .then(Commands.literal("menu").executes(this::debugMenu))
+                        .then(Commands.literal("find")
+                                .then(Commands.argument("block", StringArgumentType.word())
+                                        .suggests((ctx, builder) -> {
+                                            plugin.blocks().ids().stream()
+                                                    .filter(id -> id.startsWith(builder.getRemainingLowerCase()))
+                                                    .forEach(builder::suggest);
+                                            return builder.buildFuture();
+                                        })
+                                        .executes(ctx -> find(ctx, 4))
+                                        .then(Commands.argument("radius", IntegerArgumentType.integer(0, 12))
+                                                .executes(ctx -> find(ctx, IntegerArgumentType.getInteger(ctx, "radius"))))))
                         .then(Commands.literal("populator").executes(this::populatorStats))
                         .then(Commands.literal("scan")
                                 .executes(ctx -> scan(ctx, 2, 0, 0))
@@ -112,6 +128,62 @@ public final class SiftCommand {
                                                                 IntegerArgumentType.getInteger(ctx, "chunkZ"))))))))
                 .build();
         commands.register(root, "The Sift: Admin-Befehle");
+    }
+
+    private static boolean admin(CommandSourceStack source) {
+        return source.getSender().hasPermission(PERMISSION);
+    }
+
+    private static boolean items(CommandSourceStack source) {
+        return source.getSender().hasPermission(ITEMS_PERMISSION);
+    }
+
+    private int openMenu(CommandContext<CommandSourceStack> ctx) {
+        if (!(ctx.getSource().getExecutor() instanceof Player player)) {
+            ctx.getSource().getSender().sendRichMessage("<red>Nur für Spieler.");
+            return 0;
+        }
+        ItemMenu.open(player, plugin.items(), ItemCategory.BLOCKS, 0);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Builds every page of the item menu and lists what it shows (tests without a client). */
+    private int debugMenu(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        for (ItemCategory category : ItemCategory.values()) {
+            ItemMenu menu = ItemMenu.build(plugin.items(), category, 0);
+            List<String> ids = new ArrayList<>();
+            for (int slot = 0; slot < ItemMenu.ITEM_SLOTS; slot++) {
+                String id = menu.itemAt(slot);
+                if (id != null) {
+                    ids.add(id);
+                }
+            }
+            long filled = java.util.Arrays.stream(menu.getInventory().getContents()).filter(java.util.Objects::nonNull).count();
+            sender.sendPlainMessage(category.title() + ": " + ids.size() + " Items, " + filled + " belegte Slots " + ids);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** /sift debug break <x> <y> <z> <tool> [none|silk|fortune1..3] [rolls] */
+    private LiteralArgumentBuilder<CommandSourceStack> breakNode() {
+        var rolls = Commands.argument("rolls", IntegerArgumentType.integer(1, 100_000))
+                .executes(ctx -> debugBreak(ctx, StringArgumentType.getString(ctx, "enchant"),
+                        IntegerArgumentType.getInteger(ctx, "rolls")));
+        var enchant = Commands.argument("enchant", StringArgumentType.word())
+                .suggests((ctx, builder) -> {
+                    List.of("none", "silk", "fortune1", "fortune2", "fortune3").forEach(builder::suggest);
+                    return builder.buildFuture();
+                })
+                .executes(ctx -> debugBreak(ctx, StringArgumentType.getString(ctx, "enchant"), 1))
+                .then(rolls);
+        var tool = Commands.argument("tool", StringArgumentType.word())
+                .executes(ctx -> debugBreak(ctx, "none", 1))
+                .then(enchant);
+        return Commands.literal("break")
+                .then(Commands.argument("x", IntegerArgumentType.integer())
+                        .then(Commands.argument("y", IntegerArgumentType.integer())
+                                .then(Commands.argument("z", IntegerArgumentType.integer()).then(tool))));
     }
 
     private int teleport(CommandContext<CommandSourceStack> ctx) {
@@ -164,10 +236,11 @@ public final class SiftCommand {
     }
 
     /**
-     * Shows how a custom block in the Sift would behave when mined with a tool (vanilla item id),
-     * without a client: break time, speed factor and one roll of the drops.
+     * Shows how a custom block in the Sift would behave when mined with a tool (vanilla item id, optionally
+     * enchanted), without a client: break time, speed factor and the drops of {@code rolls} breaks. The
+     * enchantments are put on a real item and read back like the break listener does.
      */
-    private int debugBreak(CommandContext<CommandSourceStack> ctx) {
+    private int debugBreak(CommandContext<CommandSourceStack> ctx, String enchant, int rolls) {
         var sender = ctx.getSource().getSender();
         World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
         if (sift == null) {
@@ -183,9 +256,15 @@ public final class SiftCommand {
         }
         Material toolMaterial = Material.matchMaterial(StringArgumentType.getString(ctx, "tool"));
         ItemStack tool = toolMaterial == null || toolMaterial == Material.AIR ? null : ItemStack.of(toolMaterial);
+        if (tool != null && enchant.equals("silk")) {
+            tool.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 1);
+        } else if (tool != null && enchant.startsWith("fortune")) {
+            tool.addUnsafeEnchantment(Enchantment.FORTUNE, Integer.parseInt(enchant.substring("fortune".length())));
+        }
         HeldTool held = HeldTools.of(tool);
-        BlockSettings settings = plugin.blockSettings();
-        BlockProfile profile = settings.profile(custom.id());
+        boolean silk = HeldTools.silkTouch(tool);
+        int fortune = HeldTools.fortune(tool);
+        BlockProfile profile = plugin.blockSettings().profile(custom.id());
         Material standIn = custom.data().getMaterial();
         double factor = BreakTimeCalculator.speedFactor(profile, held, 0, CustomBlockRegistry.standInTool(standIn),
                 CustomBlockRegistry.standInHardness(standIn));
@@ -193,14 +272,93 @@ public final class SiftCommand {
                 BreakTimeCalculator.toolSpeed(held, CustomBlockRegistry.standInTool(standIn), 0),
                 CustomBlockRegistry.standInHardness(standIn), true);
         int ticks = BreakTimeCalculator.ticks(standInProgress * factor);
-        boolean harvested = profile.canHarvest(held);
-        var drops = DropRoller.roll(profile.drops(), "the_sift:" + custom.id(), harvested, false, 0, held.type(),
-                new Random());
+        Map<String, Integer> drops = new TreeMap<>();
+        long xp = 0;
+        Random random = new Random();
+        for (int i = 0; i < rolls; i++) {
+            BlockMining.Result result = BlockMining.mine(profile, "the_sift:" + custom.id(), held, silk, fortune, random);
+            result.drops().forEach(d -> drops.merge(d.item(), d.amount(), Integer::sum));
+            xp += result.experience();
+        }
         sender.sendPlainMessage("Block " + custom.id() + custom.properties() + " (" + custom.data().getAsString() + ")");
-        sender.sendPlainMessage("  Werkzeug " + held + ", Faktor " + String.format(java.util.Locale.ROOT, "%.4f", factor)
+        sender.sendPlainMessage("  Werkzeug " + held + ", Behutsamkeit " + silk + ", Glück " + fortune
+                + ", Faktor " + String.format(Locale.ROOT, "%.4f", factor)
                 + ", Abbauzeit " + (ticks == Integer.MAX_VALUE ? "unzerstörbar" : ticks + " Ticks")
-                + ", erntbar " + harvested);
-        sender.sendPlainMessage("  Drops " + drops + ", XP " + DropRoller.experience(profile, harvested, false, new Random()));
+                + ", erntbar " + profile.canHarvest(held));
+        sender.sendPlainMessage("  " + rolls + " Abbauvorgänge: Drops " + drops + ", XP gesamt " + xp);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Finds the nearest block of a custom block id in the Sift around the executor (or the Sift spawn),
+     * loading/generating the chunks within {@code radius} chunks. For testers looking for ores.
+     */
+    private int find(CommandContext<CommandSourceStack> ctx, int radius) {
+        var sender = ctx.getSource().getSender();
+        String id = StringArgumentType.getString(ctx, "block");
+        Set<String> states = plugin.blocks().statesOf(id);
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift == null || states.isEmpty()) {
+            sender.sendRichMessage(sift == null ? "<red>Die Sift-Welt ist nicht geladen."
+                    : "<red>Unbekannter Sift-Block: <white>" + id);
+            return 0;
+        }
+        org.bukkit.Location origin = ctx.getSource().getLocation();
+        if (origin == null || !SiftWorlds.isSift(origin.getWorld())) {
+            origin = sift.getSpawnLocation();
+        }
+        Material material = plugin.blocks().defaultState(id).data().getMaterial();
+        int cx = origin.getBlockX() >> 4;
+        int cz = origin.getBlockZ() >> 4;
+        List<CompletableFuture<Chunk>> futures = new ArrayList<>();
+        for (int x = cx - radius; x <= cx + radius; x++) {
+            for (int z = cz - radius; z <= cz + radius; z++) {
+                futures.add(sift.getChunkAtAsync(x, z));
+            }
+        }
+        sender.sendRichMessage("<gray>Suche <white>" + id + "</white> in " + futures.size() + " Chunks ...");
+        org.bukkit.Location center = origin;
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() ->
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    List<ChunkSnapshot> snapshots = futures.stream().map(f -> f.join().getChunkSnapshot()).toList();
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        int[] best = null;
+                        double bestDistance = Double.MAX_VALUE;
+                        int found = 0;
+                        for (ChunkSnapshot snapshot : snapshots) {
+                            for (int x = 0; x < 16; x++) {
+                                for (int z = 0; z < 16; z++) {
+                                    for (int y = sift.getMinHeight(); y < sift.getMaxHeight(); y++) {
+                                        if (snapshot.getBlockType(x, y, z) != material
+                                                || !states.contains(snapshot.getBlockData(x, y, z).getAsString())) {
+                                            continue;
+                                        }
+                                        found++;
+                                        int bx = (snapshot.getX() << 4) + x;
+                                        int bz = (snapshot.getZ() << 4) + z;
+                                        double d = center.distanceSquared(new org.bukkit.Location(sift, bx, y, bz));
+                                        if (d < bestDistance) {
+                                            bestDistance = d;
+                                            best = new int[] {bx, y, bz};
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        int[] result = best;
+                        int total = found;
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            if (result == null) {
+                                sender.sendRichMessage("<yellow>Kein <white>" + id + "</white> gefunden.");
+                                return;
+                            }
+                            String pos = result[0] + " " + result[1] + " " + result[2];
+                            sender.sendRichMessage("<gray>" + total + " Blöcke <white>" + id + "</white>, nächster bei "
+                                    + "<click:run_command:'/execute in the_sift:the_sift run tp @s " + pos
+                                    + "'><hover:show_text:'Teleport (im Zuschauermodus, der Block liegt im Gestein)'><aqua>" + pos + "</aqua></hover></click>");
+                        });
+                    });
+                }));
         return Command.SINGLE_SUCCESS;
     }
 

@@ -79,8 +79,9 @@ resource-pack:
   url: "https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/releases/download/v{version}/the-sift-pack.zip"
   # SHA-1 des Packs. Leer = beim Start herunterladen und berechnen (Release-Datei the-sift-pack.zip.sha1)
   sha1: ""
-  # true = Spieler müssen das Pack annehmen, sonst werden sie getrennt
-  required: true
+  # true = Spieler müssen das Pack annehmen, sonst werden sie getrennt (kick-on-decline).
+  # false = das Pack wird angeboten, Ablehnen ist erlaubt (Sift-Blöcke sehen dann wie Pilzblöcke aus)
+  required: false
   # Fester Schlüssel des Packs beim Client; nur ändern, wenn mehrere Server unterschiedliche Packs senden
   uuid: "5f1a7c2e-3b84-4d6e-9a10-7c3e2b9d4f61"
   prompt: "<gold>The Sift</gold> <gray>braucht ein Resource Pack für Blöcke, Items und Texte.</gray>"

@@ -10,5 +10,10 @@ authors: [KarldasLamaGaming]
 website: https://github.com/KarldasLamaGaming/TheSiftPaperPlugin
 permissions:
   thesift.admin:
-    description: Admin-Befehle von /sift
+    description: Alle /sift-Befehle (schließt thesift.admin.items ein)
+    default: op
+    children:
+      thesift.admin.items: true
+  thesift.admin.items:
+    description: /sift items (Item-Menü) und /sift give
     default: op

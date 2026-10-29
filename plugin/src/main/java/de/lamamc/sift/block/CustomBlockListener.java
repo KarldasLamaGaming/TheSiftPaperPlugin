@@ -1,9 +1,9 @@
 package de.lamamc.sift.block;
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent;
+import de.lamamc.sift.core.BlockMining;
 import de.lamamc.sift.core.BlockProfile;
 import de.lamamc.sift.core.DropRoller;
-import de.lamamc.sift.core.HeldTool;
 import de.lamamc.sift.core.ItemDrop;
 import de.lamamc.sift.core.ToolType;
 import de.lamamc.sift.item.SiftItems;
@@ -116,12 +116,10 @@ public final class CustomBlockListener implements Listener {
             event.setExpToDrop(0);
             if (player.getGameMode() != GameMode.CREATIVE) {
                 ItemStack tool = player.getInventory().getItemInMainHand();
-                HeldTool held = HeldTools.of(tool);
-                boolean harvested = profile.canHarvest(held);
-                boolean silk = HeldTools.silkTouch(tool);
-                drop(block.getLocation(), DropRoller.roll(profile.drops(), "the_sift:" + custom.id(), harvested, silk,
-                        HeldTools.fortune(tool), held.type(), ThreadLocalRandom.current()));
-                event.setExpToDrop(DropRoller.experience(profile, harvested, silk, ThreadLocalRandom.current()));
+                BlockMining.Result result = BlockMining.mine(profile, "the_sift:" + custom.id(), HeldTools.of(tool),
+                        HeldTools.silkTouch(tool), HeldTools.fortune(tool), ThreadLocalRandom.current());
+                drop(block.getLocation(), result.drops());
+                event.setExpToDrop(result.experience());
             }
         }
         checkNeighborsLater(block);
