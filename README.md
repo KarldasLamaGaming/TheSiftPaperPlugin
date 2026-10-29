@@ -1,5 +1,8 @@
 # TheSiftPaperPlugin
 
+**Benötigt:** Paper 26.3 (getestet mit Build 227), Java 25. Jede Version des Plugins ist für genau
+eine Minecraft-Version gebaut; auf anderen Versionen bleibt es mit einer Meldung im Log deaktiviert.
+
 Paper-Plugin und Server-Resource-Pack für **Lama Kingdom** (LamaMC), das
 *Mielon's The Sift* nachbildet: eigene Dimension, Siftit-Ausrüstung, Erze, Portale.
 

@@ -1,23 +1,26 @@
 # The Sift – Admin-Handbuch
 
-Stand: Phase 1, Schritte 1–4 und 8 (Dimension, Datapack, eigene Blöcke, Resource Pack). Wird mit jeder
-Phase ergänzt.
+**Benötigt:** Paper **26.3** (getestet mit Build 227) und Java 25. Das Datapack der Sift ist für genau
+diese Minecraft-Version gebaut. Auf einer anderen Version lädt das Plugin die Sift nicht, deaktiviert
+sich und schreibt beim Start, welche Version es erwartet (der Server selbst startet normal).
 
-## Installation und erster Start
+Stand: Phase 1, Schritte 1–4 und 8 (Dimension, Datapack, eigene Blöcke, Resource Pack) plus Item-Menü.
+Wird mit jeder Phase ergänzt. Testablauf: `docs/TESTING.md`.
 
-1. `TheSift-<version>.jar` nach `plugins/` legen (Paper 26.3, Java 25). Die Welt muss neu sein,
-   damit die Sift-Generierung von Anfang an greift.
+## Installation
+
+1. `TheSift-<version>.jar` nach `plugins/` legen. Die Welt muss neu sein, damit die
+   Sift-Generierung von Anfang an greift.
 2. Server starten. Im Log stehen:
    - `[TheSift] Datapack installed to plugins/TheSift/datapack (… files)`
    - `Found new data pack TheSift/the_sift, loading it automatically`
    - `[TheSift] The Sift is loaded as world 'world_the_sift_the_sift' (the_sift:the_sift, …)`
 3. Prüfen: `/datapack list` zeigt `TheSift/the_sift` als aktiv, `/sift tp` bringt dich in die Sift.
-4. Danach können Spieler die Sift betreten. **Ein Neustart nach dem ersten Start ist nicht nötig.**
+   Danach können Spieler die Sift betreten.
 
-Ältere Stände dieses Handbuchs verlangten einen Neustart, weil das Plugin eine `paper-world.yml`
-für die Sift schrieb. Das war wirkungslos (siehe nächster Abschnitt) und ist entfernt. Eine von
-älteren Versionen angelegte Datei `<welt>/dimensions/the_sift/the_sift/paper-world.yml` mit
-`block-updates`-Einträgen schadet nicht und kann gelöscht werden.
+Hinweis zu 0.1.0-alpha.1: Eine von dieser Version angelegte Datei
+`<welt>/dimensions/the_sift/the_sift/paper-world.yml` mit `block-updates`-Einträgen ist wirkungslos
+und kann gelöscht werden.
 
 ## Resource Pack
 
@@ -31,7 +34,9 @@ schickt es beim Betreten des Servers.
 - `resource-pack.sha1`: leer lassen, dann lädt das Plugin das Pack beim Start einmal herunter und
   berechnet die SHA-1 selbst (Log: `Resource pack … (SHA-1 …)`). Alternativ den Inhalt von
   `the-sift-pack.zip.sha1` eintragen; dann wird beim Start nichts heruntergeladen.
-- `resource-pack.required: true`: Wer das Pack ablehnt, wird mit `kick-on-decline` getrennt.
+- `resource-pack.required` (Standard `false`): Das Pack wird angeboten, Ablehnen ist erlaubt; ohne Pack
+  sehen Sift-Blöcke wie Pilzblöcke aus und Namen erscheinen auf Deutsch (Fallback). Mit `true` wird
+  getrennt, wer ablehnt (`kick-on-decline`).
 - Nach Änderungen: `/sift pack reload`. `/sift pack info` zeigt URL und SHA-1, `/sift pack send <spieler>`
   schickt das Pack erneut.
 - Das Pack ersetzt nur die Blockstates von Pilzblöcken, Stolperdraht und Chorus-Pflanze; deren normale
@@ -106,15 +111,47 @@ Sift-Block so lange braucht wie im Original. Drops, Glück, Behutsamkeit und Erf
   zufällig einen der verwendeten Zustände erzeugt; mit dem Resource Pack sieht der Block dann wie ein
   Sift-Block aus. Er bleibt ein Pilzblock.
 
+## Item-Menü und Rechte
+
+- `/sift items` öffnet ein Truhen-Menü mit allen Sift-Items, sortiert nach Kategorien (Blöcke, Erze,
+  Pflanzen/Holz, Werkzeuge, Rüstung, Materialien, Sonstiges). Unten: ◀/▶ blättern, Reiter wechseln
+  die Kategorie. Klick = 1 Item, Shift-Klick = ganzer Stapel. Nichts kann ins Menü gelegt werden.
+- `/sift give <spieler> <id> [anzahl]` mit Tab-Vervollständigung der Ids.
+- Rechte (Standard jeweils op):
+  - `thesift.admin`: alle `/sift`-Befehle, schließt `thesift.admin.items` ein.
+  - `thesift.admin.items`: nur `/sift items` und `/sift give` (z. B. für Bauteam-Mitglieder).
+- Die Items kommen aus derselben Registry wie Drops (und ab Schritt 5 Rezepte und Loot): Neue Items
+  erscheinen automatisch im Menü. Werkzeuge und Rüstung folgen mit Schritt 5.
+
+## Drops und Erze
+
+- Sift-Geröll wie im Original (und wie Vanilla-Kies/Feuerstein): mit Behutsamkeit das Geröll, sonst
+  mit 10 % (Glück I/II/III: 14 / 25 / 100 %) einen Ichorsplitter, sonst das Geröll selbst. Mehrmals
+  hintereinander nur Geröll ist also normal. Die Chancen stehen in `blocks.sift_rubble.drops.chances`.
+- Erzverteilung wie im Original (Weltgenerierung per Datapack):
+
+  | Erz | Höhe | Adern pro Chunk | Größe |
+  |---|---|---|---|
+  | Siftiterz | y 0–15 | 1 | 8 |
+  | Charoiterz | y 0–32 (Mitte häufiger) | 1 | 7 |
+  | Diamanterz | y 0–31 | 2 | 9 |
+  | Smaragderz | y 0–63 | 10 | 9 |
+  | Steinkohle | y 0–127, zusätzlich an der Oberfläche | 20 + 10 | 17 |
+
+- `/sift debug find <id> [radius]` sucht den nächsten Block (z. B. `siftslate_siftite_ore`) um dich
+  herum und zeigt einen anklickbaren Teleport.
+
 ## Befehle (`thesift.admin`)
 
 | Befehl | Wirkung |
 |---|---|
 | `/sift tp` | In die Sift bzw. zurück in die Hauptwelt |
-| `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben |
+| `/sift items` | Item-Menü (auch mit `thesift.admin.items`) |
+| `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben (auch mit `thesift.admin.items`) |
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
-| `/sift debug break <x> <y> <z> <werkzeug>` | Abbauzeit, Drops und XP eines Sift-Blocks in der Sift berechnen |
+| `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
+| `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
 | `/sift debug populator` | Zähler des Test-Populators |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
 
