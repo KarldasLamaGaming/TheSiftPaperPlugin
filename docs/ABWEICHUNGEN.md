@@ -43,7 +43,35 @@ Sift-Items bauen auf Vanilla-Items auf (Papier, Netherit, Schneeball). Alle gesc
 `docs/ADMIN.md`, Schutz) verhalten sich nicht wie ihre Basis. Im Original gibt es diese Frage nicht,
 weil die Items eigene Item-Typen sind.
 
-## Weidenholz
+## Weidenholz brennt (seit alpha.5)
 
-Weidenholz und -laub brennen nicht und taugen nicht als Brennstoff (Pilzblock-Zustände). Wird mit
-Schritt 6 gegen das Original geprüft und angeglichen.
+Im Original stehen die Weidenblöcke im `FlammableBlockRegistry` und in den Vanilla-Tags `#logs_that_burn`,
+`#planks` und `#saplings`. Das Plugin bildet beides nach:
+
+| Block | Entzünden / Verbrennen (wie Original) | Brennstoff |
+|---|---|---|
+| Weidenstamm, -holz (auch entrindet) | 5 / 5 | 300 Ticks (1,5 Gegenstände) |
+| Weidenbretter | 5 / 20 | 300 Ticks |
+| Weidenlaub | 30 / 60 | – |
+| Weidensetzling | 60 / 100 | 100 Ticks |
+
+Abweichungen, die bleiben:
+- Das Feuer neben Weidenblöcken rechnet das Plugin (gleiche Formeln wie Vanilla, Zeittakt 30–39 Ticks).
+  Lava entzündet Weidenblöcke nicht, Blitze nur über das entstehende Feuer.
+- In den Brennstoff-Slot kommen Weidenblöcke per Klick und Shift-Klick, nicht per Trichter und nicht per
+  Zahlentaste.
+- Die Werte stehen in `config.yml` (`blocks.<id>.fire`, `blocks.<id>.fuel`).
+
+## Weltgenerierung (seit alpha.5)
+
+Die Java-Features des Originals laufen als Plugin-Populator nach den Datapack-Features:
+Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portale und das Haupt-Portal.
+
+- Die Reihenfolge innerhalb eines Chunks ist wie im Original, aber alle fünf laufen nach den
+  Datapack-Features, nicht dazwischen.
+- Das Haupt-Portal wird beim ersten Start gebaut, nachdem die Chunks um 0/0 generiert sind (das Original
+  baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
+  verlassene Portale halten sich vom Suchgebiet fern.
+- Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
+- Monolithen, Bögen, Seelenschluchten, Schnüffler-Höhlen, Ichor-Seen und -Quellen, Lavaböden und
+  Ichorschnee kommen mit Phase 3.
