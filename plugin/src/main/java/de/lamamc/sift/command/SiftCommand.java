@@ -16,6 +16,7 @@ import de.lamamc.sift.core.BreakTimeCalculator;
 import de.lamamc.sift.core.BlockMining;
 import de.lamamc.sift.core.HeldTool;
 import de.lamamc.sift.item.ItemCategory;
+import de.lamamc.sift.item.ItemSelfTest;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.menu.ItemMenu;
 import de.lamamc.sift.world.DebugPopulator;
@@ -104,6 +105,7 @@ public final class SiftCommand {
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
                         .then(breakNode())
                         .then(Commands.literal("menu").executes(this::debugMenu))
+                        .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("shape")
                                 .then(Commands.argument("x", IntegerArgumentType.integer())
                                         .then(Commands.argument("y", IntegerArgumentType.integer())
@@ -300,6 +302,18 @@ public final class SiftCommand {
     }
 
     /** Prints the components of a Sift item (for tests without a client). */
+    private int debugSelfTest(CommandContext<CommandSourceStack> ctx) {
+        World world = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (world == null) {
+            world = Bukkit.getWorlds().getFirst();
+        }
+        List<String> lines = new ItemSelfTest(plugin.items(), plugin.recipes()).run(world);
+        var sender = ctx.getSource().getSender();
+        lines.forEach(line -> sender.sendRichMessage((line.startsWith("FEHLER") ? "<red>" : "<gray>")
+                + net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().escapeTags(line)));
+        return lines.getLast().equals("Selbsttest bestanden") ? Command.SINGLE_SUCCESS : 0;
+    }
+
     private int debugItem(CommandContext<CommandSourceStack> ctx) {
         String id = StringArgumentType.getString(ctx, "item");
         ItemStack stack = plugin.items().create(id, 1);
