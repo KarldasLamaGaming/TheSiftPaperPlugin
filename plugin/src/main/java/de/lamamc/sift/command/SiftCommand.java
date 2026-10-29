@@ -108,7 +108,17 @@ public final class SiftCommand {
                         .then(Commands.literal("menu").executes(this::debugMenu))
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
-                        .then(Commands.literal("landmarks").executes(this::debugLandmarks))
+                        .then(Commands.literal("landmarks")
+                                .executes(ctx -> debugLandmarks(ctx, null, 1))
+                                .then(Commands.argument("x", IntegerArgumentType.integer())
+                                        .then(Commands.argument("z", IntegerArgumentType.integer())
+                                                .executes(ctx -> debugLandmarks(ctx, new int[] {
+                                                        IntegerArgumentType.getInteger(ctx, "x"), IntegerArgumentType.getInteger(ctx, "z")}, 1))
+                                                .then(Commands.argument("cells", IntegerArgumentType.integer(0, 5))
+                                                        .executes(ctx -> debugLandmarks(ctx, new int[] {
+                                                                IntegerArgumentType.getInteger(ctx, "x"), IntegerArgumentType.getInteger(ctx, "z")},
+                                                                IntegerArgumentType.getInteger(ctx, "cells")))))))
+                        .then(Commands.literal("portals").executes(this::debugPortals))
                         .then(Commands.literal("heights")
                                 .then(Commands.argument("x", IntegerArgumentType.integer())
                                         .then(Commands.argument("z", IntegerArgumentType.integer())
@@ -357,33 +367,79 @@ public final class SiftCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    /** Candidate chunks of the abandoned portals in the 3×3 cells around 0/0 (each may still fail its terrain check). */
-    private int debugLandmarks(CommandContext<CommandSourceStack> ctx) {
+    /**
+     * Candidate chunks of the abandoned portals in the cells around a position (default 0/0) with what
+     * worldgen did there: built, rejected (why), not generated yet.
+     */
+    private int debugLandmarks(CommandContext<CommandSourceStack> ctx, int[] center, int cells) {
         var sender = ctx.getSource().getSender();
         World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
         if (sift == null) {
             sender.sendRichMessage("<red>Die Sift-Welt ist nicht geladen.");
             return 0;
         }
-        int cell = plugin.getConfig().getInt("worldgen.abandoned-portals.cell-chunks", 32);
-        sender.sendRichMessage("<gray>Kandidaten für verlassene Portale (Chunk x z, Blockmitte):");
-        for (int cx = -1; cx <= 1; cx++) {
-            for (int cz = -1; cz <= 1; cz++) {
-                var chunk = de.lamamc.sift.core.worldgen.LandmarkPlacement.candidateChunk(sift.getSeed(), cx, cz, cell,
-                        de.lamamc.sift.core.worldgen.LandmarkPlacement.ABANDONED_PORTAL_SALT, 0);
-                sender.sendPlainMessage("  landmark " + chunk.x() + " " + chunk.z() + "  (" + (chunk.x() * 16 + 8) + " "
-                        + (chunk.z() * 16 + 8) + ")");
+        int cell = plugin.getConfig().getInt("worldgen.abandoned-portals.cell-chunks", 20);
+        int centerX = center == null ? 0 : center[0];
+        int centerZ = center == null ? 0 : center[1];
+        long salt = de.lamamc.sift.core.worldgen.LandmarkPlacement.ABANDONED_PORTAL_SALT;
+        int cellX = de.lamamc.sift.core.worldgen.LandmarkPlacement.cellOf(Math.floorDiv(centerX, 16), cell, salt);
+        int cellZ = de.lamamc.sift.core.worldgen.LandmarkPlacement.cellOf(Math.floorDiv(centerZ, 16), cell, salt);
+        sender.sendRichMessage("<gray>Kandidaten für verlassene Portale um " + centerX + " " + centerZ
+                + " (Zellen von " + cell + " × " + cell + " Chunks):");
+        for (int cx = cellX - cells; cx <= cellX + cells; cx++) {
+            for (int cz = cellZ - cells; cz <= cellZ + cells; cz++) {
+                var chunk = de.lamamc.sift.core.worldgen.LandmarkPlacement.candidateChunk(sift.getSeed(), cx, cz, cell, salt, 0);
+                sender.sendRichMessage("  " + portalStatus(sift, chunk.x(), chunk.z()));
             }
         }
-        sender.sendRichMessage("<gray>Sculk-Regionen (Mitte, Durchmesser) in den Zellen um 0/0:");
-        for (int cx = -1; cx <= 1; cx++) {
-            for (int cz = -1; cz <= 1; cz++) {
+        sender.sendRichMessage("<gray>Sculk-Regionen (Mitte, Durchmesser) in den 512er-Zellen um " + centerX + " " + centerZ + ":");
+        int sculkX = Math.floorDiv(centerX, de.lamamc.sift.core.worldgen.SculkRegions.CELL_SIZE);
+        int sculkZ = Math.floorDiv(centerZ, de.lamamc.sift.core.worldgen.SculkRegions.CELL_SIZE);
+        for (int cx = sculkX - 1; cx <= sculkX + 1; cx++) {
+            for (int cz = sculkZ - 1; cz <= sculkZ + 1; cz++) {
                 var region = de.lamamc.sift.core.worldgen.SculkRegions.create(sift.getSeed(), cx, cz);
                 sender.sendPlainMessage("  sculk " + (int) region.centerX() + " " + (int) region.centerZ() + "  ("
                         + Math.round(region.majorRadius() * 2) + ")");
             }
         }
         return Command.SINGLE_SUCCESS;
+    }
+
+    /** Every abandoned portal candidate worldgen has seen: built ones with a teleport, rejected ones with the reason. */
+    private int debugPortals(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift == null || plugin.siftPopulator() == null) {
+            sender.sendRichMessage("<red>Die Sift-Weltgenerierung ist nicht aktiv.");
+            return 0;
+        }
+        var entries = plugin.siftPopulator().log().all();
+        long built = entries.stream().filter(e -> e.status() == de.lamamc.sift.world.gen.LandmarkLog.Status.BUILT).count();
+        sender.sendRichMessage("<gray>Verlassene Portale: <white>" + built + "</white> gebaut, <white>" + (entries.size() - built)
+                + "</white> abgelehnt (seit alpha.6 protokolliert; ältere Chunks fehlen hier)");
+        for (var entry : entries) {
+            sender.sendRichMessage("  " + portalStatus(sift, entry.chunkX(), entry.chunkZ()));
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** One line about the candidate in this chunk, with a clickable teleport to the chest or the deciding block. */
+    private String portalStatus(World sift, int chunkX, int chunkZ) {
+        var entry = plugin.siftPopulator() == null ? null : plugin.siftPopulator().log().get(chunkX, chunkZ);
+        String where = "Chunk " + chunkX + " " + chunkZ + " (" + (chunkX * 16 + 8) + " " + (chunkZ * 16 + 8) + ")";
+        if (entry == null) {
+            return sift.isChunkGenerated(chunkX, chunkZ)
+                    ? "<white>" + where + "</white> <yellow>generiert vor alpha.6, kein Protokoll"
+                    : "<white>" + where + "</white> <gray>noch nicht generiert";
+        }
+        String pos = entry.x() + " " + entry.y() + " " + entry.z();
+        String tp = "<click:run_command:'/execute in the_sift:the_sift run tp @s " + entry.x() + " " + (entry.y() + 1) + " "
+                + entry.z() + "'><hover:show_text:'Teleport'><aqua>[" + pos + "]</aqua></hover></click>";
+        String reason = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().escapeTags(
+                entry.reason() == null ? "" : entry.reason());
+        return entry.status() == de.lamamc.sift.world.gen.LandmarkLog.Status.BUILT
+                ? "<white>" + where + "</white> <green>gebaut</green> <gray>(" + reason + ", Truhe)</gray> " + tp
+                : "<white>" + where + "</white> <red>abgelehnt:</red> <gray>" + reason + "</gray> " + tp;
     }
 
     private int debugSelfTest(CommandContext<CommandSourceStack> ctx) {
