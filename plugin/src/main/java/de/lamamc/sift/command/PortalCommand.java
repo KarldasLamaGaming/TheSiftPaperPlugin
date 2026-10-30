@@ -191,6 +191,7 @@ final class PortalCommand {
         int count = consoles.unlock(target.world(), target.portal());
         sender.sendRichMessage("<green>Konsolen von <white>" + target.portal().id() + "</white> geweckt (" + count
                 + "). Die Melodie öffnet das Portal jetzt.");
+        consoles.sendHint(sender);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -238,6 +239,16 @@ final class PortalCommand {
                 + p.state() + "</white>, Rahmen " + p.frame().width() + " × " + p.frame().height() + " (" + p.frame().axis()
                 + ") bei " + (int) Math.floor(c[0]) + " " + (int) c[1] + " " + (int) Math.floor(c[2]) + ", Konsolen "
                 + awake + "/" + p.consoles().size() + " wach.");
+        // sound numbers of the note blocks on the consoles, in the stored order (for tests)
+        StringBuilder sounds = new StringBuilder();
+        for (int[] k : p.consoles()) {
+            Block note = target.world().getBlockAt(k[0], k[1] + 1, k[2]);
+            sounds.append(sounds.isEmpty() ? "" : "  ").append(k[0]).append(' ').append(k[1] + 1).append(' ').append(k[2]).append(": ")
+                    .append(note.getType() == Material.NOTE_BLOCK ? "<white>" + SonorousConsoles.sound(note) + "</white>" : "<red>kein Notenblock</red>");
+        }
+        if (!p.consoles().isEmpty()) {
+            sender.sendRichMessage("<gray>Klänge der Konsolen: " + sounds);
+        }
         return Command.SINGLE_SUCCESS;
     }
 

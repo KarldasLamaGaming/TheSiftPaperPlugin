@@ -217,10 +217,20 @@ Melodie und Konsolen im Überlebensmodus spielen: Im Kreativmodus zerbricht ein 
 - [ ] Falscher Schlüssel (z. B. Seelenglut-Kern an der Ruine der Hauptwelt): Hinweis, Schlüssel bleibt.
 - [ ] Richtiger Schlüssel per Rechtsklick auf eine Konsole:
   - Alle 8 Konsolen wechseln in den Noten-Modus, mit Partikeln und Klang.
+  - Im Chat steht der Hinweis mit der Melodie **1-3-7-6-5-2-4-8** und der Bedienung (Rechtsklick wechselt,
+    Linksklick spielt). Dasselbe erhält ein Admin bei `/sift portal unlock`.
   - Der Schlüssel ist weg (im Kreativmodus bleibt er).
   - Ein zweiter Rechtsklick ergibt den Hinweis „schon wach“.
-- [ ] Rechtsklick auf einen Notenblock wählt reihum 8 Klänge (farbige Partikel), Schlagen spielt den
-      gewählten Klang. Redstone am Notenblock spielt ebenfalls den Sift-Klang.
+- [ ] Klangnummern:
+  - Rechtsklick auf einen Notenblock schaltet den Klang weiter, immer in der Reihenfolge
+    **1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 1**.
+  - Die Actionbar zeigt danach „Klang N von 8“ mit der neuen Nummer. Schlagen (Linksklick) spielt den
+    Klang und zeigt ebenfalls „Klang N von 8“.
+  - Redstone am Notenblock spielt den Sift-Klang ohne Anzeige.
+  - Ein Notenblock genügt: einstellen, schlagen, weiterschalten, schlagen …; es zählen nur die
+    Schläge. Mehrere Notenblöcke mit fest eingestellten Klängen gehen genauso.
+- [ ] `/sift portal info` (Admin) listet die 8 Konsolen mit Position und aktueller Klangnummer; nach dem
+      Umstellen eines Notenblocks steht dort die neue Nummer.
 - [ ] Melodie 1-3-7-6-5-2-4-8 durch Schlagen spielen:
   - Farbstoß über den Notenblöcken.
   - Die Konsolen spielen die Melodie mit Lichtsäulen nach.
