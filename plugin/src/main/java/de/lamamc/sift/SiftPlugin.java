@@ -75,7 +75,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(
                 new PhysicsGuard(this, blocks, blockSettings.placeOnlyInSift()), this);
         getServer().getPluginManager().registerEvents(new ItemMenuListener(items, SiftCommand.ITEMS_PERMISSION), this);
-        recipes = new SiftRecipes(items, getLogger());
+        recipes = new SiftRecipes(items, getConfig().getConfigurationSection("portals.recipes"), getLogger());
         recipes.register();
         getServer().getPluginManager().registerEvents(new SiftiteGuard(items), this);
         getServer().getPluginManager().registerEvents(new SiftFire(this, blocks, blockSettings), this);
@@ -92,8 +92,19 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         portals.start(getConfig().getInt("portals.check-ticks", 2));
         List<Integer> melody = getConfig().getIntegerList("portals.melody");
         consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
-                melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray());
+                melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
+                portalKeys());
         getServer().getPluginManager().registerEvents(consoles, this);
+        de.lamamc.sift.core.portal.KeyLoot keyLoot = new de.lamamc.sift.core.portal.KeyLoot();
+        org.bukkit.configuration.ConfigurationSection keySection = getConfig().getConfigurationSection("portals.keys");
+        if (keySection != null) {
+            for (String dimension : keySection.getKeys(false)) {
+                for (String table : keySection.getStringList(dimension + ".loot.tables")) {
+                    keyLoot.add(table, keySection.getString(dimension + ".item", ""), keySection.getDouble(dimension + ".loot.chance", 0));
+                }
+            }
+        }
+        getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
         // load: STARTUP enables the plugin before the worlds exist; this only matters after a reload
@@ -143,6 +154,24 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         world.getPopulators().add(populator);
         getLogger().info("Portal shrines attached to " + world.getKey() + " (one per " + sites.cellChunks() + " x "
                 + sites.cellChunks() + " chunks)");
+    }
+
+    /** World key -> id of the key that wakes its portals (portals.keys). */
+    private java.util.Map<String, String> portalKeys() {
+        java.util.Map<String, String> keys = new java.util.HashMap<>();
+        org.bukkit.configuration.ConfigurationSection section = getConfig().getConfigurationSection("portals.keys");
+        if (section != null) {
+            for (String dimension : section.getKeys(false)) {
+                String world = switch (dimension) {
+                    case "overworld" -> "minecraft:overworld";
+                    case "nether" -> "minecraft:the_nether";
+                    case "end" -> "minecraft:the_end";
+                    default -> dimension;
+                };
+                keys.put(world, section.getString(dimension + ".item", ""));
+            }
+        }
+        return keys;
     }
 
     /** Where the shrines of this world stand, or null (no shrines in this world). */

@@ -79,7 +79,7 @@ public final class ItemSelfTest {
     }
 
     private void recipes(World world) {
-        int expected = (int) SiftRecipes.bundled(items.registry()).stream().filter(r -> !r.skipped()).count();
+        int expected = recipes.expected();
         check(recipes.keys().size() == expected, "Rezepte registriert: " + recipes.keys().size() + " von " + expected);
 
         ItemStack nugget = sift("siftite_nugget");

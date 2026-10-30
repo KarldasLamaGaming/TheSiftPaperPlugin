@@ -188,12 +188,9 @@ final class PortalCommand {
     }
 
     private int unlock(CommandSender sender, Target target) {
-        for (int[] c : target.portal().consoles()) {
-            consoles.setMode(target.world().getBlockAt(c[0], c[1], c[2]), SonorousConsoles.Mode.NOTE);
-        }
-        portals.registry().put(target.world(), target.portal().withState(target.portal().state().unlock()));
-        sender.sendRichMessage("<green>Konsolen von <white>" + target.portal().id() + "</white> geweckt ("
-                + target.portal().consoles().size() + "). Die Melodie öffnet das Portal jetzt.");
+        int count = consoles.unlock(target.world(), target.portal());
+        sender.sendRichMessage("<green>Konsolen von <white>" + target.portal().id() + "</white> geweckt (" + count
+                + "). Die Melodie öffnet das Portal jetzt.");
         return Command.SINGLE_SUCCESS;
     }
 

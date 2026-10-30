@@ -29,6 +29,24 @@ class RecipeSpecTest {
     }
 
     @Test
+    void portalKeyAndCompassRecipesComeFromTheConfig() throws java.io.IOException {
+        org.bukkit.configuration.file.YamlConfiguration config;
+        try (var in = RecipeSpecTest.class.getResourceAsStream("/config.yml")) {
+            config = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
+                    new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8));
+        }
+        List<RecipeSpec> all = SiftRecipes.all(ItemRegistry.loadFromJar(MappingEntry.bundled()),
+                config.getConfigurationSection("portals.recipes"));
+        assertEquals(RECIPES.size() + 4, all.size());
+        for (String name : List.of("echo_resonator", "soul_ember_core", "void_resonator", "sift_compass")) {
+            RecipeSpec spec = all.stream().filter(r -> r.name().equals(name)).findFirst().orElseThrow();
+            org.junit.jupiter.api.Assertions.assertFalse(spec.skipped(), name + ": " + spec.skipReason());
+            assertEquals(RecipeSpec.Type.SHAPED, spec.type());
+            assertEquals(3, spec.pattern().size());
+        }
+    }
+
+    @Test
     void onlyRecipesWithVanillaSubstitutesAsIngredientAreLeftOut() {
         Set<String> skipped = new TreeSet<>();
         RECIPES.stream().filter(RecipeSpec::skipped).forEach(r -> skipped.add(r.name()));

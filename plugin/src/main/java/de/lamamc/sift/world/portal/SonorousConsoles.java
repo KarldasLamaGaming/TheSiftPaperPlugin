@@ -50,9 +50,13 @@ public final class SonorousConsoles implements Listener {
     private final PortalService portals;
     private final int[] sequence;
     private final Map<String, PortalMelody> melodies = new HashMap<>();
+    /** World key -> Sift id of the key that wakes the portals there. */
+    private final Map<String, String> keys;
     private final Set<String> igniting = new HashSet<>();
 
-    public SonorousConsoles(Plugin plugin, CustomBlockRegistry blocks, PortalService portals, int[] sequence) {
+    public SonorousConsoles(Plugin plugin, CustomBlockRegistry blocks, PortalService portals, int[] sequence,
+                            Map<String, String> keys) {
+        this.keys = Map.copyOf(keys);
         this.plugin = plugin;
         this.blocks = blocks;
         this.portals = portals;
@@ -102,12 +106,70 @@ public final class SonorousConsoles implements Listener {
         }
     }
 
+    /** Wakes all consoles of a portal (key or /sift portal unlock); returns how many there are. */
+    public int unlock(World world, SiftPortal portal) {
+        for (int[] c : portal.consoles()) {
+            Block console = world.getBlockAt(c[0], c[1], c[2]);
+            setMode(console, Mode.NOTE);
+            Block note = console.getRelative(BlockFace.UP);
+            burst(note, note.getType() == Material.NOTE_BLOCK ? sound(note) : 1);
+        }
+        portals.registry().put(world, portal.withState(portal.state().unlock()));
+        PortalSurface.play(world, portal.frame(), PortalSurface.TRIGGER_SOUND, 1.0f);
+        return portal.consoles().size();
+    }
+
+    /** Right-click with the key of the dimension on a sleeping console (or its note block) wakes the portal. */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onKey(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
+        if (block == null || event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+        org.bukkit.inventory.ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
+        String key = de.lamamc.sift.item.SiftItems.idOf(held);
+        if (key == null || !keys.containsValue(key)) {
+            return;
+        }
+        Block console = block.getType() == Material.NOTE_BLOCK ? block.getRelative(BlockFace.DOWN) : block;
+        if (mode(console) == Mode.NONE) {
+            return;
+        }
+        event.setCancelled(true);
+        Player player = event.getPlayer();
+        World world = block.getWorld();
+        Optional<SiftPortal> portal = portals.registry().withConsole(world, console.getX(), console.getY(), console.getZ());
+        if (portal.isEmpty()) {
+            player.sendActionBar(Component.text("Diese Konsole gehört zu keinem Portal."));
+            return;
+        }
+        if (portal.get().state() != PortalState.LOCKED) {
+            player.sendActionBar(Component.text("Die Konsolen dieses Portals sind schon wach."));
+            return;
+        }
+        String needed = keys.get(world.getKey().toString());
+        if (!key.equals(needed)) {
+            glitch(console);
+            player.sendActionBar(Component.text("Dieser Schlüssel passt nicht zu diesem Portal."));
+            return;
+        }
+        if (player.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+            held.subtract();
+        }
+        unlock(world, portal.get());
+        player.sendActionBar(Component.text("Die Konsolen erwachen. Spiel die Melodie."));
+    }
+
     /** Right-click picks the next of the 8 sounds; hitting plays it and counts for the tune. */
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         if (block == null || block.getType() != Material.NOTE_BLOCK || event.getHand() != EquipmentSlot.HAND) {
             return;
+        }
+        String held = de.lamamc.sift.item.SiftItems.idOf(event.getPlayer().getInventory().getItemInMainHand());
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && held != null && keys.containsValue(held)) {
+            return; // handled by onKey
         }
         Mode mode = modeBelow(block);
         if (mode == Mode.NONE) {
