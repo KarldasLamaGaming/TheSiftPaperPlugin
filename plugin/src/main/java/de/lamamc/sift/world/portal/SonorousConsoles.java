@@ -86,8 +86,22 @@ public final class SonorousConsoles implements Listener {
         }
     }
 
-    private static int sound(Block noteBlock) {
-        return ((NoteBlock) noteBlock.getBlockData()).getNote().getId() % 8 + 1;
+    /** Sound 1..8 of a note block on a console. */
+    public static int sound(Block noteBlock) {
+        return de.lamamc.sift.core.portal.ConsoleSounds.soundOf(((NoteBlock) noteBlock.getBlockData()).getNote().getId());
+    }
+
+    private static void showSound(Player player, int sound) {
+        player.sendActionBar(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(
+                "<gray>Klang <white><bold>" + sound + "</bold></white> von " + de.lamamc.sift.core.portal.ConsoleSounds.COUNT));
+    }
+
+    /** Tells a player how to open the portal: the tune and the controls. */
+    public void sendHint(org.bukkit.command.CommandSender player) {
+        player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Spiel diese Melodie, um das Portal zu öffnen:");
+        player.sendRichMessage("  <white><bold>" + de.lamamc.sift.core.portal.ConsoleSounds.text(sequence) + "</bold></white>");
+        player.sendRichMessage("<gray>Rechtsklick auf einen Notenblock schaltet seinen Klang weiter (1 → 2 → … → 8 → 1), "
+                + "Linksklick spielt ihn. Die Actionbar zeigt die Nummer des Klangs.");
     }
 
     /** Every way a note block sounds (hit, redstone): the sonorous sound or the glitch instead of the note. */
@@ -158,6 +172,7 @@ public final class SonorousConsoles implements Listener {
         }
         unlock(world, portal.get());
         player.sendActionBar(Component.text("Die Konsolen erwachen. Spiel die Melodie."));
+        sendHint(player);
     }
 
     /** Right-click picks the next of the 8 sounds; hitting plays it and counts for the tune. */
@@ -187,11 +202,13 @@ public final class SonorousConsoles implements Listener {
                 return;
             }
             NoteBlock data = (NoteBlock) block.getBlockData();
-            int next = (data.getNote().getId() % 8 + 1) % 8;
-            data.setNote(new org.bukkit.Note(next));
+            int next = de.lamamc.sift.core.portal.ConsoleSounds.next(sound(block));
+            data.setNote(new org.bukkit.Note(de.lamamc.sift.core.portal.ConsoleSounds.noteOf(next)));
             block.setBlockData(data, false);
-            playSound(block, next + 1);
+            playSound(block, next);
+            showSound(player, next);
         } else if (event.getAction() == Action.LEFT_CLICK_BLOCK && mode == Mode.NOTE) {
+            showSound(player, sound(block));
             heard(player, block, sound(block));
         }
     }
