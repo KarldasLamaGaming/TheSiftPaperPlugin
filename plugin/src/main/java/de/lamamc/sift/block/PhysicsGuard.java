@@ -44,8 +44,8 @@ public final class PhysicsGuard implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPhysics(BlockPhysicsEvent event) {
         Block block = event.getBlock();
-        if (siftOnly && !SiftWorlds.isSift(block.getWorld())) {
-            return;
+        if (siftOnly && !SiftWorlds.isSift(block.getWorld()) && !nearStandIn(block)) {
+            return; // outside the Sift only the few blocks allowed there (consoles) need guarding
         }
         if (isCustom(block)) {
             event.setCancelled(true);
@@ -72,6 +72,19 @@ public final class PhysicsGuard implements Listener {
             List<Block> toUpdate = vanillaNeighbors;
             Bukkit.getScheduler().runTask(plugin, () -> toUpdate.forEach(PhysicsGuard::followUp));
         }
+    }
+
+    /** Cheap pre-check outside the Sift: a stand-in material at or next to the block. */
+    private static boolean nearStandIn(Block block) {
+        if (CustomBlockRegistry.STAND_IN_BLOCKS.contains(block.getType())) {
+            return true;
+        }
+        for (BlockFace face : FACES) {
+            if (CustomBlockRegistry.STAND_IN_BLOCKS.contains(block.getRelative(face).getType())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isCustom(Block block) {

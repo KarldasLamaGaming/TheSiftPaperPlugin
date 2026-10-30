@@ -8,6 +8,9 @@ custom-blocks:
   # Was außerhalb der Sift passiert: deny = nicht platzieren (Hinweis an den Spieler),
   # vanilla = den unter blocks.<id>.fallback eingetragenen Vanilla-Block setzen
   outside-sift-fallback: deny
+  # Ausnahmen von place-only-in-sift: diese Blöcke dürfen auch in anderen Welten stehen
+  # (Konsolen der Portale in Overworld, Nether und End)
+  placeable-outside-sift: [sonorous_deepslate]
 
 # Verhalten der eigenen Blöcke (Werte nach Mielon's The Sift 1.1.1).
 #   hardness       Abbauhärte wie Vanilla (Tiefenschiefer 3.0); unbreakable: true = unzerstörbar

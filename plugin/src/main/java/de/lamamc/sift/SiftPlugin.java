@@ -65,6 +65,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
+        blocks.restrictWorlds(blockSettings::allowedIn);
         items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar(),
                 ItemSettings.load(getConfig().getConfigurationSection("items")));
         getServer().getPluginManager().registerEvents(this, this);

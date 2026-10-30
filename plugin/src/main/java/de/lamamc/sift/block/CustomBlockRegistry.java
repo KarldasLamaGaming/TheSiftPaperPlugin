@@ -1,5 +1,6 @@
 package de.lamamc.sift.block;
 
+import de.lamamc.sift.world.SiftWorlds;
 import de.lamamc.sift.core.BreakTimeCalculator;
 import de.lamamc.sift.core.ToolType;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public final class CustomBlockRegistry {
             Material.RED_MUSHROOM_BLOCK, Material.TRIPWIRE, Material.CHORUS_PLANT);
 
     private final Map<String, CustomBlock> byState = new HashMap<>();
+    private volatile java.util.function.BiPredicate<String, Boolean> worldRule;
     private final Map<String, CustomBlock> defaults = new LinkedHashMap<>();
 
     public CustomBlockRegistry(List<MappingEntry> entries) {
@@ -33,7 +35,16 @@ public final class CustomBlockRegistry {
 
     /** The custom block shown by this block, or null for vanilla blocks. */
     public CustomBlock at(Block block) {
-        return of(block.getBlockData());
+        CustomBlock custom = of(block.getBlockData());
+        if (custom != null && worldRule != null && !worldRule.test(custom.id(), SiftWorlds.isSift(block.getWorld()))) {
+            return null; // e.g. a natural mushroom block outside the Sift
+        }
+        return custom;
+    }
+
+    /** Which custom blocks count in which world (id, in the Sift); null = all everywhere. */
+    public void restrictWorlds(java.util.function.BiPredicate<String, Boolean> rule) {
+        this.worldRule = rule;
     }
 
     public CustomBlock of(BlockData data) {

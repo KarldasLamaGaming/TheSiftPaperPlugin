@@ -67,7 +67,7 @@ public final class SonorousConsoles implements Listener {
     }
 
     public Mode mode(Block block) {
-        CustomBlock custom = blocks.of(block.getBlockData());
+        CustomBlock custom = blocks.at(block);
         if (custom == null || !custom.id().equals(BLOCK_ID)) {
             return Mode.NONE;
         }
