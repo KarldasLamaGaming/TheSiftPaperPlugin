@@ -194,6 +194,30 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Ofen: Weidenstamm, -holz, -bretter (je 1,5 Items) und -setzling (0,5) per Klick und Shift-Klick in den
       Brennstoff-Slot; der Ofen brennt. Weidenlaub geht nicht hinein.
 
+## Portale (ab Schritt 7a)
+
+Testaufbau in der Hauptwelt (als OP, Kreativ):
+1. Rahmen aus Verstärktem Tiefenschiefer bauen, z. B. 7 breit, 8 hoch, innen frei.
+2. Daneben zwei bis acht Blöcke Klingender Tiefenschiefer aus `/sift items` setzen, je einen Notenblock darauf.
+3. `/sift portal create ~ ~ ~` auf dem Rahmen ausführen, dann `/sift portal unlock`.
+
+- [ ] Notenblock auf schlafender Konsole (vor `unlock`): Rechtsklick und Schlagen geben nur den verzerrten
+      Klang und den Hinweis „Die Konsole schläft noch“.
+- [ ] Nach `unlock`: Die Konsolen sehen anders aus (Noten-Modus). Rechtsklick wählt reihum 8 Klänge (farbige
+      Partikel), Schlagen spielt den gewählten Klang.
+- [ ] Melodie 1-3-7-6-5-2-4-8 durch Schlagen spielen: Farbstoß über den Notenblöcken, die Konsolen spielen
+      die Melodie mit Lichtsäulen nach, dann füllt sich der Rahmen vom Rand zur Mitte (Partikel, Klang),
+      Nebelfläche erscheint, die Öffnung leuchtet.
+- [ ] Falsche Töne in der Melodie: nichts passiert. Rückwärts gespielt: Hinweis „Dieses Portal bleibt offen“.
+- [ ] Hineingehen: Ankunft im Haupt-Portal der Sift; man steht in der Öffnung und wird nicht sofort
+      zurückgeschickt. Hinaus- und wieder hineingehen: zurück an die Stelle in der Hauptwelt, an der man
+      eingestiegen ist. Dort ebenso: erst hinaus, dann wieder hinein.
+- [ ] Relog oder Neustart, während man in der Ankunfts-Öffnung steht: kein sofortiger Rücksprung.
+- [ ] Tier hineinführen (Leine lösen) oder Item hineinwerfen: kommt in der Sift an.
+- [ ] `/sift portal info`, `list` (Teleport per Klick), `deactivate` (Fläche verschwindet von der Mitte aus),
+      `activate`, `remove`. `deactivate` am Haupt-Portal der Sift wird abgelehnt.
+- [ ] Nebelfläche aus der Nähe und von der Seite ansehen, in Grafik „Schnell“ und „Schön“ (Screenshot).
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.

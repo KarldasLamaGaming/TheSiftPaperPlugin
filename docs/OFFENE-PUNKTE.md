@@ -31,5 +31,6 @@ Stand: 30.10.2026 (nach alpha.6)
 
 ## Nächster Schritt
 
-Phase 1, Schritt 7: Portal-System mit drei Strukturen (Overworld, Nether, End), Schlüsseln und
-Sift-Kompass.
+- Schritt 7a (Portal-Mechanik) ist im PR. Spieltest siehe `docs/TESTING.md` → Portale.
+- Danach Schritt 7b: drei Strukturen (Overworld, Nether, End) mit Rahmen und Konsolen, Schlüssel als
+  Ersatz für den Singer, Sift-Kompass.
