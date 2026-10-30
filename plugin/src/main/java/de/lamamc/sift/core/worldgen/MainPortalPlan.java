@@ -19,6 +19,12 @@ public final class MainPortalPlan {
     public static final int MARKER_Y = 4;
     public static final int MARKER_Z = 19;
     public static final int PLAYER_Y = 5;
+    /** The opening of the template (its 120 sift_portal blocks): x 3, y 5..10, z 10..29, so the frame is 22 × 8. */
+    public static final int OPENING_FRAME_X = 3;
+    public static final int OPENING_FRAME_Y = 4;
+    public static final int OPENING_FRAME_Z = 9;
+    public static final int OPENING_FRAME_WIDTH = 22;
+    public static final int OPENING_FRAME_HEIGHT = 8;
     public static final int BLEND_RADIUS = 52;
     public static final int FOUNDATION_BLEND_RADIUS = 15;
     public static final int SEARCH_RADIUS = 96;

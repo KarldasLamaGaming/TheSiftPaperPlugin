@@ -150,6 +150,12 @@ class PortalLogicTest {
         assertFalse(guard.shouldTransfer(id, true));
         assertFalse(guard.shouldTransfer(id, false)); // stepped out
         assertTrue(guard.shouldTransfer(id, true)); // walks in again
+        UUID other = UUID.randomUUID();
+        guard.arrived(id);
+        guard.arrived(other);
+        assertEquals(Set.of(other), guard.releaseAllExcept(Set.of(id))); // other stepped out (or left the world)
+        assertTrue(guard.waiting(id));
+        assertFalse(guard.waiting(other));
     }
 
     @Test

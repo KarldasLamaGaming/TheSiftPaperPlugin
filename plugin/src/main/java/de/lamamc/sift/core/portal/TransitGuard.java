@@ -28,6 +28,14 @@ public final class TransitGuard {
         return touchingPortal;
     }
 
+    /** Releases every waiting entity that touches no portal any more (or is gone); returns them. */
+    public Set<UUID> releaseAllExcept(Set<UUID> touching) {
+        Set<UUID> released = new HashSet<>(waitingForExit);
+        released.removeAll(touching);
+        waitingForExit.removeAll(released);
+        return released;
+    }
+
     public boolean waiting(UUID id) {
         return waitingForExit.contains(id);
     }
