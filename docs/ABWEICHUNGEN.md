@@ -96,3 +96,30 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
 - Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
 - Monolithen, Bögen, Seelenschluchten, Schnüffler-Höhlen, Ichor-Seen und -Quellen, Lavaböden und
   Ichorschnee kommen mit Phase 3.
+
+## Portale (seit Schritt 7a)
+
+Die Mechanik folgt dem Original 1.1.1:
+- Rahmen aus Verstärktem Tiefenschiefer (3–23 Blöcke).
+- Konsolen aus Klingendem Tiefenschiefer mit Notenblöcken; Rechtsklick wählt einen der 8 Klänge, Schlagen
+  spielt ihn.
+- Die Melodie 1-3-7-6-5-2-4-8 öffnet das Portal; danach Farbstoß, Nachspielen und eine Fläche, die sich vom
+  Rand zur Mitte füllt.
+- Durchgang zum Haupt-Portal der Sift und zurück zum Rückkehrpunkt; Transit-Schutz nach jeder Reise.
+
+Unterschiede:
+- **Wecken:** Im Original schaltet der Singer (Ziegenhorn in der Antiken Stadt) die Konsolen vom
+  Horn- in den Noten-Modus. Hier tut das bis Phase 2 der Schlüssel der Dimension (Schritt 7b) bzw.
+  `/sift portal unlock`.
+- **Nur registrierte Portale:** Im Original zündet die Melodie jeden passenden Rahmen im Umkreis von
+  10 Blöcken. Hier nur Portale aus Strukturen oder per `/sift portal create`. Die Konsolen eines Portals
+  stehen in seinem Eintrag; eine Konsolengruppe über 16 Blöcke wie im Original wird nicht gesucht.
+- **Schließen:** Die rückwärts gespielte Melodie schließt das Portal nicht (dauerhaft offen, Entscheidung
+  vom 30.10.).
+- **Aussehen:**
+  - Die Portalfläche des Originals rendert ein Client-Shader. Hier ist sie eine halbtransparente
+    Nebelfläche aus der Original-Textur (ein Item-Display) über unsichtbaren Lichtblöcken (Stufe 12).
+  - Die farbigen Notenpartikel und Lichtstrahlen sind Staubpartikel in den Farben des Originals.
+- **Reittiere:** Reiter samt Reittier reisen nicht mit.
+- **Andere Dimensionen:** Im Original führen nur Portale der Hauptwelt in die Sift. Hier ist jeder Eingang
+  außerhalb der Sift einer, also auch die Portale in Nether und End aus Schritt 7b.

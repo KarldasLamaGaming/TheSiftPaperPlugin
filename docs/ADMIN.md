@@ -8,7 +8,8 @@ Stand: Phase 1, Schritte 1–6 und 8 (Dimension, Datapack, eigene Blöcke, Items
 Weltgenerierung mit Haupt-Portal, Resource Pack) plus Item-Menü. alpha.3: Weidenholz, Lotus, Ichorglas,
 Ichorfarbe; alpha.4: Siftit-Ausrüstung, Rezepte, Loot, Advancements; alpha.5: Weidenbäume, Pflanzenflecken,
 Oberflächen-Sculk, verlassene Portale, Haupt-Portal, brennbares Weidenholz; alpha.6: verlassene Portale
-wie im Original 1.1.1, Protokoll und `/sift debug portals`.
+wie im Original 1.1.1, Protokoll und `/sift debug portals`; Schritt 7a: Portal-Mechanik (Durchgang, Konsolen,
+Melodie, `/sift portal`).
 
 ## Installation
 
@@ -276,9 +277,49 @@ gleicht das Gelände an (Fundament, Klippen an beiden Enden, niedriger Vorplatz 
 setzt das Haupt-Portal des Originals. Der Ankunftspunkt steht im Weltspeicher der Sift
 (`the_sift:portal_anchor`); `/sift tp` nutzt ihn. Das Portal wird nur einmal gebaut, auch nach Neustarts.
 Weiden halten danach 12 Blöcke, verlassene Portale 28 Blöcke Abstand vom Portal (plus 15 Blöcke Rand).
-Das Portal selbst (Durchgang, Schlüssel, Reisen) kommt mit Schritt 7.
+Die Öffnung des Haupt-Portals (20 × 6) ist der Ausgang der Sift und immer offen, siehe Portale.
 
 `worldgen.main-portal.enabled: false` schaltet das Bauen ab (dann gibt es keinen Ankunftspunkt).
+
+## Portale (Schritt 7a)
+
+Wie im Original führt ein offenes Portal aus der Hauptwelt (auch aus Nether und End) zum Haupt-Portal der
+Sift. Wer durch dessen Öffnung geht, kommt dorthin zurück, wo er eingestiegen ist; ohne gespeicherten
+Rückkehrpunkt an den Spawn der Hauptwelt. Das gilt für alle Entities (Spieler, Tiere, Items), nicht für
+Reiter samt Reittier. Nach einer Reise muss man die Portalfläche erst verlassen, bevor sie wieder wirkt,
+auch nach einem Neustart oder Relog.
+
+**Aufbau eines Portals:**
+- **Rahmen:** Verstärkter Tiefenschiefer (Vanilla), aufrecht, 3–23 Blöcke je Seite, innen frei.
+- **Konsolen:** Klingender Tiefenschiefer (`sonorous_deepslate`) im Umkreis von `portals.frame-radius`
+  (10) um den Rahmen.
+  - Im Horn-Modus schlafen die Konsolen; ein Notenblock darauf klingt nur verzerrt.
+  - Im Noten-Modus hat ein Notenblock darauf die 8 Klänge der Sift statt der Vanilla-Töne:
+    Rechtsklick wählt den nächsten Klang, Schlagen spielt ihn.
+- **Öffnen:** Die Melodie `portals.melody` (Original: 1-3-7-6-5-2-4-8) auf den Konsolen eines geweckten
+  Portals spielen. Danach folgen ein Farbstoß, die Konsolen spielen die Melodie mit Lichtstrahlen nach,
+  und die Fläche füllt sich vom Rand zur Mitte.
+- **Offen** bleibt das Portal dauerhaft. Die rückwärts gespielte Melodie schließt es hier nicht, nur
+  `/sift portal deactivate`.
+- **Wecken:** Der Schlüssel der Dimension weckt die Konsolen (kommt mit Schritt 7b); bis dahin
+  `/sift portal unlock`.
+- Die Fläche besteht aus unsichtbaren Lichtblöcken (Stufe `portals.light-level`, 12) und einer
+  Nebelfläche (Item-Display).
+
+Portale gibt es nur dort, wo sie registriert sind: in Schritt 7b durch die Strukturen, sonst per Befehl.
+Pro Welt stehen sie im Weltspeicher (`the_sift:portals`).
+
+| Befehl | Wirkung |
+|---|---|
+| `/sift portal create <x y z>` | Rahmen aus Verstärktem Tiefenschiefer an dieser Stelle als Portal anlegen; Konsolen im Umkreis gehören dazu. Nicht in der Sift. |
+| `/sift portal unlock [id]` | Konsolen wecken (Noten-Modus); danach öffnet die Melodie das Portal |
+| `/sift portal activate [id]` | Sofort öffnen (bei offenem Portal: Fläche erneuern) |
+| `/sift portal deactivate [id]` | Schließen; Konsolen bleiben wach. Das Haupt-Portal der Sift bleibt immer offen. |
+| `/sift portal remove <id>` | Abmelden (Blöcke bleiben stehen) |
+| `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen; Liste aller Portale mit Teleport |
+
+Ohne `id` wirkt der Befehl auf das nächste Portal im Umkreis von 64 Blöcken. Von der Konsole aus:
+`/execute in minecraft:overworld run sift portal …`.
 
 ### Feuer und Brennstoff
 
