@@ -296,7 +296,7 @@ auch nach einem Neustart oder Relog.
   (10) um den Rahmen.
   - Im Horn-Modus schlafen die Konsolen; ein Notenblock darauf klingt nur verzerrt.
   - Im Noten-Modus hat ein Notenblock darauf die 8 Klänge der Sift statt der Vanilla-Töne:
-    Rechtsklick wählt den nächsten Klang, Schlagen spielt ihn.
+    Rechtsklick schaltet den Klang weiter (1 → 2 → … → 8 → 1), Schlagen spielt ihn; die Actionbar zeigt „Klang N von 8“.
 - **Öffnen:** Die Melodie `portals.melody` (Original: 1-3-7-6-5-2-4-8) auf den Konsolen eines geweckten
   Portals spielen. Danach folgen ein Farbstoß, die Konsolen spielen die Melodie mit Lichtstrahlen nach,
   und die Fläche füllt sich vom Rand zur Mitte.
@@ -375,7 +375,7 @@ sie, danach das Resource Pack neu bauen bzw. veröffentlichen:
 | `/sift portal activate [id]` | Sofort öffnen (bei offenem Portal: Fläche erneuern) |
 | `/sift portal deactivate [id]` | Schließen; Konsolen bleiben wach. Das Haupt-Portal der Sift bleibt immer offen. |
 | `/sift portal remove <id>` | Abmelden (Blöcke bleiben stehen) |
-| `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen; Liste aller Portale mit Teleport |
+| `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen mit ihrer Klangnummer 1–8; Liste aller Portale mit Teleport |
 | `/sift portal locate` | Nächster Portal-Schrein der Welt (berechnet, auch ungeneriert) mit Teleport-Klick |
 
 Ohne `id` wirkt der Befehl auf das nächste Portal im Umkreis von 64 Blöcken. Von der Konsole aus:
