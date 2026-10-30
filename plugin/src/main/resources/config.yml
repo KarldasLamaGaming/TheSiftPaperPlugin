@@ -111,6 +111,17 @@ worldgen:
     enabled: true
 
 # Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
+# Portale (Schritt 7): Durchgang in die Sift und zurück, Konsolen aus Klingendem Tiefenschiefer
+portals:
+  # Lichtstärke der Portalfläche (Original: 12)
+  light-level: 12
+  # alle N Ticks prüfen, wer eine offene Portalfläche berührt
+  check-ticks: 2
+  # Melodie der Konsole, Töne 1–8 (Original: 1 3 7 6 5 2 4 8)
+  melody: [1, 3, 7, 6, 5, 2, 4, 8]
+  # Klingender Tiefenschiefer in diesem Umkreis um den Rahmen gehört als Konsole zum Portal (Original: 10)
+  frame-radius: 10
+
 items:
   siftite:
     # Werkzeuge und Waffen (Basis: Netherit 2031 / 9 / +4)

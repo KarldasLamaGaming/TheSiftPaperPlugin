@@ -46,6 +46,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private SiftRecipes recipes;
     private SiftPopulator siftPopulator;
     private MainPortalBuilder mainPortal;
+    private de.lamamc.sift.world.portal.PortalService portals;
+    private de.lamamc.sift.world.portal.SonorousConsoles consoles;
 
     @Override
     public void onEnable() {
@@ -82,6 +84,14 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         resourcePack = new ResourcePackService(this);
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
         getServer().getPluginManager().registerEvents(resourcePack, this);
+        portals = new de.lamamc.sift.world.portal.PortalService(this, new de.lamamc.sift.world.portal.PortalRegistry(),
+                new de.lamamc.sift.world.portal.PortalSurface(this, getConfig().getInt("portals.light-level", 12)));
+        getServer().getPluginManager().registerEvents(portals, this);
+        portals.start(getConfig().getInt("portals.check-ticks", 2));
+        List<Integer> melody = getConfig().getIntegerList("portals.melody");
+        consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
+                melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray());
+        getServer().getPluginManager().registerEvents(consoles, this);
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
         // load: STARTUP enables the plugin before the worlds exist; this only matters after a reload
@@ -151,6 +161,14 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public SiftItems items() {
         return items;
+    }
+
+    public de.lamamc.sift.world.portal.SonorousConsoles consoles() {
+        return consoles;
+    }
+
+    public de.lamamc.sift.world.portal.PortalService portals() {
+        return portals;
     }
 
     public SiftPopulator siftPopulator() {
