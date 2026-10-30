@@ -26,10 +26,17 @@ public final class LandmarkPlacement {
     }
 
     public static ChunkPos candidateChunk(long worldSeed, int cellX, int cellZ, int cellChunks, long salt, int candidateIndex) {
+        return candidateChunk(worldSeed, cellX, cellZ, cellChunks, salt, candidateIndex,
+                salt == ABANDONED_PORTAL_SALT || salt == SOUL_CANYON_SALT);
+    }
+
+    /** Like above, with the middle-third rule chosen by the caller (portal shrines use it with their own salts). */
+    public static ChunkPos candidateChunk(long worldSeed, int cellX, int cellZ, int cellChunks, long salt, int candidateIndex,
+                                          boolean middleThird) {
         long indexedSalt = salt ^ (long) candidateIndex * -2960836687051489901L;
         long first = mix(worldSeed, cellX, cellZ, indexedSalt);
         long second = mix(worldSeed, cellZ, cellX, indexedSalt ^ -7046029254386353131L);
-        int inset = salt == ABANDONED_PORTAL_SALT || salt == SOUL_CANYON_SALT ? cellChunks / 3 : 0;
+        int inset = middleThird ? cellChunks / 3 : 0;
         int spread = cellChunks - inset * 2;
         int offsetX = inset + (int) Long.remainderUnsigned(first, spread);
         int offsetZ = inset + (int) Long.remainderUnsigned(second, spread);
