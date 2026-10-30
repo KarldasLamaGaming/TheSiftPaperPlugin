@@ -118,6 +118,13 @@ public final class ItemSelfTest {
         check(!SiftiteGuard.isSiftStonecutting(cobbledSlate, ItemStack.of(Material.CHISELED_DEEPSLATE)),
                 "Steinsäge: kein Vanilla-Ergebnis aus Siftschiefer-Bruchstein");
 
+        for (String id : List.of("echo_resonator", "soul_ember_core", "void_resonator", "sift_compass")) {
+            ItemStack item = sift(id);
+            check(item != null && Boolean.TRUE.equals(item.getData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE))
+                    && Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, id)) != null, id + ": Item und Rezept");
+        }
+        check(sift("sift_compass").getType() == Material.COMPASS, "Sift-Kompass ist ein Kompass (Nadel)");
+
         Recipe upgrade = Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "siftite_sword_smithing"));
         if (upgrade instanceof SmithingTransformRecipe smithing) {
             check(smithing.getTemplate().test(sift("siftite_upgrade_smithing_template")), "Schmieden: Vorlage passt");

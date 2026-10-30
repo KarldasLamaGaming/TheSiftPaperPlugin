@@ -105,6 +105,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             }
         }
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
+        new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
         // load: STARTUP enables the plugin before the worlds exist; this only matters after a reload

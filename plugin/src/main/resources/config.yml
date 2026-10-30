@@ -143,6 +143,9 @@ portals:
     end:
       item: void_resonator
       loot: {tables: ["minecraft:chests/end_city_treasure"], chance: 0.08}
+  # Sift-Kompass: Nadel und Entfernung (Actionbar) alle N Ticks auffrischen, solange man ihn hält
+  compass:
+    update-ticks: 40
   # Rezepte der Schlüssel und des Kompasses (Format wie Vanilla-Rezeptdateien, Neustart nötig)
   recipes:
     echo_resonator:
