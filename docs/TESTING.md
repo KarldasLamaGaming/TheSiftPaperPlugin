@@ -200,6 +200,7 @@ Testaufbau in der Hauptwelt (als OP, Kreativ):
 1. Rahmen aus Verstärktem Tiefenschiefer bauen, z. B. 7 breit, 8 hoch, innen frei.
 2. Daneben zwei bis acht Blöcke Klingender Tiefenschiefer aus `/sift items` setzen, je einen Notenblock darauf.
 3. `/sift portal create ~ ~ ~` auf dem Rahmen ausführen, dann `/sift portal unlock`.
+4. Zum Spielen in den Überlebensmodus wechseln: Im Kreativmodus zerbricht ein Schlag den Notenblock.
 
 - [ ] Notenblock auf schlafender Konsole (vor `unlock`): Rechtsklick und Schlagen geben nur den verzerrten
       Klang und den Hinweis „Die Konsole schläft noch“.
