@@ -101,7 +101,8 @@ public final class SiftCommand {
                                             : "<red>Das Resource Pack ist abgeschaltet.");
                                     return Command.SINGLE_SUCCESS;
                                 }))))
-                .then(new PortalCommand(plugin.portals(), plugin.consoles(), plugin.getConfig().getInt("portals.frame-radius", 10))
+                .then(new PortalCommand(plugin.portals(), plugin.consoles(), plugin.getConfig().getInt("portals.frame-radius", 10),
+                        plugin::shrineSites)
                         .node().requires(SiftCommand::admin))
                 .then(Commands.literal("debug").requires(SiftCommand::admin)
                         .then(Commands.literal("item")

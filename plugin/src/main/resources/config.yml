@@ -124,6 +124,13 @@ portals:
   melody: [1, 3, 7, 6, 5, 2, 4, 8]
   # Klingender Tiefenschiefer in diesem Umkreis um den Rahmen gehört als Konsole zum Portal (Original: 10)
   frame-radius: 10
+  # Portal-Schreine (nur neue Chunks): einer je Zelle aus N × N Chunks, im mittleren Drittel der Zelle;
+  # min-distance = Abstand von 0/0 in Blöcken, den der Schrein mindestens hat (End: äußere Inseln).
+  # Eigene Vorlage statt des eingebauten Schreins: plugins/TheSift/structures/<overworld|nether|end>.nbt
+  structures:
+    overworld: {enabled: true, cell-chunks: 64, min-distance: 0}
+    nether: {enabled: true, cell-chunks: 16, min-distance: 0}
+    end: {enabled: true, cell-chunks: 32, min-distance: 1100}
 
 items:
   siftite:
