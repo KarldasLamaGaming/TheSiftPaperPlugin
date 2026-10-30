@@ -39,11 +39,14 @@ final class PortalCommand {
     private final PortalService portals;
     private final SonorousConsoles consoles;
     private final int frameRadius;
+    private final java.util.function.Function<World, de.lamamc.sift.core.portal.PortalSites> sites;
 
-    PortalCommand(PortalService portals, SonorousConsoles consoles, int frameRadius) {
+    PortalCommand(PortalService portals, SonorousConsoles consoles, int frameRadius,
+                  java.util.function.Function<World, de.lamamc.sift.core.portal.PortalSites> sites) {
         this.portals = portals;
         this.consoles = consoles;
         this.frameRadius = frameRadius;
+        this.sites = sites;
     }
 
     LiteralArgumentBuilder<CommandSourceStack> node() {
@@ -55,7 +58,8 @@ final class PortalCommand {
                 .then(byId("deactivate", this::deactivate))
                 .then(byId("info", this::info))
                 .then(Commands.literal("remove").then(idArgument().executes(ctx -> run(ctx, this::remove))))
-                .then(Commands.literal("list").executes(this::list));
+                .then(Commands.literal("list").executes(this::list))
+                .then(Commands.literal("locate").executes(this::locate));
     }
 
     /** "name" acts on the nearest portal (64 blocks), "name <id>" on that one. */
@@ -184,12 +188,9 @@ final class PortalCommand {
     }
 
     private int unlock(CommandSender sender, Target target) {
-        for (int[] c : target.portal().consoles()) {
-            consoles.setMode(target.world().getBlockAt(c[0], c[1], c[2]), SonorousConsoles.Mode.NOTE);
-        }
-        portals.registry().put(target.world(), target.portal().withState(target.portal().state().unlock()));
-        sender.sendRichMessage("<green>Konsolen von <white>" + target.portal().id() + "</white> geweckt ("
-                + target.portal().consoles().size() + "). Die Melodie öffnet das Portal jetzt.");
+        int count = consoles.unlock(target.world(), target.portal());
+        sender.sendRichMessage("<green>Konsolen von <white>" + target.portal().id() + "</white> geweckt (" + count
+                + "). Die Melodie öffnet das Portal jetzt.");
         return Command.SINGLE_SUCCESS;
     }
 
@@ -237,6 +238,38 @@ final class PortalCommand {
                 + p.state() + "</white>, Rahmen " + p.frame().width() + " × " + p.frame().height() + " (" + p.frame().axis()
                 + ") bei " + (int) Math.floor(c[0]) + " " + (int) c[1] + " " + (int) Math.floor(c[2]) + ", Konsolen "
                 + awake + "/" + p.consoles().size() + " wach.");
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** The nearest shrine site of this world (computed, also where nothing is generated yet); the main portal in the Sift. */
+    private int locate(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        Location here = ctx.getSource().getLocation();
+        World world = here.getWorld();
+        Location target;
+        if (SiftWorlds.isSift(world)) {
+            target = de.lamamc.sift.world.MainPortalBuilder.anchor(world);
+        } else {
+            de.lamamc.sift.core.portal.PortalSites worldSites = sites.apply(world);
+            var site = worldSites == null ? null : worldSites.nearest(world.getSeed(), here.getX(), here.getZ(), 64);
+            // the height is known once the shrine is generated; before that the teleport keeps the current height
+            Optional<SiftPortal> built = site == null ? Optional.empty()
+                    : portals.registry().get(world, "shrine-" + site.chunkX() + "-" + site.chunkZ());
+            target = site == null ? null : built.map(p -> {
+                double[] c = p.frame().bottomCenter();
+                return new Location(world, c[0], c[1], c[2] - 3);
+            }).orElse(new Location(world, site.blockX(), Double.NaN, site.blockZ()));
+        }
+        if (target == null) {
+            sender.sendRichMessage("<red>In dieser Welt gibt es keine Portal-Schreine.");
+            return 0;
+        }
+        int distance = (int) Math.round(Math.hypot(target.getX() - here.getX(), target.getZ() - here.getZ()));
+        String y = Double.isNaN(target.getY()) ? "~" : String.valueOf(target.getBlockY());
+        String pos = target.getBlockX() + " " + y + " " + target.getBlockZ();
+        sender.sendRichMessage("<gray>Nächstes Portal: <click:run_command:'/execute in " + world.getKey() + " run tp @s " + pos
+                + "'><aqua>[" + pos + "]</aqua></click> <gray>(" + distance + " Blöcke" + (y.equals("~") ? ", noch nicht generiert" : "")
+                + ")");
         return Command.SINGLE_SUCCESS;
     }
 

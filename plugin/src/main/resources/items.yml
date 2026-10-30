@@ -31,6 +31,11 @@ items:
   ichor_bottle: {category: misc, base: "minecraft:paper", kind: drink, protect: true}
   music_disc_rift: {category: misc, base: "minecraft:paper", kind: music-disc, protect: true}
   music_disc_wellspring: {category: misc, base: "minecraft:paper", kind: music-disc, protect: true}
+  # portal keys (step 7b): right-click on a sleeping console of their dimension wakes the portal
+  echo_resonator: {category: misc, base: "minecraft:paper", kind: portal-key, protect: true}
+  soul_ember_core: {category: misc, base: "minecraft:paper", kind: portal-key, protect: true}
+  void_resonator: {category: misc, base: "minecraft:paper", kind: portal-key, protect: true}
+  sift_compass: {category: misc, base: "minecraft:compass", kind: sift-compass, protect: true}
 
 # Items of the original that only exist as a vanilla item here (recipes produce the vanilla item)
 item-substitutes:

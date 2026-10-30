@@ -6,9 +6,11 @@ import de.lamamc.sift.core.ToolTier;
 import de.lamamc.sift.core.ToolType;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -27,6 +29,7 @@ public final class BlockSettings {
 
     private final boolean placeOnlyInSift;
     private final Fallback fallback;
+    private final Set<String> outsideSift = new HashSet<>();
     private final Map<String, BlockProfile> profiles = new HashMap<>();
     private final Map<String, Support> supports = new HashMap<>();
     private final Map<String, String> fallbackBlocks = new HashMap<>();
@@ -43,6 +46,7 @@ public final class BlockSettings {
                 root.getBoolean("custom-blocks.place-only-in-sift", true),
                 parseEnum(Fallback.class, root.getString("custom-blocks.outside-sift-fallback", "deny"), Fallback.DENY,
                         logger, "custom-blocks.outside-sift-fallback"));
+        settings.outsideSift.addAll(root.getStringList("custom-blocks.placeable-outside-sift"));
         List<String> plantSupport = root.getStringList("plant-support");
         ConfigurationSection blocks = root.getConfigurationSection("blocks");
         if (blocks == null) {
@@ -113,6 +117,15 @@ public final class BlockSettings {
 
     public boolean placeOnlyInSift() {
         return placeOnlyInSift;
+    }
+
+    /**
+     * Whether a custom block may stand (be placed, recognised, guarded) in a world. With place-only-in-sift
+     * only the ids of custom-blocks.placeable-outside-sift (portal consoles) count outside the Sift, so
+     * natural mushroom blocks in other worlds that happen to share a stand-in state stay vanilla.
+     */
+    public boolean allowedIn(String id, boolean inSift) {
+        return inSift || !placeOnlyInSift || outsideSift.contains(id);
     }
 
     public Fallback fallback() {

@@ -76,7 +76,7 @@ public final class CustomBlockListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        if (settings.placeOnlyInSift() && !SiftWorlds.isSift(block.getWorld())) {
+        if (!settings.allowedIn(id, SiftWorlds.isSift(block.getWorld()))) {
             String fallback = settings.fallbackBlock(id);
             if (settings.fallback() == BlockSettings.Fallback.VANILLA && fallback != null) {
                 block.setBlockData(Bukkit.createBlockData(fallback), false);

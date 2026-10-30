@@ -74,6 +74,18 @@ class BlockSettingsTest {
     }
 
     @Test
+    void onlyPortalConsolesMayStandOutsideTheSift() throws IOException {
+        BlockSettings settings = BlockSettings.load(defaults(), LOG);
+        assertTrue(settings.allowedIn("sonorous_deepslate", false)); // consoles of overworld/nether/end portals
+        assertFalse(settings.allowedIn("siftslate", false));
+        assertFalse(settings.allowedIn("ichor_glass", false));
+        assertTrue(settings.allowedIn("siftslate", true));
+        YamlConfiguration anywhere = new YamlConfiguration();
+        anywhere.set("custom-blocks.place-only-in-sift", false);
+        assertTrue(BlockSettings.load(anywhere, LOG).allowedIn("siftslate", false));
+    }
+
+    @Test
     void unknownValuesFallBackInsteadOfFailing() {
         YamlConfiguration config = new YamlConfiguration();
         config.set("custom-blocks.outside-sift-fallback", "explode");

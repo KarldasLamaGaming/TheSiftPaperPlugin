@@ -8,6 +8,9 @@ custom-blocks:
   # Was außerhalb der Sift passiert: deny = nicht platzieren (Hinweis an den Spieler),
   # vanilla = den unter blocks.<id>.fallback eingetragenen Vanilla-Block setzen
   outside-sift-fallback: deny
+  # Ausnahmen von place-only-in-sift: diese Blöcke dürfen auch in anderen Welten stehen
+  # (Konsolen der Portale in Overworld, Nether und End)
+  placeable-outside-sift: [sonorous_deepslate]
 
 # Verhalten der eigenen Blöcke (Werte nach Mielon's The Sift 1.1.1).
 #   hardness       Abbauhärte wie Vanilla (Tiefenschiefer 3.0); unbreakable: true = unzerstörbar
@@ -121,6 +124,54 @@ portals:
   melody: [1, 3, 7, 6, 5, 2, 4, 8]
   # Klingender Tiefenschiefer in diesem Umkreis um den Rahmen gehört als Konsole zum Portal (Original: 10)
   frame-radius: 10
+  # Portal-Schreine (nur neue Chunks): einer je Zelle aus N × N Chunks, im mittleren Drittel der Zelle;
+  # min-distance = Abstand von 0/0 in Blöcken, den der Schrein mindestens hat (End: äußere Inseln).
+  # Eigene Vorlage statt des eingebauten Schreins: plugins/TheSift/structures/<overworld|nether|end>.nbt
+  structures:
+    overworld: {enabled: true, cell-chunks: 64, min-distance: 0}
+    nether: {enabled: true, cell-chunks: 16, min-distance: 0}
+    end: {enabled: true, cell-chunks: 32, min-distance: 1100}
+  # Schlüssel je Dimension: Rechtsklick auf eine schlafende Konsole weckt alle Konsolen des Portals
+  # (der Schlüssel wird verbraucht). loot: Vanilla-Truhen, in denen er mit der Chance liegt.
+  keys:
+    overworld:
+      item: echo_resonator
+      loot: {tables: ["minecraft:chests/ancient_city"], chance: 0.08}
+    nether:
+      item: soul_ember_core
+      loot: {tables: ["minecraft:chests/bastion_treasure", "minecraft:chests/bastion_other", "minecraft:chests/bastion_bridge", "minecraft:chests/bastion_hoglin_stable"], chance: 0.08}
+    end:
+      item: void_resonator
+      loot: {tables: ["minecraft:chests/end_city_treasure"], chance: 0.08}
+  # Sift-Kompass: Nadel und Entfernung (Actionbar) alle N Ticks auffrischen, solange man ihn hält
+  compass:
+    update-ticks: 40
+  # Rezepte der Schlüssel und des Kompasses (Format wie Vanilla-Rezeptdateien, Neustart nötig)
+  recipes:
+    echo_resonator:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: [" E ", "EGE", " C "]
+      key: {E: "minecraft:echo_shard", G: "minecraft:goat_horn", C: "minecraft:sculk_catalyst"}
+      result: {id: "the_sift:echo_resonator"}
+    soul_ember_core:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: [" B ", "GAG", " S "]
+      key: {B: "minecraft:blaze_rod", G: "minecraft:ghast_tear", A: "minecraft:ancient_debris", S: "minecraft:soul_sand"}
+      result: {id: "the_sift:soul_ember_core"}
+    void_resonator:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: [" P ", "PSP", " D "]
+      key: {P: "minecraft:popped_chorus_fruit", S: "minecraft:shulker_shell", D: "minecraft:dragon_breath"}
+      result: {id: "the_sift:void_resonator"}
+    sift_compass:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: ["AEA", "ECE", "AEA"]
+      key: {A: "minecraft:amethyst_shard", E: "minecraft:echo_shard", C: "minecraft:compass"}
+      result: {id: "the_sift:sift_compass"}
 
 items:
   siftite:

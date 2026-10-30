@@ -194,30 +194,63 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Ofen: Weidenstamm, -holz, -bretter (je 1,5 Items) und -setzling (0,5) per Klick und Shift-Klick in den
       Brennstoff-Slot; der Ofen brennt. Weidenlaub geht nicht hinein.
 
-## Portale (ab Schritt 7a)
+## Portale (ab Schritt 7a, Schreine und Schlüssel ab 7b)
 
-Testaufbau in der Hauptwelt (als OP, Kreativ):
-1. Rahmen aus Verstärktem Tiefenschiefer bauen, z. B. 7 breit, 8 hoch, innen frei.
-2. Daneben zwei bis acht Blöcke Klingender Tiefenschiefer aus `/sift items` setzen, je einen Notenblock darauf.
-3. `/sift portal create ~ ~ ~` auf dem Rahmen ausführen, dann `/sift portal unlock`.
-4. Zum Spielen in den Überlebensmodus wechseln: Im Kreativmodus zerbricht ein Schlag den Notenblock.
+Für Schritt 7b eine frische Welt (Hauptwelt, Nether, End) nehmen; Schreine entstehen nur in neuen Chunks.
+Melodie und Konsolen im Überlebensmodus spielen: Im Kreativmodus zerbricht ein Schlag den Notenblock.
 
-- [ ] Notenblock auf schlafender Konsole (vor `unlock`): Rechtsklick und Schlagen geben nur den verzerrten
-      Klang und den Hinweis „Die Konsole schläft noch“.
-- [ ] Nach `unlock`: Die Konsolen sehen anders aus (Noten-Modus). Rechtsklick wählt reihum 8 Klänge (farbige
-      Partikel), Schlagen spielt den gewählten Klang.
-- [ ] Melodie 1-3-7-6-5-2-4-8 durch Schlagen spielen: Farbstoß über den Notenblöcken, die Konsolen spielen
-      die Melodie mit Lichtsäulen nach, dann füllt sich der Rahmen vom Rand zur Mitte (Partikel, Klang),
-      Nebelfläche erscheint, die Öffnung leuchtet.
+**Schreine finden**
+- [ ] `/sift portal locate` in Hauptwelt, Nether und End (im End weit draußen): Klick teleportiert hin. Der
+      Schrein steht:
+  - Hauptwelt: Tiefenschiefer-Ruine mit Sculk, über Wasser auf Sockel.
+  - Nether: Schwarzstein mit Seelenfeuer, kein Lavafluss hinein.
+  - End: Purpur mit Endstäben, auf Insel oder eigener Insel.
+  - Screenshots bitte.
+- [ ] `/sift portal list`: Der Schrein steht als `shrine-…` mit Zustand LOCKED da.
+- [ ] Sift-Kompass (`/sift give @s sift_compass` oder Rezept): Die Nadel zeigt auf den Schrein, die
+      Actionbar nennt die Entfernung, die beim Hingehen sinkt. In der Sift zeigt er auf das Haupt-Portal,
+      in einer Welt ohne Schreine dreht sich die Nadel.
+
+**Schlüssel und Melodie** (Issue #20)
+- [ ] Schlafende Konsole: Rechtsklick und Schlagen am Notenblock geben nur den verzerrten Klang und einen
+      Hinweis.
+- [ ] Falscher Schlüssel (z. B. Seelenglut-Kern an der Ruine der Hauptwelt): Hinweis, Schlüssel bleibt.
+- [ ] Richtiger Schlüssel per Rechtsklick auf eine Konsole:
+  - Alle 8 Konsolen wechseln in den Noten-Modus, mit Partikeln und Klang.
+  - Der Schlüssel ist weg (im Kreativmodus bleibt er).
+  - Ein zweiter Rechtsklick ergibt den Hinweis „schon wach“.
+- [ ] Rechtsklick auf einen Notenblock wählt reihum 8 Klänge (farbige Partikel), Schlagen spielt den
+      gewählten Klang. Redstone am Notenblock spielt ebenfalls den Sift-Klang.
+- [ ] Melodie 1-3-7-6-5-2-4-8 durch Schlagen spielen:
+  - Farbstoß über den Notenblöcken.
+  - Die Konsolen spielen die Melodie mit Lichtsäulen nach.
+  - Dann füllt sich der Rahmen vom Rand zur Mitte (Partikel, Klang), die Nebelfläche erscheint, die
+    Öffnung leuchtet.
 - [ ] Falsche Töne in der Melodie: nichts passiert. Rückwärts gespielt: Hinweis „Dieses Portal bleibt offen“.
-- [ ] Hineingehen: Ankunft im Haupt-Portal der Sift; man steht in der Öffnung und wird nicht sofort
-      zurückgeschickt. Hinaus- und wieder hineingehen: zurück an die Stelle in der Hauptwelt, an der man
-      eingestiegen ist. Dort ebenso: erst hinaus, dann wieder hinein.
+- [ ] Dasselbe im Nether (Seelenglut-Kern) und im End (Leere-Resonator).
+
+**Eigene Konsolen außerhalb der Sift**
+- [ ] Klingenden Tiefenschiefer aus `/sift items` in der Hauptwelt setzen (früher gesperrt), zwei direkt
+      nebeneinander: Beide behalten ihr Aussehen. Andere Sift-Blöcke bleiben außerhalb der Sift gesperrt.
+- [ ] Eigener Rahmen mit Konsolen: `/sift portal create ~ ~ ~`, `unlock`, Melodie wie oben.
+
+**Durchgang**
+- [ ] Hineingehen:
+  - Man kommt im Haupt-Portal der Sift an, steht in der Öffnung und wird nicht sofort zurückgeschickt.
+  - Hinaus und wieder hinein: zurück an die Einstiegsstelle (auch in Nether und End). Dort ebenso: erst
+    hinaus, dann wieder hinein.
 - [ ] Relog oder Neustart, während man in der Ankunfts-Öffnung steht: kein sofortiger Rücksprung.
 - [ ] Tier hineinführen (Leine lösen) oder Item hineinwerfen: kommt in der Sift an.
-- [ ] `/sift portal info`, `list` (Teleport per Klick), `deactivate` (Fläche verschwindet von der Mitte aus),
-      `activate`, `remove`. `deactivate` am Haupt-Portal der Sift wird abgelehnt.
-- [ ] Nebelfläche aus der Nähe und von der Seite ansehen, in Grafik „Schnell“ und „Schön“ (Screenshot).
+- [ ] `/sift portal info`, `list`, `deactivate` (Fläche verschwindet von der Mitte aus), `activate`,
+      `remove`. `deactivate` am Haupt-Portal der Sift wird abgelehnt.
+- [ ] Nebelfläche aus der Nähe und von der Seite, in Grafik „Schnell“ und „Schön“ (Screenshot).
+
+**Rezepte und Beute**
+- [ ] Rezepte im Rezeptbuch: Echo-Resonator, Seelenglut-Kern, Leere-Resonator, Sift-Kompass. Mit
+      Vanilla-Zutaten herstellbar; die Items glänzen und haben eigene Texturen. Die Kompassnadel dreht
+      sich sauber.
+- [ ] Mehrere Truhen in Antiker Stadt, Bastion und Endsiedlung öffnen: Gelegentlich (8 %) liegt der
+      passende Schlüssel darin, der normale Inhalt bleibt.
 
 ## Overworld unberührt
 

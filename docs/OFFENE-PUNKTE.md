@@ -19,6 +19,7 @@ Stand: 30.10.2026 (nach alpha.6)
 |---|---|---|
 | [#12](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/12) | Rechte-Test `thesift.admin.items` ohne OP | offen |
 | [#13](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/13) | Spielertests: Amboss, Schleifstein, Händler, Schallplatten, Entrinden mit Axt, Ichorglas „Schnell“, Feuer-Ausbreitung | offen |
+| [#20](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/20) | Spieltest Portal-Melodie an Konsolen (nach dem Platzier-Fix in 7b) | wartet auf Test |
 | [#18](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/18) | Produktionsstart: Plugin-Kompatibilität mit 26.3 (WorldEdit, WorldGuard, LibertyBans, AxiomPaper, TabTPS, Vulcan, TAB, PlaceholderAPI, packetevents, InvSee++, CoreProtect) | offen |
 
 ## Funktionen (`feature`)
@@ -31,6 +32,5 @@ Stand: 30.10.2026 (nach alpha.6)
 
 ## Nächster Schritt
 
-- Schritt 7a (Portal-Mechanik) ist im PR. Spieltest siehe `docs/TESTING.md` → Portale.
-- Danach Schritt 7b: drei Strukturen (Overworld, Nether, End) mit Rahmen und Konsolen, Schlüssel als
-  Ersatz für den Singer, Sift-Kompass.
+- Schritt 7b (Schreine, Schlüssel, Kompass) ist im PR. Spieltest siehe `docs/TESTING.md` → Portale.
+- Danach Phase 1, Schritt 10: Siftit-Erhalt beim Tod (schlicht).

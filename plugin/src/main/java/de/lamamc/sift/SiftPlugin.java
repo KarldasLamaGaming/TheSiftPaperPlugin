@@ -48,6 +48,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private MainPortalBuilder mainPortal;
     private de.lamamc.sift.world.portal.PortalService portals;
     private de.lamamc.sift.world.portal.SonorousConsoles consoles;
+    private final java.util.Map<String, de.lamamc.sift.world.portal.ShrinePopulator> shrines = new java.util.HashMap<>();
 
     @Override
     public void onEnable() {
@@ -65,6 +66,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
+        blocks.restrictWorlds(blockSettings::allowedIn);
         items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar(),
                 ItemSettings.load(getConfig().getConfigurationSection("items")));
         getServer().getPluginManager().registerEvents(this, this);
@@ -73,7 +75,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(
                 new PhysicsGuard(this, blocks, blockSettings.placeOnlyInSift()), this);
         getServer().getPluginManager().registerEvents(new ItemMenuListener(items, SiftCommand.ITEMS_PERMISSION), this);
-        recipes = new SiftRecipes(items, getLogger());
+        recipes = new SiftRecipes(items, getConfig().getConfigurationSection("portals.recipes"), getLogger());
         recipes.register();
         getServer().getPluginManager().registerEvents(new SiftiteGuard(items), this);
         getServer().getPluginManager().registerEvents(new SiftFire(this, blocks, blockSettings), this);
@@ -90,12 +92,93 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         portals.start(getConfig().getInt("portals.check-ticks", 2));
         List<Integer> melody = getConfig().getIntegerList("portals.melody");
         consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
-                melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray());
+                melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
+                portalKeys());
         getServer().getPluginManager().registerEvents(consoles, this);
+        de.lamamc.sift.core.portal.KeyLoot keyLoot = new de.lamamc.sift.core.portal.KeyLoot();
+        org.bukkit.configuration.ConfigurationSection keySection = getConfig().getConfigurationSection("portals.keys");
+        if (keySection != null) {
+            for (String dimension : keySection.getKeys(false)) {
+                for (String table : keySection.getStringList(dimension + ".loot.tables")) {
+                    keyLoot.add(table, keySection.getString(dimension + ".item", ""), keySection.getDouble(dimension + ".loot.chance", 0));
+                }
+            }
+        }
+        getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
+        new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
         // load: STARTUP enables the plugin before the worlds exist; this only matters after a reload
         getServer().getWorlds().forEach(this::attach);
+    }
+
+    /** Portal shrines in the main world, the nether and the end (portals.structures.*). */
+    private void attachShrines(World world) {
+        de.lamamc.sift.world.portal.ShrinePopulator.Dimension dimension = switch (world.getKey().toString()) {
+            case "minecraft:overworld" -> de.lamamc.sift.world.portal.ShrinePopulator.Dimension.OVERWORLD;
+            case "minecraft:the_nether" -> de.lamamc.sift.world.portal.ShrinePopulator.Dimension.NETHER;
+            case "minecraft:the_end" -> de.lamamc.sift.world.portal.ShrinePopulator.Dimension.END;
+            default -> null;
+        };
+        String name = dimension == null ? null : dimension.name().toLowerCase(java.util.Locale.ROOT);
+        if (dimension == null || shrines.containsKey(world.getKey().toString())
+                || !getConfig().getBoolean("portals.structures." + name + ".enabled", true)) {
+            return;
+        }
+        long salt = switch (dimension) {
+            case OVERWORLD -> de.lamamc.sift.core.portal.PortalSites.OVERWORLD_SALT;
+            case NETHER -> de.lamamc.sift.core.portal.PortalSites.NETHER_SALT;
+            case END -> de.lamamc.sift.core.portal.PortalSites.END_SALT;
+        };
+        int defaultCell = switch (dimension) {
+            case OVERWORLD -> 64;
+            case NETHER -> 16;
+            case END -> 32;
+        };
+        de.lamamc.sift.core.portal.PortalSites sites = new de.lamamc.sift.core.portal.PortalSites(
+                Math.max(3, getConfig().getInt("portals.structures." + name + ".cell-chunks", defaultCell)),
+                getConfig().getInt("portals.structures." + name + ".min-distance", dimension == de.lamamc.sift.world.portal.ShrinePopulator.Dimension.END ? 1100 : 0),
+                salt);
+        List<de.lamamc.sift.world.portal.CustomShrine.Block> custom = null;
+        java.io.File file = new java.io.File(getDataFolder(), "structures/" + name + ".nbt");
+        if (file.isFile()) {
+            try {
+                custom = de.lamamc.sift.world.portal.CustomShrine.load(file, blocks);
+                getLogger().info("Portal shrine of " + world.getKey() + " from " + file);
+            } catch (java.io.IOException | RuntimeException e) {
+                getLogger().warning("Ignoring " + file + ": " + e.getMessage() + " (using the built-in shrine)");
+            }
+        }
+        de.lamamc.sift.world.portal.ShrinePopulator populator = new de.lamamc.sift.world.portal.ShrinePopulator(dimension, sites,
+                blocks, custom, portals.shrineQueue(), getLogger());
+        shrines.put(world.getKey().toString(), populator);
+        world.getPopulators().add(populator);
+        getLogger().info("Portal shrines attached to " + world.getKey() + " (one per " + sites.cellChunks() + " x "
+                + sites.cellChunks() + " chunks)");
+    }
+
+    /** World key -> id of the key that wakes its portals (portals.keys). */
+    private java.util.Map<String, String> portalKeys() {
+        java.util.Map<String, String> keys = new java.util.HashMap<>();
+        org.bukkit.configuration.ConfigurationSection section = getConfig().getConfigurationSection("portals.keys");
+        if (section != null) {
+            for (String dimension : section.getKeys(false)) {
+                String world = switch (dimension) {
+                    case "overworld" -> "minecraft:overworld";
+                    case "nether" -> "minecraft:the_nether";
+                    case "end" -> "minecraft:the_end";
+                    default -> dimension;
+                };
+                keys.put(world, section.getString(dimension + ".item", ""));
+            }
+        }
+        return keys;
+    }
+
+    /** Where the shrines of this world stand, or null (no shrines in this world). */
+    public de.lamamc.sift.core.portal.PortalSites shrineSites(World world) {
+        de.lamamc.sift.world.portal.ShrinePopulator populator = shrines.get(world.getKey().toString());
+        return populator == null ? null : populator.sites();
     }
 
     // Populators have to be in place before the first chunk of the world is generated
@@ -119,6 +202,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     private void attach(World world) {
         if (!SiftWorlds.isSift(world)) {
+            attachShrines(world);
             return;
         }
         if (siftPopulator == null) {

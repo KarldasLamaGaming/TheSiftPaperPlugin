@@ -53,21 +53,65 @@ public final class SiftRecipes {
     private final SiftItems items;
     private final Logger logger;
     private final List<NamespacedKey> registered = new ArrayList<>();
+    private final org.bukkit.configuration.ConfigurationSection configRecipes;
 
-    public SiftRecipes(SiftItems items, Logger logger) {
+    public SiftRecipes(SiftItems items, org.bukkit.configuration.ConfigurationSection configRecipes, Logger logger) {
         this.items = items;
+        this.configRecipes = configRecipes;
         this.logger = logger;
     }
 
-    /** Parses the bundled recipes (pure, for tests and for {@link #register()}). */
-    public static List<RecipeSpec> bundled(ItemRegistry registry) {
+    private static RecipeSpec.Items resolver(ItemRegistry registry) {
         Map<String, List<String>> tags = new TreeMap<>();
         readJar("item-data/tags/item").forEach((name, json) -> {
             List<String> values = new ArrayList<>();
             json.getAsJsonArray("values").forEach(v -> values.add(v.getAsString()));
             tags.put(NAMESPACE + ":" + name, values);
         });
-        RecipeSpec.Items resolver = RecipeSpec.items(id -> registry.get(id) != null, registry::substitute, tags);
+        return RecipeSpec.items(id -> registry.get(id) != null, registry::substitute, tags);
+    }
+
+    /** The bundled recipes plus the ones in config.yml (portals.recipes: portal keys and compass). */
+    public static List<RecipeSpec> all(ItemRegistry registry, org.bukkit.configuration.ConfigurationSection configRecipes) {
+        List<RecipeSpec> specs = new ArrayList<>(bundled(registry));
+        if (configRecipes != null) {
+            RecipeSpec.Items resolver = resolver(registry);
+            for (String name : configRecipes.getKeys(false)) {
+                Object json = toJson(configRecipes.get(name));
+                if (json instanceof JsonObject object) {
+                    specs.add(RecipeSpec.parse(name, object, resolver));
+                }
+            }
+        }
+        return specs;
+    }
+
+    /** A config section (nested maps and lists of strings and numbers) as JSON, like a recipe file. */
+    private static Object toJson(Object value) {
+        if (value instanceof org.bukkit.configuration.ConfigurationSection section) {
+            JsonObject object = new JsonObject();
+            for (String key : section.getKeys(false)) {
+                object.add(key, (com.google.gson.JsonElement) toJson(section.get(key)));
+            }
+            return object;
+        }
+        if (value instanceof List<?> list) {
+            com.google.gson.JsonArray array = new com.google.gson.JsonArray();
+            list.forEach(v -> array.add((com.google.gson.JsonElement) toJson(v)));
+            return array;
+        }
+        if (value instanceof Number number) {
+            return new com.google.gson.JsonPrimitive(number);
+        }
+        if (value instanceof Boolean bool) {
+            return new com.google.gson.JsonPrimitive(bool);
+        }
+        return new com.google.gson.JsonPrimitive(String.valueOf(value));
+    }
+
+    /** Parses the bundled recipes (pure, for tests and for {@link #register()}). */
+    public static List<RecipeSpec> bundled(ItemRegistry registry) {
+        RecipeSpec.Items resolver = resolver(registry);
         List<RecipeSpec> specs = new ArrayList<>();
         readJar("item-data/recipe").forEach((name, json) -> specs.add(RecipeSpec.parse(name, json, resolver)));
         readJar("extra-recipes").forEach((name, json) -> specs.add(RecipeSpec.parse(name, json, resolver)));
@@ -79,7 +123,7 @@ public final class SiftRecipes {
         int skipped = 0;
         List<Recipe> recipes = new ArrayList<>();
         List<NamespacedKey> keys = new ArrayList<>();
-        for (RecipeSpec spec : bundled(items.registry())) {
+        for (RecipeSpec spec : all(items.registry(), configRecipes)) {
             if (spec.skipped()) {
                 skipped++;
                 logger.fine("Recipe " + spec.name() + " skipped: " + spec.skipReason());
@@ -96,6 +140,11 @@ public final class SiftRecipes {
         Bukkit.updateRecipes();
         logger.info("Registered " + registered.size() + " Sift recipes (" + skipped + " left out, see docs/ADMIN.md)");
         return registered.size();
+    }
+
+    /** How many recipes should be registered (bundled and config, without the skipped ones). */
+    public int expected() {
+        return (int) all(items.registry(), configRecipes).stream().filter(r -> !r.skipped()).count();
     }
 
     public List<NamespacedKey> keys() {

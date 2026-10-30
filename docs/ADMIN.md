@@ -9,7 +9,8 @@ Weltgenerierung mit Haupt-Portal, Resource Pack) plus Item-Menü. alpha.3: Weide
 Ichorfarbe; alpha.4: Siftit-Ausrüstung, Rezepte, Loot, Advancements; alpha.5: Weidenbäume, Pflanzenflecken,
 Oberflächen-Sculk, verlassene Portale, Haupt-Portal, brennbares Weidenholz; alpha.6: verlassene Portale
 wie im Original 1.1.1, Protokoll und `/sift debug portals`; Schritt 7a: Portal-Mechanik (Durchgang, Konsolen,
-Melodie, `/sift portal`).
+Melodie, `/sift portal`); Schritt 7b: Portal-Schreine in Hauptwelt, Nether und End, Schlüssel,
+Sift-Kompass.
 
 ## Installation
 
@@ -301,13 +302,71 @@ auch nach einem Neustart oder Relog.
   und die Fläche füllt sich vom Rand zur Mitte.
 - **Offen** bleibt das Portal dauerhaft. Die rückwärts gespielte Melodie schließt es hier nicht, nur
   `/sift portal deactivate`.
-- **Wecken:** Der Schlüssel der Dimension weckt die Konsolen (kommt mit Schritt 7b); bis dahin
-  `/sift portal unlock`.
+- **Wecken:** Rechtsklick mit dem Schlüssel der Dimension auf eine schlafende Konsole (oder ihren
+  Notenblock) weckt alle Konsolen des Portals; der Schlüssel wird verbraucht. Admins: `/sift portal unlock`.
 - Die Fläche besteht aus unsichtbaren Lichtblöcken (Stufe `portals.light-level`, 12) und einer
   Nebelfläche (Item-Display).
 
-Portale gibt es nur dort, wo sie registriert sind: in Schritt 7b durch die Strukturen, sonst per Befehl.
-Pro Welt stehen sie im Weltspeicher (`the_sift:portals`).
+Portale gibt es nur dort, wo sie registriert sind: in den Portal-Schreinen (unten) oder per Befehl. Pro
+Welt stehen sie im Weltspeicher (`the_sift:portals`).
+
+### Portal-Schreine (Schritt 7b)
+
+In Hauptwelt, Nether und End baut das Plugin beim Generieren neuer Chunks je einen Schrein pro Zelle
+(`portals.structures.<overworld|nether|end>`, Neustart nötig).
+
+**Aufbau (alle drei):**
+- Boden 15 × 15 mit Eckpfeilern und niedrigen Mauern.
+- Rahmen 7 × 8 aus Verstärktem Tiefenschiefer (Öffnung 5 × 6).
+- Davor 8 schlafende Konsolen in zwei Reihen, auf jeder ein Notenblock mit zufälligem Ton.
+
+| Dimension | Aussehen | Häufigkeit (Standard) | Gelände |
+|---|---|---|---|
+| Hauptwelt | eingesunkene, verfallene Tiefenschiefer-Ruine mit Sculk | 1 je 64 × 64 Chunks | über Wasser auf einem Felssockel |
+| Nether | Schrein aus Schwarzstein und Basalt, Seelenerde, Seelenfeuer, Seelenlaternen | 1 je 16 × 16 Chunks | im niedrigsten Hohlraum zwischen y 32 und 100, sonst auf y 70 ausgehöhlt; Lava am Rand wird zu Schwarzstein, über Lava steht er auf Basalt |
+| End | Schrein aus Purpur und Endsteinziegeln mit Endstäben | 1 je 32 × 32 Chunks, erst ab 1100 Blöcken von 0/0 | auf der Insel; über der Leere auf einer kleinen Endstein-Insel |
+
+- Jede Zelle hat genau einen Schrein im mittleren Drittel der Zelle; gebaut wird immer.
+- Der Ort hängt nur vom Seed ab. Deshalb kennen Kompass und `/sift portal locate` auch Schreine in noch
+  nicht generierten Gebieten.
+- Ein gebauter Schrein meldet sich als Portal `shrine-<chunkX>-<chunkZ>` an (Zustand LOCKED).
+
+**Eigene Vorlage statt des eingebauten Schreins:** `plugins/TheSift/structures/<overworld|nether|end>.nbt`
+(z. B. mit Axiom gebaut und per Strukturblock gespeichert, höchstens 16 × 16 Blöcke).
+- Die unterste Schicht ist der Boden.
+- Die Vorlage braucht einen Rahmen aus Verstärktem Tiefenschiefer (3–23 Blöcke, innen frei) und
+  Klingenden Tiefenschiefer als Konsolen. Notenblöcke darin bekommen zufällige Töne.
+- Beim Start prüft das Plugin die Vorlage. Eine fehlerhafte Vorlage meldet es im Log und baut dann den
+  eingebauten Schrein.
+- Gilt nur für neue Chunks.
+
+### Schlüssel und Sift-Kompass
+
+| Item | Weckt | Rezept (Standard, `portals.recipes`) | Beute (`portals.keys.*.loot`) |
+|---|---|---|---|
+| Echo-Resonator | Hauptwelt | 3 Echo-Splitter, Ziegenhorn, Sculk-Katalysator | Antike Stadt, 8 % |
+| Seelenglut-Kern | Nether | Lohenrute, 2 Ghast-Tränen, Antiker Schrott, Seelensand | Bastionen, 8 % |
+| Leere-Resonator | End | 3 Geplatzte Chorusfrüchte, Shulkerschale, Drachenatem | Endsiedlung (Schatz), 8 % |
+| Sift-Kompass | – | Kompass, 4 Echo-Splitter, 4 Amethystsplitter | – |
+
+- **Schlüssel:** Der falsche Schlüssel und schon geweckte Konsolen geben einen Hinweis.
+- **Sift-Kompass:** Solange man ihn hält, zeigt die Nadel auf den nächsten Schrein der Dimension, in
+  der Sift auf das Haupt-Portal. Die Actionbar zeigt die Entfernung; aufgefrischt wird alle
+  `portals.compass.update-ticks` (40).
+- **Admins:** `/sift portal locate` nennt den nächsten Schrein mit Teleport-Klick.
+- **Konsolen außerhalb der Sift:** Klingender Tiefenschiefer darf außerhalb der Sift stehen
+  (`custom-blocks.placeable-outside-sift`). Alle anderen Sift-Blöcke bleiben dort gesperrt.
+
+**Texturen ersetzen:** Die Texturen der Schlüssel und des Kompasses hat
+`scripts/gen_portal_item_textures.py` gezeichnet. Eigene PNGs (16 × 16) unter denselben Namen ersetzen
+sie, danach das Resource Pack neu bauen bzw. veröffentlichen:
+- `pack-src/resourcepack-overlay/assets/the_sift/textures/item/echo_resonator.png`, `soul_ember_core.png`,
+  `void_resonator.png`
+- `…/textures/item/sift_compass_00.png` … `sift_compass_31.png`: eine Nadelstellung je Bild, wie beim
+  Vanilla-Kompass.
+  - `16` zeigt geradeaus (nach oben), jedes weitere Bild 11,25° im Uhrzeigersinn weiter: `20` schräg
+    rechts, `24` rechts, `00` unten, `08` links.
+  - Das Skript schreibt auch die Modelle; die PNGs allein lassen sich jederzeit tauschen.
 
 | Befehl | Wirkung |
 |---|---|
@@ -317,6 +376,7 @@ Pro Welt stehen sie im Weltspeicher (`the_sift:portals`).
 | `/sift portal deactivate [id]` | Schließen; Konsolen bleiben wach. Das Haupt-Portal der Sift bleibt immer offen. |
 | `/sift portal remove <id>` | Abmelden (Blöcke bleiben stehen) |
 | `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen; Liste aller Portale mit Teleport |
+| `/sift portal locate` | Nächster Portal-Schrein der Welt (berechnet, auch ungeneriert) mit Teleport-Klick |
 
 Ohne `id` wirkt der Befehl auf das nächste Portal im Umkreis von 64 Blöcken. Von der Konsole aus:
 `/execute in minecraft:overworld run sift portal …`.

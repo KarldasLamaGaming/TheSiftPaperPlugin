@@ -79,7 +79,7 @@ public final class ItemSelfTest {
     }
 
     private void recipes(World world) {
-        int expected = (int) SiftRecipes.bundled(items.registry()).stream().filter(r -> !r.skipped()).count();
+        int expected = recipes.expected();
         check(recipes.keys().size() == expected, "Rezepte registriert: " + recipes.keys().size() + " von " + expected);
 
         ItemStack nugget = sift("siftite_nugget");
@@ -117,6 +117,13 @@ public final class ItemSelfTest {
                 "Steinsäge: Siftschiefer-Bruchstein -> gemeißelter Siftschiefer bleibt erlaubt");
         check(!SiftiteGuard.isSiftStonecutting(cobbledSlate, ItemStack.of(Material.CHISELED_DEEPSLATE)),
                 "Steinsäge: kein Vanilla-Ergebnis aus Siftschiefer-Bruchstein");
+
+        for (String id : List.of("echo_resonator", "soul_ember_core", "void_resonator", "sift_compass")) {
+            ItemStack item = sift(id);
+            check(item != null && Boolean.TRUE.equals(item.getData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE))
+                    && Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, id)) != null, id + ": Item und Rezept");
+        }
+        check(sift("sift_compass").getType() == Material.COMPASS, "Sift-Kompass ist ein Kompass (Nadel)");
 
         Recipe upgrade = Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "siftite_sword_smithing"));
         if (upgrade instanceof SmithingTransformRecipe smithing) {

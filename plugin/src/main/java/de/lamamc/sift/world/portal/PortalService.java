@@ -49,6 +49,7 @@ public final class PortalService implements Listener {
     private final TransitGuard guard = new TransitGuard();
     private final Set<UUID> travelling = new HashSet<>();
     private final Random random = new Random();
+    private final java.util.Queue<ShrinePopulator.Built> shrineQueue = ShrinePopulator.newQueue();
     private int ticks;
 
     public PortalService(Plugin plugin, PortalRegistry registry, PortalSurface surface) {
@@ -64,6 +65,22 @@ public final class PortalService implements Listener {
 
     public PortalSurface surface() {
         return surface;
+    }
+
+    /** Shrines built by worldgen threads, registered here on the main thread. */
+    public java.util.Queue<ShrinePopulator.Built> shrineQueue() {
+        return shrineQueue;
+    }
+
+    private void registerBuiltShrines() {
+        ShrinePopulator.Built built;
+        while ((built = shrineQueue.poll()) != null) {
+            NamespacedKey key = NamespacedKey.fromString(built.worldKey());
+            World world = key == null ? null : Bukkit.getWorld(key);
+            if (world != null && registry.get(world, built.portal().id()).isEmpty()) {
+                registry.put(world, built.portal());
+            }
+        }
     }
 
     public void start(int checkTicks) {
@@ -101,6 +118,7 @@ public final class PortalService implements Listener {
 
     private void tick() {
         ticks++;
+        registerBuiltShrines();
         World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
         if (sift != null && ticks % 50 == 0) {
             ensureSiftExit(sift);
