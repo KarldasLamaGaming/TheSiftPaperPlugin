@@ -123,3 +123,10 @@ Unterschiede:
 - **Reittiere:** Reiter samt Reittier reisen nicht mit.
 - **Andere Dimensionen:** Im Original führen nur Portale der Hauptwelt in die Sift. Hier ist jeder Eingang
   außerhalb der Sift einer, also auch die Portale in Nether und End aus Schritt 7b.
+- **Fundorte (seit 7b):**
+  - Im Original liegt das Portal im umgebauten Zentrum der Antiken Stadt, und den Weg dorthin zeigt
+    nichts.
+  - Hier gibt es eigene Schreine in Hauptwelt, Nether und End. Sie sind Ersatz für das Zentrum der
+    Antiken Stadt, bis Phase 2 die Melodie dort als Option bringt.
+  - Der Sift-Kompass zeigt den Weg. Die Schlüssel ersetzen den Singer.
+  - Schreine, Schlüssel und Kompass gibt es im Original nicht; ihre Texturen sind eigene.
