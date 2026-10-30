@@ -111,7 +111,11 @@ class ItemRegistryTest {
                 "resourcepack", "assets", "the_sift", "items");
         org.junit.jupiter.api.Assumptions.assumeTrue(java.nio.file.Files.isDirectory(items), "pack-src not generated");
         for (ItemDefinition def : bundled().all()) {
-            assertTrue(java.nio.file.Files.isRegularFile(items.resolve(def.id() + ".json")), "no item model for " + def.id());
+            // generated from the original, or hand-made in the overlay (portal keys, compass)
+            java.nio.file.Path overlay = items.getParent().getParent().getParent().getParent()
+                    .resolve("resourcepack-overlay/assets/the_sift/items").resolve(def.id() + ".json");
+            assertTrue(java.nio.file.Files.isRegularFile(items.resolve(def.id() + ".json")) || java.nio.file.Files.isRegularFile(overlay),
+                    "no item model for " + def.id());
         }
         assertEquals(null, bundled().get("sculkflower_crop"));
     }

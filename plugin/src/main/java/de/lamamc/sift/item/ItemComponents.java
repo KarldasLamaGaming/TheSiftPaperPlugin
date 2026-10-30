@@ -66,6 +66,14 @@ final class ItemComponents {
             case FOOD -> food(def.id(), stack);
             case DRINK -> drink(def.id(), stack);
             case MUSIC_DISC -> musicDisc(def.id(), stack);
+            case PORTAL_KEY -> {
+                stack.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+                stack.setData(DataComponentTypes.MAX_STACK_SIZE, 16);
+            }
+            case SIFT_COMPASS -> {
+                stack.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+                stack.setData(DataComponentTypes.MAX_STACK_SIZE, 1); // each compass keeps its own target
+            }
         }
     }
 

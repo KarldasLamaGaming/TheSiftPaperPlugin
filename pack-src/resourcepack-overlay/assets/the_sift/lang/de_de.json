@@ -271,5 +271,9 @@
   "item.the_sift.music_disc_wellspring.desc": "Echo_Dev - Wellspring",
   "jukebox_song.the_sift.wellspring": "Echo_Dev - Wellspring",
   "subtitles.the_sift.music_disc.wellspring": "Wellspring-Musik spielt",
-  "subtitles.the_sift.sift_intro": "Die Sift erklingt"
+  "subtitles.the_sift.sift_intro": "Die Sift erklingt",
+  "item.the_sift.echo_resonator": "Echo-Resonator",
+  "item.the_sift.soul_ember_core": "Seelenglut-Kern",
+  "item.the_sift.void_resonator": "Leere-Resonator",
+  "item.the_sift.sift_compass": "Sift-Kompass"
 }

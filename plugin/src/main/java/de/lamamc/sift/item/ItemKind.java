@@ -17,7 +17,11 @@ public enum ItemKind {
     /** Drink with potion effects (items.drinks.<id>). */
     DRINK,
     /** Music disc (items.music-discs.<id>). */
-    MUSIC_DISC;
+    MUSIC_DISC,
+    /** Key that wakes the consoles of a portal (portals.keys). */
+    PORTAL_KEY,
+    /** Compass pointing at the nearest portal. */
+    SIFT_COMPASS;
 
     public static ItemKind parse(String value) {
         return valueOf(value.trim().toUpperCase(Locale.ROOT).replace('-', '_'));
