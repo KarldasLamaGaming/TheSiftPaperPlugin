@@ -262,6 +262,64 @@ Melodie und Konsolen im Überlebensmodus spielen: Im Kreativmodus zerbricht ein 
 - [ ] Mehrere Truhen in Antiker Stadt, Bastion und Endsiedlung öffnen: Gelegentlich (8 %) liegt der
       passende Schlüssel darin, der normale Inhalt bleibt.
 
+## Mobs: Blub (ab Phase 2)
+
+Vorher in `config.yml` nichts ändern; die Werte stehen unter `mobs.blub`. Resource Pack neu laden (neue
+Modelle). Test in der Sift, Überlebensmodus, wo nicht anders angegeben.
+
+**Aussehen und Animation**
+- [ ] `/sift spawn blub` (oder Blub-Spawn-Ei aus `/sift items`, Rechtsklick auf einen Block): Der Blub
+      sieht aus wie im Original (Kopf mit Ohren, vier Beinchen), Textur sauber, keine Lücken zwischen den
+      Teilen. Screenshot aus der Nähe und von der Seite.
+- [ ] Er hüpft, statt zu laufen: Sprünge mit kurzer Pause am Boden, Beine und Ohren schwingen mit
+      (Animation „hopping“), schneller beim Angriff.
+- [ ] Im Stand flattert er ab und zu mit den Ohren.
+- [ ] Treffer: Das Modell blinkt kurz rot. Tod: Es kippt zur Seite wie ein Vanilla-Mob und verschwindet.
+- [ ] Bei wenig Leben hängen die Ohren.
+- [ ] Aus 48 Blöcken Entfernung ist das Modell noch zu sehen, weiter weg nicht. Kein Flackern beim
+      Drehen und Hüpfen (falls doch: `mobs.render.interpolation-ticks` auf 4 setzen und melden).
+
+**Zähmen, Sitzen, Füttern**
+- [ ] Seelenblock in der Hand: Der Blub kommt hinterher (bis 10 Blöcke), ohne Seelenblock nicht.
+- [ ] Rechtsklick mit Seelenblock: verbraucht 1 Seelenblock; Herzen = gezähmt (etwa jedes dritte Mal),
+      Rauch = nicht. Beim Zähmen dreht er sich zu dir, zirpt und macht die Freuden-Animation (Kopf dreht
+      sich einmal ganz), die Textur wird zur gezähmten. Advancement „Blub“ erscheint.
+- [ ] Gezähmt: folgt dir, teleportiert zu dir, wenn du weit weg bist; Rechtsklick (ohne Seelenblock)
+      lässt ihn sitzen (Sitzhaltung: Kopf tiefer, Beine angewinkelt) bzw. wieder folgen.
+- [ ] Gezähmt und verletzt: Seelenblock oder Essen (z. B. Brot) per Rechtsklick heilt 4 Leben.
+- [ ] Gezähmt: verteidigt dich und greift an, was du schlägst; greift keine anderen Blubs, fremde
+      gezähmte Tiere oder Spieler im Kreativmodus an.
+
+**Rudelzorn**
+- [ ] Mehrere ungezähmte Blubs (`/sift spawn blub 4`), einen schlagen: Alle im Umkreis von 16 Blöcken
+      greifen an (Schaden 3), nach etwa 30 s hören sie auf. Im Kreativmodus greifen sie nicht an.
+- [ ] Während des Zorns lässt sich kein Blub zähmen.
+
+**Klänge**
+- [ ] Zirpen im Stand (an Land und im Wasser anders), eigener Treffer-, Angriffs- und Todesklang aus dem
+      Pack. Kein Wolfsheulen, -knurren oder -hecheln. Untertitel zeigen „Blub …“.
+
+**Basis-Mob schlägt nicht durch** (unsichtbarer Wolf)
+- [ ] Kein Wolfsklang, kein Wolfsmodell, kein Halsband, kein Schatten eines Wolfs (nur der kleine des
+      Blubs).
+- [ ] Knochen, Fleisch oder Farbstoff auf einen ungezähmten bzw. gezähmten Blub: kein Zähmen, kein
+      Halsband färben, keine Wolfsrüstung, keine Vermehrung (zwei gezähmte Blubs mit Fleisch füttern).
+- [ ] Der Blub jagt keine Schafe, Kaninchen, Füchse oder Skelette und flieht nicht vor Lamas.
+- [ ] Leine, Boot, Lore: geht nicht mit einem Blub.
+- [ ] Tod durch einen Blub: Die Todesnachricht nennt „Blub“, nicht „Wolf“.
+
+**Spawnen und Grenzen**
+- [ ] In den Überwucherten Biomen tauchen gelegentlich Gruppen von 1–3 Blubs auf (32–76 Blöcke entfernt,
+      höchstens 4 im Umkreis). In anderen Biomen und in der Hauptwelt nicht.
+- [ ] `/sift debug mobs` zeigt Anzahl je Welt und Art, Displays, Transformationen pro Sekunde und den
+      nächsten Mob (Hitbox etwa 0,66 × 0,94).
+- [ ] Neustart und Chunk neu laden (weggehen und zurückkommen): Blubs sind wieder da, mit Modell, ohne
+      doppelte oder verwaiste Modellteile (`/execute if entity @e[type=item_display,distance=..30]`
+      zählt 7 je Blub).
+- [ ] Gezähmter Blub geht durch ein offenes Portal mit (Modell ist danach wieder da).
+- [ ] `mobs.blub.enabled: false` und Neustart: kein Spawnen, `/sift spawn blub` meldet „abgeschaltet“;
+      vorhandene Blubs bleiben als unsichtbare Wölfe stehen, bis der Schalter wieder an ist.
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.

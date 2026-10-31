@@ -387,6 +387,36 @@ Weidenstamm, -holz, -bretter, -laub und -setzling brennen wie im Original und ta
 (`blocks.<id>.fire`, `blocks.<id>.fuel`; Einzelheiten in `docs/ABWEICHUNGEN.md`). Die Gamerule
 `fire_spread_radius_around_player` gilt auch dafür.
 
+## Mobs (Phase 2)
+
+Jeder Sift-Mob ist ein unsichtbarer, stummer Vanilla-Mob (Hitbox, Wegfindung, Kampf) mit dem Eintrag
+`the_sift:mob` in seinen Entity-Daten. Sein Modell besteht aus Item-Displays (eines je Würfel des
+Original-Modells), die auf ihm reiten. Die Displays werden nicht gespeichert: Beim Laden des Chunks, nach
+einem Neustart oder einer Portalreise baut das Plugin sie neu. Bedrock-Spieler sehen die Mobs nicht.
+
+- **Einstellungen:** `config.yml` → `mobs` (`[Start]`, Neustart nötig):
+  - `render`: Posen alle `update-ticks` (2 = 10/s), Interpolation, Sichtweite (48 Blöcke), Treffer-Farbe.
+  - `limits`: höchstens `per-world` (150) Sift-Mobs je Welt; natürliches Spawnen nur, solange um den
+    Spieler (`player-radius` 64) weniger als `per-player` (8) sind.
+  - `mobs.<id>`: `enabled`, Größe, Attribute, Verhalten, Erfahrung und `spawn` (Intervall, Abstand,
+    Gruppengröße, Profile je Biom mit Chance und Grenze).
+- **Texte:** `plugins/TheSift/messages.yml` (MiniMessage, deutsch). Neue Texte eines Updates werden beim
+  Start ergänzt, eigene Änderungen bleiben.
+- **Abschalten:** `mobs.<id>.enabled: false` stoppt Spawnen, Spawn-Eier und `/sift spawn`. Vorhandene
+  Mobs dieser Art bleiben als unsichtbare Basis-Mobs in der Welt und sind nach dem Wiedereinschalten
+  wieder da. Zum Entfernen: `/kill @e[type=wolf,nbt={BukkitValues:{"the_sift:mob":"blub"}}]`.
+- **Modelle ersetzen:** Würfel-Modelle unter `assets/the_sift/models/item/mob/<variante>/<n>.json`,
+  Texturen unter `assets/the_sift/textures/item/mob/<variante>.png` (packgen erzeugt sie aus dem
+  Original-Jar). Die Rig-Daten liegen im Plugin unter `mobs/`.
+- **Leistung:** Posen gehen nur an Spieler, die das Modell sehen, und nur für Teile, die sich bewegt
+  haben. `/sift debug mobs` zeigt die Transformationen pro Sekunde.
+
+### Blub
+
+Basis Wolf (Größe 1,1). Zähmen mit einem Seelenblock (1 zu 3), Sitzen per Rechtsklick des Besitzers,
+Heilen mit Seelenblock oder Essen, Rudelzorn (16 Blöcke, 30 s). Spawnt selten in den Überwucherten Biomen
+(im Original nur per Spawn-Ei); Spawn-Ei `blub_spawn_egg` über `/sift items` bzw. `/sift give`.
+
 ## Drops und Erze
 
 - Sift-Geröll wie im Original (und wie Vanilla-Kies/Feuerstein): mit Behutsamkeit das Geröll, sonst
@@ -413,6 +443,9 @@ Weidenstamm, -holz, -bretter, -laub und -setzling brennen wie im Original und ta
 | `/sift items` | Item-Menü (auch mit `thesift.admin.items`) |
 | `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben (auch mit `thesift.admin.items`) |
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
+| `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
+| `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, nächster Mob mit Hitbox |
+| `/sift debug mobs walk <x> <y> <z>` | Nächsten Sift-Mob zu einem Block laufen lassen (Test der Wegfindung) |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
