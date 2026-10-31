@@ -1,0 +1,12 @@
+# The Sift – Texte für Spieler (MiniMessage: https://docs.advntr.dev/minimessage/format.html)
+# Platzhalter stehen in <spitzen Klammern>, z. B. <mob>. Neue Texte eines Updates werden beim Start ergänzt.
+# Bestehende Texte des Plugins ziehen nach und nach hierher um.
+
+mobs:
+  names:
+    blub: "Blub"
+  spawned: "<green><count> × <mob> erschienen."
+  spawn-failed: "<red><mob> konnte hier nicht erscheinen (<reason>)."
+  unknown: "<red>Unbekannter Sift-Mob: <mob>"
+  disabled: "<red><mob> ist in der config.yml abgeschaltet (mobs.<id>.enabled)."
+  limit-world: "Grenze von <limit> Sift-Mobs in dieser Welt erreicht"

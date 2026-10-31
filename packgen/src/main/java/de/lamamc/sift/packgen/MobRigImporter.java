@@ -72,6 +72,14 @@ final class MobRigImporter {
                     JsonObject model = new JsonObject();
                     model.addProperty("type", "minecraft:model");
                     model.addProperty("model", "the_sift:item/" + id);
+                    // the plugin tints all cubes of a mob at once (hurt flash) through custom_model_data colors
+                    JsonObject tint = new JsonObject();
+                    tint.addProperty("type", "minecraft:custom_model_data");
+                    tint.addProperty("index", 0);
+                    tint.addProperty("default", 0xFFFFFF);
+                    JsonArray tints = new JsonArray();
+                    tints.add(tint);
+                    model.add("tints", tints);
                     JsonObject definition = new JsonObject();
                     definition.add("model", model);
                     Main.writeJson(assets.resolve("items/" + id + ".json"), definition);
@@ -173,6 +181,7 @@ final class MobRigImporter {
         JsonObject face = new JsonObject();
         face.add("uv", array(round(u1 * 16 / width), round(v1 * 16 / height), round(u2 * 16 / width), round(v2 * 16 / height)));
         face.addProperty("texture", "#0");
+        face.addProperty("tintindex", 0);
         return face;
     }
 
