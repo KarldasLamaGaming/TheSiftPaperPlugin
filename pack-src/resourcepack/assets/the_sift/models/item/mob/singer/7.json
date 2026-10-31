@@ -1,0 +1,82 @@
+{
+  "textures": {
+    "0": "the_sift:item/mob/singer",
+    "particle": "the_sift:item/mob/singer"
+  },
+  "elements": [
+    {
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        3.0,
+        10.0,
+        5.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.125,
+            3.25,
+            4.5,
+            4.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            5.125,
+            3.25,
+            5.5,
+            4.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "west": {
+          "uv": [
+            4.5,
+            3.25,
+            5.125,
+            4.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            3.5,
+            3.25,
+            4.125,
+            4.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            4.125,
+            2.625,
+            4.5,
+            3.25
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "down": {
+          "uv": [
+            4.5,
+            3.25,
+            4.875,
+            2.625
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

@@ -130,3 +130,33 @@ Unterschiede:
     Antiken Stadt, bis Phase 2 die Melodie dort als Option bringt.
   - Der Sift-Kompass zeigt den Weg. Die Schlüssel ersetzen den Singer.
   - Schreine, Schlüssel und Kompass gibt es im Original nicht; ihre Texturen sind eigene.
+
+## Mobs (seit Phase 2)
+
+Allgemein, für alle Sift-Mobs:
+- **Darstellung:** Im Original zeichnet GeckoLib die Mobs auf dem Client. Hier trägt ein unsichtbarer
+  Vanilla-Mob Hitbox, Wegfindung und Kampf; das Modell besteht aus Item-Displays (eines je Würfel des
+  Original-Modells, Textur aus dem Original). Der Server rechnet die Animationen des Originals und sendet
+  10 Posen pro Sekunde, der Client interpoliert dazwischen. Übergänge zwischen Animationen sind dadurch
+  etwas weicher bzw. ungenauer als im Original.
+- **Nur Java:** Bedrock-Spieler (Geyser) sehen die Sift-Mobs nicht.
+- **Rotes Aufblinken und Tod:** Treffer färben das Modell kurz rot (Item-Tönung), beim Tod kippt es wie
+  ein Vanilla-Mob. Der Schatten sitzt etwas höher und ist schwächer.
+- **Klänge:** Der Basis-Mob ist stumm; die Klänge des Originals spielt das Plugin an der Position des
+  Mobs ab (nicht an den Mob gebunden). Schwimm- und Platschklänge fehlen.
+- **Namen:** Ein Blick auf den Mob zeigt keinen Namen; Todesnachrichten nennen den Sift-Namen.
+
+Blub:
+- **Basis:** unsichtbarer Wolf, Größe 1,1; Hitbox 0,66 × 0,94 statt 0,8 × 0,9.
+- **Hüpfen:** Im Original bewegt eine eigene Steuerung (wie beim Kaninchen) den Blub nur in Sprüngen.
+  Hier hält das Plugin die Laufgeschwindigkeit an Land auf null und lässt ihn alle paar Ticks zum nächsten
+  Wegpunkt springen (Höhe 0,3 / 0,36 / 0,5 wie im Original, Vorwärtstempo `hopping.hop-velocity`). Das
+  Tempo ist angenähert.
+- **KI:** Statt eigener Goals behält der Wolf die Vanilla-Goals, die das Original auch nutzt (Schwimmen,
+  Sitzen, Nahkampf, Folgen, Umherstreifen, Umschauen, Besitzer schützen); alle anderen Wolf-Goals sind
+  entfernt. Das Locken mit Seelenblöcken, der Rudelzorn und das Zurückschlagen macht das Plugin.
+- **Spawnen:** Im Original gibt es keinen natürlichen Spawn, nur das Spawn-Ei. Hier erscheint der Blub
+  selten in den Überwucherten Biomen (Entscheidung vom 31.10., `mobs.blub.spawn`, abschaltbar).
+- **Erfahrung:** 1–3 wie bei Vanilla-Tieren (`mobs.blub.experience`).
+- **Mielon-Texturen:** Die Sonder-Texturen des Originals für Blubs namens „Mielon“ fehlen.
+

@@ -1,0 +1,82 @@
+{
+  "textures": {
+    "0": "the_sift:item/mob/blub",
+    "particle": "the_sift:item/mob/blub"
+  },
+  "elements": [
+    {
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            7.0,
+            7.0,
+            7.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.0,
+            8.0,
+            7.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            7.5,
+            7.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            6.0,
+            7.0,
+            6.5,
+            7.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            7.0,
+            7.0
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            7.5,
+            6.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

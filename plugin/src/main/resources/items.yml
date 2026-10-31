@@ -3,7 +3,8 @@
 # Balancing values (tools, armor, food, drinks, discs) live in config.yml under "items".
 #   category: blocks | ores | plants_wood | tools | armor | materials | misc
 #   base:     vanilla item the Sift item is built on
-#   kind:     plain (default) | siftite-tool | siftite-armor | smithing-template | food | drink | music-disc
+#   kind:     plain (default) | siftite-tool | siftite-armor | smithing-template | food | drink | music-disc |
+#             portal-key | sift-compass | spawn-egg
 #   protect:  true = the item is never used like its vanilla base: vanilla recipes, smithing, anvil
 #             repairs and trades refuse it. Set for every item here (all Sift materials, Siftite gear,
 #             food, discs); ItemRegistryTest checks that none is missing. Block items (from
@@ -36,6 +37,8 @@ items:
   soul_ember_core: {category: misc, base: "minecraft:paper", kind: portal-key, protect: true}
   void_resonator: {category: misc, base: "minecraft:paper", kind: portal-key, protect: true}
   sift_compass: {category: misc, base: "minecraft:compass", kind: sift-compass, protect: true}
+  # spawn eggs of the Sift mobs (phase 2), one per finished mob
+  blub_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
 
 # Items of the original that only exist as a vanilla item here (recipes produce the vanilla item)
 item-substitutes:

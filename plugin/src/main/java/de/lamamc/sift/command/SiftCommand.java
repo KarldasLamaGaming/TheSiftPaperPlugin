@@ -63,6 +63,15 @@ public final class SiftCommand {
         this.plugin = plugin;
     }
 
+    private MobCommand mobCommand;
+
+    private MobCommand mobCommand() {
+        if (mobCommand == null) {
+            mobCommand = new MobCommand(plugin.mobs(), plugin.mobSpawner(), plugin.messages());
+        }
+        return mobCommand;
+    }
+
     public void register(Commands commands) {
         LiteralCommandNode<CommandSourceStack> root = Commands.literal("sift")
                 .requires(source -> admin(source) || items(source))
@@ -104,7 +113,9 @@ public final class SiftCommand {
                 .then(new PortalCommand(plugin.portals(), plugin.consoles(), plugin.getConfig().getInt("portals.frame-radius", 10),
                         plugin::shrineSites)
                         .node().requires(SiftCommand::admin))
+                .then(mobCommand().spawnNode().requires(SiftCommand::admin))
                 .then(Commands.literal("debug").requires(SiftCommand::admin)
+                        .then(mobCommand().debugNode())
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
                         .then(breakNode())

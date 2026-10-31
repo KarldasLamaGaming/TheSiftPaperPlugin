@@ -3,7 +3,7 @@
 Übersicht der offenen Punkte; Details, Diskussion und Ergebnisse stehen jeweils im GitHub-Issue.
 Erledigte Punkte werden hier gestrichen, sobald das Issue geschlossen ist.
 
-Stand: 30.10.2026 (nach alpha.6)
+Stand: 31.10.2026 (nach alpha.10)
 
 ## Fehler (`bug`)
 
@@ -32,5 +32,5 @@ Stand: 30.10.2026 (nach alpha.6)
 
 ## Nächster Schritt
 
-- Schritt 7b (Schreine, Schlüssel, Kompass) ist im PR. Spieltest siehe `docs/TESTING.md` → Portale.
-- Danach Phase 1, Schritt 10: Siftit-Erhalt beim Tod (schlicht).
+- Phase 2: Mob-Framework und Blub sind im PR. Spieltest siehe `docs/TESTING.md` → Mobs: Blub.
+- Danach je ein PR: Sifter, Singer mit Antiker Stadt, Dunkler Schnüffler, Echogolem.

@@ -49,6 +49,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.world.portal.PortalService portals;
     private de.lamamc.sift.world.portal.SonorousConsoles consoles;
     private final java.util.Map<String, de.lamamc.sift.world.portal.ShrinePopulator> shrines = new java.util.HashMap<>();
+    private Messages messages;
+    private de.lamamc.sift.mob.MobManager mobs;
+    private de.lamamc.sift.mob.MobSpawner mobSpawner;
 
     @Override
     public void onEnable() {
@@ -106,10 +109,43 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
         new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
+        messages = Messages.load(this);
+        startMobs();
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
         // load: STARTUP enables the plugin before the worlds exist; this only matters after a reload
         getServer().getWorlds().forEach(this::attach);
+    }
+
+    /** Sift mobs (phase 2): registry, base mob guard, spawn eggs, natural spawning (config.yml mobs). */
+    private void startMobs() {
+        org.bukkit.configuration.ConfigurationSection config = getConfig().getConfigurationSection("mobs");
+        mobs = new de.lamamc.sift.mob.MobManager(this, config);
+        mobSpawner = new de.lamamc.sift.mob.MobSpawner(mobs);
+        if (config == null || !config.getBoolean("enabled", true)) {
+            getLogger().info("Sift mobs are off (mobs.enabled)");
+            return;
+        }
+        org.bukkit.configuration.ConfigurationSection blub = config.getConfigurationSection("blub");
+        mobs.register(new de.lamamc.sift.mob.blub.BlubKind(blub != null ? blub : new org.bukkit.configuration.MemoryConfiguration()));
+        getServer().getPluginManager().registerEvents(mobs, this);
+        getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.BaseMobGuard(mobs), this);
+        getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.SpawnEggs(mobs), this);
+        getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.blub.BlubTargets(), this);
+        mobs.start();
+        mobSpawner.start(this);
+    }
+
+    public Messages messages() {
+        return messages;
+    }
+
+    public de.lamamc.sift.mob.MobManager mobs() {
+        return mobs;
+    }
+
+    public de.lamamc.sift.mob.MobSpawner mobSpawner() {
+        return mobSpawner;
     }
 
     /** Portal shrines in the main world, the nether and the end (portals.structures.*). */
@@ -232,6 +268,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
+        }
+        if (mobs != null) {
+            mobs.stop();
         }
     }
 

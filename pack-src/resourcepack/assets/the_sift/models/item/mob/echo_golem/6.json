@@ -1,0 +1,82 @@
+{
+  "textures": {
+    "0": "the_sift:item/mob/echo_golem",
+    "particle": "the_sift:item/mob/echo_golem"
+  },
+  "elements": [
+    {
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        4.0,
+        3.0,
+        3.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9.875,
+            9.5,
+            10.375,
+            9.875
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            10.75,
+            9.5,
+            11.25,
+            9.875
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "west": {
+          "uv": [
+            10.375,
+            9.5,
+            10.75,
+            9.875
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            9.5,
+            9.5,
+            9.875,
+            9.875
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            9.875,
+            9.125,
+            10.375,
+            9.5
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "down": {
+          "uv": [
+            10.375,
+            9.5,
+            10.875,
+            9.125
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

@@ -180,6 +180,12 @@ public final class PortalService implements Listener {
     }
 
     private void transfer(Entity entity, SiftPortal portal) {
+        // the display rig of a Sift mob rides it; it is rebuilt after the trip
+        if (entity.getPersistentDataContainer().has(de.lamamc.sift.mob.MobManager.MOB_KEY)) {
+            entity.getPassengers().stream()
+                    .filter(p -> p.getPersistentDataContainer().has(de.lamamc.sift.mob.MobManager.RIG_KEY))
+                    .forEach(Entity::remove);
+        }
         if (travelling.contains(entity.getUniqueId()) || entity.isInsideVehicle() || !entity.getPassengers().isEmpty()) {
             return; // riders and their mounts are not carried along (yet)
         }
