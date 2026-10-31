@@ -62,6 +62,8 @@ public final class Main {
             Path pack = out.resolve("resourcepack");
             importAssets(zip, report, pack);
             writeBlockstateOverrides(zip, client, mapping, report, pack);
+            deleteTree(out.resolve("mob-data"));
+            MobRigImporter.run(zip, pack, out.resolve("mob-data"), report);
             new PackValidator(pack, path -> client.getEntry(path) != null, report).validate();
         }
         writeResolvedMapping(mapping, out.resolve("block-mapping.json"));

@@ -22,6 +22,10 @@ tasks.processResources {
     from(rootDir.resolve("pack-src/item-data")) {
         into("item-data")
     }
+    // mob rigs (bones, cubes) and animations converted from the original's GeckoLib files
+    from(rootDir.resolve("pack-src/mob-data")) {
+        into("mobs")
+    }
     // custom block <-> vanilla state mapping and the German names (fallback for item names)
     from(rootDir.resolve("pack-src/block-mapping.json"))
     from(rootDir.resolve("pack-src/resourcepack-overlay/assets/the_sift/lang/de_de.json")) {
