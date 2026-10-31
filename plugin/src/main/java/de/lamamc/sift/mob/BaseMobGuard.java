@@ -177,6 +177,38 @@ public final class BaseMobGuard implements Listener {
         }
     }
 
+    /** "Wolf" in death messages becomes the Sift mob's name (player killed by it, or a tamed one died). */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerDeath(org.bukkit.event.entity.PlayerDeathEvent event) {
+        Entity killer = event.getDamageSource().getCausingEntity();
+        String kind = MobManager.kindOf(killer);
+        if (kind != null && event.deathMessage() != null) {
+            event.deathMessage(rename(event.deathMessage(), killer, kind));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPetDeath(io.papermc.paper.event.entity.TameableDeathMessageEvent event) {
+        String kind = MobManager.kindOf(event.getEntity());
+        if (kind != null) {
+            event.deathMessage(rename(event.deathMessage(), event.getEntity(), kind));
+        }
+    }
+
+    static net.kyori.adventure.text.Component rename(net.kyori.adventure.text.Component message, Entity base, String kind) {
+        String vanilla = base.getType().translationKey();
+        if (message instanceof net.kyori.adventure.text.TranslatableComponent translatable) {
+            if (translatable.key().equals(vanilla)) {
+                message = translatable.key("entity.the_sift." + kind);
+            } else {
+                message = translatable.arguments(translatable.arguments().stream()
+                        .map(a -> net.kyori.adventure.text.TranslationArgument.component(rename(a.asComponent(), base, kind)))
+                        .toList());
+            }
+        }
+        return message.children(message.children().stream().map(c -> rename(c, base, kind)).toList());
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onDeath(EntityDeathEvent event) {
         if (!sift(event.getEntity())) {
