@@ -203,6 +203,88 @@ items:
     music_disc_rift: "the_sift:rift"
     music_disc_wellspring: "the_sift:wellspring"
 
+mobs:
+  # Sift-Mobs (Phase 2) an/aus. [Start]
+  # Jeder Mob ist ein unsichtbarer Vanilla-Mob (Hitbox, Wegfindung) mit einem Modell aus Item-Displays.
+  enabled: true
+  render:
+    # alle N Ticks eine neue Pose senden (2 = 10 pro Sekunde); der Client interpoliert dazwischen
+    update-ticks: 2
+    # Dauer der Interpolation in Ticks (etwas länger als update-ticks wirkt weicher)
+    interpolation-ticks: 3
+    # Sichtweite der Modelle in Blöcken (bei Standard-Einstellungen des Clients)
+    view-range: 48
+    # Färbung beim Treffer (wie das rote Aufblinken bei Vanilla) und ihre Dauer in Ticks
+    hurt-color: "#FF8080"
+    hurt-ticks: 10
+    # Posen nur senden, solange ein Spieler das Modell sieht (false nur zum Testen)
+    only-when-watched: true
+  limits:
+    # höchstens so viele Sift-Mobs je Welt (alle Arten zusammen)
+    per-world: 150
+    # natürliches Spawnen nur, solange um den Spieler (Umkreis in Blöcken) weniger Sift-Mobs sind
+    per-player: 8
+    player-radius: 64
+
+  # Blub (Original: BlubEntity). Basis ist ein unsichtbarer Wolf.
+  blub:
+    enabled: true
+    # Größe des Basis-Wolfs (Attribut scale; 1,1 ergibt etwa 0,66 × 0,94, Original 0,8 × 0,9)
+    base-scale: 1.1
+    # Größe des Modells (1 = wie im Original)
+    model-scale: 1.0
+    # Schatten unter dem Modell (Original 0,38)
+    shadow-radius: 0.38
+    attributes:
+      max-health: 20.0
+      movement-speed: 0.3
+      attack-damage: 3.0
+      follow-range: 24.0
+      tempt-range: 10.0
+      step-height: 1.0
+    # Zähmen mit einem Seelenblock: Erfolg mit Chance 1 zu N (Original 3)
+    tame-one-in: 3
+    # gezähmt und verletzt: Seelenblock oder Essen heilt so viele Lebenspunkte
+    feed-heal: 4.0
+    # Seelenblock in der Hand lockt (Tempo-Faktor, Pause in Ticks nach dem Verlieren)
+    tempt-speed: 1.1
+    tempt-cooldown-ticks: 100
+    # Rudelzorn: schlägt ein Spieler einen ungezähmten Blub, greifen alle ungezähmten im Umkreis an
+    pack-anger:
+      radius: 16
+      ticks: 600
+    hopping:
+      # Sprunghöhe normal / beim Angriff / bergauf (Original 0,3 / 0,36 / 0,5)
+      jump-power: 0.3
+      fast-jump-power: 0.36
+      climb-jump-power: 0.5
+      # Wartezeit am Boden nach der Landung: normal, schnell (Folgen, Locken), Angriff
+      landing-delay-ticks: [8, 6, 4]
+      # Vorwärtstempo je Sprung in Blöcken pro Tick (bei movement-speed 0,3)
+      hop-velocity: 0.2
+    # Ohrenflattern im Stand alle [min, max] Ticks, Dauer in Ticks
+    flap-interval-ticks: [140, 540]
+    flap-ticks: 20
+    # zusätzliches Zirpen alle [min, max] Ticks (neben dem normalen Umgebungsklang)
+    idle-sound-interval-ticks: [180, 540]
+    # Erfahrung beim Tod [min, max] (Original: wie Vanilla-Tiere 1–3)
+    experience: [1, 3]
+    # Natürliches Spawnen (im Original gibt es keins, nur das Spawn-Ei): selten in den Überwucherten Biomen
+    spawn:
+      enabled: true
+      # alle N Ticks je Spieler ein Versuch, im Ring von min- bis max-distance Blöcken
+      interval: 80
+      min-distance: 32
+      max-distance: 76
+      # Anteil der Versuche an der Oberfläche (Rest in Höhlen)
+      surface-chance: 1.0
+      # Gruppengröße [min, max]
+      group: [1, 3]
+      # Grenze (cap) zählt Blubs im Umkreis cap-radius um den Spawnpunkt
+      cap-radius: 64
+      profiles:
+        - {biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_slopes, overgrown_peaks], chance: 0.15, cap: 4}
+
 recipes:
   # Rezepte der Sift beim Betreten im Rezeptbuch freischalten
   discover-on-join: true

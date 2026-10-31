@@ -21,7 +21,9 @@ public enum ItemKind {
     /** Key that wakes the consoles of a portal (portals.keys). */
     PORTAL_KEY,
     /** Compass pointing at the nearest portal. */
-    SIFT_COMPASS;
+    SIFT_COMPASS,
+    /** Spawn egg of a Sift mob (&lt;mob&gt;_spawn_egg), used by the mob framework. */
+    SPAWN_EGG;
 
     public static ItemKind parse(String value) {
         return valueOf(value.trim().toUpperCase(Locale.ROOT).replace('-', '_'));
