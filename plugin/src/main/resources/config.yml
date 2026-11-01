@@ -344,6 +344,60 @@ mobs:
         - {biomes: [sift_wastes], chance: 0.22, cap: 5}
         - {biomes: [], chance: 0.18, cap: 5}
 
+  # Singer (Original: SingerEntity). Basis ist ein unsichtbarer Fahrender Händler ohne eigene KI.
+  # Gerufen (Ziegenhorn nahe einem schlafenden Portal): erscheint im Portal, singt, weckt die Konsolen, taucht ab.
+  # Per Spawn-Ei oder /sift spawn: bleibt, läuft in der Nähe umher und tauscht Seelenblöcke.
+  singer:
+    enabled: true
+    # Größe des Basis-Mobs (2,05 ergibt 1,23 × 4,0; Original 0,8 × 4,0 bei Größe 1,2)
+    base-scale: 2.05
+    # Größe des Modells (Original 1,2)
+    model-scale: 1.2
+    shadow-radius: 0.0
+    attributes:
+      max-health: 20.0
+      movement-speed: 0.27
+    # Erfahrung, wenn ein Spieler einen bleibenden Singer tötet [min, max] (Original 8–12)
+    experience: [8, 12]
+    summon:
+      # Verzögerung nach dem Ziegenhorn in Ticks und Suchradius um den Spieler in Blöcken (Original 60 / 40)
+      delay-ticks: 60
+      radius: 40
+    song:
+      # Lautstärke des Gesangs (Original 1000, also im weiten Umkreis hörbar)
+      volume: 1000
+      # Ticks nach Gesangsbeginn, zu denen eine Schallwelle zur nächsten Konsole startet (Original)
+      wave-ticks: [3, 25, 42, 57, 75, 92, 98, 117]
+      # Tempo der Schallwelle in Blöcken je Tick und Höhe des Kopfes über den Füßen
+      wave-speed: 0.6
+      head-height: 3.0
+    # bleibender Singer: läuft nur in diesem Umkreis um seinen Erscheinungsort, nur auf Wegen mit Platz für
+    # seine Höhe; hängt er so lange fest, taucht er ab
+    leash-radius: 8
+    stuck-seconds: 10
+    barter:
+      # so lange hält er den Seelenblock, bevor die Belohnung kommt (Ticks)
+      hold-ticks: 40
+      # Belohnungen des Originals: Gewicht (von 200) und Anzahl [min, max]; "#wool" = Wolle in zufälliger Farbe
+      table:
+        - {item: "minecraft:iron_block", weight: 30, count: [2, 4]}
+        - {item: "minecraft:netherite_upgrade_smithing_template", weight: 20, count: [1, 1]}
+        - {item: "minecraft:ancient_debris", weight: 19, count: [4, 8]}
+        - {item: "the_sift:music_disc_wellspring", weight: 3, count: [1, 1]}
+        - {item: "minecraft:gold_block", weight: 20, count: [1, 2]}
+        - {item: "minecraft:wheat_seeds", weight: 11, count: [6, 16]}
+        - {item: "minecraft:beetroot_seeds", weight: 9, count: [4, 8]}
+        - {item: "minecraft:potato", weight: 10, count: [6, 16]}
+        - {item: "minecraft:carrot", weight: 10, count: [8, 20]}
+        - {item: "minecraft:netherite_ingot", weight: 11, count: [1, 1]}
+        - {item: "minecraft:bookshelf", weight: 16, count: [4, 12]}
+        - {item: "minecraft:end_stone", weight: 8, count: [2, 12]}
+        - {item: "minecraft:chorus_flower", weight: 6, count: [1, 1]}
+        - {item: "minecraft:echo_shard", weight: 5, count: [1, 3]}
+        - {item: "minecraft:redstone_block", weight: 5, count: [4, 16]}
+        - {item: "minecraft:string", weight: 8, count: [4, 16]}
+        - {item: "#wool", weight: 9, count: [9, 24]}
+
 recipes:
   # Rezepte der Sift beim Betreten im Rezeptbuch freischalten
   discover-on-join: true

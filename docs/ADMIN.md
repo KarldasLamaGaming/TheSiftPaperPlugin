@@ -452,6 +452,7 @@ Spawnt nach den Profilen des Originals in der ganzen Sift (`mobs.sifter.spawn`),
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, nächster Mob mit Hitbox |
+| `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung) |
 | `/sift debug mobs walk <x> <y> <z>` | Nächsten Sift-Mob zu einem Block laufen lassen (Test der Wegfindung) |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |

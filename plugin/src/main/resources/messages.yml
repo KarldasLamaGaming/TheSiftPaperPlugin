@@ -6,6 +6,7 @@ mobs:
   names:
     blub: "Blub"
     sifter: "Sifter"
+    singer: "Singer"
   spawned: "<green><count> × <mob> erschienen."
   spawn-failed: "<red><mob> konnte hier nicht erscheinen (<reason>)."
   unknown: "<red>Unbekannter Sift-Mob: <mob>"

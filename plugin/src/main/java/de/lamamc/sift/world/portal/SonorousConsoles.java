@@ -101,6 +101,11 @@ public final class SonorousConsoles implements Listener {
                 "<gray>Klang <white><bold>" + sound + "</bold></white> von " + de.lamamc.sift.core.portal.ConsoleSounds.COUNT));
     }
 
+    /** The hint for this portal (the Ancient City's tune is not told, it is in a book in the city's chests). */
+    public void sendHint(org.bukkit.command.CommandSender player, SiftPortal portal) {
+        sendHint(player);
+    }
+
     /** Tells a player how to open the portal: the tune and the controls. */
     public void sendHint(org.bukkit.command.CommandSender player) {
         player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Spiel diese Melodie, um das Portal zu öffnen:");

@@ -52,6 +52,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private Messages messages;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
+    private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
 
     @Override
     public void onEnable() {
@@ -137,6 +138,12 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         org.bukkit.configuration.ConfigurationSection sifter = config.getConfigurationSection("sifter");
         mobs.register(new de.lamamc.sift.mob.sifter.SifterKind(sifter != null ? sifter : new org.bukkit.configuration.MemoryConfiguration(),
                 blocks, items));
+        org.bukkit.configuration.ConfigurationSection singer = config.getConfigurationSection("singer");
+        de.lamamc.sift.mob.singer.SingerKind singerKind = new de.lamamc.sift.mob.singer.SingerKind(
+                singer != null ? singer : new org.bukkit.configuration.MemoryConfiguration(), portals, consoles, items);
+        mobs.register(singerKind);
+        singerSummoner = new de.lamamc.sift.mob.singer.SingerSummoner(this, mobs, singerKind);
+        getServer().getPluginManager().registerEvents(singerSummoner, this);
         getServer().getPluginManager().registerEvents(mobs, this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.BaseMobGuard(mobs), this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.SpawnEggs(mobs), this);
@@ -151,6 +158,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.mob.MobManager mobs() {
         return mobs;
+    }
+
+    public de.lamamc.sift.mob.singer.SingerSummoner singerSummoner() {
+        return singerSummoner;
     }
 
     public de.lamamc.sift.mob.MobSpawner mobSpawner() {
