@@ -23,9 +23,17 @@ public final class StructureImporter {
     private final BlockMapping mapping;
     private final ImportReport report;
 
+    private final Map<String, String> placeholders;
+
     public StructureImporter(BlockMapping mapping, ImportReport report) {
+        this(mapping, report, Map.of());
+    }
+
+    /** {@code placeholders}: mod blocks that become a plain vanilla block (no properties) instead of their stand-in. */
+    public StructureImporter(BlockMapping mapping, ImportReport report, Map<String, String> placeholders) {
         this.mapping = mapping;
         this.report = report;
+        this.placeholders = Map.copyOf(placeholders);
     }
 
     public byte[] run(String path, byte[] gzipped) {
@@ -117,6 +125,13 @@ public final class StructureImporter {
         for (int i = 0; i < palette.size(); i++) {
             CompoundBinaryTag entry = palette.getCompound(i);
             String name = entry.getString("Name");
+            if (placeholders.containsKey(name)) {
+                converted.add(CompoundBinaryTag.builder().putString("Name", placeholders.get(name)).build());
+                customIndices.add(i);
+                report.note("Placeholders in structures (replaced by the plugin while generating)", path + ": " + name
+                        + " -> " + placeholders.get(name));
+                continue;
+            }
             if (!mapping.isMapped(name)) {
                 if (name.startsWith(BlockMapping.MOD_NAMESPACE + ":")) {
                     report.error(path + ": unmapped block " + name);
