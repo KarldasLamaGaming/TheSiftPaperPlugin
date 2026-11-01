@@ -20,6 +20,7 @@ Stand: 31.10.2026 (nach alpha.10)
 | [#12](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/12) | Rechte-Test `thesift.admin.items` ohne OP | offen |
 | [#13](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/13) | Spielertests: Amboss, Schleifstein, Händler, Schallplatten, Entrinden mit Axt, Ichorglas „Schnell“, Feuer-Ausbreitung | offen |
 | [#20](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/20) | Spieltest Portal-Melodie an Konsolen (nach dem Platzier-Fix in 7b) | wartet auf Test |
+| [#25](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/25) | Spieltest Blub: Zähmen, Sitzen, Verteidigung, Rudelzorn, Basis-Wolf | offen |
 | [#18](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/18) | Produktionsstart: Plugin-Kompatibilität mit 26.3 (WorldEdit, WorldGuard, LibertyBans, AxiomPaper, TabTPS, Vulcan, TAB, PlaceholderAPI, packetevents, InvSee++, CoreProtect) | offen |
 
 ## Funktionen (`feature`)
@@ -32,5 +33,6 @@ Stand: 31.10.2026 (nach alpha.10)
 
 ## Nächster Schritt
 
-- Phase 2: Mob-Framework und Blub sind im PR. Spieltest siehe `docs/TESTING.md` → Mobs: Blub.
-- Danach je ein PR: Sifter, Singer mit Antiker Stadt, Dunkler Schnüffler, Echogolem.
+- Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Der Sifter ist im PR, Spieltest siehe
+  `docs/TESTING.md` → Mobs: Sifter.
+- Danach je ein PR: Singer mit Antiker Stadt, Dunkler Schnüffler, Echogolem.

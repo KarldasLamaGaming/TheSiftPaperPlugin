@@ -222,7 +222,7 @@ public final class BaseMobGuard implements Listener {
             if (byPlayer || !mob.kind().config().getBoolean("drops-need-player", false)) {
                 event.getDrops().addAll(mob.kind().drops(mob));
             }
-            event.setDroppedExp(mob.kind().experience());
+            event.setDroppedExp(byPlayer ? mob.kind().experience() : 0); // like vanilla: only when a player killed it
             mob.deathTicks = 0;
             mob.died();
         }

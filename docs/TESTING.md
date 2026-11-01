@@ -323,6 +323,48 @@ Modelle). Test in der Sift, Überlebensmodus, wo nicht anders angegeben.
 - [ ] `mobs.blub.enabled: false` und Neustart: kein Spawnen, `/sift spawn blub` meldet „abgeschaltet“;
       vorhandene Blubs bleiben als unsichtbare Wölfe stehen, bis der Schalter wieder an ist.
 
+## Mobs: Sifter (ab Phase 2, Schritt 2)
+
+Test in der Sift, Schwierigkeit mindestens Leicht, Überlebensmodus. Werte unter `mobs.sifter`.
+
+**Aussehen und Animation**
+- [ ] `/sift spawn sifter` bzw. Sifter-Spawn-Ei: Modell wie im Original (Körper, Kopf mit Zähnen, vier
+      Beine), steht gerade. `/sift debug mobs`: Hitbox 0,90 × 0,90, HP 40, 10 Displays.
+- [ ] Beim Laufen spielt die Lauf-Animation (schnell), im Stand nicht.
+- [ ] Biss: Kopf schnappt zu, der Klang kommt kurz vorher, der Schaden etwa eine halbe Sekunde nach
+      Beginn. Wer vorher zurückweicht (mehr als 2,5 Blöcke), wird nicht getroffen.
+
+**Kampf**
+- [ ] Er bemerkt dich in bis zu 28 Blöcken, wenn er dich sieht, und jagt dich (etwas schneller als ein
+      Zombie). Hinter einer Wand verliert er dich nach ein paar Sekunden.
+- [ ] Biss: 10 Schaden auf Normal (mit Rüstung weniger), etwa alle 1,5–2 Sekunden.
+- [ ] Im Kreativ- oder Zuschauermodus ignoriert er dich.
+- [ ] Wer ihn trifft (auch ein anderer Mob), wird sein Ziel.
+- [ ] Tod durch einen Sifter: Die Todesnachricht nennt „Sifter“.
+
+**Beute und Erfahrung**
+- [ ] Getötet: 1–2 Rohes Sifterfleisch, mit Plünderung III bis zu 5. Brennend getötet (Feueraspekt):
+      gebratenes Sifterfleisch. Erfahrung nur, wenn ein Spieler ihn tötet.
+
+**Friedlich**
+- [ ] Schwierigkeit der Sift auf Friedlich (`/execute in the_sift:the_sift run difficulty peaceful`):
+      Alle geladenen Sifter verschwinden, es spawnen keine neuen. Wieder auf Normal: Sie spawnen erneut.
+
+**Spawnen**
+- [ ] In der Sift erscheinen Gruppen von 1–5 Sifter in 32–76 Blöcken Abstand, nur auf Siftschiefer,
+      Siftschiefer-Bewuchs und gesundem Sculk, meist an der Oberfläche, manchmal in Höhlen.
+- [ ] Am meisten im Überwucherten Wald (bis 8 im Umkreis), weniger in den übrigen überwucherten Biomen
+      (6), in der Ödnis und sonst (5). Alle Sift-Mobs zusammen höchstens 8 im Umkreis von 64 Blöcken
+      um dich.
+- [ ] In der Hauptwelt spawnen keine Sifter.
+
+**Basis-Mob schlägt nicht durch** (unsichtbares Schwein)
+- [ ] Kein Grunzen, kein Schweinemodell, kein Schatten eines Schweins.
+- [ ] Sattel, Karottenrute, Karotten (Locken, Füttern, Vermehren): keine Wirkung.
+- [ ] Blitz (Dreizack mit Kanalisierung bei Gewitter): kein Zombifizierter Piglin.
+- [ ] Er flieht nicht bei Schaden und folgt keinem Spieler mit Karotte.
+- [ ] Im Wasser oder bei Tageslicht: keine Verwandlung, kein Brennen.
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.

@@ -39,6 +39,7 @@ items:
   sift_compass: {category: misc, base: "minecraft:compass", kind: sift-compass, protect: true}
   # spawn eggs of the Sift mobs (phase 2), one per finished mob
   blub_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
+  sifter_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
 
 # Items of the original that only exist as a vanilla item here (recipes produce the vanilla item)
 item-substitutes:

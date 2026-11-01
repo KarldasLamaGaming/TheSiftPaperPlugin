@@ -34,10 +34,16 @@ class SpawnRulesTest {
     void capStopsAttemptsAndLimitsGroups() {
         SpawnRules always = new SpawnRules(80, 32, 76, 0.8, 64, 3, 3, List.of(new SpawnRules.Profile(List.of(), 1.0, 4)));
         Random random = new Random(7);
-        assertTrue(always.rollAttempt("x", 3, random));
-        assertFalse(always.rollAttempt("x", 4, random));
-        assertEquals(1, always.groupSize("x", 3, random));
+        // like the original: without room for the smallest group (3) nothing spawns
+        assertFalse(always.rollAttempt("x", 2, random));
+        assertTrue(always.rollAttempt("x", 1, random));
+        assertEquals(0, always.groupSize("x", 2, random));
         assertEquals(3, always.groupSize("x", 0, random));
+        SpawnRules sifter = new SpawnRules(80, 32, 76, 0.8, 96, 1, 5, List.of(new SpawnRules.Profile(List.of(), 1.0, 8)), 18, 4);
+        for (int i = 0; i < 200; i++) {
+            int size = sifter.groupSize("x", 6, random);
+            assertTrue(size >= 1 && size <= 2, "room 2: " + size);
+        }
     }
 
     @Test
@@ -65,6 +71,21 @@ class SpawnRulesTest {
             }
         }
         assertEquals(0.8, surface / 5000.0, 0.03);
+    }
+
+    @Test
+    void spiralFollowsTheGoldenAngle() {
+        SpawnRules sifter = new SpawnRules(80, 32, 76, 0.8, 96, 1, 5, List.of(), 18, 4);
+        Random random = new Random(11);
+        for (int attempt = 0; attempt < 18; attempt++) {
+            SpawnRules.Offset offset = sifter.offset(0.5, attempt, random);
+            double angle = Math.atan2(offset.dz(), offset.dx());
+            double expected = Math.atan2(Math.sin(0.5 + attempt * SpawnRules.GOLDEN_ANGLE), Math.cos(0.5 + attempt * SpawnRules.GOLDEN_ANGLE));
+            double diff = Math.abs(Math.atan2(Math.sin(angle - expected), Math.cos(angle - expected)));
+            assertTrue(diff < 0.04, "attempt " + attempt + " angle off by " + diff);
+            double distance = Math.hypot(offset.dx(), offset.dz());
+            assertTrue(distance >= 31 && distance <= 77, "distance " + distance);
+        }
     }
 
     @Test
