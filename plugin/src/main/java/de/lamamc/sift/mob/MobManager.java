@@ -160,6 +160,8 @@ public final class MobManager implements Listener {
         if (count(location.getWorld()) >= perWorld) {
             return null;
         }
+        location = location.clone();
+        location.setPitch(0); // e.g. /sift spawn at a player looking down
         return location.getWorld().spawn(location, kind.baseClass(), CreatureSpawnEvent.SpawnReason.CUSTOM, base -> {
             base.getPersistentDataContainer().set(MOB_KEY, PersistentDataType.STRING, kind.id());
             base.setRemoveWhenFarAway(natural);

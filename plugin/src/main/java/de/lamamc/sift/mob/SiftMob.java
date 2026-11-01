@@ -50,6 +50,11 @@ public abstract class SiftMob {
         return animations;
     }
 
+    /** Rotation of the model as sent (for /sift debug mobs). */
+    public String describeRig() {
+        return rig.describe();
+    }
+
     public boolean dying() {
         return deathTicks >= 0;
     }

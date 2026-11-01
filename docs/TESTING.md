@@ -271,6 +271,9 @@ Modelle). Test in der Sift, Überlebensmodus, wo nicht anders angegeben.
 - [ ] `/sift spawn blub` (oder Blub-Spawn-Ei aus `/sift items`, Rechtsklick auf einen Block): Der Blub
       sieht aus wie im Original (Kopf mit Ohren, vier Beinchen), Textur sauber, keine Lücken zwischen den
       Teilen. Screenshot aus der Nähe und von der Seite.
+- [ ] `/sift spawn blub` mit Blick schräg nach unten oder oben: Der Blub steht trotzdem gerade.
+      `/sift debug mobs` zeigt in der Zeile „Rotation“: Display-Entity Yaw 0 und Pitch 0, Modell-Pitch
+      etwa 2,5° (Kopfneigung des Originals), Roll 0°, Modell-Yaw = 180 − Körper-Yaw.
 - [ ] Er hüpft, statt zu laufen: Sprünge mit kurzer Pause am Boden, Beine und Ohren schwingen mit
       (Animation „hopping“), schneller beim Angriff.
 - [ ] Im Stand flattert er ab und zu mit den Ohren.
