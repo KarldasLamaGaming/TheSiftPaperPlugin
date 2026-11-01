@@ -285,6 +285,63 @@ mobs:
       profiles:
         - {biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_slopes, overgrown_peaks], chance: 0.15, cap: 4}
 
+  # Sifter (Original: SifterEntity). Basis ist ein unsichtbares Schwein (Hitbox 0,9 × 0,9, Original 0,9 × 0,95).
+  # Feindlich: jagt Spieler, spawnt nicht auf Friedlich und verschwindet dort wie ein Monster.
+  sifter:
+    enabled: true
+    base-scale: 1.0
+    model-scale: 1.0
+    shadow-radius: 0.42
+    attributes:
+      max-health: 40.0
+      movement-speed: 0.31
+      attack-damage: 10.0
+      follow-range: 28.0
+      step-height: 1.0
+    # Tempo-Faktor beim Jagen (Original 1,18)
+    chase-speed: 1.18
+    # Tempo der Lauf-Animation (Original 2,5)
+    running-animation-speed: 2.5
+    bite:
+      # Dauer des Bisses in Ticks, Klang und Schaden in diesem Tick (Original 14 / 8 / 13)
+      ticks: 14
+      sound-tick: 8
+      damage-tick: 13
+      # der Schaden trifft nur bis zu dieser Entfernung (Blöcke, Mitte zu Mitte) und mit Sichtlinie
+      reach: 2.5
+      # Pause zwischen zwei Bissen in Ticks (Vanilla-Nahkampf 20)
+      cooldown-ticks: 20
+      # ein Biss beginnt, wenn die Hitbox, seitlich um so viel verbreitert, das Ziel berührt (Vanilla 0,83)
+      start-range-inflate: 0.8286
+    drops:
+      # rohes Sifterfleisch [min, max], je Plünderungs-Stufe 0 bis looting-bonus mehr; brennend gebraten
+      raw-meat: [1, 2]
+      looting-bonus: 1
+    # Erfahrung, wenn ein Spieler ihn tötet (Original 7)
+    experience: 7
+    # Spawner des Originals (SiftSifterSpawner)
+    spawn:
+      enabled: true
+      interval: 80
+      # bis zu so viele Punkte auf einer Spirale um den Spieler; der erste, dessen Chance gelingt, spawnt
+      attempts: 18
+      min-distance: 32
+      max-distance: 76
+      surface-chance: 0.8
+      # Gruppengröße [min, max] und Streuung der Gruppe in Blöcken
+      group: [1, 5]
+      group-spread: 4
+      # Grenze (cap) zählt Sifter im Umkreis cap-radius um den Spawnpunkt (Original: Kasten 96 × 48 × 96)
+      cap-radius: 96
+      # nur auf diesen Blöcken der Sift
+      floor-blocks: [siftslate, siftslate_growth, healthy_sculk, dry_healthy_sculk, dry_healthy_sculk_growth]
+      # erste passende Zeile gilt; ohne Biome = alle übrigen Biome der Sift
+      profiles:
+        - {biomes: [overgrown_forest], chance: 0.36, cap: 8}
+        - {biomes: [overgrown_clearing, overgrown_forest_slopes, overgrown_slopes, overgrown_peaks], chance: 0.28, cap: 6}
+        - {biomes: [sift_wastes], chance: 0.22, cap: 5}
+        - {biomes: [], chance: 0.18, cap: 5}
+
 recipes:
   # Rezepte der Sift beim Betreten im Rezeptbuch freischalten
   discover-on-join: true

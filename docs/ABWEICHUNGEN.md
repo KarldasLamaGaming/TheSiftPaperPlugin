@@ -160,3 +160,20 @@ Blub:
 - **Erfahrung:** 1–3 wie bei Vanilla-Tieren (`mobs.blub.experience`).
 - **Mielon-Texturen:** Die Sonder-Texturen des Originals für Blubs namens „Mielon“ fehlen.
 
+Sifter:
+- **Basis:** unsichtbares Schwein; Hitbox 0,9 × 0,9 statt 0,9 × 0,95. Das Schwein bekommt das Attribut
+  Angriffsschaden dazu.
+- **KI:** Das Schwein behält nur Schwimmen, Umherstreifen und Umschauen. Zielwahl (nächster sichtbarer
+  Spieler, wer ihn trifft), Verfolgen und Nahkampf sind Nachbauten der Vanilla-Goals im Plugin; der
+  verzögerte Biss (14 Ticks, Klang Tick 8, Schaden Tick 13, Reichweite 2,5) folgt dem Original.
+- **Spawner:** Wie SiftSifterSpawner (alle 80 Ticks, bis 18 Punkte auf einer Spirale in 32–76 Blöcken,
+  80 % Oberfläche, Bodenblöcke, Profile, Gruppen 1–5). Unterschiede:
+  - Hier bekommt jeder Spieler alle 80 Ticks einen eigenen Versuch; im Original gibt es je 80 Ticks
+    höchstens eine Gruppe für den ganzen Server.
+  - Die Grenze je Profil zählt Sifter in einer Kugel von 96 Blöcken statt in einem Kasten 96 × 48 × 96.
+  - Zusätzlich gelten die gemeinsamen Grenzen aller Sift-Mobs (8 je Spieler-Umkreis, 150 je Welt).
+- **Friedlich:** Im Original spawnt der Sifter dort nicht und greift nicht an; hier verschwindet er
+  zusätzlich wie ein Vanilla-Monster.
+- **Erfahrung:** 7 wie im Original, nur wenn ein Spieler ihn tötet (wie Vanilla). Das gilt jetzt für alle
+  Sift-Mobs, auch für den Blub.
+

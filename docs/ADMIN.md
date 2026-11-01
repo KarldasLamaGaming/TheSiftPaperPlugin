@@ -417,6 +417,13 @@ Basis Wolf (Größe 1,1). Zähmen mit einem Seelenblock (1 zu 3), Sitzen per Rec
 Heilen mit Seelenblock oder Essen, Rudelzorn (16 Blöcke, 30 s). Spawnt selten in den Überwucherten Biomen
 (im Original nur per Spawn-Ei); Spawn-Ei `blub_spawn_egg` über `/sift items` bzw. `/sift give`.
 
+### Sifter
+
+Basis Schwein (Hitbox 0,9 × 0,9). Feindlich: jagt Spieler in 28 Blöcken, beißt mit 10 Schaden, 40 HP.
+Spawnt nach den Profilen des Originals in der ganzen Sift (`mobs.sifter.spawn`), nur auf den Blöcken unter
+`floor-blocks`; auf Friedlich keine Sifter. Beute rohes Sifterfleisch, 7 Erfahrung. Spawn-Ei
+`sifter_spawn_egg`.
+
 ## Drops und Erze
 
 - Sift-Geröll wie im Original (und wie Vanilla-Kies/Feuerstein): mit Behutsamkeit das Geröll, sonst

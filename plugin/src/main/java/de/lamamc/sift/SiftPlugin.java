@@ -128,6 +128,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         org.bukkit.configuration.ConfigurationSection blub = config.getConfigurationSection("blub");
         mobs.register(new de.lamamc.sift.mob.blub.BlubKind(blub != null ? blub : new org.bukkit.configuration.MemoryConfiguration()));
+        org.bukkit.configuration.ConfigurationSection sifter = config.getConfigurationSection("sifter");
+        mobs.register(new de.lamamc.sift.mob.sifter.SifterKind(sifter != null ? sifter : new org.bukkit.configuration.MemoryConfiguration(),
+                blocks, items));
         getServer().getPluginManager().registerEvents(mobs, this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.BaseMobGuard(mobs), this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.SpawnEggs(mobs), this);
