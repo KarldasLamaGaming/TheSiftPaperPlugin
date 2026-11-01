@@ -33,6 +33,6 @@ Stand: 31.10.2026 (nach alpha.10)
 
 ## Nächster Schritt
 
-- Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Der Sifter ist im PR, Spieltest siehe
-  `docs/TESTING.md` → Mobs: Sifter.
-- Danach je ein PR: Singer mit Antiker Stadt, Dunkler Schnüffler, Echogolem.
+- Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt
+  sind im PR, Spieltest siehe `docs/TESTING.md` → Mobs: Singer und Antike Stadt.
+- Danach je ein PR: Dunkler Schnüffler, Echogolem.
