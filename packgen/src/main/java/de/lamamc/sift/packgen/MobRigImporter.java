@@ -32,7 +32,14 @@ final class MobRigImporter {
         MOBS.put("sifter", List.of("sifter"));
         MOBS.put("singer", List.of("singer"));
         MOBS.put("echo_golem", List.of("echo_golem"));
+        MOBS.put("dark_sniffer", List.of("dark_sniffer"));
     }
+
+    /**
+     * Mobs whose model is our own (packgen resources mobs/&lt;id&gt;.geo.json and .animation.json) instead of the
+     * original's: the Dark Sniffer is the vanilla sniffer model in the original, which must not be copied.
+     */
+    static final java.util.Set<String> OWN_MODELS = java.util.Set.of("dark_sniffer");
 
     /** Item model elements must stay within -16..32; larger cubes are modelled smaller and scaled up by the display. */
     static final double MAX_ELEMENT = 32.0;
@@ -47,9 +54,13 @@ final class MobRigImporter {
     static void run(ZipFile zip, Path pack, Path mobData, ImportReport report) throws IOException {
         Path assets = pack.resolve("assets/the_sift");
         for (var mob : MOBS.entrySet()) {
-            JsonObject rig = convert(read(zip, GEO + mob.getKey() + ".geo.json").getAsJsonObject());
+            boolean own = OWN_MODELS.contains(mob.getKey());
+            JsonObject rig = convert((own ? resource("mobs/" + mob.getKey() + ".geo.json")
+                    : read(zip, GEO + mob.getKey() + ".geo.json")).getAsJsonObject());
             Main.writeJson(mobData.resolve(mob.getKey() + ".rig.json"), rig);
-            if (zip.getEntry(ANIMATIONS + mob.getKey() + ".animation.json") != null) {
+            if (own) {
+                Main.writeJson(mobData.resolve(mob.getKey() + ".animation.json"), resource("mobs/" + mob.getKey() + ".animation.json"));
+            } else if (zip.getEntry(ANIMATIONS + mob.getKey() + ".animation.json") != null) {
                 Main.writeJson(mobData.resolve(mob.getKey() + ".animation.json"),
                         read(zip, ANIMATIONS + mob.getKey() + ".animation.json"));
             }
@@ -86,6 +97,15 @@ final class MobRigImporter {
                 }
                 report.note("Mob rigs (one item model per cube)", variant + ": " + cubes.size() + " cubes");
             }
+        }
+    }
+
+    static JsonElement resource(String name) throws IOException {
+        try (InputStream in = MobRigImporter.class.getResourceAsStream("/" + name)) {
+            if (in == null) {
+                throw new IOException("missing packgen resource " + name);
+            }
+            return JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8));
         }
     }
 
@@ -131,8 +151,25 @@ final class MobRigImporter {
                 outCube.add("size", array(size));
                 double largest = Math.max(size[0], Math.max(size[1], size[2]));
                 outCube.addProperty("model_scale", largest > MAX_ELEMENT ? MAX_ELEMENT / largest : 1.0);
-                JsonArray uv = cube.getAsJsonArray("uv");
-                outCube.add("uv", array(uv.get(0).getAsDouble(), uv.get(1).getAsDouble()));
+                if (cube.get("uv").isJsonObject()) {
+                    // per-face UV: [u, v, width, height] per face; east and west swap with the x mirror
+                    JsonObject faces = new JsonObject();
+                    for (var face : cube.getAsJsonObject("uv").entrySet()) {
+                        JsonObject f = face.getValue().getAsJsonObject();
+                        String name = switch (face.getKey()) {
+                            case "east" -> "west";
+                            case "west" -> "east";
+                            default -> face.getKey();
+                        };
+                        faces.add(name, array(f.getAsJsonArray("uv").get(0).getAsDouble(), f.getAsJsonArray("uv").get(1).getAsDouble(),
+                                f.getAsJsonArray("uv_size").get(0).getAsDouble(), f.getAsJsonArray("uv_size").get(1).getAsDouble()));
+                    }
+                    outCube.add("face_uv", faces);
+                    outCube.add("uv", array(0, 0));
+                } else {
+                    JsonArray uv = cube.getAsJsonArray("uv");
+                    outCube.add("uv", array(uv.get(0).getAsDouble(), uv.get(1).getAsDouble()));
+                }
                 outCube.add("pivot", mirrorPoint(cube.has("pivot") ? vector(cube, "pivot") : new double[3]));
                 outCube.add("rotation", mirrorRotation(vector(cube, "rotation")));
                 cubes.add(outCube);
@@ -156,12 +193,19 @@ final class MobRigImporter {
         double h = size[1];
         double d = size[2];
         JsonObject faces = new JsonObject();
+        if (cube.has("face_uv")) {
+            for (var f : cube.getAsJsonObject("face_uv").entrySet()) {
+                double[] r = numbers(f.getValue().getAsJsonArray());
+                faces.add(f.getKey(), face(r[0], r[1], r[0] + r[2], r[1] + r[3], textureWidth, textureHeight));
+            }
+        } else {
         faces.add("north", face(u + d, v + d, u + d + w, v + d + h, textureWidth, textureHeight));
         faces.add("south", face(u + d + w + d, v + d, u + d + w + d + w, v + d + h, textureWidth, textureHeight));
         faces.add("west", face(u + d + w, v + d, u + d + w + d, v + d + h, textureWidth, textureHeight));
         faces.add("east", face(u, v + d, u + d, v + d + h, textureWidth, textureHeight));
         faces.add("up", face(u + d, v, u + d + w, v + d, textureWidth, textureHeight));
         faces.add("down", face(u + d + w, v + d, u + d + w + w, v, textureWidth, textureHeight));
+        }
         JsonObject element = new JsonObject();
         element.add("from", array(0, 0, 0));
         element.add("to", array(w * k, h * k, d * k));

@@ -96,6 +96,25 @@ class MobRigImporterTest {
         assertEquals(15 * 16 / 64.0, north[3]);
     }
 
+    @Test
+    void perFaceUvAndMirroredSides() {
+        JsonObject geo = JsonParser.parseString("""
+                {"minecraft:geometry": [{"description": {"texture_width": 64, "texture_height": 64},
+                  "bones": [{"name": "b", "pivot": [0, 0, 0], "cubes": [{"origin": [0, 0, 0], "size": [4, 4, 4],
+                    "uv": {"east": {"uv": [0, 0], "uv_size": [4, 4]}, "west": {"uv": [8, 0], "uv_size": [4, 4]},
+                           "up": {"uv": [16, 16], "uv_size": [8, 4]}}}]}]}]}
+                """).getAsJsonObject();
+        JsonObject cube = MobRigImporter.convert(geo).getAsJsonArray("cubes").get(0).getAsJsonObject();
+        JsonObject faces = MobRigImporter.cubeModel(cube, 64, 64, "t").getAsJsonArray("elements").get(0).getAsJsonObject()
+                .getAsJsonObject("faces");
+        assertEquals(3, faces.size());
+        // x is mirrored: the Bedrock east face is the Java west face
+        assertEquals(2.0, faces.getAsJsonObject("east").getAsJsonArray("uv").get(0).getAsDouble());
+        assertEquals(0.0, faces.getAsJsonObject("west").getAsJsonArray("uv").get(0).getAsDouble());
+        assertEquals(6.0, faces.getAsJsonObject("up").getAsJsonArray("uv").get(2).getAsDouble());
+        assertTrue(MobRigImporter.OWN_MODELS.contains("dark_sniffer"));
+    }
+
     /** The committed pack sources: every rig cube has its item model and definition for every variant. */
     @Test
     void committedRigsHaveAllModels() throws IOException {
