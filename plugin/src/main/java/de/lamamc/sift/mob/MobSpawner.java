@@ -49,7 +49,7 @@ public final class MobSpawner {
         }
         for (MobKind kind : mobs.kinds().values()) {
             SpawnRules rules = kind.enabled() ? kind.spawnRules() : null;
-            if (rules == null) {
+            if (rules == null || kind.hostile() && sift.getDifficulty() == org.bukkit.Difficulty.PEACEFUL) {
                 continue;
             }
             for (Player player : sift.getPlayers()) {
@@ -66,34 +66,51 @@ public final class MobSpawner {
         if (mobs.countNear(center, mobs.playerRadius(), null) >= mobs.perPlayer() || mobs.count(world) >= mobs.worldLimit()) {
             return;
         }
-        SpawnRules.Offset offset = rules.offset(random);
-        int x = center.getBlockX() + offset.dx();
-        int z = center.getBlockZ() + offset.dz();
-        if (!world.isChunkLoaded(x >> 4, z >> 4)) {
-            return;
-        }
-        Location spot = offset.surface() ? surface(world, x, z) : cave(world, x, z, random);
-        if (spot == null || tooCloseToPlayers(spot, rules.minDistance())) {
-            return;
-        }
-        String biome = biome(spot);
-        int nearby = mobs.countNear(spot, rules.capRadius(), kind.id());
-        if (!rules.rollAttempt(biome, nearby, random) || !kind.canSpawnAt(spot)) {
-            return;
-        }
-        int group = rules.groupSize(biome, nearby, random);
-        List<Location> places = new ArrayList<>();
-        places.add(spot);
-        for (int i = 1; i < group * 4 && places.size() < group; i++) {
-            Location near = standable(world, spot.getBlockX() + random.nextInt(-3, 4), spot.getBlockY() + 1,
-                    spot.getBlockZ() + random.nextInt(-3, 4), 3);
-            if (near != null && kind.canSpawnAt(near)) {
-                places.add(near);
+        double phase = random.nextDouble() * Math.PI * 2;
+        for (int attempt = 0; attempt < rules.attempts(); attempt++) {
+            SpawnRules.Offset offset = rules.offset(phase, attempt, random);
+            int x = center.getBlockX() + offset.dx();
+            int z = center.getBlockZ() + offset.dz();
+            if (!world.isChunkLoaded(x >> 4, z >> 4)) {
+                continue;
             }
+            Location spot = feet(kind, world, x, z, offset.surface(), random);
+            if (spot == null || tooCloseToPlayers(spot, rules.minDistance())) {
+                continue;
+            }
+            String biome = biome(spot);
+            SpawnRules.Profile profile = rules.profile(biome);
+            if (profile == null || random.nextDouble() >= profile.chance()) {
+                continue; // like the original: the next point of the spiral gets its chance
+            }
+            int group = rules.groupSize(biome, mobs.countNear(spot, rules.capRadius(), kind.id()), random);
+            if (group == 0) {
+                return; // cap reached here
+            }
+            spawnGroup(kind, rules, profile, spot, group, center, random);
+            return;
         }
-        for (Location place : places) {
-            if (mobs.countNear(center, mobs.playerRadius(), null) >= mobs.perPlayer()) {
-                break;
+    }
+
+    private void spawnGroup(MobKind kind, SpawnRules rules, SpawnRules.Profile profile, Location spot, int group,
+                            Location player, RandomGenerator random) {
+        World world = spot.getWorld();
+        int spread = rules.groupSpread();
+        for (int member = 0; member < group; member++) {
+            Location place = null;
+            for (int attempt = 0; attempt < 12 && place == null; attempt++) {
+                int x = spot.getBlockX() + (spread == 0 ? 0 : random.nextInt(-spread, spread + 1));
+                int z = spot.getBlockZ() + (spread == 0 ? 0 : random.nextInt(-spread, spread + 1));
+                if (!world.isChunkLoaded(x >> 4, z >> 4)) {
+                    continue;
+                }
+                Location candidate = feet(kind, world, x, z, random.nextDouble() < rules.surfaceChance(), random);
+                if (candidate != null && rules.profile(biome(candidate)) == profile) {
+                    place = candidate;
+                }
+            }
+            if (place == null || mobs.countNear(player, mobs.playerRadius(), null) >= mobs.perPlayer()) {
+                continue;
             }
             place.setYaw(random.nextFloat() * 360f);
             if (mobs.spawn(kind, place, true, null) != null) {
@@ -106,27 +123,35 @@ public final class MobSpawner {
         return MobManager.nearestPlayer(spot, minDistance) != null;
     }
 
-    private static Location surface(World world, int x, int z) {
-        int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-        return standable(world, x, y + 1, z, 2);
-    }
-
-    private static Location cave(World world, int x, int z, RandomGenerator random) {
-        int top = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) - 8;
-        int bottom = world.getMinHeight() + 8;
-        if (top <= bottom) {
+    /**
+     * Feet position like the original's findSpawnFeet: on the surface the floor is searched from the top block
+     * up to 10 blocks upwards, in caves from a random height between the bottom and 6 below the surface up to
+     * 18 blocks downwards. The floor must suit the kind, feet and head must be free.
+     */
+    static Location feet(MobKind kind, World world, int x, int z, boolean surface, RandomGenerator random) {
+        int top = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
+        if (surface) {
+            return floor(kind, world, x, z, top - 1, 10, 1);
+        }
+        int minY = world.getMinHeight() + 2;
+        int highest = top - 6;
+        if (highest <= minY) {
             return null;
         }
-        return standable(world, x, random.nextInt(bottom, top), z, 16);
+        return floor(kind, world, x, z, minY + random.nextInt(highest - minY + 1), 18, -1);
     }
 
-    /** First spot at or below {@code y} (scanning {@code depth} blocks) with solid ground and two free blocks. */
-    static Location standable(World world, int x, int y, int z, int depth) {
-        for (int dy = 0; dy <= depth; dy++) {
-            Block feet = world.getBlockAt(x, y - dy, z);
-            Block below = feet.getRelative(0, -1, 0);
-            if (below.getType().isSolid() && feet.isPassable() && !feet.isLiquid()
-                    && feet.getRelative(0, 1, 0).isPassable() && !feet.getRelative(0, 1, 0).isLiquid()) {
+    private static Location floor(MobKind kind, World world, int x, int z, int startY, int steps, int direction) {
+        for (int offset = 0; offset <= steps; offset++) {
+            int y = startY + offset * direction;
+            if (y < world.getMinHeight() || y + 2 >= world.getMaxHeight()) {
+                continue;
+            }
+            Block floor = world.getBlockAt(x, y, z);
+            Block feet = floor.getRelative(0, 1, 0);
+            Block head = feet.getRelative(0, 1, 0);
+            if (floor.getType().isSolid() && floor.getType().isOccluding() && kind.canSpawnOn(floor)
+                    && feet.isPassable() && !feet.isLiquid() && head.isPassable() && !head.isLiquid()) {
                 return feet.getLocation().add(0.5, 0, 0.5);
             }
         }
@@ -157,7 +182,7 @@ public final class MobSpawner {
         return new SpawnRules(spawn.getInt("interval", 80), spawn.getInt("min-distance", 32), spawn.getInt("max-distance", 76),
                 spawn.getDouble("surface-chance", 0.8), spawn.getInt("cap-radius", 64),
                 group.isEmpty() ? 1 : group.getFirst(), group.size() < 2 ? (group.isEmpty() ? 1 : group.getFirst()) : group.get(1),
-                profiles);
+                profiles, Math.max(1, spawn.getInt("attempts", 1)), Math.max(0, spawn.getInt("group-spread", 3)));
     }
 
     private static double number(Object value, double fallback) {

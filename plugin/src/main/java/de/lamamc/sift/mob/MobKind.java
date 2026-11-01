@@ -65,9 +65,14 @@ public abstract class MobKind {
         return null;
     }
 
-    /** Extra conditions for natural spawning at this spot (light, blocks ...). */
-    public boolean canSpawnAt(org.bukkit.Location location) {
+    /** Whether natural spawning may stand on this floor block (any solid full block by default). */
+    public boolean canSpawnOn(org.bukkit.block.Block floor) {
         return true;
+    }
+
+    /** Hostile mobs do not spawn on Peaceful and vanish there like vanilla monsters. */
+    public boolean hostile() {
+        return false;
     }
 
     /** Whether the base mob may teleport on its own (e.g. a wolf following its owner). */
