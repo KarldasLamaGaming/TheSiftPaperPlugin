@@ -134,6 +134,8 @@ portals:
   # Schlüssel je Dimension: Rechtsklick auf eine schlafende Konsole weckt alle Konsolen des Portals
   # (der Schlüssel wird verbraucht). loot: Vanilla-Truhen, in denen er mit der Chance liegt.
   keys:
+    # false = Schlüssel wecken keine Portale mehr (nur noch der Singer). Wache und offene Portale bleiben, wie sie sind.
+    enabled: true
     overworld:
       item: echo_resonator
       loot: {tables: ["minecraft:chests/ancient_city"], chance: 0.08}

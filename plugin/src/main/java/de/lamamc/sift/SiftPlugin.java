@@ -97,17 +97,23 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
                 melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
                 portalKeys());
+        consoles.setKeysEnabled(getConfig().getBoolean("portals.keys.enabled", true));
         getServer().getPluginManager().registerEvents(consoles, this);
         de.lamamc.sift.core.portal.KeyLoot keyLoot = new de.lamamc.sift.core.portal.KeyLoot();
         org.bukkit.configuration.ConfigurationSection keySection = getConfig().getConfigurationSection("portals.keys");
         if (keySection != null) {
             for (String dimension : keySection.getKeys(false)) {
+                if (!keySection.isConfigurationSection(dimension)) {
+                    continue; // enabled
+                }
                 for (String table : keySection.getStringList(dimension + ".loot.tables")) {
                     keyLoot.add(table, keySection.getString(dimension + ".item", ""), keySection.getDouble(dimension + ".loot.chance", 0));
                 }
             }
         }
-        getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
+        if (consoles.keysEnabled()) {
+            getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
+        }
         new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         messages = Messages.load(this);
         startMobs();
@@ -202,6 +208,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         org.bukkit.configuration.ConfigurationSection section = getConfig().getConfigurationSection("portals.keys");
         if (section != null) {
             for (String dimension : section.getKeys(false)) {
+                if (!section.isConfigurationSection(dimension)) {
+                    continue; // enabled
+                }
                 String world = switch (dimension) {
                     case "overworld" -> "minecraft:overworld";
                     case "nether" -> "minecraft:the_nether";

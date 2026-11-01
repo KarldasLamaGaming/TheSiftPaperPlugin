@@ -52,6 +52,7 @@ public final class SonorousConsoles implements Listener {
     private final Map<String, PortalMelody> melodies = new HashMap<>();
     /** World key -> Sift id of the key that wakes the portals there. */
     private final Map<String, String> keys;
+    private boolean keysEnabled = true;
     private final Set<String> igniting = new HashSet<>();
 
     public SonorousConsoles(Plugin plugin, CustomBlockRegistry blocks, PortalService portals, int[] sequence,
@@ -61,6 +62,10 @@ public final class SonorousConsoles implements Listener {
         this.blocks = blocks;
         this.portals = portals;
         this.sequence = sequence;
+    }
+
+    public void setKeysEnabled(boolean enabled) {
+        this.keysEnabled = enabled;
     }
 
     public enum Mode { HORN, NOTE, NONE }
@@ -123,14 +128,37 @@ public final class SonorousConsoles implements Listener {
     /** Wakes all consoles of a portal (key or /sift portal unlock); returns how many there are. */
     public int unlock(World world, SiftPortal portal) {
         for (int[] c : portal.consoles()) {
+            wakeConsole(world.getBlockAt(c[0], c[1], c[2]));
+        }
+        markUnlocked(world, portal);
+        return portal.consoles().size();
+    }
+
+    /** One console to note mode with its burst (the key wakes all at once, the Singer one after another). */
+    public void wakeConsole(Block console) {
+        if (mode(console) == Mode.NONE) {
+            return;
+        }
+        setMode(console, Mode.NOTE);
+        Block note = console.getRelative(BlockFace.UP);
+        burst(note, note.getType() == Material.NOTE_BLOCK ? sound(note) : 1);
+    }
+
+    /** The portal counts as awake: state UNLOCKED and the trigger sound. Consoles still asleep are woken. */
+    public void markUnlocked(World world, SiftPortal portal) {
+        for (int[] c : portal.consoles()) {
             Block console = world.getBlockAt(c[0], c[1], c[2]);
-            setMode(console, Mode.NOTE);
-            Block note = console.getRelative(BlockFace.UP);
-            burst(note, note.getType() == Material.NOTE_BLOCK ? sound(note) : 1);
+            if (mode(console) == Mode.HORN) {
+                setMode(console, Mode.NOTE);
+            }
         }
         portals.registry().put(world, portal.withState(portal.state().unlock()));
         PortalSurface.play(world, portal.frame(), PortalSurface.TRIGGER_SOUND, 1.0f);
-        return portal.consoles().size();
+    }
+
+    /** Whether the keys may wake portals (portals.keys.enabled); the Singer always can. */
+    public boolean keysEnabled() {
+        return keysEnabled;
     }
 
     /** Right-click with the key of the dimension on a sleeping console (or its note block) wakes the portal. */
@@ -143,6 +171,11 @@ public final class SonorousConsoles implements Listener {
         org.bukkit.inventory.ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
         String key = de.lamamc.sift.item.SiftItems.idOf(held);
         if (key == null || !keys.containsValue(key)) {
+            return;
+        }
+        if (!keysEnabled) {
+            event.setCancelled(true);
+            event.getPlayer().sendActionBar(Component.text("Schlüssel sind abgeschaltet. Ruf den Singer mit einem Ziegenhorn."));
             return;
         }
         Block console = block.getType() == Material.NOTE_BLOCK ? block.getRelative(BlockFace.DOWN) : block;
