@@ -58,4 +58,26 @@ public record BlubRules(double jumpPower, double fastJumpPower, double climbJump
     private static int between(int[] range, RandomGenerator random) {
         return range[0] + (range[1] > range[0] ? random.nextInt(range[1] - range[0] + 1) : 0);
     }
+
+    /** Sitting pose of the original's renderer (BlubRenderer#adjustModelBonesForRender), Java model space. */
+    public static void sittingPose(Rig rig, Pose pose) {
+        int head = rig.bone("head");
+        pose.translate(head, 0, -3.25f, 0.65f);
+        pose.rotate(head, 17.5f, 0, 0);
+        for (String leg : new String[] {"front_left_leg", "front_right_leg"}) {
+            pose.rotate(rig.bone(leg), 42f, 0, 0);
+            pose.translate(rig.bone(leg), 0, 0, -0.55f);
+        }
+        for (String leg : new String[] {"back_left_leg", "back_right_leg"}) {
+            pose.rotate(rig.bone(leg), -68f, 0, 0);
+            pose.translate(rig.bone(leg), 0, 0.55f, 0.75f);
+        }
+    }
+
+    /** Ears hang down by up to 72° as health drops (healthRatio 1 = full health). */
+    public static void earDroop(Rig rig, Pose pose, double healthRatio) {
+        float droop = (float) ((1 - Math.max(0, Math.min(1, healthRatio))) * 72);
+        pose.rotate(rig.bone("left_ear"), droop, 0, 0);
+        pose.rotate(rig.bone("right_ear"), droop, 0, 0);
+    }
 }

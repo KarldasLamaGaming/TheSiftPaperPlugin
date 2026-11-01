@@ -57,7 +57,10 @@ final class RigDisplays {
 
     void spawn(RenderSettings settings) {
         remove();
+        // the displays never turn or tilt themselves: yaw comes only through the matrix (body yaw), no pitch or roll
         Location at = mob.base.getLocation();
+        at.setYaw(0);
+        at.setPitch(0);
         String look = appearanceKey();
         compute(0, (float) -mob.base.getHeight(), 0); // seat estimate until the first update
         for (int i = 0; i < matrices.length; i++) {
@@ -108,6 +111,12 @@ final class RigDisplays {
         Location seat = displays.getFirst().getLocation();
         compute((float) (base.getX() - seat.getX()), (float) (base.getY() - seat.getY()), (float) (base.getZ() - seat.getZ()));
         int changed = 0;
+        for (ItemDisplay display : displays) {
+            Location own = display.getLocation();
+            if (own.getYaw() != 0 || own.getPitch() != 0) {
+                display.setRotation(0, 0);
+            }
+        }
         for (int i = 0; i < displays.size(); i++) {
             if (sent[i].equals(matrices[i], 1.0e-4f)) {
                 continue;
@@ -136,6 +145,21 @@ final class RigDisplays {
         }
         root.scale(scale);
         RigPose.cubeMatrices(rig, mob.pose, root, matrices);
+    }
+
+    /** Root yaw sent last (180° − body yaw, degrees) and the entity rotation of the first display, for /sift debug mobs. */
+    String describe() {
+        if (displays.isEmpty()) {
+            return "keine Displays";
+        }
+        org.joml.Vector3f euler = new org.joml.Vector3f();
+        // without the half turn the item display adds itself
+        new Matrix4f(sent[0]).rotateY((float) Math.PI).normalize3x3().getEulerAnglesYXZ(euler);
+        Location own = displays.getFirst().getLocation();
+        return String.format(java.util.Locale.ROOT,
+                "Körper-Yaw %.1f°, Modell (Würfel 0, soll Yaw = 180 − Körper-Yaw) Yaw %.1f° Pitch %.1f° Roll %.1f°, Display-Entity Yaw %.1f° Pitch %.1f°",
+                mob.base.getBodyYaw(), Math.toDegrees(euler.y), Math.toDegrees(euler.x), Math.toDegrees(euler.z),
+                own.getYaw(), own.getPitch());
     }
 
     private String appearanceKey() {

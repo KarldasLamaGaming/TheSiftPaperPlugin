@@ -230,22 +230,10 @@ final class Blub extends SiftMob {
     protected void adjustPose(Pose pose) {
         var rig = kind.assets().rig();
         if (wolf.isSitting()) {
-            int head = rig.bone("head");
-            pose.translate(head, 0, -3.25f, 0.65f);
-            pose.rotate(head, 17.5f, 0, 0);
-            for (String leg : new String[] {"front_left_leg", "front_right_leg"}) {
-                pose.rotate(rig.bone(leg), 42f, 0, 0);
-                pose.translate(rig.bone(leg), 0, 0, -0.55f);
-            }
-            for (String leg : new String[] {"back_left_leg", "back_right_leg"}) {
-                pose.rotate(rig.bone(leg), -68f, 0, 0);
-                pose.translate(rig.bone(leg), 0, 0.55f, 0.75f);
-            }
+            BlubRules.sittingPose(rig, pose);
         }
         double max = wolf.getAttribute(Attribute.MAX_HEALTH).getValue();
-        float droop = (float) ((1 - Math.max(0, Math.min(1, wolf.getHealth() / max))) * 72);
-        pose.rotate(rig.bone("left_ear"), droop, 0, 0);
-        pose.rotate(rig.bone("right_ear"), droop, 0, 0);
+        BlubRules.earDroop(rig, pose, wolf.getHealth() / max);
     }
 
     @Override
