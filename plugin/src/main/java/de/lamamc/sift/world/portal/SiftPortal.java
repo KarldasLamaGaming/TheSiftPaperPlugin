@@ -15,7 +15,9 @@ public record SiftPortal(String id, Kind kind, PortalFrame frame, PortalState st
         /** Overworld, Nether or End portal: travels into the Sift. */
         ENTRANCE,
         /** The main portal in the Sift: travels back to where the traveller came from. */
-        SIFT_EXIT
+        SIFT_EXIT,
+        /** Portal in the centre of an Ancient City (like the original): travels into the Sift, own longer tune. */
+        ANCIENT_CITY
     }
 
     public SiftPortal withState(PortalState newState) {

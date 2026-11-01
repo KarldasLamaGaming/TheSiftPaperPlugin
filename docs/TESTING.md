@@ -365,6 +365,56 @@ Test in der Sift, Schwierigkeit mindestens Leicht, Überlebensmodus. Werte unter
 - [ ] Er flieht nicht bei Schaden und folgt keinem Spieler mit Karotte.
 - [ ] Im Wasser oder bei Tageslicht: keine Verwandlung, kein Brennen.
 
+## Mobs: Singer und Antike Stadt (ab Phase 2, Schritt 3)
+
+Für die Antike Stadt eine **frische Welt** nehmen (nur neue Chunks bekommen das Portal). Werte unter
+`mobs.singer` und `portals.ancient-city`. Melodie und Konsolen im Überlebensmodus spielen.
+
+**Singer rufen (Schrein)**
+- [ ] Ziegenhorn in bis zu 40 Blöcken von einem schlafenden Schrein blasen: Nach etwa 3 Sekunden steigt der
+      Singer im Portal aus dem Boden (Partikel, Klang), zur nächsten Konsole gedreht.
+- [ ] Er singt, im weiten Umkreis zu hören. Acht Schallwellen (türkise Partikel) laufen nacheinander zu den
+      Konsolen; jede Konsole wacht auf, wenn ihre Welle ankommt (Farbstoß).
+- [ ] Danach versinkt er wieder im Boden und ist weg. Spieler in der Nähe bekommen den Hinweis mit der Melodie;
+      `/sift portal info` zeigt „8/8 wach“, Zustand UNLOCKED.
+- [ ] Ein zweites Horn während des Gesangs ruft keinen zweiten Singer. An einem wachen oder offenen Portal
+      erscheint keiner.
+- [ ] Während des Auftritts ist er nicht zu verletzen und nicht wegzuschieben.
+- [ ] Der Schlüssel geht weiterhin. Mit `portals.keys.enabled: false` (Neustart) weist die Konsole den
+      Schlüssel ab („Schlüssel sind abgeschaltet …“), der Singer weckt weiter; die Schlüssel liegen dann
+      nicht mehr in Truhen.
+
+**Bleibender Singer und Tausch**
+- [ ] `/sift spawn singer` oder Singer-Spawn-Ei: Er steigt aus dem Boden und bleibt. Er läuft gemächlich in
+      einem Umkreis von etwa 8 Blöcken um den Ort, an dem er erschien, und nie in Gänge unter 4 Blöcken.
+- [ ] Rechtsklick mit Seelenblock: Er nimmt ihn, hält ihn hoch (Animation), freut sich und wirft dir nach
+      2 Sekunden eine Belohnung zu (z. B. Eisenblöcke, Antiker Schrott, Schmiedevorlage, Saatgut, Wolle).
+      Advancement „Absolutes Gehör“. Ein fallen gelassener Seelenblock in der Nähe wird ebenfalls geholt.
+- [ ] Sitzt er fest (z. B. eingemauert), versinkt er nach etwa 10 Sekunden im Boden.
+- [ ] Er ist verwundbar (20 HP), gibt 8–12 Erfahrung, wenn ein Spieler ihn tötet, keine Beute.
+- [ ] Zombies und Plünderer greifen ihn nicht an.
+
+**Basis-Mob schlägt nicht durch** (unsichtbarer Fahrender Händler)
+- [ ] Rechtsklick öffnet kein Handelsmenü, kein Händlerklang, keine Lamas.
+- [ ] Er trinkt nachts keinen Unsichtbarkeitstrank und abends keine Milch, verschwindet nicht nach einer
+      Weile, folgt keinem Ziel, flieht nicht vor Zombies.
+- [ ] Keine lila Partikel (deshalb kein Enderman als Basis, siehe Abweichungen).
+
+**Antike Stadt**
+- [ ] `/locate structure minecraft:ancient_city` in der neuen Welt, hinfliegen: Im Zentrum steht statt des
+      Vanilla-Rahmens das Portal des Originals mit 8 Konsolen; auf den Konsolen Notenblöcke (wo Kerzen
+      standen, sind sie ersetzt). Log: „Ancient City portal city-… registered“. `/sift portal list` zeigt
+      `city-…` LOCKED.
+- [ ] Echo-Resonator oder Singer (Ziegenhorn) weckt es. Der Hinweis nennt **keine** Melodie, nur dass es ein
+      eigenes Lied gibt.
+- [ ] Die Schreinmelodie 1-3-7-6-5-2-4-8 öffnet es nicht. Die lange Melodie aus der config
+      (`portals.ancient-city.melody`, Standard 6-2-8-4-1-7-3-5-8-2-6-1) öffnet es; Durchgang führt in die Sift
+      und zurück.
+- [ ] Truhen der Antiken Stadt: Gelegentlich (15 %) liegt das Buch „Lied der Tiefe“ darin, auf Seite 2
+      steht die Melodie.
+- [ ] `/sift portal unlock city-…` (Admin) zeigt die Melodie zusätzlich als Admin-Hinweis.
+- [ ] `portals.ancient-city.enabled: false` und Neustart: neue Antike Städte haben wieder das Vanilla-Zentrum.
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.

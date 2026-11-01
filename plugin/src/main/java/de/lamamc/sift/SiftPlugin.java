@@ -52,6 +52,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private Messages messages;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
+    private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
 
     @Override
     public void onEnable() {
@@ -97,19 +98,36 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
                 melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
                 portalKeys());
+        consoles.setKeysEnabled(getConfig().getBoolean("portals.keys.enabled", true));
+        consoles.setAncientCitySequence(getConfig().getIntegerList("portals.ancient-city.melody").stream()
+                .mapToInt(Integer::intValue).filter(n -> n >= 1 && n <= 8).toArray());
         getServer().getPluginManager().registerEvents(consoles, this);
         de.lamamc.sift.core.portal.KeyLoot keyLoot = new de.lamamc.sift.core.portal.KeyLoot();
         org.bukkit.configuration.ConfigurationSection keySection = getConfig().getConfigurationSection("portals.keys");
         if (keySection != null) {
             for (String dimension : keySection.getKeys(false)) {
+                if (!keySection.isConfigurationSection(dimension)) {
+                    continue; // enabled
+                }
                 for (String table : keySection.getStringList(dimension + ".loot.tables")) {
                     keyLoot.add(table, keySection.getString(dimension + ".item", ""), keySection.getDouble(dimension + ".loot.chance", 0));
                 }
             }
         }
-        getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
+        if (consoles.keysEnabled()) {
+            getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
+        }
         new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         messages = Messages.load(this);
+        if (getConfig().getBoolean("portals.ancient-city.enabled", true)) {
+            de.lamamc.sift.world.portal.AncientCityPortals cities = new de.lamamc.sift.world.portal.AncientCityPortals(this, blocks,
+                    portals, getConfig().getInt("portals.frame-radius", 10), getLogger());
+            getServer().getPluginManager().registerEvents(cities, this);
+            cities.start();
+            getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.AncientCityBook(
+                    getConfig().getStringList("portals.ancient-city.book.tables"), getConfig().getDouble("portals.ancient-city.book.chance", 0.15),
+                    consoles.ancientCitySequence(), messages), this);
+        }
         startMobs();
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
@@ -131,6 +149,12 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         org.bukkit.configuration.ConfigurationSection sifter = config.getConfigurationSection("sifter");
         mobs.register(new de.lamamc.sift.mob.sifter.SifterKind(sifter != null ? sifter : new org.bukkit.configuration.MemoryConfiguration(),
                 blocks, items));
+        org.bukkit.configuration.ConfigurationSection singer = config.getConfigurationSection("singer");
+        de.lamamc.sift.mob.singer.SingerKind singerKind = new de.lamamc.sift.mob.singer.SingerKind(
+                singer != null ? singer : new org.bukkit.configuration.MemoryConfiguration(), portals, consoles, items);
+        mobs.register(singerKind);
+        singerSummoner = new de.lamamc.sift.mob.singer.SingerSummoner(this, mobs, singerKind);
+        getServer().getPluginManager().registerEvents(singerSummoner, this);
         getServer().getPluginManager().registerEvents(mobs, this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.BaseMobGuard(mobs), this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.SpawnEggs(mobs), this);
@@ -145,6 +169,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.mob.MobManager mobs() {
         return mobs;
+    }
+
+    public de.lamamc.sift.mob.singer.SingerSummoner singerSummoner() {
+        return singerSummoner;
     }
 
     public de.lamamc.sift.mob.MobSpawner mobSpawner() {
@@ -202,6 +230,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         org.bukkit.configuration.ConfigurationSection section = getConfig().getConfigurationSection("portals.keys");
         if (section != null) {
             for (String dimension : section.getKeys(false)) {
+                if (!section.isConfigurationSection(dimension)) {
+                    continue; // enabled
+                }
                 String world = switch (dimension) {
                     case "overworld" -> "minecraft:overworld";
                     case "nether" -> "minecraft:the_nether";

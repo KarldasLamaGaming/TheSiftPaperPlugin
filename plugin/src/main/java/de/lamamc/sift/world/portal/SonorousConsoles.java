@@ -52,6 +52,7 @@ public final class SonorousConsoles implements Listener {
     private final Map<String, PortalMelody> melodies = new HashMap<>();
     /** World key -> Sift id of the key that wakes the portals there. */
     private final Map<String, String> keys;
+    private boolean keysEnabled = true;
     private final Set<String> igniting = new HashSet<>();
 
     public SonorousConsoles(Plugin plugin, CustomBlockRegistry blocks, PortalService portals, int[] sequence,
@@ -61,6 +62,28 @@ public final class SonorousConsoles implements Listener {
         this.blocks = blocks;
         this.portals = portals;
         this.sequence = sequence;
+    }
+
+    private int[] ancientCitySequence = de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE;
+
+    /** Tune of the Ancient City portals (portals.ancient-city.melody). */
+    public void setAncientCitySequence(int[] sequence) {
+        if (sequence.length > 0) {
+            this.ancientCitySequence = sequence.clone();
+        }
+    }
+
+    public int[] ancientCitySequence() {
+        return ancientCitySequence.clone();
+    }
+
+    /** The tune that opens this portal. */
+    public int[] sequenceFor(SiftPortal portal) {
+        return portal.kind() == SiftPortal.Kind.ANCIENT_CITY ? ancientCitySequence : sequence;
+    }
+
+    public void setKeysEnabled(boolean enabled) {
+        this.keysEnabled = enabled;
     }
 
     public enum Mode { HORN, NOTE, NONE }
@@ -96,6 +119,18 @@ public final class SonorousConsoles implements Listener {
                 "<gray>Klang <white><bold>" + sound + "</bold></white> von " + de.lamamc.sift.core.portal.ConsoleSounds.COUNT));
     }
 
+    /** The hint for this portal (the Ancient City's tune is not told, it is in a book in the city's chests). */
+    public void sendHint(org.bukkit.command.CommandSender player, SiftPortal portal) {
+        if (portal.kind() != SiftPortal.Kind.ANCIENT_CITY) {
+            sendHint(player);
+            return;
+        }
+        player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Dieses Portal öffnet ein eigenes, "
+                + "längeres Lied. Es ist nicht überliefert – vielleicht findest du es irgendwo in dieser Stadt.");
+        player.sendRichMessage("<gray>Rechtsklick auf einen Notenblock schaltet seinen Klang weiter (1 → 2 → … → 8 → 1), "
+                + "Linksklick spielt ihn. Die Actionbar zeigt die Nummer des Klangs.");
+    }
+
     /** Tells a player how to open the portal: the tune and the controls. */
     public void sendHint(org.bukkit.command.CommandSender player) {
         player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Spiel diese Melodie, um das Portal zu öffnen:");
@@ -123,14 +158,37 @@ public final class SonorousConsoles implements Listener {
     /** Wakes all consoles of a portal (key or /sift portal unlock); returns how many there are. */
     public int unlock(World world, SiftPortal portal) {
         for (int[] c : portal.consoles()) {
+            wakeConsole(world.getBlockAt(c[0], c[1], c[2]));
+        }
+        markUnlocked(world, portal);
+        return portal.consoles().size();
+    }
+
+    /** One console to note mode with its burst (the key wakes all at once, the Singer one after another). */
+    public void wakeConsole(Block console) {
+        if (mode(console) == Mode.NONE) {
+            return;
+        }
+        setMode(console, Mode.NOTE);
+        Block note = console.getRelative(BlockFace.UP);
+        burst(note, note.getType() == Material.NOTE_BLOCK ? sound(note) : 1);
+    }
+
+    /** The portal counts as awake: state UNLOCKED and the trigger sound. Consoles still asleep are woken. */
+    public void markUnlocked(World world, SiftPortal portal) {
+        for (int[] c : portal.consoles()) {
             Block console = world.getBlockAt(c[0], c[1], c[2]);
-            setMode(console, Mode.NOTE);
-            Block note = console.getRelative(BlockFace.UP);
-            burst(note, note.getType() == Material.NOTE_BLOCK ? sound(note) : 1);
+            if (mode(console) == Mode.HORN) {
+                setMode(console, Mode.NOTE);
+            }
         }
         portals.registry().put(world, portal.withState(portal.state().unlock()));
         PortalSurface.play(world, portal.frame(), PortalSurface.TRIGGER_SOUND, 1.0f);
-        return portal.consoles().size();
+    }
+
+    /** Whether the keys may wake portals (portals.keys.enabled); the Singer always can. */
+    public boolean keysEnabled() {
+        return keysEnabled;
     }
 
     /** Right-click with the key of the dimension on a sleeping console (or its note block) wakes the portal. */
@@ -143,6 +201,11 @@ public final class SonorousConsoles implements Listener {
         org.bukkit.inventory.ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
         String key = de.lamamc.sift.item.SiftItems.idOf(held);
         if (key == null || !keys.containsValue(key)) {
+            return;
+        }
+        if (!keysEnabled) {
+            event.setCancelled(true);
+            event.getPlayer().sendActionBar(Component.text("Schlüssel sind abgeschaltet. Ruf den Singer mit einem Ziegenhorn."));
             return;
         }
         Block console = block.getType() == Material.NOTE_BLOCK ? block.getRelative(BlockFace.DOWN) : block;
@@ -172,7 +235,7 @@ public final class SonorousConsoles implements Listener {
         }
         unlock(world, portal.get());
         player.sendActionBar(Component.text("Die Konsolen erwachen. Spiel die Melodie."));
-        sendHint(player);
+        sendHint(player, portal.get());
     }
 
     /** Right-click picks the next of the 8 sounds; hitting plays it and counts for the tune. */
@@ -221,7 +284,8 @@ public final class SonorousConsoles implements Listener {
             return; // a console that belongs to no portal only makes music
         }
         String key = world.getKey() + " " + portal.get().id();
-        PortalMelody melody = melodies.computeIfAbsent(key, k -> new PortalMelody(sequence));
+        int[] tune = sequenceFor(portal.get());
+        PortalMelody melody = melodies.computeIfAbsent(key, k -> new PortalMelody(tune));
         PortalMelody.Match match = melody.play(note);
         if (match == PortalMelody.Match.NONE) {
             return;
@@ -245,7 +309,7 @@ public final class SonorousConsoles implements Listener {
         igniting.add(key);
         List<Block> notes = new ArrayList<>();
         // play the tune back on the note blocks that carry each sound
-        for (int note : sequence) {
+        for (int note : sequenceFor(portal)) {
             group.stream().map(b -> b.getRelative(BlockFace.UP)).filter(b -> b.getType() == Material.NOTE_BLOCK && sound(b) == note)
                     .findFirst().ifPresent(notes::add);
         }

@@ -40,6 +40,10 @@ public final class Main {
     static final int RESOURCE_FORMAT = 97;
 
     private static final String DATA_PREFIX = "data/the_sift/";
+    /** The original's portal in the centre of ancient cities; replaces the vanilla city centre templates. */
+    static final String CITY_CENTER = "data/minecraft/structure/ancient_city/city_center/";
+    /** Rotation-proof placeholder for the consoles in the city centre; the plugin puts the sonorous deepslate there. */
+    static final String CITY_CONSOLE_PLACEHOLDER = "minecraft:lodestone";
     private static final String ASSET_PREFIX = "assets/the_sift/";
     /** Client-only assets that a resource pack cannot use (custom shaders, GeckoLib, custom particles). */
     private static final List<String> SKIPPED_ASSETS = List.of("shaders/", "geckolib/", "particles/", "blockstates/");
@@ -84,8 +88,15 @@ public final class Main {
                                        Path itemData, Map<String, String> german) throws IOException {
         Map<String, JsonElement> json = new TreeMap<>();
         Map<String, byte[]> structures = new TreeMap<>();
+        Map<String, byte[]> cityCenters = new TreeMap<>();
         for (ZipEntry entry : zip.stream().toList()) {
             String name = entry.getName();
+            if (!entry.isDirectory() && name.startsWith(CITY_CENTER) && name.endsWith(".nbt")) {
+                try (InputStream in = zip.getInputStream(entry)) {
+                    cityCenters.put(name, in.readAllBytes());
+                }
+                continue;
+            }
             if (entry.isDirectory() || !name.startsWith(DATA_PREFIX)) {
                 if (!entry.isDirectory() && name.startsWith("data/")) {
                     report.note("Not imported in this step", name);
@@ -125,6 +136,15 @@ public final class Main {
             Path target = data.resolve(e.getKey());
             Files.createDirectories(target.getParent());
             Files.write(target, structureImporter.run(e.getKey(), e.getValue()));
+        }
+        Path cityData = root.resolve("data/minecraft/structure/ancient_city");
+        deleteTree(cityData);
+        StructureImporter cityImporter = new StructureImporter(mapping, report,
+                Map.of(BlockMapping.MOD_NAMESPACE + ":sonorous_deepslate", CITY_CONSOLE_PLACEHOLDER));
+        for (var e : cityCenters.entrySet()) {
+            Path target = root.resolve(e.getKey());
+            Files.createDirectories(target.getParent());
+            Files.write(target, cityImporter.run(e.getKey(), e.getValue()));
         }
         writePackMeta(root, "The Sift: Dimension und Weltgenerierung (nach Mielon's The Sift, MIT)", DATA_FORMAT);
         copyLicense(zip, root);

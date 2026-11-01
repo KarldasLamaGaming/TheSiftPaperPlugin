@@ -424,6 +424,28 @@ Spawnt nach den Profilen des Originals in der ganzen Sift (`mobs.sifter.spawn`),
 `floor-blocks`; auf Friedlich keine Sifter. Beute rohes Sifterfleisch, 7 Erfahrung. Spawn-Ei
 `sifter_spawn_egg`.
 
+### Singer
+
+Basis Fahrender Händler (Größe 2,05). **Gerufen:** Ein Ziegenhorn in 40 Blöcken um ein schlafendes Portal
+ruft ihn nach 3 s; er singt und weckt die Konsolen nacheinander (dieselben Methoden wie der Schlüssel), dann
+taucht er ab. `/sift debug singer` ruft ihn ohne Horn. **Bleibend:** `/sift spawn singer` bzw.
+`singer_spawn_egg`: läuft im Umkreis `mobs.singer.leash-radius` umher und tauscht Seelenblöcke gegen
+Belohnungen aus `mobs.singer.barter.table` (Gewicht von 200, Anzahl).
+
+Schlüssel abschalten: `portals.keys.enabled: false` (Neustart). Dann weckt nur noch der Singer; schon wache und
+offene Portale bleiben, wie sie sind, und die Schlüssel liegen nicht mehr in Truhen.
+
+### Portal der Antiken Stadt
+
+`portals.ancient-city` (Standard an, `[Start]`, nur neue Chunks): Das Zentrum jeder neuen Antiken Stadt wird
+das Portal des Originals. Es wird beim Generieren registriert (`city-…` in `/sift portal list`, Log-Zeile
+„Ancient City portal … registered“). Geweckt wird es mit dem Echo-Resonator oder vom Singer; öffnen lässt es
+sich nur mit `portals.ancient-city.melody` (Standard 12 Töne). Die Melodie steht nicht im Hinweis, sondern im
+Buch „Lied der Tiefe“, das mit `portals.ancient-city.book.chance` in den Truhen liegt (Texte in
+`messages.yml` unter `portals.ancient-city-book`). Admins sehen sie bei `/sift portal unlock`.
+Wird die Melodie geändert, gilt die neue sofort für alle Städte; schon verteilte Bücher zeigen die alte.
+Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben registriert.
+
 ## Drops und Erze
 
 - Sift-Geröll wie im Original (und wie Vanilla-Kies/Feuerstein): mit Behutsamkeit das Geröll, sonst
@@ -452,6 +474,7 @@ Spawnt nach den Profilen des Originals in der ganzen Sift (`mobs.sifter.spawn`),
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, nächster Mob mit Hitbox |
+| `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung) |
 | `/sift debug mobs walk <x> <y> <z>` | Nächsten Sift-Mob zu einem Block laufen lassen (Test der Wegfindung) |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |

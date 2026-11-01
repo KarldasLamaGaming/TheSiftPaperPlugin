@@ -114,6 +114,10 @@ public final class MobManager implements Listener {
         return entity == null ? null : entity.getPersistentDataContainer().get(MOB_KEY, PersistentDataType.STRING);
     }
 
+    public Plugin plugin() {
+        return plugin;
+    }
+
     public Stats stats() {
         return stats;
     }

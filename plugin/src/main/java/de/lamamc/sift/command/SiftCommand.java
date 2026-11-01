@@ -116,6 +116,14 @@ public final class SiftCommand {
                 .then(mobCommand().spawnNode().requires(SiftCommand::admin))
                 .then(Commands.literal("debug").requires(SiftCommand::admin)
                         .then(mobCommand().debugNode())
+                        .then(Commands.literal("singer").executes(ctx -> {
+                            var summoner = plugin.singerSummoner();
+                            var singer = summoner == null ? null : summoner.summon(ctx.getSource().getLocation());
+                            ctx.getSource().getSender().sendRichMessage(singer == null
+                                    ? "<red>Kein schlafendes Portal in 40 Blöcken (oder dort singt schon einer)."
+                                    : "<green>Der Singer erscheint im Portal.");
+                            return singer == null ? 0 : 1;
+                        }))
                         .then(Commands.literal("item")
                                 .then(Commands.argument("item", StringArgumentType.word()).executes(this::debugItem)))
                         .then(breakNode())

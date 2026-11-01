@@ -108,9 +108,9 @@ Die Mechanik folgt dem Original 1.1.1:
 - Durchgang zum Haupt-Portal der Sift und zurück zum Rückkehrpunkt; Transit-Schutz nach jeder Reise.
 
 Unterschiede:
-- **Wecken:** Im Original schaltet der Singer (Ziegenhorn in der Antiken Stadt) die Konsolen vom
-  Horn- in den Noten-Modus. Hier tut das bis Phase 2 der Schlüssel der Dimension (Schritt 7b) bzw.
-  `/sift portal unlock`.
+- **Wecken:** Im Original schaltet nur der Singer (Ziegenhorn in der Antiken Stadt) die Konsolen vom
+  Horn- in den Noten-Modus. Hier gehen der Singer (seit Phase 2) und zusätzlich der Schlüssel der Dimension
+  (Schritt 7b, abschaltbar mit `portals.keys.enabled`) bzw. `/sift portal unlock`.
 - **Nur registrierte Portale:** Im Original zündet die Melodie jeden passenden Rahmen im Umkreis von
   10 Blöcken. Hier nur Portale aus Strukturen oder per `/sift portal create`. Die Konsolen eines Portals
   stehen in seinem Eintrag; eine Konsolengruppe über 16 Blöcke wie im Original wird nicht gesucht.
@@ -176,4 +176,37 @@ Sifter:
   zusätzlich wie ein Vanilla-Monster.
 - **Erfahrung:** 7 wie im Original, nur wenn ein Spieler ihn tötet (wie Vanilla). Das gilt jetzt für alle
   Sift-Mobs, auch für den Blub.
+
+Singer:
+- **Basis:** unsichtbarer Fahrender Händler, Größe 2,05 (Hitbox 1,23 × 4,0; Original 0,8 × 4,0 bei Größe 1,2,
+  also 0,96 × 4,8). Der Plan sah einen Enderman vor. Er ginge aber nicht durch: Ein Enderman erzeugt auf dem
+  Client immer lila Portalpartikel (auch unsichtbar), ist gegen Pfeile immun (er weicht aus) und als Monster
+  verschwindet er auf Friedlich. Der Händler ist kein Monster und läuft ohne eigene KI; Zombies und
+  Plünderer greifen ihn nicht an.
+- **Gerufen:** wie das Original: 3 s nach dem Ziegenhorn, nächster Rahmen in 40 Blöcken, Erscheinen, Gesang
+  mit 8 Schallwellen, Abtauchen. Unterschiede:
+  - Er kommt nur zu **schlafenden** registrierten Portalen (Schrein, Antike Stadt, eigene per Befehl).
+  - Die Schallwellen sind Staubpartikel statt des eigenen Partikels; die Lichtsäule am Kopf (Client-Licht)
+    fehlt.
+  - Wird der Chunk während des Auftritts entladen oder der Server neu gestartet, gilt das Portal als geweckt,
+    sobald der Gesang begonnen hatte; der Singer ist danach weg.
+- **Bleibend (Spawn-Ei, Befehl):** Im Original läuft er unbegrenzt umher. Hier bleibt er im Umkreis von
+  8 Blöcken um seinen Erscheinungsort, nimmt keine Wege mit weniger als 4 Blöcken Höhe und taucht ab, wenn
+  er 10 s festsitzt (Entscheidung Phase 2).
+- **Seelen-Ereignis mit dem Echogolem** (Golem bringt dem Singer einen Seelenblock) kommt mit dem Echogolem.
+- **Tausch:** Gewichtungstabelle des Originals (`mobs.singer.barter.table`). Den gehaltenen Seelenblock zeigt
+  das Modell nicht (eigene Render-Schicht im Original); die leuchtenden Teile der Textur (Glowmask) leuchten
+  nicht.
+
+Antike Stadt:
+- **Zentrum:** die drei `city_center`-Vorlagen des Originals (per Datapack, nur neue Chunks). Die Konsolen
+  stehen darin als Leitstein-Platzhalter, weil Vanilla Vorlagen dreht; das Plugin setzt beim Generieren
+  den Klingenden Tiefenschiefer und registriert das Portal, sobald Rahmen und alle 8 Konsolen da sind.
+- **Notenblöcke:** Im Original stehen auf den Konsolen keine Notenblöcke (die Spieler bringen sie mit). Hier
+  setzt das Plugin wie bei den Schreinen Notenblöcke mit zufälligen Klängen; Kerzen und andere nicht feste
+  Deko darüber weichen.
+- **Melodie:** Im Original öffnet dieselbe Melodie wie überall. Hier hat die Antike Stadt eine eigene, längere
+  (`portals.ancient-city.melody`, 12 Töne), die nicht im Hinweis steht, sondern in einem Buch in den Truhen der
+  Stadt (Entscheidung Phase 2). Das Buch ist neu.
+- **Wecken:** zusätzlich zum Singer auch mit dem Echo-Resonator der Hauptwelt.
 

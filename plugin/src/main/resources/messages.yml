@@ -6,8 +6,18 @@ mobs:
   names:
     blub: "Blub"
     sifter: "Sifter"
+    singer: "Singer"
   spawned: "<green><count> × <mob> erschienen."
   spawn-failed: "<red><mob> konnte hier nicht erscheinen (<reason>)."
   unknown: "<red>Unbekannter Sift-Mob: <mob>"
   disabled: "<red><mob> ist in der config.yml abgeschaltet (mobs.<id>.enabled)."
   limit-world: "Grenze von <limit> Sift-Mobs in dieser Welt erreicht"
+
+portals:
+  # Buch mit der Melodie der Portale in Antiken Städten (liegt mit einer Chance in deren Truhen)
+  ancient-city-book:
+    title: "Lied der Tiefe"
+    author: "Ein Wächter"
+    page-1: "<dark_gray>Im Herzen der Stadt schläft ein Tor. Der Singer weckt es, oder das Echo eines Resonators.\n\nDoch öffnen lässt es sich nur mit dem alten Lied, Ton für Ton auf den Konsolen gespielt."
+    page-2: "<dark_gray>Das Lied der Tiefe:\n\n<black><bold><melody></bold>\n\n<dark_gray>Rechtsklick wechselt den Klang, ein Schlag spielt ihn."
+
