@@ -210,3 +210,21 @@ Antike Stadt:
   Stadt (Entscheidung Phase 2). Das Buch ist neu.
 - **Wecken:** zusätzlich zum Singer auch mit dem Echo-Resonator der Hauptwelt.
 
+Dunkler Schnüffler:
+- **Modell:** Im Original ist er der Vanilla-Schnüffler mit eigener Textur. Das Mojang-Modell darf nicht ins
+  öffentliche Repo; hier gibt es ein eigenes, vereinfachtes Modell aus 7 Würfeln (Körper, Kopf, Schnauze, vier
+  Beine), abgeleitet aus der Hitbox. Die Flächen zeigen passende, deckende Bereiche der Original-Textur
+  `dark_sniffer.png` (MIT). Animationen sind eigene: Gehen, Angriff, Schnüffeln, Graben.
+- **Basis:** unsichtbarer Eisbär, Größe 1,36 (Hitbox 1,9 × 1,9 statt 1,9 × 1,75). Ein echter Schnüffler
+  ginge nicht, weil sein Verhalten über ein „Brain“ läuft, das sich nicht abschalten lässt.
+- **Schallangriff:** wie im Original: Er zieht Getroffene zum Schnüffler heran und macht keinen Schaden (der
+  Plan nannte ihn „wie der Wächter“; gemeint ist die Optik). Die Welle zeigt Wächter-Partikel statt des eigenen
+  Partikels des Originals.
+- **Graben:** Das Schnüffeln und Graben des Vanilla-Schnüfflers (Brain) ist nachgebaut: ohne Ziel sucht er
+  ab und zu (alle 10 s) Sculk in 8 Blöcken, gräbt 4 s und findet Sculkblumensamen (Beute des Originals).
+- **Infektion:** wie im Original nach 600 Ticks, hier aber nur in der Sift (`infection.only-in-sift`,
+  Entscheidung Phase 2). Die dunkle Färbung des infizierten Schnüfflers (Client) zeigen hier Seelen-Partikel.
+  Ein infizierter Schnüffler gräbt nichts aus (leere Beute im Original).
+- **Wächter streicheln ihn** (Mixin des Originals): fehlt.
+- **Graben verändert keine Blöcke** (wie im Original); die Gamerule `mob_griefing` betrifft ihn deshalb nicht.
+

@@ -415,6 +415,46 @@ Für die Antike Stadt eine **frische Welt** nehmen (nur neue Chunks bekommen das
 - [ ] `/sift portal unlock city-…` (Admin) zeigt die Melodie zusätzlich als Admin-Hinweis.
 - [ ] `portals.ancient-city.enabled: false` und Neustart: neue Antike Städte haben wieder das Vanilla-Zentrum.
 
+## Mobs: Dunkler Schnüffler (ab Phase 2, Schritt 4)
+
+Test in der Sift, Schwierigkeit mindestens Leicht, Überlebensmodus. Werte unter `mobs.dark_sniffer`.
+
+**Aussehen und Animation**
+- [ ] `/sift spawn dark_sniffer` oder Spawn-Ei: eigenes, vereinfachtes Modell (Körper, Kopf, Schnauze, vier
+      Beine) mit der Original-Textur, steht gerade, keine durchsichtigen Löcher. Screenshot bitte.
+      `/sift debug mobs`: Hitbox 1,90 × 1,90, HP 40, 7 Displays.
+- [ ] Gehen: Beine schwingen; Biss: Kopf schnappt; vor dem Schallangriff hebt er den Kopf (Schnüffeln);
+      beim Graben senkt er den Kopf und scharrt.
+
+**Kampf**
+- [ ] Er bemerkt dich in bis zu 32 Blöcken (auch ohne Sicht) und jagt dich; Biss 7 Schaden auf Normal, etwa
+      jede Sekunde, aus bis zu gut 3 Blöcken.
+- [ ] Bleibst du außer Reichweite (mindestens 5 Blöcke, in Sicht): Er bleibt stehen, schnüffelt kurz, eine
+      Schallwelle (Wächter-Partikel) fliegt zu dir und **zieht dich zu ihm heran**, ohne Schaden. Höchstens
+      alle 5 Sekunden.
+- [ ] Im Kreativ- oder Zuschauermodus ignoriert er dich. Auf Friedlich greift er nicht an (bleibt aber da).
+- [ ] Normale Schnüffler in der Nähe greift er an; sie fliehen vor ihm (Umkreis 20).
+- [ ] Getötet: 1 Sculk, Erfahrung nur bei Spieler-Kill. Todesnachricht nennt „Dunkler Schnüffler“.
+
+**Graben**
+- [ ] Ohne Ziel neben Sculk: Er geht nach einer Weile zu einem Sculk-Block, gräbt (Partikel, Klang) und lässt
+      Sculkblumensamen fallen (Advancement „Riecht unheimlich“). Danach etwa 8 Minuten Pause. Der Sculk bleibt.
+
+**Infektion**
+- [ ] Einen normalen Schnüffler (Spawn-Ei) in der Sift auf Sculk graben lassen: Er bekommt Seelen-Partikel und
+      wird nach 30 Sekunden zum Dunklen Schnüffler (Klang). In der Hauptwelt passiert das nicht
+      (`infection.only-in-sift`).
+
+**Spawnen**
+- [ ] In einer frisch generierten Sculk-Region an der Oberfläche der Sift stehen 1–2 Dunkle Schnüffler auf dem
+      Sculk. Sie bleiben dort (verschwinden nicht, entfernen sich höchstens 100 Blöcke von dort).
+
+**Basis-Mob schlägt nicht durch** (unsichtbarer Eisbär)
+- [ ] Kein Eisbärbrummen, kein Warnlaut, keine Eisbär-Schritte; nur Schnüffler-Klänge.
+- [ ] Er richtet sich nie auf (auch nicht vor dem Angriff) und schützt keine Jungen; Fische und Füchse lassen
+      ihn kalt.
+- [ ] Fisch füttern, Vermehren, Leine: geht nicht.
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.
