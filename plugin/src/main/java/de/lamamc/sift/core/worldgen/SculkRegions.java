@@ -133,7 +133,7 @@ public final class SculkRegions {
     }
 
     public record Blob(double centerX, double centerZ, double radiusX, double radiusZ, double cos, double sin, long seed) {
-        boolean contains(int x, int z) {
+        public boolean contains(int x, int z) {
             double dx = x + 0.5 - centerX;
             double dz = z + 0.5 - centerZ;
             double localX = dx * cos + dz * sin;
@@ -142,6 +142,26 @@ public final class SculkRegions {
             double edgeNoise = (unit(mix(seed ^ positionSalt(x, z))) - 0.5) * 0.22;
             return ellipse <= 1.0 + edgeNoise;
         }
+    }
+
+    private static final long DARK_SNIFFER_SALT = 4918302751538956614L;
+
+    /**
+     * Blobs of a region that get a Dark Sniffer at generation, like the original: one or two (by the region
+     * seed), at distinct blob indices.
+     */
+    public static int[] darkSnifferBlobs(Region region) {
+        int blobs = region.blobs().length;
+        int count = 1 + (int) (mix(region.seed() ^ DARK_SNIFFER_SALT) & 1L);
+        int first = (int) Math.floorMod(mix(region.seed() ^ DARK_SNIFFER_SALT ^ 1848679592227504671L), (long) blobs);
+        if (count == 1 || blobs < 2) {
+            return new int[] {first};
+        }
+        int second = (int) Math.floorMod(mix(region.seed() ^ DARK_SNIFFER_SALT ^ 8312979105109307661L), (long) (blobs - 1));
+        if (second >= first) {
+            second++;
+        }
+        return new int[] {first, second};
     }
 
     static long positionSalt(int x, int z) {

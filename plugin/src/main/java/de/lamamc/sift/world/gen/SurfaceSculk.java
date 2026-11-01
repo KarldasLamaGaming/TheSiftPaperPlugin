@@ -13,7 +13,7 @@ import org.bukkit.block.data.type.SculkShrieker;
 /**
  * Large sculk patches on the surface (SiftSurfaceSculkRegionFeature): the top 6–9 blocks of the terrain
  * become vanilla sculk, with sensors, shriekers that can summon a warden, catalysts and veins at the edge.
- * The Dark Sniffer spawns of the original come with the mobs (phase 2).
+ * Selected blobs leave Dark Sniffer plans in {@link DarkSnifferSites}.
  */
 final class SurfaceSculk {
 
@@ -44,6 +44,16 @@ final class SurfaceSculk {
         int minZ = chunkZ << 4;
         boolean changed = false;
         for (SculkRegions.Region sculkRegion : SculkRegions.regionsTouching(seed, minX, minZ)) {
+            // Dark Sniffer plans for the selected blobs whose centre lies in this chunk (like the original)
+            java.util.List<SculkRegions.Blob> darkBlobs = new java.util.ArrayList<>();
+            java.util.List<java.util.List<int[]>> darkSites = new java.util.ArrayList<>();
+            for (int index : SculkRegions.darkSnifferBlobs(sculkRegion)) {
+                SculkRegions.Blob blob = sculkRegion.blobs()[index];
+                if (Math.floorDiv((int) Math.floor(blob.centerX()), 16) == chunkX && Math.floorDiv((int) Math.floor(blob.centerZ()), 16) == chunkZ) {
+                    darkBlobs.add(blob);
+                    darkSites.add(new java.util.ArrayList<>());
+                }
+            }
             for (int x = minX; x <= minX + 15; x++) {
                 for (int z = minZ; z <= minZ + 15; z++) {
                     boolean core = sculkRegion.contains(x, z);
@@ -63,14 +73,28 @@ final class SurfaceSculk {
                     }
                     boolean aboveFree = region.isAir(x, aboveY, z);
                     if (core) {
-                        changed |= replaceSurface(region, sculkRegion, x, surfaceY, z);
+                        boolean replaced = replaceSurface(region, sculkRegion, x, surfaceY, z);
+                        changed |= replaced;
                         if (aboveFree) {
-                            changed |= decorate(region, sculkRegion, x, aboveY, z);
+                            boolean decorated = decorate(region, sculkRegion, x, aboveY, z);
+                            changed |= decorated;
+                            if (replaced && !decorated && x > minX && x < minX + 15 && z > minZ && z < minZ + 15) {
+                                for (int i = 0; i < darkBlobs.size(); i++) {
+                                    if (darkSites.get(i).size() < 64 && darkBlobs.get(i).contains(x, z)) {
+                                        darkSites.get(i).add(new int[] {x, surfaceY, z});
+                                    }
+                                }
+                            }
                         }
                     } else if (aboveFree && region.writable(x, aboveY, z)) {
                         region.set(x, aboveY, z, vein);
                         changed = true;
                     }
+                }
+            }
+            for (int i = 0; i < darkBlobs.size(); i++) {
+                if (!darkSites.get(i).isEmpty()) {
+                    DarkSnifferSites.QUEUE.add(new DarkSnifferSites.Plan(java.util.List.copyOf(darkSites.get(i)), darkBlobs.get(i).seed(), 0));
                 }
             }
         }

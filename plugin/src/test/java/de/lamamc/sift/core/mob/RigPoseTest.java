@@ -114,7 +114,7 @@ class RigPoseTest {
     @Test
     void shippedRigsAndAnimationsLoad() throws IOException {
         Path mobData = Path.of(System.getProperty("sift.packSrc", "../pack-src"), "mob-data");
-        for (String mob : List.of("blub", "sifter", "singer", "echo_golem")) {
+        for (String mob : List.of("blub", "sifter", "singer", "echo_golem", "dark_sniffer")) {
             Rig rig = Rig.parse(read(mobData.resolve(mob + ".rig.json")));
             var animations = Animation.parseAll(read(mobData.resolve(mob + ".animation.json")));
             assertTrue(!animations.isEmpty(), mob);

@@ -97,6 +97,12 @@ public abstract class SiftMob {
         base.getWorld().playSound(Sound.sound(Key.key("the_sift", name), source(), volume, pitch), at.getX(), at.getY(), at.getZ());
     }
 
+    /** Plays any sound (e.g. a vanilla one like minecraft:entity.sniffer.step) at the mob. */
+    protected void playSound(Key key, float volume, float pitch) {
+        Location at = base.getLocation();
+        base.getWorld().playSound(Sound.sound(key, source(), volume, pitch), at.getX(), at.getY(), at.getZ());
+    }
+
     protected Sound.Source source() {
         return Sound.Source.NEUTRAL;
     }
