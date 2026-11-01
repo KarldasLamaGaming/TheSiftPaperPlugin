@@ -191,7 +191,11 @@ final class PortalCommand {
         int count = consoles.unlock(target.world(), target.portal());
         sender.sendRichMessage("<green>Konsolen von <white>" + target.portal().id() + "</white> geweckt (" + count
                 + "). Die Melodie öffnet das Portal jetzt.");
-        consoles.sendHint(sender);
+        consoles.sendHint(sender, target.portal());
+        if (target.portal().kind() == SiftPortal.Kind.ANCIENT_CITY) {
+            sender.sendRichMessage("<gray>(nur für Admins) Melodie: <white>"
+                    + de.lamamc.sift.core.portal.ConsoleSounds.text(consoles.sequenceFor(target.portal())));
+        }
         return Command.SINGLE_SUCCESS;
     }
 
@@ -235,7 +239,8 @@ final class PortalCommand {
         long awake = p.consoles().stream()
                 .filter(k -> consoles.mode(target.world().getBlockAt(k[0], k[1], k[2])) == SonorousConsoles.Mode.NOTE).count();
         sender.sendRichMessage("<gray>Portal <white>" + p.id() + "</white> in " + target.world().getKey() + ": "
-                + (p.kind() == SiftPortal.Kind.SIFT_EXIT ? "Ausgang der Sift" : "Eingang in die Sift") + ", Zustand <white>"
+                + (p.kind() == SiftPortal.Kind.SIFT_EXIT ? "Ausgang der Sift"
+                : p.kind() == SiftPortal.Kind.ANCIENT_CITY ? "Eingang in die Sift (Antike Stadt)" : "Eingang in die Sift") + ", Zustand <white>"
                 + p.state() + "</white>, Rahmen " + p.frame().width() + " × " + p.frame().height() + " (" + p.frame().axis()
                 + ") bei " + (int) Math.floor(c[0]) + " " + (int) c[1] + " " + (int) Math.floor(c[2]) + ", Konsolen "
                 + awake + "/" + p.consoles().size() + " wach.");

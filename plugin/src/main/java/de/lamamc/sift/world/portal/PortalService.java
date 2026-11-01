@@ -190,7 +190,7 @@ public final class PortalService implements Listener {
             return; // riders and their mounts are not carried along (yet)
         }
         Location target;
-        if (portal.kind() == SiftPortal.Kind.ENTRANCE) {
+        if (portal.kind() != SiftPortal.Kind.SIFT_EXIT) {
             World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
             Location anchor = sift == null ? null : MainPortalBuilder.anchor(sift);
             if (anchor == null) {

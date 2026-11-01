@@ -145,6 +145,16 @@ portals:
     end:
       item: void_resonator
       loot: {tables: ["minecraft:chests/end_city_treasure"], chance: 0.08}
+  # Portal im Zentrum jeder neuen Antiken Stadt (wie im Original), zusätzlich zu den Schreinen. [Start]
+  # Wecken: Echo-Resonator (wenn portals.keys.enabled) oder der Singer. Es öffnet sich nur mit einer eigenen,
+  # längeren Melodie; der Hinweis beim Wecken nennt sie nicht, sie steht in einem Buch in den Truhen der Stadt.
+  ancient-city:
+    enabled: true
+    # Töne 1–8, beliebig lang (einmal zufällig festgelegt, frei änderbar)
+    melody: [6, 2, 8, 4, 1, 7, 3, 5, 8, 2, 6, 1]
+    book:
+      chance: 0.15
+      tables: ["minecraft:chests/ancient_city"]
   # Sift-Kompass: Nadel und Entfernung (Actionbar) alle N Ticks auffrischen, solange man ihn hält
   compass:
     update-ticks: 40

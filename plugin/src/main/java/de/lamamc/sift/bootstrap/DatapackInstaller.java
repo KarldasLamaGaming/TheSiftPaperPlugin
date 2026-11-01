@@ -51,6 +51,11 @@ public final class DatapackInstaller {
         return count;
     }
 
+    /** Removes a folder of the installed datapack (e.g. an optional part switched off in config.yml). */
+    public static void remove(Path target, String relative) throws IOException {
+        deleteTree(target.resolve(relative));
+    }
+
     private static void deleteTree(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;

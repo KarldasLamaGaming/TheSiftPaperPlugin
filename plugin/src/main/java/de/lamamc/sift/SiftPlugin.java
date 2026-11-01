@@ -99,6 +99,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
                 portalKeys());
         consoles.setKeysEnabled(getConfig().getBoolean("portals.keys.enabled", true));
+        consoles.setAncientCitySequence(getConfig().getIntegerList("portals.ancient-city.melody").stream()
+                .mapToInt(Integer::intValue).filter(n -> n >= 1 && n <= 8).toArray());
         getServer().getPluginManager().registerEvents(consoles, this);
         de.lamamc.sift.core.portal.KeyLoot keyLoot = new de.lamamc.sift.core.portal.KeyLoot();
         org.bukkit.configuration.ConfigurationSection keySection = getConfig().getConfigurationSection("portals.keys");
@@ -117,6 +119,15 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         messages = Messages.load(this);
+        if (getConfig().getBoolean("portals.ancient-city.enabled", true)) {
+            de.lamamc.sift.world.portal.AncientCityPortals cities = new de.lamamc.sift.world.portal.AncientCityPortals(this, blocks,
+                    portals, getConfig().getInt("portals.frame-radius", 10), getLogger());
+            getServer().getPluginManager().registerEvents(cities, this);
+            cities.start();
+            getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.AncientCityBook(
+                    getConfig().getStringList("portals.ancient-city.book.tables"), getConfig().getDouble("portals.ancient-city.book.chance", 0.15),
+                    consoles.ancientCitySequence(), messages), this);
+        }
         startMobs();
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> new SiftCommand(this).register(event.registrar()));
