@@ -145,6 +145,9 @@ final class MobCommand {
                     + ", KI " + (base.hasAI() ? "an" : "aus") + ", Weg " + (base.getPathfinder().hasPath() ? "ja" : "nein")));
             sender.sendMessage(Component.text(String.format(java.util.Locale.ROOT, "  Rotation: Basis-Mob Yaw %.1f° Pitch %.1f°; %s",
                     base.getLocation().getYaw(), base.getLocation().getPitch(), nearest.describeRig())));
+            if (nearest.debugState() != null) {
+                sender.sendMessage(Component.text("  Zustand: " + nearest.debugState()));
+            }
         }
         return 1;
     }

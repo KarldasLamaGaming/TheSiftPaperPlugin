@@ -431,6 +431,21 @@ mobs:
     # greift auch normale Schnüffler an (Original: ja); normale Schnüffler fliehen in diesem Umkreis vor ihm
     attack-sniffers: true
     sniffers-flee-radius: 20
+    # Wächter sind Freunde (wie im Original): greifen ihn nie an, werden nicht wütend auf ihn, ihr Schallschlag
+    # schadet ihm nicht; ruhige Wächter streicheln ihn ab und zu (Herzen)
+    wardens-friendly: true
+    wardens-pet: true
+    # Streicheln (Werte des Originals, Zeiten in Ticks, [min, max]): Suche nach einem Dunklen Schnüffler im Umkreis,
+    # Streicheln aus diesem Abstand für diese Dauer; Pausen danach, nach einem abgebrochenen Anlauf und ohne Fund
+    warden-petting:
+      search-range: 18
+      reach: 3.5
+      duration: 100
+      approach-timeout: 240
+      search-delay: [800, 2400]
+      cooldown: [2400, 4800]
+      failed-cooldown: [600, 1200]
+      no-candidate-cooldown: [300, 600]
     combat:
       # sucht Spieler (Überleben/Abenteuer) und Schnüffler in diesem Umkreis
       aggro-range: 32

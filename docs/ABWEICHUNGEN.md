@@ -225,6 +225,13 @@ Dunkler Schnüffler:
 - **Infektion:** wie im Original nach 600 Ticks, hier aber nur in der Sift (`infection.only-in-sift`,
   Entscheidung Phase 2). Die dunkle Färbung des infizierten Schnüfflers (Client) zeigen hier Seelen-Partikel.
   Ein infizierter Schnüffler gräbt nichts aus (leere Beute im Original).
-- **Wächter streicheln ihn** (Mixin des Originals): fehlt.
+- **Wächter** (Mixin des Originals): Sie greifen ihn nie an und werden nicht wütend auf ihn; zusätzlich
+  prallen alle Wächter-Angriffe an ihm ab (im Original sind sie gar nicht erst möglich). Das Streicheln ist
+  nachgebaut (Zeiten, Reichweite 18, Abstand 3,5, 5 s, Herzen); die eigene Streichel-Animation des Wächters
+  (Client) fehlt, der Wächter bleibt stehen und sieht ihn an.
+- **Schnüffler graben auf Sift-Sculk** wie im Original: Das Datapack ergänzt `#minecraft:sniffer_diggable_block`
+  um Sculk und die Sift-Sculk-Blöcke. Weil diese hier Pilzblock-Zustände sind, stehen im Tag die ganzen
+  Pilzblöcke (Pilzstiel, brauner und roter Pilzblock). Ein Schnüffler gräbt deshalb auch auf natürlichen
+  Pilzblöcken (in der Hauptwelt selten, Riesenpilze), dort ohne Infektion.
 - **Graben verändert keine Blöcke** (wie im Original); die Gamerule `mob_griefing` betrifft ihn deshalb nicht.
 

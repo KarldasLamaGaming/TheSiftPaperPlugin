@@ -54,6 +54,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
     private de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns;
+    private de.lamamc.sift.mob.darksniffer.SnifferInfection infection;
 
     @Override
     public void onEnable() {
@@ -160,9 +161,12 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         de.lamamc.sift.mob.darksniffer.DarkSnifferKind darkSnifferKind = new de.lamamc.sift.mob.darksniffer.DarkSnifferKind(
                 darkSniffer != null ? darkSniffer : new org.bukkit.configuration.MemoryConfiguration(), items);
         mobs.register(darkSnifferKind);
-        de.lamamc.sift.mob.darksniffer.SnifferInfection infection = new de.lamamc.sift.mob.darksniffer.SnifferInfection(mobs, darkSnifferKind);
+        infection = new de.lamamc.sift.mob.darksniffer.SnifferInfection(mobs, darkSnifferKind);
         getServer().getPluginManager().registerEvents(infection, this);
         infection.start(this);
+        de.lamamc.sift.mob.darksniffer.WardenFriends wardens = new de.lamamc.sift.mob.darksniffer.WardenFriends(mobs, darkSnifferKind);
+        getServer().getPluginManager().registerEvents(wardens, this);
+        wardens.start(this);
         darkSnifferSpawns = new de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns(mobs, darkSnifferKind);
         darkSnifferSpawns.start(this);
         getServer().getPluginManager().registerEvents(mobs, this);
@@ -179,6 +183,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.mob.MobManager mobs() {
         return mobs;
+    }
+
+    public de.lamamc.sift.mob.darksniffer.SnifferInfection snifferInfection() {
+        return infection;
     }
 
     public de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns() {

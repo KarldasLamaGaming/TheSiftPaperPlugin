@@ -55,6 +55,11 @@ public abstract class SiftMob {
         return rig.describe();
     }
 
+    /** Extra state for /sift debug mobs, or null. */
+    public String debugState() {
+        return null;
+    }
+
     public boolean dying() {
         return deathTicks >= 0;
     }
