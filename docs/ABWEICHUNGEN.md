@@ -239,7 +239,9 @@ Echo Golem (seit alpha.19):
   Lichtblock in Luft am Kopf (folgt bei Blockwechsel, sicher aufgeräumt) und ein selbst leuchtender
   Seelenblock-Würfel im Modell (`light_emission`).
 - **Kopf:** Das Modell dreht sich als Ganzes; das getrennte Kopfdrehen (±55°) und das Hinschauen fehlen.
-- **Binden** nur über die UUID des Spielers (das Original stellt die Bindung auch über den Namen wieder her).
+- **Binden** nur über die UUID des Spielers (das Original stellt die Bindung auch über den Namen wieder her). Gespeichert
+  wie im Original als `bonded_player` / `bonded_player_name` (PDC `the_sift:`). Beim Binden spielt zusätzlich ein Klang
+  (Allay), weil die Herzen allein leicht zu übersehen sind.
 
 Dunkler Schnüffler:
 - **Modell:** Im Original ist er der Vanilla-Schnüffler mit eigener Textur. Das Mojang-Modell darf nicht ins
