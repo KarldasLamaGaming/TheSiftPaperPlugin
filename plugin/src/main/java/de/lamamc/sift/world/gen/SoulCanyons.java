@@ -101,6 +101,9 @@ public final class SoulCanyons {
         landmarks.record(SoulCanyonLandmarks.Kind.MIDPOINT, plan.midpoint().x(), plan.midpoint().y(), plan.midpoint().z());
         landmarks.record(SoulCanyonLandmarks.Kind.CLUSTER, plan.cluster().x(), plan.cluster().y(), plan.cluster().z());
         landmarks.record(SoulCanyonLandmarks.Kind.GOLEM_PENDING, plan.entrance().x(), plan.entrance().y(), plan.entrance().z());
+        landmarks.link(plan.cluster().x(), plan.cluster().y(), plan.cluster().z(),
+                new int[] {plan.entrance().x(), plan.entrance().y(), plan.entrance().z()},
+                new int[] {plan.midpoint().x(), plan.midpoint().y(), plan.midpoint().z()});
         return new Built(Outcome.BUILT, plan);
     }
 

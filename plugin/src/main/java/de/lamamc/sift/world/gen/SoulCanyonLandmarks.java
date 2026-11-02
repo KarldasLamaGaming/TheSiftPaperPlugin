@@ -65,6 +65,9 @@ public final class SoulCanyonLandmarks implements Listener {
     public static final String SOUL_BLOCK_ID = "soul_block";
 
     private final Map<Kind, Set<Long>> markers = new EnumMap<>(Kind.class);
+    /** Cluster → {entrance, midpoint} of the same canyon (since alpha.19; older canyons fall back to the nearest). */
+    private final Map<Long, long[]> links = new ConcurrentHashMap<>();
+    private static final NamespacedKey LINKS = new NamespacedKey("the_sift", "soul_canyon_links");
     private final CustomBlockRegistry registry;
     private volatile boolean dirty;
 
@@ -94,6 +97,25 @@ public final class SoulCanyonLandmarks implements Listener {
         if (markers.get(kind).remove(pack(x, y, z))) {
             dirty = true;
         }
+    }
+
+    /** Remembers which entrance and midpoint belong to a canyon's cluster. */
+    public void link(int clusterX, int clusterY, int clusterZ, int[] entrance, int[] midpoint) {
+        links.put(pack(clusterX, clusterY, clusterZ), new long[] {pack(entrance[0], entrance[1], entrance[2]),
+                pack(midpoint[0], midpoint[1], midpoint[2])});
+        dirty = true;
+    }
+
+    /** The canyon's own entrance, else the nearest within 96 blocks (like the original). */
+    public Pos entranceOf(Pos cluster) {
+        long[] link = links.get(pack(cluster.x(), cluster.y(), cluster.z()));
+        return link != null ? unpack(link[0]) : nearest(Kind.ENTRANCE, cluster.x() + 0.5, cluster.y(), cluster.z() + 0.5, 96);
+    }
+
+    /** The canyon's own midpoint, else the nearest within 72 blocks (like the original). */
+    public Pos midpointOf(Pos cluster) {
+        long[] link = links.get(pack(cluster.x(), cluster.y(), cluster.z()));
+        return link != null ? unpack(link[1]) : nearest(Kind.MIDPOINT, cluster.x() + 0.5, cluster.y(), cluster.z() + 0.5, 72);
     }
 
     public int count(Kind kind) {
@@ -150,8 +172,8 @@ public final class SoulCanyonLandmarks implements Listener {
         if (best == null) {
             return null;
         }
-        Pos entrance = nearest(Kind.ENTRANCE, best.x() + 0.5, best.y(), best.z() + 0.5, 96);
-        Pos midpoint = nearest(Kind.MIDPOINT, best.x() + 0.5, best.y(), best.z() + 0.5, 72);
+        Pos entrance = entranceOf(best);
+        Pos midpoint = midpointOf(best);
         int souls = near(Kind.SOUL_BLOCK, best.x() + 0.5, best.y(), best.z() + 0.5, 38, 28).size();
         return new Canyon(best, entrance, midpoint, souls);
     }
@@ -166,6 +188,12 @@ public final class SoulCanyonLandmarks implements Listener {
                 }
             }
         }
+        long[] stored = pdc.get(LINKS, PersistentDataType.LONG_ARRAY);
+        if (stored != null) {
+            for (int i = 0; i + 2 < stored.length; i += 3) {
+                links.put(stored[i], new long[] {stored[i + 1], stored[i + 2]});
+            }
+        }
     }
 
     /** Main thread only. */
@@ -178,6 +206,14 @@ public final class SoulCanyonLandmarks implements Listener {
         for (Kind kind : Kind.values()) {
             pdc.set(kind.key, PersistentDataType.LONG_ARRAY, markers.get(kind).stream().mapToLong(Long::longValue).toArray());
         }
+        long[] flat = new long[links.size() * 3];
+        int i = 0;
+        for (var entry : links.entrySet()) {
+            flat[i++] = entry.getKey();
+            flat[i++] = entry.getValue()[0];
+            flat[i++] = entry.getValue()[1];
+        }
+        pdc.set(LINKS, PersistentDataType.LONG_ARRAY, flat);
     }
 
     private boolean isSoulBlock(Block block) {

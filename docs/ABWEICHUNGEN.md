@@ -204,7 +204,9 @@ Singer:
 - **Bleibend (Spawn-Ei, Befehl):** Im Original läuft er unbegrenzt umher. Hier bleibt er im Umkreis von
   8 Blöcken um seinen Erscheinungsort, nimmt keine Wege mit weniger als 4 Blöcken Höhe und taucht ab, wenn
   er 10 s festsitzt (Entscheidung Phase 2).
-- **Seelen-Ereignis mit dem Echogolem** (Golem bringt dem Singer einen Seelenblock) kommt mit dem Echogolem.
+- **Seelen-Ereignis mit dem Echogolem** (seit alpha.19) wie im Original: Der Golem ruft einen Seelen-Singer, der den
+  Block nimmt. Der Seelen-Singer meidet Schluchten nur beim Erscheinen (nicht 24 Blöcke an einer Schlucht), nicht
+  mehr beim Herumlaufen; ein bleibender Singer (Spawn-Ei) nimmt Golem-Blöcke ebenfalls an.
 - **Tausch:** Gewichtungstabelle des Originals (`mobs.singer.barter.table`). Den gehaltenen Seelenblock zeigt
   das Modell nicht (eigene Render-Schicht im Original); die leuchtenden Teile der Textur (Glowmask) leuchten
   nicht.
@@ -220,6 +222,24 @@ Antike Stadt:
   (`portals.ancient-city.melody`, 12 Töne), die nicht im Hinweis steht, sondern in einem Buch in den Truhen der
   Stadt (Entscheidung Phase 2). Das Buch ist neu.
 - **Wecken:** zusätzlich zum Singer auch mit dem Echo-Resonator der Hauptwelt.
+
+Echo Golem (seit alpha.19):
+- **Basis:** unsichtbares Schaf, Größe 1,28 (Hitbox 1,15 × 1,66 statt 1,15 × 1,65), Stufenhöhe 1,5 wie im Original.
+  Scheren, Färben, Grasfressen und Vermehren sind gesperrt.
+- **Wegfindung vereinfacht:** gleiche Abschnitte (Erkunden, Annähern, Eintreten, Absteigen, Seele suchen, leere
+  Schlucht verlassen, Hinausklettern, Abliefern), Zeiten, Reichweiten und Fehlergrenzen wie im Original; die
+  Rückfall-Wege (anderer Ausgang, Notaufstieg, Zwischenziele) sind kürzer gefasst als die rund 2000 Zeilen des
+  Originals. Teilwege, die näher heranführen, zählen nicht als Fehlschlag.
+- **Schluchten ohne geladene Seelenblöcke** zählen wie im Original nicht als „aktiv“; der Golem geht also nur zu
+  Schluchten in geladenen Chunks (in der Nähe von Spielern).
+- **Mitte und Eingang** gehören seit alpha.19 fest zu ihrer Schlucht (im Original: der nächste Eingang in 96
+  Blöcken; das bleibt der Rückfall für Schluchten aus alpha.18).
+- **Aufheben** beachtet zusätzlich `pickup.enabled` und die Gamerule `mob_griefing` (im Original immer).
+- **Leuchten:** Das Original leuchtet über einen Client-Mod (Licht 14) und eine leuchtende Textur. Hier: ein
+  Lichtblock in Luft am Kopf (folgt bei Blockwechsel, sicher aufgeräumt) und ein selbst leuchtender
+  Seelenblock-Würfel im Modell (`light_emission`).
+- **Kopf:** Das Modell dreht sich als Ganzes; das getrennte Kopfdrehen (±55°) und das Hinschauen fehlen.
+- **Binden** nur über die UUID des Spielers (das Original stellt die Bindung auch über den Namen wieder her).
 
 Dunkler Schnüffler:
 - **Modell:** Im Original ist er der Vanilla-Schnüffler mit eigener Textur. Das Mojang-Modell darf nicht ins
