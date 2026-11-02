@@ -320,6 +320,22 @@ Modelle). Test in der Sift, Überlebensmodus, wo nicht anders angegeben.
       doppelte oder verwaiste Modellteile (`/execute if entity @e[type=item_display,distance=..30]`
       zählt 7 je Blub).
 - [ ] Gezähmter Blub geht durch ein offenes Portal mit (Modell ist danach wieder da).
+
+## Mobs: Modellteile beim Chunk-Entladen (Hotfix alpha.17)
+
+Gilt für alle Sift-Mobs. Die Modellteile (Item-Displays) werden nie gespeichert und tragen die Markierung
+`the_sift:rig`; beim Entladen werden sie nicht mehr mitten im Entlade-Vorgang entfernt, sondern einen Tick
+später.
+- [ ] Einige Sift-Mobs aller Arten an einer Stelle erzeugen, weggehen (Chunks entladen) und zurückkommen:
+      keine Fehler in der Konsole, jedes Modell genau einmal da (`/execute if entity @e[type=item_display,distance=..30]`
+      zählt Würfel × Mobs: Blub 7, Sifter 10, Singer 10, Dunkler Schnüffler 7).
+- [ ] Dasselbe mit Neustart statt Weggehen; und mehrmals schnell hin und her (Elytra) über die Chunk-Grenze.
+- [ ] Einen Sift-Mob töten oder mit `/kill` entfernen: Seine Modellteile verschwinden sofort mit ihm (nach
+      einem Tick), es bleibt nichts in der Luft stehen.
+- [ ] `/sift debug mobs` zeigt „verwaiste entfernt“: Modellteile ohne ihren Mob, die beim Laden eines Chunks
+      gefunden und gelöscht wurden. In einer Welt, die nur mit alpha.17 oder neuer lief, bleibt der Wert 0.
+- [ ] Auf einer Welt aus einer älteren Version: Chunks mit früher stehengebliebenen Modellteilen laden →
+      die Teile verschwinden, der Zähler steigt.
 - [ ] `mobs.blub.enabled: false` und Neustart: kein Spawnen, `/sift spawn blub` meldet „abgeschaltet“;
       vorhandene Blubs bleiben als unsichtbare Wölfe stehen, bis der Schalter wieder an ist.
 
