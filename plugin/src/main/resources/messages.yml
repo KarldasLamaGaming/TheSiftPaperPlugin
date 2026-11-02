@@ -8,6 +8,7 @@ mobs:
     sifter: "Sifter"
     singer: "Singer"
     dark_sniffer: "Dunkler Schnüffler"
+    echo_golem: "Echo Golem"
   spawned: "<green><count> × <mob> erschienen."
   spawn-failed: "<red><mob> konnte hier nicht erscheinen (<reason>)."
   unknown: "<red>Unbekannter Sift-Mob: <mob>"

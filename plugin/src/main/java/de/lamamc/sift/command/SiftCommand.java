@@ -140,6 +140,15 @@ public final class SiftCommand {
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
                         .then(Commands.literal("canyon").then(Commands.literal("build").executes(this::debugCanyonBuild)))
+                        .then(Commands.literal("golems").executes(ctx -> {
+                            var sender = ctx.getSource().getSender();
+                            var spawner = plugin.golemSpawner();
+                            var light = plugin.golemLight();
+                            sender.sendRichMessage("<gray>" + (spawner == null ? "Echo Golems aus" : spawner.describe())
+                                    + (light == null ? "" : "; Lichtblöcke " + (light.enabled() ? "an" : "aus") + ", aktiv "
+                                    + light.active() + ", aufgeräumt " + light.cleanedUp()));
+                            return Command.SINGLE_SUCCESS;
+                        }))
                         .then(Commands.literal("landmarks")
                                 .executes(ctx -> debugLandmarks(ctx, null, 1))
                                 .then(Commands.argument("x", IntegerArgumentType.integer())

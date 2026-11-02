@@ -45,13 +45,17 @@ final class Singer extends SiftMob {
 
     static final NamespacedKey MODE = new NamespacedKey("the_sift", "singer_mode");
     static final NamespacedKey PORTAL = new NamespacedKey("the_sift", "singer_portal");
+    /** The golem a soul Singer was called for (mode "soul_event"). */
+    static final NamespacedKey SOUL_GOLEM = new NamespacedKey("the_sift", "singer_soul_golem");
+    private static final int SOUL_TRANSFER_TICK = 22;
+    private static final int SOUL_EXCHANGE_END = 48;
     private static final NamespacedKey HOME = new NamespacedKey("the_sift", "singer_home");
     private static final NamespacedKey ADVANCEMENT = new NamespacedKey("the_sift", "the_sift/pitch_perfect");
     private static final String LAYER = "singer_sequence";
     private static final int AMBIENT_INTERVAL = 80;
     private static final Color WAVE_COLOR = Color.fromRGB(0x2FD3C9);
 
-    enum Phase { APPEAR, ROAMING, BARTER, DISAPPEAR }
+    enum Phase { APPEAR, ROAMING, BARTER, APPROACH, EXCHANGE, DISAPPEAR }
 
     private record Wave(Block console, Vector start, Vector end, int total, int[] age) {
     }
@@ -60,6 +64,10 @@ final class Singer extends SiftMob {
     private final SingerKind singerKind;
     private final SingerRules rules;
     private final boolean summoned;
+    /** Called by an echo golem: leaves again after 30 s of roaming without a golem. */
+    private final boolean soulEvent;
+    private UUID soulGolem;
+    private int roamTicks;
     private final String portalId;
     private final List<Wave> waves = new ArrayList<>();
     private List<Block> targets;
@@ -82,6 +90,9 @@ final class Singer extends SiftMob {
         this.rules = kind.rules();
         PersistentDataContainer pdc = trader.getPersistentDataContainer();
         this.summoned = "summoned".equals(pdc.get(MODE, PersistentDataType.STRING));
+        this.soulEvent = "soul_event".equals(pdc.get(MODE, PersistentDataType.STRING));
+        String golem = pdc.get(SOUL_GOLEM, PersistentDataType.STRING);
+        this.soulGolem = golem == null ? null : UUID.fromString(golem);
         this.portalId = pdc.get(PORTAL, PersistentDataType.STRING);
         String homeText = pdc.get(HOME, PersistentDataType.STRING);
         if (homeText != null) {
@@ -289,8 +300,11 @@ final class Singer extends SiftMob {
                 boolean walking = trader.getPathfinder().hasPath() || horizontalSpeed2() > 9.0E-4;
                 animations.play(LAYER, walking ? "walk" : "idle", 1.0);
                 stuck();
+                soulRoaming();
             }
             case BARTER -> tickBarter();
+            case APPROACH -> soulApproach();
+            case EXCHANGE -> soulExchange();
             case DISAPPEAR -> {
                 if (phaseTick == 1) {
                     immaterial(true);
@@ -308,6 +322,134 @@ final class Singer extends SiftMob {
                 }
             }
         }
+    }
+
+    // ---- soul exchange with an echo golem (soul event of the original SingerEntity) --------------------------
+
+    /** A soul Singer can take a golem's block while it roams or is already on its way to that golem. */
+    boolean canTakeSoul() {
+        return !summoned && (phase == Phase.ROAMING || phase == Phase.APPROACH) && !trader.isDead();
+    }
+
+    boolean soulEvent() {
+        return soulEvent;
+    }
+
+    /** A carrying golem offers its block: taken unless this Singer already serves another golem that is still there. */
+    void offerSoulGolem(de.lamamc.sift.mob.echogolem.EchoGolem golem) {
+        if (!canTakeSoul() || !golem.hasSoul() || !golem.canInteractWithSinger()) {
+            return;
+        }
+        if (phase != Phase.ROAMING && soulGolem != null && !soulGolem.equals(golem.entity().getUniqueId())
+                && soulPartner() != null) {
+            return;
+        }
+        soulGolem = golem.entity().getUniqueId();
+    }
+
+    private de.lamamc.sift.mob.echogolem.EchoGolem soulPartner() {
+        if (soulGolem == null) {
+            return null;
+        }
+        Entity entity = Bukkit.getEntity(soulGolem);
+        return entity != null && entity.getWorld().equals(trader.getWorld())
+                && manager.mob(entity) instanceof de.lamamc.sift.mob.echogolem.EchoGolem golem && !golem.dying() ? golem : null;
+    }
+
+    private void soulRoaming() {
+        roamTicks++;
+        de.lamamc.sift.mob.echogolem.EchoGolem assigned = soulPartner();
+        if (assigned != null && assigned.hasSoul() && assigned.canInteractWithSinger()
+                && assigned.entity().getLocation().distanceSquared(trader.getLocation()) <= 100) {
+            setPhase(Phase.APPROACH);
+            return;
+        }
+        if (roamTicks % 40 == 1) {
+            de.lamamc.sift.mob.echogolem.EchoGolem nearest = null;
+            double best = Double.MAX_VALUE;
+            for (Entity entity : trader.getNearbyEntities(48, 28, 48)) {
+                if (manager.mob(entity) instanceof de.lamamc.sift.mob.echogolem.EchoGolem golem && golem.hasSoul()
+                        && golem.canInteractWithSinger()) {
+                    double d = entity.getLocation().distanceSquared(trader.getLocation());
+                    if (d < best) {
+                        best = d;
+                        nearest = golem;
+                    }
+                }
+            }
+            if (nearest != null) {
+                soulGolem = nearest.entity().getUniqueId();
+                if (best <= 100) {
+                    setPhase(Phase.APPROACH);
+                    return;
+                }
+            }
+        }
+        if (soulEvent && roamTicks >= kind.config().getInt("soul-event.roam-ticks", 600)) {
+            setPhase(Phase.DISAPPEAR);
+        }
+    }
+
+    private void soulApproach() {
+        de.lamamc.sift.mob.echogolem.EchoGolem golem = soulPartner();
+        if (golem == null || !golem.hasSoul() || !golem.canInteractWithSinger()) {
+            soulGolem = null;
+            roamTicks = 0;
+            setPhase(Phase.ROAMING);
+            return;
+        }
+        Location target = golem.entity().getLocation();
+        face(target);
+        animations.play(LAYER, "walk", 1.0);
+        if (phaseTick % 15 == 1 || !trader.getPathfinder().hasPath()) {
+            trader.getPathfinder().moveTo(target, 0.92);
+        }
+        double d2 = target.distanceSquared(trader.getLocation());
+        if (d2 > 144) {
+            roamTicks = 0;
+            setPhase(Phase.ROAMING);
+        } else if (d2 <= 6.25) {
+            trader.getPathfinder().stopPathfinding();
+            golem.beginBow();
+            setPhase(Phase.EXCHANGE);
+            animations.trigger(LAYER, "receive_soul");
+        }
+    }
+
+    private void soulExchange() {
+        trader.getPathfinder().stopPathfinding();
+        de.lamamc.sift.mob.echogolem.EchoGolem golem = soulPartner();
+        if (golem == null) {
+            soulGolem = null;
+            roamTicks = 0;
+            setPhase(Phase.ROAMING);
+            return;
+        }
+        face(golem.entity().getLocation());
+        if (phaseTick < SOUL_TRANSFER_TICK && !golem.hasSoul()) {
+            golem.finishBow();
+            endExchange();
+            return;
+        }
+        if (phaseTick == SOUL_TRANSFER_TICK) {
+            if (!golem.transferSoulToSinger()) {
+                golem.finishBow();
+                endExchange();
+                return;
+            }
+            playSound("entity.singer.happy", 1.0f, 0.96f + ThreadLocalRandom.current().nextFloat() * 0.08f);
+        }
+        if (phaseTick >= SOUL_EXCHANGE_END) {
+            golem.finishBow();
+            endExchange();
+        }
+    }
+
+    private void endExchange() {
+        soulGolem = null;
+        roamTicks = 0;
+        animations.play(LAYER, "idle", 1.0);
+        setPhase(Phase.ROAMING);
     }
 
     private double horizontalSpeed2() {

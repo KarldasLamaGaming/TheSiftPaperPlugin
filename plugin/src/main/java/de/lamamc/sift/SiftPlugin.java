@@ -58,6 +58,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
     private de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns;
+    private de.lamamc.sift.mob.echogolem.GolemLight golemLight;
+    private de.lamamc.sift.mob.echogolem.EchoGolemSpawner golemSpawner;
     private de.lamamc.sift.mob.darksniffer.SnifferInfection infection;
 
     @Override
@@ -173,6 +175,20 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         wardens.start(this);
         darkSnifferSpawns = new de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns(mobs, darkSnifferKind);
         darkSnifferSpawns.start(this);
+        org.bukkit.configuration.ConfigurationSection golem = config.getConfigurationSection("echo_golem");
+        if (golem == null) {
+            golem = new org.bukkit.configuration.MemoryConfiguration();
+        }
+        de.lamamc.sift.mob.echogolem.EchoGolemKind golemKind = new de.lamamc.sift.mob.echogolem.EchoGolemKind(golem, items, blocks,
+                () -> canyonLandmarks);
+        mobs.register(golemKind);
+        golemLight = new de.lamamc.sift.mob.echogolem.GolemLight(this, golem, getLogger());
+        golemKind.light(golemLight);
+        getServer().getPluginManager().registerEvents(golemLight, this);
+        golemLight.cleanLoaded();
+        golemKind.singers(new de.lamamc.sift.mob.singer.SoulSingers(mobs, singerKind, () -> canyonLandmarks));
+        golemSpawner = new de.lamamc.sift.mob.echogolem.EchoGolemSpawner(mobs, golemKind, () -> canyonLandmarks);
+        golemSpawner.start(this);
         getServer().getPluginManager().registerEvents(mobs, this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.BaseMobGuard(mobs), this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.SpawnEggs(mobs), this);
@@ -191,6 +207,14 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.mob.darksniffer.SnifferInfection snifferInfection() {
         return infection;
+    }
+
+    public de.lamamc.sift.mob.echogolem.GolemLight golemLight() {
+        return golemLight;
+    }
+
+    public de.lamamc.sift.mob.echogolem.EchoGolemSpawner golemSpawner() {
+        return golemSpawner;
     }
 
     public de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns() {
@@ -340,6 +364,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
+        }
+        if (golemLight != null) {
+            golemLight.removeAll(); // before the golems detach: no block changes are scheduled any more
         }
         if (mobs != null) {
             mobs.stop();

@@ -411,6 +411,12 @@ mobs:
     # seine Höhe; hängt er so lange fest, taucht er ab
     leash-radius: 8
     stuck-seconds: 10
+    # Seelen-Singer (Original): ein Echo Golem mit Seelenblock ruft ihn (sucht erst einen Singer in search Blöcken);
+    # er nimmt den Block unter einer Verbeugung des Golems an und taucht nach roam-ticks ohne Golem wieder ab
+    soul-event:
+      enabled: true
+      search: 52
+      roam-ticks: 600
     barter:
       # so lange hält er den Seelenblock, bevor die Belohnung kommt (Ticks)
       hold-ticks: 40
@@ -433,6 +439,84 @@ mobs:
         - {item: "minecraft:redstone_block", weight: 5, count: [4, 16]}
         - {item: "minecraft:string", weight: 8, count: [4, 16]}
         - {item: "#wool", weight: 9, count: [9, 24]}
+
+  # Echo Golem (Original: EchoGolemEntity 1.1.1). Basis ist ein unsichtbares Schaf, Größe 1,28 (Hitbox 1,15 × 1,66,
+  # Original 1,15 × 1,65). Holt Seelenblöcke aus Seelenschluchten und bringt sie einem Singer oder, mit einem
+  # Echo-Splitter gebunden, seinem Spieler.
+  echo_golem:
+    enabled: true
+    base-scale: 1.28
+    model-scale: 1.0
+    shadow-radius: 0.72
+    attributes:
+      max-health: 34.0
+      movement-speed: 0.23
+      follow-range: 128.0
+      # Original 1,5: damit kommt er die Rampen der Schluchten sicher hinauf und hinunter
+      step-height: 1.5
+      knockback-resistance: 0.25
+    # Erfahrung, wenn ein Spieler ihn tötet [min, max] (Original 4–7); Beute hat er keine
+    experience: [4, 7]
+    # Seelenblöcke aufheben (setzt sie zu Luft); nur in der Sift, die Gamerule mob_griefing gilt zusätzlich
+    pickup:
+      enabled: true
+    # Leuchten, während er einen Seelenblock trägt: model = leuchtender Seelenblock im Modell,
+    # light-block = unsichtbarer Lichtblock in seinem Kopfblock (nur in Luft gesetzt, nur eigene entfernt), level 1–15
+    glow:
+      model: true
+      light-block: true
+      level: 14
+    # höchstens so viele neue Wege je Server-Tick für alle Golems zusammen (Original 1)
+    paths-per-tick: 1
+    # Zeiten in Ticks (Original)
+    timings:
+      pickup-take: 18
+      pickup-end: 34
+      bow-give: 26
+      bow-end: 48
+      bow-timeout: 100
+      sit: 600
+      ignore-canyon: 600
+      blocked-canyon: 2400
+      empty-canyon: 6000
+    # Suche (Blöcke, Ticks; Original)
+    search:
+      canyon-interval: 45
+      canyon-range: 1024
+      distant-canyon: 96
+      scan-interval: 12
+      scan-radius: 36
+      scan-height: 26
+      target-scan-radius: 16
+      target-scan-height: 12
+      hand-reach: 1.75
+      approach-offset: 7
+    # Abliefern: Singer-Suche, Reichweite zum gebundenen Spieler, Verbeugen, Patrouille (Original)
+    delivery:
+      singer-interval: 30
+      singer-search: 52
+      owner-range: 64
+      bow-distance: 3
+      patrol-leash: 64
+      patrol-min: 14
+      patrol-max: 60
+    # Tempo je Abschnitt (Vielfaches des Lauftempos, Original)
+    speeds: {explore: 0.78, approach: 0.88, enter: 0.84, descend: 0.82, soul: 0.9, exit: 0.88, owner: 0.82, singer: 0.86, patrol: 0.74, patrol-return: 0.76}
+    # Erscheinen (Original 1.1.1): alle interval Ticks zuerst an einem Schlucht-Eingang, der noch auf seinen Golem
+    # wartet (Ring bis entrance-ring Blöcke, höchstens entrance-max-dy höher/tiefer), sonst um Spieler ohne Golem
+    # in spacing × spacing-vertical, min-distance bis max-distance Blöcke entfernt
+    spawn:
+      enabled: true
+      interval: 80
+      canyon-entrances: true
+      entrance-ring: 12
+      entrance-max-dy: 6
+      near-players: true
+      spacing: 165
+      spacing-vertical: 96
+      min-distance: 82
+      max-distance: 160
+      attempts: 28
 
   # Dunkler Schnüffler (Original: DarkSnifferEntity). Basis ist ein unsichtbarer Eisbär ohne eigenes Verhalten.
   # Modell: eigenes, vereinfachtes Modell auf der Original-Textur (nicht das Vanilla-Sniffer-Modell).

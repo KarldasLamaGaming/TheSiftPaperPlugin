@@ -119,6 +119,14 @@ public final class BaseMobGuard implements Listener {
         }
     }
 
+    /** Dispensers shear sheep too (the Echo Golem's base). */
+    @EventHandler(ignoreCancelled = true)
+    public void onDispenserShear(org.bukkit.event.block.BlockShearEntityEvent event) {
+        if (sift(event.getEntity())) {
+            event.setCancelled(true);
+        }
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onMount(EntityMountEvent event) {
         // no boats, minecarts or riding other mobs; their own displays are mounted through the API
