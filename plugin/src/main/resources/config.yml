@@ -112,6 +112,18 @@ worldgen:
   main-portal:
     # Haupt-Portal beim ersten Start in der Nähe von 0/0 bauen
     enabled: true
+  # Seelenschluchten (Original 1.1.1): höchstens eine je Zelle aus N × N Chunks, ein mäandernder Graben mit
+  # Seelenblöcken im Boden; Heimat des Echo Golems. Nur neue Chunks; /sift debug canyon build baut eine von Hand.
+  soul-canyons:
+    enabled: true
+    cell-chunks: 12
+    # Mindestabstand zum Haupt-Portal (Blöcke)
+    portal-clearance: 34
+    # so viele Seelenblöcke braucht eine Schlucht, sonst wird sie nicht gebaut
+    min-souls: 8
+    biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_deep_dark, sift_wastes, siftslate_peaks, siftslate_slopes]
+    # aufsteigende Seelen-Partikel über offenen Seelenblöcken (wie im Original)
+    particles: true
 
 # Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
 # Portale (Schritt 7): Durchgang in die Sift und zurück, Konsolen aus Klingendem Tiefenschiefer

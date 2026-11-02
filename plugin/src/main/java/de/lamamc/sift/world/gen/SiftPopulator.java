@@ -39,16 +39,24 @@ public final class SiftPopulator extends BlockPopulator {
         public final AtomicLong plantPatches = new AtomicLong();
         public final AtomicLong sculkChunks = new AtomicLong();
         public final AtomicLong abandonedPortals = new AtomicLong();
+        /** Soul canyons: candidates, built, and the time spent on them (planning and carving). */
+        public final AtomicLong canyonCandidates = new AtomicLong();
+        public final AtomicLong canyons = new AtomicLong();
+        public final AtomicLong canyonNanos = new AtomicLong();
+        public final AtomicLong canyonMaxNanos = new AtomicLong();
+        public final java.util.Map<String, Integer> canyonRejects = new java.util.concurrent.ConcurrentHashMap<>();
         public final AtomicLong errors = new AtomicLong();
         public final java.util.Map<String, Integer> portalRejects = new java.util.concurrent.ConcurrentHashMap<>();
     }
 
     private final PortalReservation reservation;
     private final LandmarkLog log;
+    private final SoulCanyons canyons;
 
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
-                         PortalReservation reservation, LandmarkLog log, Logger logger) {
+                         PortalReservation reservation, LandmarkLog log, SoulCanyons canyons, Logger logger) {
         this.reservation = reservation;
+        this.canyons = canyons;
         this.log = log;
         this.registry = registry;
         this.support = support;
@@ -74,6 +82,10 @@ public final class SiftPopulator extends BlockPopulator {
 
     public LandmarkLog log() {
         return log;
+    }
+
+    public SoulCanyons canyons() {
+        return canyons;
     }
 
     public Stats stats() {
@@ -119,6 +131,9 @@ public final class SiftPopulator extends BlockPopulator {
                 stats.portalRejects.merge(entry.reason().replaceAll(" \\(.*", "").replaceAll(" durch .*", ""), 1, Integer::sum);
             }
         }
+        if (settings.soulCanyons() && canyons.isSelected(seed, chunkX, chunkZ)) {
+            canyon(region, random, chunkX, chunkZ);
+        }
         if (settings.willowTrees()) {
             if (settings.denseWillowBiomes().contains(biome)) {
                 for (int i = 0; i < settings.denseWillowCount(); i++) {
@@ -142,6 +157,30 @@ public final class SiftPopulator extends BlockPopulator {
         if (settings.surfaceSculk() && anyBiome(region, chunkX, chunkZ, settings.sculkBiomes())
                 && sculk.place(region, seed, chunkX, chunkZ)) {
             stats.sculkChunks.incrementAndGet();
+        }
+    }
+
+    /** Soul canyon of this cell (feature step underground_decoration, after the abandoned portals). */
+    private void canyon(GenRegion region, Random random, int chunkX, int chunkZ) {
+        stats.canyonCandidates.incrementAndGet();
+        long start = System.nanoTime();
+        int centerX = (chunkX << 4) + 8;
+        int centerZ = (chunkZ << 4) + 8;
+        SoulCanyons.Outcome outcome;
+        if (!anyBiome(region, chunkX, chunkZ, settings.canyonBiomes())) {
+            outcome = SoulCanyons.Outcome.BIOME;
+        } else if (reservation.intersects(centerX, centerZ, settings.canyonPortalClearance())) {
+            outcome = SoulCanyons.Outcome.PORTAL;
+        } else {
+            outcome = canyons.build(SoulCanyons.of(region, chunkX, chunkZ), centerX, centerZ, random, reservation).outcome();
+        }
+        long nanos = System.nanoTime() - start;
+        stats.canyonNanos.addAndGet(nanos);
+        stats.canyonMaxNanos.accumulateAndGet(nanos, Math::max);
+        if (outcome == SoulCanyons.Outcome.BUILT) {
+            stats.canyons.incrementAndGet();
+        } else {
+            stats.canyonRejects.merge(outcome.name(), 1, Integer::sum);
         }
     }
 
