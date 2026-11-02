@@ -491,6 +491,9 @@ public final class SiftCommand {
                         Math.round(Math.sqrt(canyon.cluster().horizontalDistanceSquared(fromX, fromZ))), canyon.souls(),
                         e.x(), e.y(), e.z(), e.x(), e.y(), e.z()));
             }
+            if (plugin.canyonParticles() != null) {
+                sender.sendRichMessage("<gray>Seelen-Partikel: <white>" + plugin.canyonParticles().describe(from));
+            }
         }
         sender.sendRichMessage("<gray>Sculk-Regionen (Mitte, Durchmesser) in den 512er-Zellen um " + centerX + " " + centerZ + ":");
         int sculkX = Math.floorDiv(centerX, de.lamamc.sift.core.worldgen.SculkRegions.CELL_SIZE);

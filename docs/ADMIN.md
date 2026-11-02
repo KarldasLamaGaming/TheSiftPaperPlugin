@@ -247,11 +247,27 @@ in `docs/ABWEICHUNGEN.md`.
 ### Seelenschluchten
 
 `worldgen.soul-canyons` (Standard an, `[Start]`, nur neue Chunks): `cell-chunks` (12), `portal-clearance` (34),
-`min-souls` (8, weniger Seelenblöcke = keine Schlucht), `biomes`, `particles`. Jede Schlucht hinterlässt
+`min-souls` (8, weniger Seelenblöcke = keine Schlucht), `biomes`, `particles` (siehe unten). Jede Schlucht hinterlässt
 Markierungen im Welt-Speicher der Sift (Eingang, Mitte, Zentrum der Seelen, jeder Seelenblock, „Golem
 ausstehend“ für den Echo Golem ab alpha.19). Von Spielern gesetzte oder abgebaute Seelenblöcke werden ein- bzw.
 ausgetragen.
-- `/sift debug landmarks` nennt die Zahl der Schluchten und die nächste mit Teleport-Klick zum Eingang.
+- **Seelen-Partikel** (`worldgen.soul-canyons.particles`, ab alpha.18.1, `[Start]`):
+
+  | Wert | Standard | Bedeutung |
+  |---|---|---|
+  | `enabled` | `true` | an/aus |
+  | `type` | `SCULK_SOUL` | Partikelart ohne Zusatzdaten (z. B. `SOUL`, klein wie im Original) |
+  | `amount` | 3 | Partikel je Seelenblock und Lauf |
+  | `souls-per-run` | 4 | so viele offene Seelenblöcke je Schlucht bekommen pro Lauf Partikel |
+  | `air-above` | 4 | so viele freie Blöcke (Luft, Pflanzen) über dem Seelenblock, damit er als offen gilt (Original 50) |
+  | `view-distance` | 48 | nur Schluchten mit einem Spieler in diesem Abstand laufen, und nur diese Spieler bekommen die Partikel |
+  | `interval-ticks` | 10 | alle N Ticks ein Lauf |
+
+  Die alte Form `particles: true` bzw. `false` geht weiter (dann gelten die Standardwerte). Es laufen nur
+  Schluchten mit Spieler in Sichtweite und geladenem Chunk; die offenen Seelenblöcke werden 5 s zwischengespeichert.
+- `/sift debug landmarks` nennt die Zahl der Schluchten und die nächste mit Teleport-Klick zum Eingang, dazu eine
+  Zeile „Seelen-Partikel“: Schluchten in Sichtweite der eigenen Position, ihre Seelenblöcke, davon offen, und was der
+  letzte Lauf gesendet hat.
 - `/sift debug worldgen` zeigt gebaute Schluchten, Gründe für nicht gebaute und die Zeit je Kandidat.
 - `/sift debug canyon build` baut **in schon generiertem, geladenem Gelände** eine Schlucht mit demselben Plan
   und trägt ihre Markierungen ein (zum Testen ohne neue Chunks). Passt das Gelände an der eigenen Position
