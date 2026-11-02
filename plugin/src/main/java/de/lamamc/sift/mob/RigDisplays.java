@@ -88,11 +88,19 @@ final class RigDisplays {
         mob.manager.stats().spawnedDisplays += matrices.length;
     }
 
+    /** Removes the displays right away; only outside entity add/remove events (they must not change entities). */
     void remove() {
         for (ItemDisplay display : displays) {
             display.remove();
         }
         displays.clear();
+    }
+
+    /** Forgets the displays and hands them to the caller, who removes them later (see MobManager#removeLater). */
+    List<ItemDisplay> release() {
+        List<ItemDisplay> released = List.copyOf(displays);
+        displays.clear();
+        return released;
     }
 
     /** Sends the current pose; returns how many displays got a new transformation. */

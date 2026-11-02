@@ -484,7 +484,7 @@ Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben re
 | `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben (auch mit `thesift.admin.items`) |
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
-| `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, nächster Mob mit Hitbox |
+| `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
 | `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung) |
 | `/sift debug infect` | Nächsten normalen Schnüffler in 16 Blöcken sofort infizieren (verwandelt sich nach `infection.conversion-ticks`, nur in der Sift) |
 | `/sift debug mobs walk <x> <y> <z>` | Nächsten Sift-Mob zu einem Block laufen lassen (Test der Wegfindung) |

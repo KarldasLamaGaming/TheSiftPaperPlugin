@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -24,13 +25,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 /**
  * Registry and driver of all Sift mobs. A base mob is a Sift mob through its PDC entry {@code the_sift:mob};
  * whenever such an entity enters a world (spawn, chunk load, portal trip) it gets its behaviour and display
- * rig, and loses them when it leaves. The displays are not saved, so nothing is left behind after a crash.
+ * rig, and loses them when it leaves. The displays are not saved (not persistent, marked with
+ * {@code the_sift:rig} = owner UUID), so nothing is left behind after a crash; displays found without their
+ * mob when entities load are removed. Entity add/remove events never add or remove entities themselves:
+ * that happens one tick later (removing entities while a chunk unloads breaks the unload).
  */
 public final class MobManager implements Listener {
 
@@ -46,6 +51,8 @@ public final class MobManager implements Listener {
     private final int perPlayer;
     private final int playerRadius;
     private final Stats stats = new Stats();
+    /** Entities whose removal is scheduled for the next tick (each only once). */
+    private final java.util.Set<UUID> pendingRemoval = new java.util.HashSet<>();
     private long tick;
 
     /** Counters for /sift debug mobs. */
@@ -57,6 +64,8 @@ public final class MobManager implements Listener {
         long windowTransformations;
         public double transformationsPerSecond;
         public long errors;
+        /** Displays found without their mob (chunk load, world add) and removed. */
+        public long orphansRemoved;
     }
 
     public MobManager(Plugin plugin, ConfigurationSection config) {
@@ -211,12 +220,55 @@ public final class MobManager implements Listener {
         return perWorld;
     }
 
+    /**
+     * Removes entities one tick later, if they are still in a world. Used from entity events, where changing
+     * entities is not allowed. While the plugin shuts down nothing is scheduled: the displays are not
+     * persistent and disappear with their chunk or the server.
+     */
+    private int removeLater(Collection<? extends Entity> entities) {
+        if (entities.isEmpty() || !plugin.isEnabled()) {
+            return 0;
+        }
+        List<Entity> batch = new ArrayList<>();
+        for (Entity entity : entities) {
+            if (pendingRemoval.add(entity.getUniqueId())) {
+                batch.add(entity);
+            }
+        }
+        if (!batch.isEmpty()) {
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                for (Entity entity : batch) {
+                    pendingRemoval.remove(entity.getUniqueId());
+                    if (entity.isValid()) {
+                        entity.remove();
+                    }
+                }
+            });
+        }
+        return batch.size();
+    }
+
+    private boolean orphan(Entity entity) {
+        return RigDisplays.isPart(entity) && !mobs.containsKey(rigOwner(entity));
+    }
+
+    /** Displays saved by an older version or left over after a crash come back with their chunk: remove them. */
+    @EventHandler
+    public void onEntitiesLoad(EntitiesLoadEvent event) {
+        List<Entity> orphans = new ArrayList<>();
+        for (Entity entity : event.getEntities()) {
+            if (orphan(entity)) {
+                orphans.add(entity);
+            }
+        }
+        stats.orphansRemoved += removeLater(orphans);
+    }
+
     @EventHandler
     public void onAdd(EntityAddToWorldEvent event) {
         Entity entity = event.getEntity();
-        if (RigDisplays.isPart(entity) && !mobs.containsKey(rigOwner(entity))) {
-            // a display without its mob (should not happen, they are not saved): remove it next tick
-            Bukkit.getScheduler().runTask(plugin, entity::remove);
+        if (orphan(entity)) {
+            stats.orphansRemoved += removeLater(List.of(entity));
             return;
         }
         if (kindOf(entity) != null && entity instanceof Mob base) {
@@ -237,12 +289,16 @@ public final class MobManager implements Listener {
         }
     }
 
+    /**
+     * The base mob leaves its world (chunk unload, death, removal, portal): forget it and remove its displays
+     * one tick later. On a chunk unload they are gone by then (not saved); otherwise they are removed.
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRemove(EntityRemoveFromWorldEvent event) {
         SiftMob mob = mobs.remove(event.getEntity().getUniqueId());
         if (mob != null) {
             mob.detached();
-            mob.rig.remove();
+            removeLater(mob.rig.release());
         }
     }
 

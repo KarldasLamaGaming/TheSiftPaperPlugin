@@ -123,7 +123,7 @@ final class MobCommand {
         sender.sendMessage(Component.text("  je Welt: " + perWorld + ", je Art: " + perKind));
         sender.sendMessage(Component.text("  Displays erzeugt: " + stats.spawnedDisplays + ", Updates: " + stats.updates
                 + ", Transformationen: " + stats.transformations + String.format(" (%.1f/s)", stats.transformationsPerSecond)
-                + ", Fehler: " + stats.errors));
+                + ", Fehler: " + stats.errors + ", verwaiste entfernt: " + stats.orphansRemoved));
         sender.sendMessage(Component.text("  natürlich erschienen: " + spawner.spawned()));
         for (MobKind kind : mobs.kinds().values()) {
             sender.sendMessage(Component.text("  " + kind.id() + ": " + (kind.enabled() ? "an" : "aus") + ", Basis "
