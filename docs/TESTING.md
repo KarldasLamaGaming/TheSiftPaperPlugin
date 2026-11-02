@@ -516,6 +516,55 @@ Test in der Sift, Schwierigkeit mindestens Leicht, Überlebensmodus. Werte unter
       ihn kalt.
 - [ ] Fisch füttern, Vermehren, Leine: geht nicht.
 
+## Mobs: Echo Golem und Seelen-Singer (ab alpha.19, Phase 2 Schritt 6b)
+
+Test in der Sift, Überlebensmodus. Werte unter `mobs.echo_golem`, Seelen-Singer unter `mobs.singer.soul-event`.
+`/sift debug golems` zeigt alle Golems mit Zustand und die Zähler; `/sift debug mobs` den nächsten.
+
+**So testest du gezielt (ohne neue Chunks)**
+1. Auf flachen, kahlen Siftschiefer stellen (Gamerule `mob_griefing` an) und `/sift debug canyon build`. Die Meldung
+   nennt Mitte und Eingang (Klick = Teleport) und trägt den Eingang als „Golem ausstehend“ ein.
+2. Innerhalb von etwa 4 s erscheint dort von selbst ein Golem (`/sift debug golems`: „1 an Schlucht-Eingängen“). Oder
+   gezielt: am Eingang `/sift spawn echo_golem`.
+3. Am Rand der Schlucht zuschauen (nicht hineinspringen, ein Treffer lässt ihn die Seele fallen). Er läuft die Rampe
+   hinunter, bückt sich über einem Seelenblock, der Block verschwindet, und er klettert mit dem leuchtenden Block
+   wieder hinauf.
+4. Oben ruft er einen Seelen-Singer; der kommt heran, der Golem verbeugt sich, der Block wechselt den Besitzer
+   (Advancement „Like father and son“ in 16 Blöcken). Danach geht das Spiel von vorn los.
+5. Binden: einem Golem mit einem Echo-Splitter (Rechtsklick) begegnen. Ab dann bringt er die Seele dir.
+
+**Prüfpunkte**
+- [ ] Aussehen: Modell des Originals (Körper, Arme, Kopf mit „Krone“), läuft und steht gerade; beim Tragen
+      sitzt der Seelenblock oben auf dem Kopf und leuchtet, sonst ist er unsichtbar.
+- [ ] Animationen: Gehen, Bücken beim Aufheben, Tragen (Gehen und Stehen), Verbeugen, Sitzen.
+- [ ] **Rampe:** Er kommt die Rampe hinunter bis zu den Seelen und mit Seele wieder hinauf, ohne hängen zu bleiben
+      (Smoke-Test: 8 Runden in 4 Minuten, y 85 → 73 → 88).
+- [ ] Aufheben: Der Seelenblock wird zu Luft; `mob_griefing false` oder `pickup.enabled: false` → er hebt nichts auf.
+- [ ] Seelen-Singer: erscheint 7–12 Blöcke vom Golem, nicht direkt an der Schlucht; nimmt den Block; taucht nach
+      etwa 30 s ohne Golem wieder ab. Ein Singer aus dem Spawn-Ei nimmt Golem-Blöcke ebenfalls an.
+- [ ] Echo-Splitter: Herzen, Splitter verbraucht (nicht im Kreativmodus), Golem bringt dir die Seele: Er kommt
+      heran, verbeugt sich, der Seelenblock landet im Inventar (Advancement „Friend of the Sift“). Bist du weiter als
+      64 Blöcke weg, läuft er um den Schlucht-Eingang herum.
+- [ ] Ein Treffer oder Rechtsklick (ohne Splitter) lässt den Seelenblock als Item fallen; er setzt sich 30 s hin.
+      Ein gebundener Golem reagiert auf Rechtsklick nur bei seinem Spieler.
+- [ ] Tod: keine Beute, Erfahrung 4–7 nur bei Spieler-Kill; trug er einen Block, fällt der vorher heraus.
+- [ ] Erscheinen um Spieler: weit weg von jeder Schlucht fliegen; nach einer Weile erscheint 82–160 Blöcke entfernt
+      ein Golem, solange in 165 Blöcken keiner ist.
+- [ ] Grenzen: Golems zählen zu `mobs.limits.per-world`; bei erreichter Grenze erscheinen keine weiteren.
+
+**Lichtblock (sicheres Aufräumen)**
+- [ ] Nachts in der Schlucht: Ein tragender Golem erhellt seine Umgebung (Lichtstufe 14), das Licht wandert mit.
+      F3 + Blick auf den Kopfblock: `minecraft:light`. Unter Wasser oder in Pflanzen gibt es kein Licht.
+- [ ] `/sift debug golems` an der Schlucht: „Lichtblöcke … in 48 Blöcken: N, davon von tragenden Golems N, übrig 0“.
+- [ ] Weggehen (Chunks entladen), Server neu starten, zurückkommen: „übrig 0“, kein Licht an alten Stellen.
+- [ ] Golem mit Seele töten (`/kill`): Licht ist sofort weg.
+- [ ] Einen eigenen Lichtblock (`/give @s light`) in die Nähe setzen: Er bleibt immer stehen (zählt als „übrig“).
+- [ ] `glow.light-block: false` (Neustart): kein Lichtblock mehr, das Modell leuchtet weiter (`glow.model`).
+
+**Basis-Mob schlägt nicht durch** (unsichtbares Schaf)
+- [ ] Kein Blöken, keine Schaf-Schritte; Schere (auch aus einem Werfer), Farbstoff, Weizen, Leine: nichts passiert.
+- [ ] Er frisst kein Gras und lässt keine Wolle fallen.
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.

@@ -478,6 +478,42 @@ Einzeln schaltbar unter `mobs.dark_sniffer`: `sonic.enabled`, `dig.enabled`, `in
 (ruhige Wächter streicheln ihn ab und zu). Spawn-Ei `dark_sniffer_spawn_egg`. `/sift debug infect` infiziert
 den nächsten normalen Schnüffler sofort (Test der Infektion).
 
+### Echo Golem (ab alpha.19)
+
+Basis Schaf (Größe 1,28, Hitbox 1,15 × 1,66, Stufenhöhe 1,5), friedlich, verschwindet nie. Er sucht die nächste
+Seelenschlucht mit geladenen Seelenblöcken (bis 1024 Blöcke), steigt über Eingang und Mitte hinab, hebt einen
+Seelenblock auf (der Block wird zu Luft; nur in der Sift, `pickup.enabled`, Gamerule `mob_griefing`) und klettert
+wieder hinaus. Ungebunden ruft er einen **Seelen-Singer** (erscheint 7–12 Blöcke entfernt, nimmt den Block unter
+einer Verbeugung an, Advancement „Like father and son“ für Spieler in 16 Blöcken, taucht nach 30 s ohne Golem
+wieder ab). Mit einem **Echo-Splitter** (Rechtsklick) wird er an den Spieler gebunden und bringt ihm den Block ins
+Inventar (Advancement „Friend of the Sift“). Jeder Treffer und jeder Rechtsklick ohne Splitter lässt den Block
+fallen; danach sitzt er 30 s. Keine Beute, Erfahrung 4–7. Spawn-Ei `echo_golem_spawn_egg`.
+
+Erscheinen (`mobs.echo_golem.spawn`): alle 80 Ticks zuerst an einem Schlucht-Eingang, der noch „Golem ausstehend“
+ist (jede neue oder per Befehl gebaute Schlucht bekommt so einen Golem), sonst um Spieler ohne Golem in
+165 × 96 × 165, 82–160 Blöcke entfernt. Golems zählen zu `mobs.limits.per-world`.
+
+Leuchten beim Tragen (`mobs.echo_golem.glow`):
+- `model` (Standard an): leuchtender Seelenblock im Modell.
+- `light-block` (Standard an): unsichtbarer Lichtblock der Stufe `level` (14) im Kopfblock des Golems.
+  - Gesetzt wird er nur in Luft und nur, wenn der Kopf den Block wechselt.
+  - Entfernt wird er nur, wenn dort noch unser Lichtblock steht; jede Position steht vorher in den Daten ihres Chunks.
+  - Er verschwindet beim Abgeben und Fallenlassen, bei Tod und Entfernen (einen Tick später) und beim
+    Plugin-Stopp oder Serverstopp.
+  - Übrig gebliebene Lichtblöcke (Absturz, Chunk entladen) räumt das nächste Laden des Chunks auf.
+  - Abschalten mit `light-block: false`; das Aufräumen läuft trotzdem weiter.
+
+Weitere Werte: `attributes`, `timings`, `search`, `delivery`, `speeds`, `paths-per-tick` (Wege je Tick für alle
+Golems), alle wie im Original. Der Seelen-Singer steht unter `mobs.singer.soul-event` (`enabled`, `search`,
+`roam-ticks`).
+
+`/sift debug golems` zeigt:
+- erschienene Golems, ausstehende Eingänge und die Zähler (aufgehoben, an Singer, an Spieler, fallen gelassen);
+- die Lichtblöcke in 48 Blöcken um dich (davon von tragenden Golems, übrig);
+- je Golem eine Zeile mit Position, Zustand, Ziel, Schlucht und Bindung.
+
+`/sift debug mobs` zeigt den Zustand des nächsten Golems bzw. Singers.
+
 ### Portal der Antiken Stadt
 
 `portals.ancient-city` (Standard an, `[Start]`, nur neue Chunks): Das Zentrum jeder neuen Antiken Stadt wird
@@ -518,6 +554,7 @@ Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben re
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
 | `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung) |
+| `/sift debug golems` | Echo Golems: Erscheinen, Zähler der Seelenblöcke, Lichtblöcke in 48 Blöcken, Zustand jedes Golems |
 | `/sift debug infect` | Nächsten normalen Schnüffler in 16 Blöcken sofort infizieren (verwandelt sich nach `infection.conversion-ticks`, nur in der Sift) |
 | `/sift debug mobs walk <x> <y> <z>` | Nächsten Sift-Mob zu einem Block laufen lassen (Test der Wegfindung) |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
