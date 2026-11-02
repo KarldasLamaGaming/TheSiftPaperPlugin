@@ -441,9 +441,29 @@ Test in der Sift, Schwierigkeit mindestens Leicht, Überlebensmodus. Werte unter
       Sculkblumensamen fallen (Advancement „Riecht unheimlich“). Danach etwa 8 Minuten Pause. Der Sculk bleibt.
 
 **Infektion**
-- [ ] Einen normalen Schnüffler (Spawn-Ei) in der Sift auf Sculk graben lassen: Er bekommt Seelen-Partikel und
-      wird nach 30 Sekunden zum Dunklen Schnüffler (Klang). In der Hauptwelt passiert das nicht
-      (`infection.only-in-sift`).
+- [ ] Schnell und reproduzierbar: In der Sift einen normalen Schnüffler erzeugen (`/summon sniffer` oder
+      Spawn-Ei), danebenstellen und `/sift debug infect`. Er bekommt Seelen-Partikel und wird nach 30 Sekunden
+      zum Dunklen Schnüffler (Klang, Log-Zeile „became a Dark Sniffer“). Er behält seine Lebenspunkte (ein
+      Schnüffler hat 14, also 14 von 40), wie im Original.
+- [ ] Natürlich: Schnüffler graben jetzt auch auf Sift-Sculk (Datapack ergänzt `#minecraft:sniffer_diggable_block`
+      wie das Original). Prüfen mit `/execute if block <x y z> #minecraft:sniffer_diggable_block` auf Sculk bzw.
+      Gesundem Sculk → „Test passed“. Einen Schnüffler auf eine freie Sculk-Fläche stellen (mindestens 5 × 5,
+      kein Gras): Er schnüffelt und gräbt nach 1–4 Minuten von selbst, dann wie oben. Im Smoke-Test hat ein
+      per `/summon sniffer` erzeugter Schnüffler auf Sculk nach etwa 4 Minuten gegraben und sich verwandelt.
+- [ ] In der Hauptwelt passiert beides nicht (`infection.only-in-sift`); `/sift debug infect` markiert ihn
+      dort zwar, die Verwandlung bleibt aber aus.
+
+**Wächter sind Freunde** (`wardens-friendly`, `wardens-pet`)
+- [ ] `/summon warden` neben einem Dunklen Schnüffler (Schnüffler läuft herum): Der Wächter wird nicht wütend
+      auf ihn (`/data get entity @e[type=warden,limit=1] anger` bleibt leer bzw. ohne ihn), greift ihn nicht an.
+      Andere Mobs (z. B. ein Zombie) und Spieler greift er wie gewohnt an.
+- [ ] Wächter-Angriffe treffen ihn nicht: `/damage <Schnüffler> 10 minecraft:sonic_boom by <Wächter>` → HP
+      bleibt 40 (`/sift debug mobs`).
+- [ ] Streicheln: Ein ganz ruhiger Wächter geht nach 40–120 Sekunden zu einem Dunklen Schnüffler in 18 Blöcken,
+      bleibt etwa 3 Blöcke davor stehen und streichelt ihn 5 Sekunden lang (Herz-Partikel über dem Schnüffler,
+      der stillhält und den Wächter ansieht). `/sift debug mobs` zeigt dabei beim Schnüffler „Zustand: wird von
+      einem Wächter gestreichelt“. Danach 2–4 Minuten Pause.
+- [ ] `wardens-friendly: false` → Wächter greifen ihn wieder an (Vanilla-Verhalten), kein Streicheln.
 
 **Spawnen**
 - [ ] In einer frisch generierten Sculk-Region an der Oberfläche der Sift stehen 1–2 Dunkle Schnüffler auf dem

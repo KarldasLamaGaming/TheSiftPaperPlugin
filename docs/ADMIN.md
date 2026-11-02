@@ -442,7 +442,9 @@ normale Schnüffler in 32 Blöcken (Biss 7, Schallwelle zieht heran, ohne Schade
 Sculkblumensamen, infiziert normale Schnüffler, die auf Sculk graben (nach 30 s werden sie zu Dunklen
 Schnüfflern; Log-Zeile). Spawnt beim Generieren: 1–2 je neuer Sculk-Region an der Oberfläche der Sift.
 Einzeln schaltbar unter `mobs.dark_sniffer`: `sonic.enabled`, `dig.enabled`, `infection.enabled`,
-`attack-sniffers`, `spawn.enabled`. Spawn-Ei `dark_sniffer_spawn_egg`.
+`attack-sniffers`, `spawn.enabled`, `wardens-friendly` (Wächter greifen ihn nicht an), `wardens-pet`
+(ruhige Wächter streicheln ihn ab und zu). Spawn-Ei `dark_sniffer_spawn_egg`. `/sift debug infect` infiziert
+den nächsten normalen Schnüffler sofort (Test der Infektion).
 
 ### Portal der Antiken Stadt
 
@@ -484,6 +486,7 @@ Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben re
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, nächster Mob mit Hitbox |
 | `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung) |
+| `/sift debug infect` | Nächsten normalen Schnüffler in 16 Blöcken sofort infizieren (verwandelt sich nach `infection.conversion-ticks`, nur in der Sift) |
 | `/sift debug mobs walk <x> <y> <z>` | Nächsten Sift-Mob zu einem Block laufen lassen (Test der Wegfindung) |
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
