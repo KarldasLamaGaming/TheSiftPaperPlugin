@@ -31,7 +31,7 @@ final class MobRigImporter {
         MOBS.put("blub", List.of("blub", "tamed_blub"));
         MOBS.put("sifter", List.of("sifter"));
         MOBS.put("singer", List.of("singer"));
-        MOBS.put("echo_golem", List.of("echo_golem"));
+        MOBS.put("echo_golem", List.of("echo_golem", "echo_golem_glow"));
         MOBS.put("dark_sniffer", List.of("dark_sniffer"));
     }
 
@@ -40,6 +40,19 @@ final class MobRigImporter {
      * original's: the Dark Sniffer is the vanilla sniffer model in the original, which must not be copied.
      */
     static final java.util.Set<String> OWN_MODELS = java.util.Set.of("dark_sniffer");
+
+    /**
+     * Variants made here instead of read from the jar: the carrying echo golem (EchoGolemSoulGlowLayer of the
+     * original) shows its emissive texture over the base one, and the cubes of the glowing bone give off light.
+     */
+    record GlowVariant(String base, String emissive, String bone) {
+    }
+
+    static final Map<String, GlowVariant> GLOW_VARIANTS = Map.of("echo_golem_glow",
+            new GlowVariant("echo_golem", "echo_golem/echo_golem_emissive", "soul_block"));
+
+    /** Light level of glowing cubes (model element light_emission, 0–15). */
+    static final int GLOW_LIGHT = 15;
 
     /** Item model elements must stay within -16..32; larger cubes are modelled smaller and scaled up by the display. */
     static final double MAX_ELEMENT = 32.0;
@@ -66,7 +79,8 @@ final class MobRigImporter {
             }
             JsonArray cubes = rig.getAsJsonArray("cubes");
             for (String variant : mob.getValue()) {
-                ZipEntry texture = zip.getEntry(TEXTURES + variant + ".png");
+                GlowVariant glow = GLOW_VARIANTS.get(variant);
+                ZipEntry texture = zip.getEntry(TEXTURES + (glow != null ? glow.base() : variant) + ".png");
                 if (texture == null) {
                     report.error("Mob texture missing: " + variant);
                     continue;
@@ -74,12 +88,27 @@ final class MobRigImporter {
                 Path png = assets.resolve("textures/item/mob/" + variant + ".png");
                 Files.createDirectories(png.getParent());
                 try (InputStream in = zip.getInputStream(texture)) {
-                    Files.write(png, in.readAllBytes());
+                    byte[] bytes = in.readAllBytes();
+                    if (glow != null) {
+                        ZipEntry emissive = zip.getEntry(TEXTURES + glow.emissive() + ".png");
+                        if (emissive == null) {
+                            report.error("Emissive texture missing: " + glow.emissive());
+                        } else {
+                            try (InputStream e = zip.getInputStream(emissive)) {
+                                bytes = overlay(bytes, e.readAllBytes());
+                            }
+                        }
+                    }
+                    Files.write(png, bytes);
                 }
                 for (int i = 0; i < cubes.size(); i++) {
                     String id = "mob/" + variant + "/" + i;
-                    Main.writeJson(assets.resolve("models/item/" + id + ".json"), cubeModel(cubes.get(i).getAsJsonObject(),
-                            rig.get("texture_width").getAsInt(), rig.get("texture_height").getAsInt(), "the_sift:item/mob/" + variant));
+                    JsonObject cubeModel = cubeModel(cubes.get(i).getAsJsonObject(),
+                            rig.get("texture_width").getAsInt(), rig.get("texture_height").getAsInt(), "the_sift:item/mob/" + variant);
+                    if (glow != null && glow.bone().equals(cubes.get(i).getAsJsonObject().get("bone").getAsString())) {
+                        cubeModel.getAsJsonArray("elements").get(0).getAsJsonObject().addProperty("light_emission", GLOW_LIGHT);
+                    }
+                    Main.writeJson(assets.resolve("models/item/" + id + ".json"), cubeModel);
                     JsonObject model = new JsonObject();
                     model.addProperty("type", "minecraft:model");
                     model.addProperty("model", "the_sift:item/" + id);
@@ -98,6 +127,26 @@ final class MobRigImporter {
                 report.note("Mob rigs (one item model per cube)", variant + ": " + cubes.size() + " cubes");
             }
         }
+    }
+
+    /** The base texture with every visible pixel of the emissive texture drawn over it. */
+    static byte[] overlay(byte[] base, byte[] emissive) throws IOException {
+        java.awt.image.BufferedImage b = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(base));
+        java.awt.image.BufferedImage e = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(emissive));
+        java.awt.image.BufferedImage out = new java.awt.image.BufferedImage(b.getWidth(), b.getHeight(),
+                java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        for (int x = 0; x < b.getWidth(); x++) {
+            for (int y = 0; y < b.getHeight(); y++) {
+                int argb = b.getRGB(x, y);
+                if (x < e.getWidth() && y < e.getHeight() && (e.getRGB(x, y) >>> 24) > 0) {
+                    argb = e.getRGB(x, y) | 0xFF000000;
+                }
+                out.setRGB(x, y, argb);
+            }
+        }
+        java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(out, "png", bytes);
+        return bytes.toByteArray();
     }
 
     static JsonElement resource(String name) throws IOException {

@@ -126,6 +126,21 @@ class MobRigImporterTest {
         assertFalse(values.contains("the_sift:"), values);
     }
 
+    @Test
+    void carryingEchoGolemGlowsOnlyAtItsSoulBlock() throws IOException {
+        Path models = Path.of(System.getProperty("sift.packSrc", "../pack-src"), "resourcepack/assets/the_sift/models/item/mob");
+        Path rigFile = Path.of(System.getProperty("sift.packSrc", "../pack-src"), "mob-data/echo_golem.rig.json");
+        JsonArray cubes = JsonParser.parseString(Files.readString(rigFile)).getAsJsonObject().getAsJsonArray("cubes");
+        for (int i = 0; i < cubes.size(); i++) {
+            boolean soul = cubes.get(i).getAsJsonObject().get("bone").getAsString().equals("soul_block");
+            JsonObject element = JsonParser.parseString(Files.readString(models.resolve("echo_golem_glow/" + i + ".json")))
+                    .getAsJsonObject().getAsJsonArray("elements").get(0).getAsJsonObject();
+            assertEquals(soul, element.has("light_emission"), "cube " + i);
+            assertFalse(JsonParser.parseString(Files.readString(models.resolve("echo_golem/" + i + ".json"))).getAsJsonObject()
+                    .getAsJsonArray("elements").get(0).getAsJsonObject().has("light_emission"));
+        }
+    }
+
     /** The committed pack sources: every rig cube has its item model and definition for every variant. */
     @Test
     void committedRigsHaveAllModels() throws IOException {
