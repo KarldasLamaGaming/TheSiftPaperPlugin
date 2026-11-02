@@ -208,8 +208,31 @@ public final class SoulCanyons {
         };
     }
 
-    /** Builds a canyon on loaded terrain around x/z (main thread; /sift debug canyon build). */
-    public Built buildAt(World world, int x, int z, RandomGenerator random) {
-        return build(of(world, x, z), x, z, random, null);
+    /**
+     * Builds a canyon on loaded terrain at x/z or, if the terrain does not fit there, at the nearest of up to
+     * 24 further centres 16 blocks apart (main thread; /sift debug canyon build). The result carries where.
+     */
+    public Placed buildNear(World world, int x, int z, RandomGenerator random) {
+        int tries = 0;
+        for (int ring = 0; ring <= 2; ring++) {
+            for (int dx = -ring; dx <= ring; dx++) {
+                for (int dz = -ring; dz <= ring; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != ring) {
+                        continue;
+                    }
+                    int cx = x + dx * 16;
+                    int cz = z + dz * 16;
+                    tries++;
+                    Built built = build(of(world, cx, cz), cx, cz, random, null);
+                    if (built.outcome() == Outcome.BUILT) {
+                        return new Placed(built, cx, cz, tries);
+                    }
+                }
+            }
+        }
+        return new Placed(new Built(Outcome.TERRAIN, null), x, z, tries);
+    }
+
+    public record Placed(Built built, int centerX, int centerZ, int tries) {
     }
 }

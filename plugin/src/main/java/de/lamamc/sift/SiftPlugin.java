@@ -313,6 +313,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             canyonLandmarks = new SoulCanyonLandmarks(blocks);
             canyonLandmarks.load(world);
             getServer().getPluginManager().registerEvents(canyonLandmarks, this);
+            if (getConfig().getBoolean("worldgen.soul-canyons.particles", true)) {
+                new de.lamamc.sift.world.gen.SoulCanyonParticles(canyonLandmarks, blocks).start(this);
+            }
             SoulCanyons canyons = new SoulCanyons(blocks, canyonLandmarks, worldgen.canyonCellChunks(), worldgen.canyonMinSouls());
             siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
                     landmarkLog, canyons, getLogger());
