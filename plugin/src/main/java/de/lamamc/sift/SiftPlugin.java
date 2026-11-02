@@ -21,6 +21,8 @@ import de.lamamc.sift.pack.ResourcePackService;
 import de.lamamc.sift.world.SiftWorlds;
 import de.lamamc.sift.world.MainPortalBuilder;
 import de.lamamc.sift.world.gen.LandmarkLog;
+import de.lamamc.sift.world.gen.SoulCanyonLandmarks;
+import de.lamamc.sift.world.gen.SoulCanyons;
 import de.lamamc.sift.world.gen.PortalReservation;
 import de.lamamc.sift.world.gen.SiftPopulator;
 import de.lamamc.sift.world.gen.SiftTemplates;
@@ -45,6 +47,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private ResourcePackService resourcePack;
     private SiftRecipes recipes;
     private SiftPopulator siftPopulator;
+    private SoulCanyonLandmarks canyonLandmarks;
     private MainPortalBuilder mainPortal;
     private de.lamamc.sift.world.portal.PortalService portals;
     private de.lamamc.sift.world.portal.SonorousConsoles consoles;
@@ -307,10 +310,20 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             }
             LandmarkLog landmarkLog = new LandmarkLog();
             landmarkLog.load(world);
+            canyonLandmarks = new SoulCanyonLandmarks(blocks);
+            canyonLandmarks.load(world);
+            getServer().getPluginManager().registerEvents(canyonLandmarks, this);
+            if (getConfig().getBoolean("worldgen.soul-canyons.particles", true)) {
+                new de.lamamc.sift.world.gen.SoulCanyonParticles(canyonLandmarks, blocks).start(this);
+            }
+            SoulCanyons canyons = new SoulCanyons(blocks, canyonLandmarks, worldgen.canyonCellChunks(), worldgen.canyonMinSouls());
             siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
-                    landmarkLog, getLogger());
+                    landmarkLog, canyons, getLogger());
             // worldgen threads record, the main thread writes into the world's persistent data
-            getServer().getScheduler().runTaskTimer(this, () -> landmarkLog.save(world), 100L, 100L);
+            getServer().getScheduler().runTaskTimer(this, () -> {
+                landmarkLog.save(world);
+                canyonLandmarks.save(world);
+            }, 100L, 100L);
             world.getPopulators().add(siftPopulator);
             getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
         }
@@ -321,6 +334,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         World sift = getServer().getWorld(SiftWorlds.DIMENSION);
         if (siftPopulator != null && sift != null) {
             siftPopulator.log().save(sift);
+            canyonLandmarks.save(sift);
         }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
@@ -348,6 +362,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.world.portal.PortalService portals() {
         return portals;
+    }
+
+    public SoulCanyonLandmarks canyonLandmarks() {
+        return canyonLandmarks;
     }
 
     public SiftPopulator siftPopulator() {

@@ -14,7 +14,9 @@ public record WorldgenSettings(boolean willowTrees, double bigWillowChance, int 
                                boolean surfaceSculk, Set<String> sculkBiomes,
                                boolean abandonedPortals, int portalCellChunks, double portalChance, Set<String> portalBiomes,
                                String portalChestLoot,
-                               boolean mainPortal) {
+                               boolean mainPortal,
+                               boolean soulCanyons, int canyonCellChunks, int canyonPortalClearance, int canyonMinSouls,
+                               Set<String> canyonBiomes) {
 
     public static WorldgenSettings load(ConfigurationSection root) {
         ConfigurationSection w = root == null ? null : root.getConfigurationSection("worldgen");
@@ -35,7 +37,10 @@ public record WorldgenSettings(boolean willowTrees, double bigWillowChance, int 
                 Math.clamp(w.getDouble("abandoned-portals.chance", AbandonedPortalPlan.DEFAULT_CHANCE), 0.0, 1.0),
                 set(w, "abandoned-portals.biomes"),
                 w.getString("abandoned-portals.chest-loot", "the_sift:chests/abandoned_portal"),
-                w.getBoolean("main-portal.enabled", true));
+                w.getBoolean("main-portal.enabled", true),
+                w.getBoolean("soul-canyons.enabled", true), Math.max(1, w.getInt("soul-canyons.cell-chunks", 12)),
+                Math.max(0, w.getInt("soul-canyons.portal-clearance", 34)), Math.max(1, w.getInt("soul-canyons.min-souls", 8)),
+                set(w, "soul-canyons.biomes"));
     }
 
     private static Set<String> set(ConfigurationSection section, String path) {

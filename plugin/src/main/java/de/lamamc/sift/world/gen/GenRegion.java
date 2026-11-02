@@ -119,13 +119,22 @@ public final class GenRegion {
 
     /** SiftLandmarkTerrain#isGround. */
     public boolean isLandmarkGround(int x, int y, int z) {
-        String id = id(x, y, z);
-        return id != null ? LANDMARK_GROUND.contains(id) : LANDMARK_GROUND_VANILLA.contains(region.getType(x, y, z));
+        return landmarkGround(registry, region.getBlockData(x, y, z));
     }
 
     /** SiftLandmarkTerrain#canReplace: air, ground, small plants and replaceable blocks without fluid. */
     public boolean canLandmarkReplace(int x, int y, int z) {
-        BlockData data = region.getBlockData(x, y, z);
+        return landmarkReplaceable(registry, region.getBlockData(x, y, z));
+    }
+
+    /** SiftLandmarkTerrain#isGround for any block (also used on loaded worlds). */
+    public static boolean landmarkGround(CustomBlockRegistry registry, BlockData data) {
+        CustomBlock custom = registry.of(data);
+        return custom != null ? LANDMARK_GROUND.contains(custom.id()) : LANDMARK_GROUND_VANILLA.contains(data.getMaterial());
+    }
+
+    /** SiftLandmarkTerrain#canReplace for any block (also used on loaded worlds). */
+    public static boolean landmarkReplaceable(CustomBlockRegistry registry, BlockData data) {
         CustomBlock custom = registry.of(data);
         if (custom != null) {
             String id = custom.id();

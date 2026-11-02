@@ -94,8 +94,16 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.
 - Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
-- Monolithen, Bögen, Seelenschluchten, Schnüffler-Höhlen, Ichor-Seen und -Quellen, Lavaböden und
-  Ichorschnee kommen mit Phase 3.
+- Monolithen, Bögen, Schnüffler-Höhlen, Ichor-Seen und -Quellen, Lavaböden und Ichorschnee kommen mit
+  Phase 3.
+- **Seelenschluchten (seit alpha.18)** baut das Plugin beim Generieren statt des Datapack-Features (Form,
+  Rampe, Seelen-Adern und Markierungen wie im Original 1.1.1, gleiche Zellen und gleiches Salz). Unterschiede:
+  - Der Zufall kommt vom Plugin, also andere Form und Richtung als im Original an derselben Stelle.
+  - Ein Platz für Schluchten wird mit den verlassenen Portalen geteilt (keine Überschneidung); im Original haben
+    Schluchten eine eigene Liste.
+  - Seelenblöcke leuchten weiterhin nicht (bekannte Einschränkung, siehe ADMIN.md).
+  - Die aufsteigenden Partikel sind Vanilla-Seelen statt des eigenen `canyon_soul`-Partikels (gleiche Bewegung).
+  - Neu: `/sift debug canyon build` baut eine Schlucht in schon generiertem Gelände (Test).
 
 ## Portale (seit Schritt 7a)
 

@@ -139,6 +139,7 @@ public final class SiftCommand {
                         .then(Commands.literal("menu").executes(this::debugMenu))
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
+                        .then(Commands.literal("canyon").then(Commands.literal("build").executes(this::debugCanyonBuild)))
                         .then(Commands.literal("landmarks")
                                 .executes(ctx -> debugLandmarks(ctx, null, 1))
                                 .then(Commands.argument("x", IntegerArgumentType.integer())
@@ -379,6 +380,42 @@ public final class SiftCommand {
         if (!s.portalRejects.isEmpty()) {
             sender.sendRichMessage("<gray>Verlassene Portale nicht gesetzt: <white>" + s.portalRejects);
         }
+        long candidates = s.canyonCandidates.get();
+        sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                "<gray>Seelenschluchten: <white>%d</white> von <white>%d</white> Kandidaten gebaut%s, Zeit je Kandidat "
+                        + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens",
+                s.canyons.get(), candidates, s.canyonRejects.isEmpty() ? "" : " (nicht gebaut: " + s.canyonRejects + ")",
+                candidates == 0 ? 0.0 : s.canyonNanos.get() / 1e6 / candidates, s.canyonMaxNanos.get() / 1e6));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Builds a soul canyon with the worldgen plan around the sender, on loaded terrain (for tests without new chunks). */
+    private int debugCanyonBuild(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        var at = ctx.getSource().getLocation();
+        if (!SiftWorlds.isSift(at.getWorld()) || plugin.siftPopulator() == null) {
+            sender.sendRichMessage("<red>Schluchten lassen sich nur in der Sift bauen.");
+            return 0;
+        }
+        long start = System.nanoTime();
+        var placed = plugin.siftPopulator().canyons().buildNear(at.getWorld(), at.getBlockX(), at.getBlockZ(),
+                new java.util.Random());
+        var built = placed.built();
+        double ms = (System.nanoTime() - start) / 1e6;
+        if (built.outcome() != de.lamamc.sift.world.gen.SoulCanyons.Outcome.BUILT) {
+            sender.sendRichMessage("<red>Im Umkreis von 32 Blöcken passt keine Schlucht (" + placed.tries() + " Stellen geprüft): "
+                    + "Das Gelände ist zu steil, hat keinen Sift-Boden in 32 Blöcken unter der Oberfläche, Bäume, Ichor oder Bauten "
+                    + "sind im Weg, oder die Chunks sind nicht geladen. Auf flachem, kahlem Sift-Boden versuchen.");
+            return 0;
+        }
+        var plan = built.plan();
+        var e = plan.entrance();
+        sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                "<green>Seelenschlucht gebaut</green> <gray>(Mitte %d %d, %d. Stelle, %d Spalten, %d Seelenblöcke, %.1f ms). Eingang</gray> "
+                        + "<click:run_command:'/execute in the_sift:the_sift run tp @s %d %d %d'><hover:show_text:'Teleport'>"
+                        + "<aqua>[%d %d %d]</aqua></hover></click><gray>; als „Golem ausstehend“ eingetragen.",
+                placed.centerX(), placed.centerZ(), placed.tries(), plan.columns().size(), plan.souls().size(), ms,
+                e.x(), e.y(), e.z(), e.x(), e.y(), e.z()));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -431,6 +468,28 @@ public final class SiftCommand {
             for (int cz = cellZ - cells; cz <= cellZ + cells; cz++) {
                 var chunk = de.lamamc.sift.core.worldgen.LandmarkPlacement.candidateChunk(sift.getSeed(), cx, cz, cell, salt, 0);
                 sender.sendRichMessage("  " + portalStatus(sift, chunk.x(), chunk.z()));
+            }
+        }
+        var canyonMarks = plugin.canyonLandmarks();
+        if (canyonMarks != null) {
+            var from = ctx.getSource().getLocation();
+            double fromX = SiftWorlds.isSift(from.getWorld()) && center == null ? from.getX() : centerX;
+            double fromZ = SiftWorlds.isSift(from.getWorld()) && center == null ? from.getZ() : centerZ;
+            var canyon = canyonMarks.nearestCanyon(fromX, fromZ, 1_000_000);
+            sender.sendRichMessage("<gray>Seelenschluchten bekannt: <white>" + canyonMarks.count(
+                    de.lamamc.sift.world.gen.SoulCanyonLandmarks.Kind.CLUSTER) + "</white>, Seelenblöcke <white>"
+                    + canyonMarks.count(de.lamamc.sift.world.gen.SoulCanyonLandmarks.Kind.SOUL_BLOCK)
+                    + "</white>, Golem ausstehend <white>"
+                    + canyonMarks.count(de.lamamc.sift.world.gen.SoulCanyonLandmarks.Kind.GOLEM_PENDING) + "</white>");
+            if (canyon != null) {
+                var e = canyon.entrance() != null ? canyon.entrance() : canyon.cluster();
+                sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                        "<gray>Nächste Schlucht: Seelen-Zentrum %d %d %d, %d Blöcke entfernt, %d Seelenblöcke, Eingang</gray> "
+                                + "<click:run_command:'/execute in the_sift:the_sift run tp @s %d %d %d'><hover:show_text:'Teleport'>"
+                                + "<aqua>[%d %d %d]</aqua></hover></click>",
+                        canyon.cluster().x(), canyon.cluster().y(), canyon.cluster().z(),
+                        Math.round(Math.sqrt(canyon.cluster().horizontalDistanceSquared(fromX, fromZ))), canyon.souls(),
+                        e.x(), e.y(), e.z(), e.x(), e.y(), e.z()));
             }
         }
         sender.sendRichMessage("<gray>Sculk-Regionen (Mitte, Durchmesser) in den 512er-Zellen um " + centerX + " " + centerZ + ":");

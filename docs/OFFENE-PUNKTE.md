@@ -35,4 +35,5 @@ Stand: 31.10.2026 (nach alpha.10)
 
 - Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt
   fertig (alpha.14). Dunkler Schnüffler im PR, Spieltest siehe `docs/TESTING.md` → Mobs: Dunkler Schnüffler.
-- Danach: Echogolem (braucht die Seelenschluchten).
+- Schritt 6a: Seelenschluchten (alpha.18, im PR), Spieltest siehe `docs/TESTING.md` → Seelenschluchten.
+- Schritt 6b: Echo Golem (alpha.19), baut auf den Schluchten auf, erst nach Test und Merge von 6a.
