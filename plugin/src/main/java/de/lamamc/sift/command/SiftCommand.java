@@ -116,6 +116,15 @@ public final class SiftCommand {
                 .then(mobCommand().spawnNode().requires(SiftCommand::admin))
                 .then(Commands.literal("debug").requires(SiftCommand::admin)
                         .then(mobCommand().debugNode())
+                        .then(Commands.literal("infect").executes(ctx -> {
+                            var infection = plugin.snifferInfection();
+                            var sniffer = infection == null ? null : infection.infectNearest(ctx.getSource().getLocation());
+                            ctx.getSource().getSender().sendRichMessage(sniffer == null
+                                    ? "<red>Kein normaler Schnüffler in 16 Blöcken."
+                                    : "<green>Schnüffler infiziert; er wird in " + infection.conversionSeconds() + " Sekunden zum Dunklen Schnüffler"
+                                            + (infection.onlyInSift() ? " (nur in der Sift)." : "."));
+                            return sniffer == null ? 0 : 1;
+                        }))
                         .then(Commands.literal("singer").executes(ctx -> {
                             var summoner = plugin.singerSummoner();
                             var singer = summoner == null ? null : summoner.summon(ctx.getSource().getLocation());

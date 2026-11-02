@@ -92,6 +92,36 @@ public final class SnifferInfection implements Listener {
         }
     }
 
+    /**
+     * Infects the nearest ordinary sniffer within 16 blocks right away (/sift debug infect), as if it had dug on
+     * sculk; returns it or null.
+     */
+    public Sniffer infectNearest(Location at) {
+        Sniffer best = null;
+        double bestDistance = 16 * 16;
+        for (Sniffer sniffer : at.getWorld().getEntitiesByClass(Sniffer.class)) {
+            double d = sniffer.getLocation().distanceSquared(at);
+            if (MobManager.kindOf(sniffer) == null && d <= bestDistance) {
+                best = sniffer;
+                bestDistance = d;
+            }
+        }
+        if (best != null && best.getPersistentDataContainer().getOrDefault(INFECTION, PersistentDataType.INTEGER, 0) <= 0) {
+            best.getPersistentDataContainer().set(INFECTION, PersistentDataType.INTEGER, 1);
+        }
+        return best;
+    }
+
+    /** Seconds from infection to conversion (config infection.conversion-ticks). */
+    public int conversionSeconds() {
+        return Math.round(conversionTicks / 20f);
+    }
+
+    /** Only in the Sift (config infection.only-in-sift)? */
+    public boolean onlyInSift() {
+        return onlyInSift;
+    }
+
     /** The block below the sniffer's nose (2.25 blocks ahead), like the original. */
     private static boolean digsSculk(Sniffer sniffer) {
         Location at = sniffer.getLocation();
