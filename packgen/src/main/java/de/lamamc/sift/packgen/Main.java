@@ -44,6 +44,8 @@ public final class Main {
     static final String CITY_CENTER = "data/minecraft/structure/ancient_city/city_center/";
     /** Rotation-proof placeholder for the consoles in the city centre; the plugin puts the sonorous deepslate there. */
     static final String CITY_CONSOLE_PLACEHOLDER = "minecraft:lodestone";
+    /** Vanilla tags the original extends; the_sift blocks in them become their stand-in blocks. */
+    static final List<String> VANILLA_TAGS = List.of("data/minecraft/tags/block/sniffer_diggable_block.json");
     private static final String ASSET_PREFIX = "assets/the_sift/";
     /** Client-only assets that a resource pack cannot use (custom shaders, GeckoLib, custom particles). */
     private static final List<String> SKIPPED_ASSETS = List.of("shaders/", "geckolib/", "particles/", "blockstates/");
@@ -89,8 +91,15 @@ public final class Main {
         Map<String, JsonElement> json = new TreeMap<>();
         Map<String, byte[]> structures = new TreeMap<>();
         Map<String, byte[]> cityCenters = new TreeMap<>();
+        Map<String, JsonElement> vanillaTags = new TreeMap<>();
         for (ZipEntry entry : zip.stream().toList()) {
             String name = entry.getName();
+            if (VANILLA_TAGS.contains(name)) {
+                try (InputStream in = zip.getInputStream(entry)) {
+                    vanillaTags.put(name, JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8)));
+                }
+                continue;
+            }
             if (!entry.isDirectory() && name.startsWith(CITY_CENTER) && name.endsWith(".nbt")) {
                 try (InputStream in = zip.getInputStream(entry)) {
                     cityCenters.put(name, in.readAllBytes());
@@ -137,6 +146,10 @@ public final class Main {
             Files.createDirectories(target.getParent());
             Files.write(target, structureImporter.run(e.getKey(), e.getValue()));
         }
+        deleteTree(root.resolve("data/minecraft/tags"));
+        for (var e : vanillaTags.entrySet()) {
+            writeJson(root.resolve(e.getKey()), vanillaTag(e.getKey(), e.getValue().getAsJsonObject(), mapping, report));
+        }
         Path cityData = root.resolve("data/minecraft/structure/ancient_city");
         deleteTree(cityData);
         StructureImporter cityImporter = new StructureImporter(mapping, report,
@@ -148,6 +161,30 @@ public final class Main {
         }
         writePackMeta(root, "The Sift: Dimension und Weltgenerierung (nach Mielon's The Sift, MIT)", DATA_FORMAT);
         copyLicense(zip, root);
+    }
+
+    /**
+     * A vanilla tag the original extends (never replaces): the_sift blocks become their stand-in block, so e.g.
+     * vanilla sniffers can dig on the Sift's sculk blocks (stand-in blocks match in every state).
+     */
+    static JsonObject vanillaTag(String path, JsonObject tag, BlockMapping mapping, ImportReport report) {
+        java.util.Set<String> values = new java.util.LinkedHashSet<>();
+        for (JsonElement value : tag.getAsJsonArray("values")) {
+            String id = value.getAsString();
+            if (id.startsWith(BlockMapping.MOD_NAMESPACE + ":")) {
+                String base = mapping.baseBlock(id);
+                values.add(base);
+                report.note("Vanilla tags extended with stand-in blocks", path + ": " + id + " -> " + base);
+            } else {
+                values.add(id);
+            }
+        }
+        JsonObject out = new JsonObject();
+        out.addProperty("replace", false);
+        com.google.gson.JsonArray array = new com.google.gson.JsonArray();
+        values.forEach(array::add);
+        out.add("values", array);
+        return out;
     }
 
     private static void importAssets(ZipFile zip, ImportReport report, Path root) throws IOException {

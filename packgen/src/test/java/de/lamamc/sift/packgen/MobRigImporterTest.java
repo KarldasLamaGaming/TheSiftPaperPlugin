@@ -115,6 +115,17 @@ class MobRigImporterTest {
         assertTrue(MobRigImporter.OWN_MODELS.contains("dark_sniffer"));
     }
 
+    @Test
+    void snifferDiggableTagUsesStandInBlocks() throws IOException {
+        Path tag = Path.of(System.getProperty("sift.packSrc", "../pack-src"), "datapack/data/minecraft/tags/block/sniffer_diggable_block.json");
+        JsonObject json = JsonParser.parseString(Files.readString(tag)).getAsJsonObject();
+        assertFalse(json.get("replace").getAsBoolean(), "extends the vanilla tag");
+        String values = json.getAsJsonArray("values").toString();
+        assertTrue(values.contains("minecraft:sculk"), values);
+        assertTrue(values.contains("minecraft:brown_mushroom_block"), "healthy sculk stand-in: " + values);
+        assertFalse(values.contains("the_sift:"), values);
+    }
+
     /** The committed pack sources: every rig cube has its item model and definition for every variant. */
     @Test
     void committedRigsHaveAllModels() throws IOException {
