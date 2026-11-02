@@ -194,6 +194,28 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Ofen: Weidenstamm, -holz, -bretter (je 1,5 Items) und -setzling (0,5) per Klick und Shift-Klick in den
       Brennstoff-Slot; der Ofen brennt. Weidenlaub geht nicht hinein.
 
+## Seelenschluchten (ab alpha.18, Phase 2 Schritt 6a)
+
+Neue Schluchten entstehen nur in **neu generierten** Chunks. Für schon generiertes Gelände gibt es
+`/sift debug canyon build`.
+- [ ] In neuem Gelände (z. B. weit hinausfliegen oder Chunky in `the_sift:the_sift`): `/sift debug landmarks`
+      zeigt „Seelenschluchten bekannt: N“ und die nächste Schlucht. Klick auf den Eingang teleportiert hin.
+- [ ] Die Schlucht: ein diagonaler, leicht gewundener Graben (etwa 45 Blöcke lang, 7–10 breit). Vom Eingang
+      führt eine Rampe ohne Stufen über 1 Block hinunter, bis 18–20 Blöcke tief; der Boden ist Siftschiefer.
+- [ ] Im tiefen Teil liegen Seelenblöcke im Boden, als gewundene Ader und zwei kleine Taschen, mindestens 8.
+- [ ] Über offenen Seelenblöcken steigen ab und zu Seelen-Partikel auf (bei Tag schwer zu sehen, besser nachts
+      oder im Schatten). `worldgen.soul-canyons.particles: false` (Neustart) schaltet sie ab.
+- [ ] Ein Seelenblock abbauen: droppt nichts (wie im Original); setzen und wieder abbauen ändert die Zahl
+      „Seelenblöcke“ in `/sift debug landmarks`.
+- [ ] Neben dem Haupt-Portal (34 Blöcke) und in verlassenen Portalen entsteht keine Schlucht.
+- [ ] `/sift debug worldgen`: „Seelenschluchten: X von Y Kandidaten gebaut“, Zeit je Kandidat im Mittel unter
+      etwa 20 ms (Smoke-Test: 15,7 ms, höchstens 35 ms).
+- [ ] **In deinem Testgebiet:** auf flachem, kahlem Siftschiefer `/sift debug canyon build`. Erwartet:
+      „Seelenschlucht gebaut“ mit Mitte, Zahl der Seelenblöcke und Teleport zum Eingang. Passt es nirgends in
+      32 Blöcken, kommt eine Meldung mit den Gründen; dann an flacherer Stelle versuchen.
+- [ ] Nach einem Neustart sind die Schluchten weiter in `/sift debug landmarks` (Markierungen gespeichert).
+- [ ] `worldgen.soul-canyons.enabled: false` und Neustart: neue Chunks bekommen keine Schluchten mehr.
+
 ## Portale (ab Schritt 7a, Schreine und Schlüssel ab 7b)
 
 Für Schritt 7b eine frische Welt (Hauptwelt, Nether, End) nehmen; Schreine entstehen nur in neuen Chunks.

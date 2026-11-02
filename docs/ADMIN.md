@@ -239,9 +239,25 @@ Neustart nötig, gilt nur für neue Chunks):
 | Pflanzenflecken auf Siftschiefer | alle | jeder 10. Chunk |
 | Oberflächen-Sculk (Vanilla-Sculk mit Sensoren, Kreischern, die Wärter rufen können, Katalysatoren) | alle außer Ichorschnee-Gipfel und Tiefes Dunkel | höchstens eine Region (50–120 Blöcke) je 512 × 512 |
 | Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 20 × 20 Chunks (im mittleren Drittel der Zelle), davon baut nur der Anteil `chance` (Standard 0.25, siehe unten), nur auf passendem Gelände |
+| Seelenschluchten (ab alpha.18): mäandernder Graben, bis 20 Blöcke tief, Seelenblöcke im Boden, aufsteigende Seelen-Partikel | alle | höchstens eine je 12 × 12 Chunks (Zellen um 6 Chunks versetzt, mittleres Drittel), nur auf passendem Gelände, mindestens 34 Blöcke vom Haupt-Portal |
 
 Weiden, Lotus, Sonnenstrahlpflanze usw. entstehen aus den Vorlagen und Werten des Originals; Abweichungen
 in `docs/ABWEICHUNGEN.md`.
+
+### Seelenschluchten
+
+`worldgen.soul-canyons` (Standard an, `[Start]`, nur neue Chunks): `cell-chunks` (12), `portal-clearance` (34),
+`min-souls` (8, weniger Seelenblöcke = keine Schlucht), `biomes`, `particles`. Jede Schlucht hinterlässt
+Markierungen im Welt-Speicher der Sift (Eingang, Mitte, Zentrum der Seelen, jeder Seelenblock, „Golem
+ausstehend“ für den Echo Golem ab alpha.19). Von Spielern gesetzte oder abgebaute Seelenblöcke werden ein- bzw.
+ausgetragen.
+- `/sift debug landmarks` nennt die Zahl der Schluchten und die nächste mit Teleport-Klick zum Eingang.
+- `/sift debug worldgen` zeigt gebaute Schluchten, Gründe für nicht gebaute und die Zeit je Kandidat.
+- `/sift debug canyon build` baut **in schon generiertem, geladenem Gelände** eine Schlucht mit demselben Plan
+  und trägt ihre Markierungen ein (zum Testen ohne neue Chunks). Passt das Gelände an der eigenen Position
+  nicht, probiert der Befehl bis zu 24 weitere Mittelpunkte im 16er-Raster (bis 32 Blöcke weit). Am besten
+  auf flachem, kahlem Siftschiefer; Bäume, Ichor und Bauten verhindern die Schlucht. Der Befehl verändert
+  dauerhaft Blöcke, also nur auf dem Testserver.
 
 ### Verlassene Portale finden
 
@@ -491,9 +507,10 @@ Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben re
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
-| `/sift debug worldgen` | Was die Weltgenerierung seit dem Start gesetzt hat (Weiden, Flecken, Sculk, verlassene Portale) und warum Portale ausfielen |
+| `/sift debug worldgen` | Was die Weltgenerierung seit dem Start gesetzt hat (Weiden, Flecken, Sculk, verlassene Portale, Seelenschluchten mit Zeit je Kandidat) und warum Portale oder Schluchten ausfielen |
+| `/sift debug canyon build` | Seelenschlucht an der eigenen Position (oder bis 32 Blöcke daneben) in geladenem Gelände bauen und eintragen (nur Testserver) |
 | `/sift debug portals` | Alle protokollierten verlassenen Portale: gebaute mit Teleport, abgelehnte mit Grund |
-| `/sift debug landmarks [x z [zellen]]` | Kandidaten-Chunks der verlassenen Portale um eine Position (Standard 0/0, ±1 Zelle) mit Status, dazu die Mitten der Sculk-Regionen |
+| `/sift debug landmarks [x z [zellen]]` | Kandidaten-Chunks der verlassenen Portale um eine Position (Standard 0/0, ±1 Zelle) mit Status, die nächste Seelenschlucht (ohne x z: von der eigenen Position aus) mit Teleport, dazu die Mitten der Sculk-Regionen |
 | `/sift debug heights <x> <z> <radius> <schritt>` | Höhenkarte der Sift als Text |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
 | `/sift debug selftest` | Items, Rezepte, Siftit-Schutz, Loot und Advancements ohne Spieler prüfen |
