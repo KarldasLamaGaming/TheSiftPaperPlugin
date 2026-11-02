@@ -66,6 +66,8 @@ final class DarkSniffer extends SiftMob {
     private int digTicks = -1;
     private int digSearch;
     private int ambientTime = -AMBIENT_INTERVAL;
+    private org.bukkit.entity.Warden petter;
+    private int pettingTicks;
     private double walked;
     private Location last;
 
@@ -131,8 +133,39 @@ final class DarkSniffer extends SiftMob {
         }
     }
 
+    @Override
+    public String debugState() {
+        return pettingTicks > 0 && petter != null
+                ? String.format(java.util.Locale.ROOT, "wird von einem Wächter gestreichelt (Abstand %.1f)", petter.getLocation().distance(bear.getLocation()))
+                : "nicht gestreichelt";
+    }
+
+    /** Available for a warden's petting: alive, calm, not already petted (isAvailableForWardenPetting). */
+    boolean availableForPetting() {
+        return !dying() && bear.getTarget() == null && wave == null && windup <= 0 && pettingTicks <= 0;
+    }
+
+    /** A warden pets this sniffer for {@code ticks} (null / 0 ends it): it stops, looks at the warden, no fighting. */
+    void petBy(org.bukkit.entity.Warden warden, int ticks) {
+        petter = warden;
+        pettingTicks = warden == null ? 0 : Math.max(pettingTicks, ticks);
+    }
+
     void aiTick() {
         World world = bear.getWorld();
+        if (pettingTicks > 0) {
+            pettingTicks--;
+            cancelSonic();
+            stopDigging();
+            bear.setTarget(null);
+            if (petter != null && petter.isValid() && petter.getLocation().distanceSquared(bear.getLocation()) <= 576) {
+                bear.lookAt(petter, 20f, 20f);
+            } else {
+                petter = null;
+                pettingTicks = 0;
+            }
+            return;
+        }
         if (wave != null || windup > 0) {
             sonicTick();
             return;
