@@ -140,6 +140,9 @@ final class MobCommand {
                     base.getPassengers().size(), seat == null ? "-" : String.format("%.3f", seat.getY() - base.getY()),
                     nearest.animations().current(nearest.kind().layers()[0]),
                     nearest.kind().layers().length > 1 ? nearest.animations().current(nearest.kind().layers()[1]) : "-")));
+            sender.sendMessage(Component.text("  Ziel: " + (base.getTarget() == null ? "-" : base.getTarget().getType().getKey().getKey()
+                    + " in " + String.format(java.util.Locale.ROOT, "%.1f", base.getTarget().getLocation().distance(base.getLocation())) + " Blöcken")
+                    + ", KI " + (base.hasAI() ? "an" : "aus") + ", Weg " + (base.getPathfinder().hasPath() ? "ja" : "nein")));
             sender.sendMessage(Component.text(String.format(java.util.Locale.ROOT, "  Rotation: Basis-Mob Yaw %.1f° Pitch %.1f°; %s",
                     base.getLocation().getYaw(), base.getLocation().getPitch(), nearest.describeRig())));
         }

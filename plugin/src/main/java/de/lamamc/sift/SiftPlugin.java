@@ -53,6 +53,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
+    private de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns;
 
     @Override
     public void onEnable() {
@@ -155,6 +156,15 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         mobs.register(singerKind);
         singerSummoner = new de.lamamc.sift.mob.singer.SingerSummoner(this, mobs, singerKind);
         getServer().getPluginManager().registerEvents(singerSummoner, this);
+        org.bukkit.configuration.ConfigurationSection darkSniffer = config.getConfigurationSection("dark_sniffer");
+        de.lamamc.sift.mob.darksniffer.DarkSnifferKind darkSnifferKind = new de.lamamc.sift.mob.darksniffer.DarkSnifferKind(
+                darkSniffer != null ? darkSniffer : new org.bukkit.configuration.MemoryConfiguration(), items);
+        mobs.register(darkSnifferKind);
+        de.lamamc.sift.mob.darksniffer.SnifferInfection infection = new de.lamamc.sift.mob.darksniffer.SnifferInfection(mobs, darkSnifferKind);
+        getServer().getPluginManager().registerEvents(infection, this);
+        infection.start(this);
+        darkSnifferSpawns = new de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns(mobs, darkSnifferKind);
+        darkSnifferSpawns.start(this);
         getServer().getPluginManager().registerEvents(mobs, this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.BaseMobGuard(mobs), this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.SpawnEggs(mobs), this);
@@ -169,6 +179,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.mob.MobManager mobs() {
         return mobs;
+    }
+
+    public de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns() {
+        return darkSnifferSpawns;
     }
 
     public de.lamamc.sift.mob.singer.SingerSummoner singerSummoner() {

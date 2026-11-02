@@ -1,0 +1,82 @@
+{
+  "textures": {
+    "0": "the_sift:item/mob/dark_sniffer",
+    "particle": "the_sift:item/mob/dark_sniffer"
+  },
+  "elements": [
+    {
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        6.0,
+        8.0,
+        6.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.6667,
+            7.3333,
+            1.1667,
+            8.6667
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            0.6667,
+            7.3333,
+            1.1667,
+            8.6667
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "west": {
+          "uv": [
+            0.6667,
+            7.3333,
+            1.1667,
+            8.6667
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            0.6667,
+            7.3333,
+            1.1667,
+            8.6667
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            0.6667,
+            7.25,
+            1.1667,
+            7.75
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        },
+        "down": {
+          "uv": [
+            0.6667,
+            7.25,
+            1.1667,
+            7.75
+          ],
+          "texture": "#0",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

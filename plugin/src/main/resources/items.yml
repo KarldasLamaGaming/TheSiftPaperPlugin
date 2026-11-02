@@ -41,6 +41,7 @@ items:
   blub_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
   sifter_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
   singer_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
+  dark_sniffer_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
 
 # Items of the original that only exist as a vanilla item here (recipes produce the vanilla item)
 item-substitutes:

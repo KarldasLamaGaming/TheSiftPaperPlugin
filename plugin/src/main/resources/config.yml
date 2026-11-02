@@ -408,6 +408,69 @@ mobs:
         - {item: "minecraft:string", weight: 8, count: [4, 16]}
         - {item: "#wool", weight: 9, count: [9, 24]}
 
+  # Dunkler Schnüffler (Original: DarkSnifferEntity). Basis ist ein unsichtbarer Eisbär ohne eigenes Verhalten.
+  # Modell: eigenes, vereinfachtes Modell auf der Original-Textur (nicht das Vanilla-Sniffer-Modell).
+  dark_sniffer:
+    enabled: true
+    # Größe des Basis-Eisbären (1,36 ergibt 1,9 × 1,9; Original 1,9 × 1,75)
+    base-scale: 1.36
+    model-scale: 1.0
+    shadow-radius: 1.0
+    attributes:
+      max-health: 40.0
+      # Tempo im Leerlauf; beim Jagen chase-movement-speed, Wegfaktor chase-speed (Original 0,1 / 0,3 / 1,2)
+      movement-speed: 0.1
+      attack-damage: 7.0
+      follow-range: 32.0
+      step-height: 1.25
+      attack-knockback: 0.75
+    chase-movement-speed: 0.3
+    chase-speed: 1.2
+    # zieht sich nicht weiter als so viele Blöcke von seinem Erscheinungsort zurück, solange er kein Ziel hat
+    home-radius: 100
+    # greift auch normale Schnüffler an (Original: ja); normale Schnüffler fliehen in diesem Umkreis vor ihm
+    attack-sniffers: true
+    sniffers-flee-radius: 20
+    combat:
+      # sucht Spieler (Überleben/Abenteuer) und Schnüffler in diesem Umkreis
+      aggro-range: 32
+      # Nahkampf: Reichweite in Blöcken und Pause in Ticks (Original 3,15 / 24)
+      reach: 3.15
+      cooldown-ticks: 24
+    # Schallangriff: bleibt das Ziel 8 Ticks außer Reichweite (und mindestens 5 Blöcke entfernt, in Sicht),
+    # schnüffelt er 10 Ticks und schickt eine Schallwelle, die alles Getroffene zu ihm heranzieht (kein Schaden)
+    sonic:
+      enabled: true
+      windup-ticks: 10
+      cooldown-ticks: 100
+      out-of-reach-ticks: 8
+      min-distance: 5.0
+      wave-speed: 1.5
+      hit-radius: 0.8
+      overshoot: 7.5
+      max-lead-ticks: 20.0
+      pull-strength: 0.3
+    # Graben: ohne Ziel sucht er ab und zu Sculk in 8 Blöcken und gräbt dort Sculkblumensamen aus
+    # (verändert keine Blöcke; Pause danach wie beim Vanilla-Schnüffler 9600 Ticks = 8 min)
+    dig:
+      enabled: true
+      search-interval-ticks: 200
+      duration-ticks: 80
+      cooldown-ticks: 9600
+    # Infektion: ein normaler Schnüffler, der auf Sculk gräbt, wird nach conversion-ticks zum Dunklen Schnüffler
+    infection:
+      enabled: true
+      only-in-sift: true
+      conversion-ticks: 600
+      check-ticks: 10
+    # Beute: Sculk-Blöcke; Erfahrung, wenn ein Spieler ihn tötet [min, max] (wie Vanilla-Tiere)
+    drops:
+      sculk: 1
+    experience: [1, 3]
+    # Spawn beim Generieren: 1–2 je neuer Sculk-Region an der Oberfläche der Sift (wie im Original)
+    spawn:
+      enabled: true
+
 recipes:
   # Rezepte der Sift beim Betreten im Rezeptbuch freischalten
   discover-on-join: true

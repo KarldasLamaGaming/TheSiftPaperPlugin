@@ -435,6 +435,15 @@ Belohnungen aus `mobs.singer.barter.table` (Gewicht von 200, Anzahl).
 Schlüssel abschalten: `portals.keys.enabled: false` (Neustart). Dann weckt nur noch der Singer; schon wache und
 offene Portale bleiben, wie sie sind, und die Schlüssel liegen nicht mehr in Truhen.
 
+### Dunkler Schnüffler
+
+Basis Eisbär (Größe 1,36), eigenes vereinfachtes Modell auf der Original-Textur. Feindlich gegen Spieler und
+normale Schnüffler in 32 Blöcken (Biss 7, Schallwelle zieht heran, ohne Schaden), gräbt Sculk nach
+Sculkblumensamen, infiziert normale Schnüffler, die auf Sculk graben (nach 30 s werden sie zu Dunklen
+Schnüfflern; Log-Zeile). Spawnt beim Generieren: 1–2 je neuer Sculk-Region an der Oberfläche der Sift.
+Einzeln schaltbar unter `mobs.dark_sniffer`: `sonic.enabled`, `dig.enabled`, `infection.enabled`,
+`attack-sniffers`, `spawn.enabled`. Spawn-Ei `dark_sniffer_spawn_egg`.
+
 ### Portal der Antiken Stadt
 
 `portals.ancient-city` (Standard an, `[Start]`, nur neue Chunks): Das Zentrum jeder neuen Antiken Stadt wird
