@@ -51,7 +51,21 @@ public final class EchoGolemSpawner {
     public String describe() {
         SoulCanyonLandmarks landmarks = landmarksSupplier.get();
         return "Echo Golems erschienen: " + spawnedAtCanyons + " an Schlucht-Eingängen, " + spawnedNearPlayers
-                + " um Spieler; Eingänge ausstehend: " + (landmarks == null ? 0 : landmarks.count(SoulCanyonLandmarks.Kind.GOLEM_PENDING));
+                + " um Spieler; Eingänge ausstehend: " + (landmarks == null ? 0 : landmarks.count(SoulCanyonLandmarks.Kind.GOLEM_PENDING))
+                + "; Seelenblöcke aufgehoben " + kind.taken.get() + ", an Singer " + kind.toSingers.get() + ", an Spieler "
+                + kind.toPlayers.get() + ", fallen gelassen " + kind.dropped.get();
+    }
+
+    /** One line per loaded golem: position and state. */
+    public java.util.List<String> golems() {
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        for (SiftMob mob : mobs.mobs()) {
+            if (mob.kind() == kind) {
+                Location l = mob.base().getLocation();
+                lines.add(String.format(java.util.Locale.ROOT, "%.0f %.0f %.0f: %s", l.getX(), l.getY(), l.getZ(), mob.debugState()));
+            }
+        }
+        return lines;
     }
 
     private void tick() {

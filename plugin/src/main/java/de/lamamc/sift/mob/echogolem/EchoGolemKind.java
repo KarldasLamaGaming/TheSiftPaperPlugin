@@ -50,10 +50,16 @@ public final class EchoGolemKind extends MobKind {
     /** Soul blocks a golem is going for (packed position → golem), so two golems do not take the same one. */
     private final Map<Long, UUID> reservations = new HashMap<>();
     private SingerLink singers;
+    /** Counters for /sift debug golems: soul blocks picked up, handed to Singers, to players, dropped. */
+    public final java.util.concurrent.atomic.AtomicLong taken = new java.util.concurrent.atomic.AtomicLong();
+    public final java.util.concurrent.atomic.AtomicLong toSingers = new java.util.concurrent.atomic.AtomicLong();
+    public final java.util.concurrent.atomic.AtomicLong toPlayers = new java.util.concurrent.atomic.AtomicLong();
+    public final java.util.concurrent.atomic.AtomicLong dropped = new java.util.concurrent.atomic.AtomicLong();
     private GolemLight light;
     private MobManager manager;
     private long pathTick = -1;
     private int pathsThisTick;
+    private long exitTick = -1;
 
     public EchoGolemKind(ConfigurationSection config, SiftItems items, CustomBlockRegistry blocks, Supplier<SoulCanyonLandmarks> landmarks) {
         super(ID, config);
@@ -143,6 +149,15 @@ public final class EchoGolemKind extends MobKind {
             return false;
         }
         pathsThisTick++;
+        return true;
+    }
+
+    /** One exit search path per server tick, apart from the normal budget (MAX_CRITICAL_EXIT_PATHS_PER_SERVER_TICK). */
+    boolean takeExitBudget(long serverTick) {
+        if (exitTick == serverTick) {
+            return false;
+        }
+        exitTick = serverTick;
         return true;
     }
 

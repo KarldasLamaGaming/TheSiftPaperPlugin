@@ -335,6 +335,13 @@ final class Singer extends SiftMob {
         return soulEvent;
     }
 
+    @Override
+    public String debugState() {
+        return (summoned ? "gerufen" : soulEvent ? "Seelen-Singer" : "bleibend") + ", " + phase
+                + (soulGolem == null ? "" : ", Golem " + soulGolem.toString().substring(0, 8))
+                + (soulEvent && phase == Phase.ROAMING ? ", " + roamTicks + " Ticks unterwegs" : "");
+    }
+
     /** A carrying golem offers its block: taken unless this Singer already serves another golem that is still there. */
     void offerSoulGolem(de.lamamc.sift.mob.echogolem.EchoGolem golem) {
         if (!canTakeSoul() || !golem.hasSoul() || !golem.canInteractWithSinger()) {

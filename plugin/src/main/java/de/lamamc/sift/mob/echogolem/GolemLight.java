@@ -66,6 +66,32 @@ public final class GolemLight implements Listener {
         return removed;
     }
 
+    /** Light blocks of our level within {radius} blocks (±32 in height) of a point: {all, owned by a carrying golem}. */
+    public int[] scan(Location at, int radius) {
+        World world = at.getWorld();
+        int all = 0;
+        int owned = 0;
+        int minY = Math.max(world.getMinHeight(), at.getBlockY() - 32);
+        int maxY = Math.min(world.getMaxHeight() - 1, at.getBlockY() + 32);
+        for (int x = at.getBlockX() - radius; x <= at.getBlockX() + radius; x++) {
+            for (int z = at.getBlockZ() - radius; z <= at.getBlockZ() + radius; z++) {
+                if (!world.isChunkLoaded(x >> 4, z >> 4)) {
+                    continue;
+                }
+                for (int y = minY; y <= maxY; y++) {
+                    Block block = world.getBlockAt(x, y, z);
+                    if (block.getType() == Material.LIGHT && ((Light) block.getBlockData()).getLevel() == level) {
+                        all++;
+                        if (lights.containsValue(block)) {
+                            owned++;
+                        }
+                    }
+                }
+            }
+        }
+        return new int[] {all, owned};
+    }
+
     /** Every tick from the golem: the light follows its head block while it carries a soul block. */
     void update(EchoGolem golem, boolean carrying) {
         UUID id = golem.entity().getUniqueId();

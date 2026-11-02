@@ -102,6 +102,9 @@ public final class EchoGolem extends SiftMob {
     private Location patrolTarget;
     private int patrolCooldown;
     private Location exitOverride;
+    private long nextExitSearch;
+    private int exitCursor;
+    private long nextPath;
 
     private double walked;
     private Location last;
@@ -147,6 +150,7 @@ public final class EchoGolem extends SiftMob {
             return false;
         }
         hasSoul = false;
+        golemKind.toSingers.incrementAndGet();
         award(FATHER, 16);
         playSound("entity.echo_golem.item_drop", 1.0f, 0.92f);
         singer = null;
@@ -312,7 +316,7 @@ public final class EchoGolem extends SiftMob {
         if (best == null) {
             return false;
         }
-        Pos foundEntrance = landmarks.nearest(SoulCanyonLandmarks.Kind.ENTRANCE, best.x() + 0.5, best.y(), best.z() + 0.5, 96);
+        Pos foundEntrance = landmarks.entranceOf(best);
         if (foundEntrance == null) {
             unavailable.put(best, now + rules.blockedCanyonTicks());
             return false;
@@ -325,7 +329,7 @@ public final class EchoGolem extends SiftMob {
         }
         cluster = best;
         entrance = foundEntrance;
-        midpoint = landmarks.nearest(SoulCanyonLandmarks.Kind.MIDPOINT, best.x() + 0.5, best.y(), best.z() + 0.5, 72);
+        midpoint = landmarks.midpointOf(best);
         entered = false;
         midpointPassed = false;
         entryAttempts = 0;
@@ -641,6 +645,7 @@ public final class EchoGolem extends SiftMob {
             }
             releaseTarget();
             hasSoul = true;
+            golemKind.taken.incrementAndGet();
             if (anchor == null) {
                 anchor = entrance != null ? center(entrance) : sheep.getLocation();
             }
@@ -740,29 +745,40 @@ public final class EchoGolem extends SiftMob {
         }
     }
 
+    /**
+     * Any reachable open surface spot 8–28 blocks away (findReachableSurfaceExit of the original): one candidate
+     * per try, a try every 5 ticks per golem with the separate exit budget, cycling through the 32 candidates.
+     */
     private Location surfaceExit() {
+        long now = now();
+        if (now < nextExitSearch || !golemKind.takeExitBudget(now)) {
+            return null;
+        }
+        nextExitSearch = now + 5;
         World world = sheep.getWorld();
         Location at = sheep.getLocation();
         double minY = entrance != null ? entrance.y() - 2 : at.getY() + 2;
-        for (int radius : new int[] {8, 14, 20, 28}) {
-            for (int i = 0; i < 8; i++) {
-                double angle = heading + i * Math.PI / 4;
-                int x = (int) Math.floor(at.getX() + Math.cos(angle) * radius);
-                int z = (int) Math.floor(at.getZ() + Math.sin(angle) * radius);
-                if (!world.isChunkLoaded(x >> 4, z >> 4)) {
-                    continue;
-                }
-                int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
-                if (y < minY || !golemKind.takePathBudget(now())) {
-                    continue;
-                }
-                var path = sheep.getPathfinder().findPath(new Location(world, x + 0.5, y, z + 0.5));
-                if (path != null && path.canReachFinalPoint() && path.getFinalPoint() != null
-                        && path.getFinalPoint().distanceSquared(new Location(world, x + 0.5, y, z + 0.5)) <= 4) {
-                    return new Location(world, x + 0.5, y, z + 0.5);
-                }
-                return null; // one try per tick (path budget)
+        int[] radii = {8, 14, 20, 28};
+        for (int tries = 0; tries < 32; tries++) {
+            int index = exitCursor++ % 32;
+            int radius = radii[index / 8];
+            double angle = heading + (index % 8) * Math.PI / 4;
+            int x = (int) Math.floor(at.getX() + Math.cos(angle) * radius);
+            int z = (int) Math.floor(at.getZ() + Math.sin(angle) * radius);
+            if (!world.isChunkLoaded(x >> 4, z >> 4)) {
+                continue;
             }
+            int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
+            if (y < minY) {
+                continue;
+            }
+            Location spot = new Location(world, x + 0.5, y, z + 0.5);
+            var path = sheep.getPathfinder().findPath(spot);
+            if (path != null && path.canReachFinalPoint() && path.getFinalPoint() != null
+                    && path.getFinalPoint().distanceSquared(spot) <= 4) {
+                return spot;
+            }
+            return null; // one path per try
         }
         return null;
     }
@@ -853,6 +869,7 @@ public final class EchoGolem extends SiftMob {
             return;
         }
         hasSoul = false;
+        golemKind.toPlayers.incrementAndGet();
         ItemStack soul = golemKind.items().create(SOUL_ID, 1);
         if (soul != null) {
             player.getInventory().addItem(soul).values().forEach(rest -> player.getWorld().dropItem(player.getLocation(), rest));
@@ -931,6 +948,7 @@ public final class EchoGolem extends SiftMob {
             return;
         }
         hasSoul = false;
+        golemKind.dropped.incrementAndGet();
         ItemStack soul = golemKind.items().create(SOUL_ID, 1);
         if (soul != null) {
             sheep.getWorld().dropItem(sheep.getLocation().add(0, 0.8, 0), soul);
@@ -1072,10 +1090,11 @@ public final class EchoGolem extends SiftMob {
         if (--repathCooldown > 0) {
             return pathfinder.hasPath();
         }
-        if (!golemKind.takePathBudget(now())) {
+        if (now() < nextPath || !golemKind.takePathBudget(now())) {
             repathCooldown = 1 + (sheep.getEntityId() & 1);
             return pathfinder.hasPath();
         }
+        nextPath = now() + 4; // personal path interval of the original
         repathCooldown = 10 + random.nextInt(7);
         Location goal = target;
         if (partial && horizontal2(target) > 1600) {
@@ -1089,7 +1108,9 @@ public final class EchoGolem extends SiftMob {
             return false;
         }
         boolean reaches = path.canReachFinalPoint() && path.getFinalPoint().distanceSquared(goal) <= accept * accept;
-        if (!reaches && !partial) {
+        // a path that ends short of the goal but brings the golem clearly closer is progress, not a failure
+        boolean closer = path.getFinalPoint().distanceSquared(goal) + 4 < sheep.getLocation().distanceSquared(goal);
+        if (!reaches && !partial && !closer) {
             routeFailures++;
             repathCooldown = 4;
             navGoal = null;
@@ -1097,7 +1118,7 @@ public final class EchoGolem extends SiftMob {
         }
         pathfinder.moveTo(path, speed);
         navGoal = target.clone();
-        routeFailures = reaches ? Math.max(0, routeFailures - 1) : routeFailures + 1;
+        routeFailures = reaches || closer ? Math.max(0, routeFailures - 1) : routeFailures + 1;
         return true;
     }
 

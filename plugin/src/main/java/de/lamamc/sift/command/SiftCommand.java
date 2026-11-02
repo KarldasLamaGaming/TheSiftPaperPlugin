@@ -146,7 +146,15 @@ public final class SiftCommand {
                             var light = plugin.golemLight();
                             sender.sendRichMessage("<gray>" + (spawner == null ? "Echo Golems aus" : spawner.describe())
                                     + (light == null ? "" : "; Lichtblöcke " + (light.enabled() ? "an" : "aus") + ", aktiv "
-                                    + light.active() + ", aufgeräumt " + light.cleanedUp()));
+                                    + light.active() + ", entfernt " + light.cleanedUp()));
+                            if (light != null && ctx.getSource().getLocation().getWorld() != null) {
+                                int[] scan = light.scan(ctx.getSource().getLocation(), 48);
+                                sender.sendRichMessage("<gray>Lichtblöcke (Stufe der Golems) in 48 Blöcken: " + scan[0]
+                                        + ", davon von tragenden Golems " + scan[1] + ", übrig " + (scan[0] - scan[1]));
+                            }
+                            if (spawner != null) {
+                                spawner.golems().forEach(line -> sender.sendPlainMessage("  " + line));
+                            }
                             return Command.SINGLE_SUCCESS;
                         }))
                         .then(Commands.literal("landmarks")
