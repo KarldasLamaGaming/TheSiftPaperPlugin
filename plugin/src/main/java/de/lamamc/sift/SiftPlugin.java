@@ -48,6 +48,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private SiftRecipes recipes;
     private SiftPopulator siftPopulator;
     private SoulCanyonLandmarks canyonLandmarks;
+    private de.lamamc.sift.world.gen.SoulCanyonParticles canyonParticles;
     private MainPortalBuilder mainPortal;
     private de.lamamc.sift.world.portal.PortalService portals;
     private de.lamamc.sift.world.portal.SonorousConsoles consoles;
@@ -313,9 +314,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             canyonLandmarks = new SoulCanyonLandmarks(blocks);
             canyonLandmarks.load(world);
             getServer().getPluginManager().registerEvents(canyonLandmarks, this);
-            if (getConfig().getBoolean("worldgen.soul-canyons.particles", true)) {
-                new de.lamamc.sift.world.gen.SoulCanyonParticles(canyonLandmarks, blocks).start(this);
-            }
+            canyonParticles = new de.lamamc.sift.world.gen.SoulCanyonParticles(canyonLandmarks, blocks,
+                    de.lamamc.sift.world.gen.SoulCanyonParticles.Settings.load(
+                            getConfig().getConfigurationSection("worldgen.soul-canyons")));
+            canyonParticles.start(this);
             SoulCanyons canyons = new SoulCanyons(blocks, canyonLandmarks, worldgen.canyonCellChunks(), worldgen.canyonMinSouls());
             siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
                     landmarkLog, canyons, getLogger());
@@ -362,6 +364,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.world.portal.PortalService portals() {
         return portals;
+    }
+
+    public de.lamamc.sift.world.gen.SoulCanyonParticles canyonParticles() {
+        return canyonParticles;
     }
 
     public SoulCanyonLandmarks canyonLandmarks() {

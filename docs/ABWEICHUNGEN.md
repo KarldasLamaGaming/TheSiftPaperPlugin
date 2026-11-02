@@ -102,7 +102,10 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   - Ein Platz für Schluchten wird mit den verlassenen Portalen geteilt (keine Überschneidung); im Original haben
     Schluchten eine eigene Liste.
   - Seelenblöcke leuchten weiterhin nicht (bekannte Einschränkung, siehe ADMIN.md).
-  - Die aufsteigenden Partikel sind Vanilla-Seelen statt des eigenen `canyon_soul`-Partikels (gleiche Bewegung).
+  - Die aufsteigenden Partikel sind Vanilla-Partikel (Standard `SCULK_SOUL`) statt des eigenen `canyon_soul`.
+    Weil Vanilla-Partikel kleiner und kurzlebiger sind, kommen mehr davon (3 je Seelenblock, 4 Seelenblöcke je
+    Schlucht alle 10 Ticks statt einer Schlucht reihum alle 2 Ticks), und „offen“ heißt 4 statt 50 freie Blöcke
+    darüber (seit alpha.18.1, einstellbar).
   - Neu: `/sift debug canyon build` baut eine Schlucht in schon generiertem Gelände (Test).
 
 ## Portale (seit Schritt 7a)

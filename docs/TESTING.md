@@ -203,8 +203,11 @@ Neue Schluchten entstehen nur in **neu generierten** Chunks. Für schon generier
 - [ ] Die Schlucht: ein diagonaler, leicht gewundener Graben (etwa 45 Blöcke lang, 7–10 breit). Vom Eingang
       führt eine Rampe ohne Stufen über 1 Block hinunter, bis 18–20 Blöcke tief; der Boden ist Siftschiefer.
 - [ ] Im tiefen Teil liegen Seelenblöcke im Boden, als gewundene Ader und zwei kleine Taschen, mindestens 8.
-- [ ] Über offenen Seelenblöcken steigen ab und zu Seelen-Partikel auf (bei Tag schwer zu sehen, besser nachts
-      oder im Schatten). `worldgen.soul-canyons.particles: false` (Neustart) schaltet sie ab.
+- [ ] Über den Seelenblöcken steigen deutlich Sculk-Seelen auf (alpha.18.1: mehrere je Block, alle halbe Sekunde),
+      sobald man in 48 Blöcken ist; weiter weg nicht. `/sift debug landmarks` an der Schlucht: Zeile „Seelen-Partikel“
+      mit Schluchten in Sichtweite, Seelenblöcken, offenen, und „letzter Lauf: … Partikel“ größer 0.
+- [ ] `worldgen.soul-canyons.particles.type: SOUL` (Neustart): kleinere blaue Seelen; `enabled: false`: keine.
+      Die alte Form `particles: true` lädt ohne Fehler.
 - [ ] Ein Seelenblock abbauen: droppt nichts (wie im Original); setzen und wieder abbauen ändert die Zahl
       „Seelenblöcke“ in `/sift debug landmarks`.
 - [ ] Neben dem Haupt-Portal (34 Blöcke) und in verlassenen Portalen entsteht keine Schlucht.

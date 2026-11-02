@@ -122,8 +122,22 @@ worldgen:
     # so viele Seelenblöcke braucht eine Schlucht, sonst wird sie nicht gebaut
     min-souls: 8
     biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_deep_dark, sift_wastes, siftslate_peaks, siftslate_slopes]
-    # aufsteigende Seelen-Partikel über offenen Seelenblöcken (wie im Original)
-    particles: true
+    # Aufsteigende Seelen-Partikel über offenen Seelenblöcken (wie im Original). Die alte Form "particles: true"
+    # bzw. "false" geht weiter (dann gelten die Standardwerte unten).
+    particles:
+      enabled: true
+      # Partikelart ohne Zusatzdaten, z. B. SCULK_SOUL (gut sichtbar) oder SOUL (klein, wie das Original)
+      type: SCULK_SOUL
+      # Partikel je Seelenblock und Lauf
+      amount: 3
+      # so viele offene Seelenblöcke je Schlucht bekommen pro Lauf Partikel
+      souls-per-run: 4
+      # ein Seelenblock gilt als offen, wenn so viele Blöcke darüber frei (Luft, Pflanzen) sind (Original: 50)
+      air-above: 4
+      # nur Spieler in diesem Abstand zur Schlucht sehen die Partikel; nur dann läuft die Schlucht überhaupt
+      view-distance: 48
+      # alle N Ticks ein Lauf
+      interval-ticks: 10
 
 # Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
 # Portale (Schritt 7): Durchgang in die Sift und zurück, Konsolen aus Klingendem Tiefenschiefer
