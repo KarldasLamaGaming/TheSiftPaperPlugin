@@ -121,6 +121,9 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] `/sift debug selftest`: alle Zeilen „OK“, am Ende „Selbsttest bestanden“.
 - [ ] Rezeptbuch: Sift-Rezepte sind nach dem Betreten freigeschaltet (Siftitbarren, Weidenbretter,
       Ichorglas, Siftschiefer-Steinsäge …).
+- [ ] Weidenbretter in Holzrezepten (ab alpha.24, #14): Truhe, Fass, ein Bett, Holzspitzhacke, Schild und
+      Bücherregal aus Weidenbrettern; Lagerfeuer und Räucherofen aus Weidenstämmen. Die Rezepte stehen im
+      Rezeptbuch. Mit Eichenbrettern entsteht weiterhin das Vanilla-Rezept; gemischte Bretter ergeben nichts.
 - [ ] Werkbank: 9 Siftitklumpen → Siftitbarren; Siftitbarren → 9 Klumpen; Weidenstamm → 4 Weidenbretter
       (auch umbenannt); Weidenbretter → Stöcke, Werkbank; Ichorscherben → Ichorglas; Siftschiefer-Bruchstein
       statt Bruchstein für Spender, Werfer, Kolben, Beobachter, Hebel.
