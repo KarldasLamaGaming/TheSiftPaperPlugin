@@ -9,7 +9,6 @@ Stand: 31.10.2026 (nach alpha.10)
 
 | Issue | Punkt | Stand |
 |---|---|---|
-| [#10](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/10) | Ichorglasscheibe ist eine einfache Vanilla-Scheibe: Schutz und Rezept klären | Entscheidung offen |
 | [#11](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/11) | Weidenlaub: Härte 0,7 (config) vs. 0,2 (Plan) | Original geprüft: 0,7 ist richtig; Spieltest offen, dann schließen |
 | [#16](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/16) | Alte Chunks (alpha.2–4): keine Bäume, Lotus-Reste | Testserver-Sift zurücksetzen; Produktion startet frisch |
 
@@ -27,7 +26,6 @@ Stand: 31.10.2026 (nach alpha.10)
 
 | Issue | Punkt | Stand |
 |---|---|---|
-| [#14](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/14) | Weidenbretter nur in eigenen Rezepten (Truhe, Fass, Holzwerkzeuge usw. fehlen) | Vorschlag im Issue |
 | [#15](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/15) | Verlassene Portale: `chance` 0,25 mit Phase 3 auf 1,0 | wartet auf Phase 3 |
 | [#17](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/17) | Phase 2 (Mobs) und Phase 3 (Ichor, Himmel, Monolithen, Bögen, Seelenschluchten, Sniffer-Höhlen) | nach Phase 1 |
 

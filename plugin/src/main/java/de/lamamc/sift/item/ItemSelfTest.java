@@ -105,6 +105,10 @@ public final class ItemSelfTest {
         check(crafted(matrix(oak, oak, oak, cobbled, iron, cobbled, cobbled, redstone, cobbled), world)
                 .equals("the_sift:piston_from_cobbled_siftslate"), "Kolben aus Siftschiefer-Bruchstein");
         check(crafted(matrix(willow, null, null, willow), world).equals("the_sift:overgrown_willow_sticks"), "Weidenbretter -> Stöcke");
+        check(crafted(matrix(willow, willow, willow, willow, null, willow, willow, willow, willow), world)
+                .equals("the_sift:willow_chest"), "Weidenbretter -> Truhe (#14)");
+        check(crafted(matrix(oak, oak, oak, oak, null, oak, oak, oak, oak), world)
+                .equals("minecraft:chest"), "Eichenbretter -> Truhe bleibt Vanilla");
         ItemStack glass = sift("ichor_glass");
         ItemStack fronds = sift("overgrown_fronds");
         // the guard empties the result of vanilla recipes with protected items; 6 ichor glass is a Sift recipe

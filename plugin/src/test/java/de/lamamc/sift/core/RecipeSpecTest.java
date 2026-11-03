@@ -25,7 +25,25 @@ class RecipeSpecTest {
     @Test
     void allRecipesOfTheOriginalAreRead() {
         // 76 of the original + 3 of the plugin (willow planks and logs where the original uses vanilla tags)
-        assertEquals(79, RECIPES.size());
+        // + 42 willow variants of plank/log recipes (scripts/gen_willow_recipes.py, issue #14)
+        assertEquals(121, RECIPES.size());
+    }
+
+    @Test
+    void willowVariantsAreAllLoadedAndAcceptWillow() {
+        List<RecipeSpec> willow = RECIPES.stream().filter(r -> r.name().startsWith("willow_")).toList();
+        assertEquals(42, willow.size());
+        for (RecipeSpec spec : willow) {
+            org.junit.jupiter.api.Assertions.assertFalse(spec.skipped(), spec.name() + ": " + spec.skipReason());
+            java.util.stream.Stream<RecipeSpec.Choice> choices = spec.type() == RecipeSpec.Type.SHAPED
+                    ? spec.key().values().stream() : spec.ingredients().stream();
+            org.junit.jupiter.api.Assertions.assertTrue(choices.anyMatch(c -> c.siftItems().stream()
+                    .anyMatch(id -> id.contains("willow"))), spec.name() + " takes no willow item");
+        }
+        for (String name : List.of("willow_chest", "willow_white_bed", "willow_wooden_pickaxe", "willow_shield",
+                "willow_campfire", "willow_smoker", "willow_piston_from_cobbled_siftslate")) {
+            org.junit.jupiter.api.Assertions.assertTrue(BY_NAME.containsKey(name), name);
+        }
     }
 
     @Test

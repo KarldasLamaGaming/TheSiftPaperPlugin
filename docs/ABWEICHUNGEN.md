@@ -16,19 +16,27 @@ Einschränkungen.
 
 Der Test `RecipeSpecTest` hält genau diese drei fest; kommt ein weiteres dazu, schlägt er fehl.
 
-### Hinzugefügt (3)
+### Hinzugefügt (3 + 42)
 
-Im Original stehen Weidenbretter und -stämme in den Vanilla-Tags `#planks` und `#logs_that_burn` und
+Im Original stehen Weidenbretter und -stämme in den Vanilla-Tags `#planks` und `#logs` und
 funktionieren damit in allen Holzrezepten. Hier sind es Pilzblock-Items, die kein Vanilla-Tag erreicht.
-Deshalb gibt es eigene Rezepte für das Nötigste:
+Deshalb gibt es eigene Rezepte:
 
 | Rezept | Datei |
 |---|---|
 | 2 Weidenbretter → 4 Stöcke | `plugin/src/main/resources/extra-recipes/overgrown_willow_sticks.json` |
 | 4 Weidenbretter → Werkbank | `extra-recipes/crafting_table_from_overgrown_willow_planks.json` |
 | Weidenstamm/-holz (auch entrindet) → Holzkohle (Ofen) | `extra-recipes/charcoal_from_overgrown_willow_logs.json` |
+| 42 Holzrezepte mit Weidenbrettern bzw. -stämmen (seit alpha.24, #14) | `extra-recipes/willow_*.json` |
 
-Andere Holzrezepte (Truhe, Fass, Holzwerkzeuge, Schilder …) nehmen Weidenbretter nicht an.
+Die 42 Rezepte erzeugt `scripts/gen_willow_recipes.py` aus den Vanilla-Rezepten von 26.3: jedes Rezept mit
+`#planks`, `#wooden_tool_materials` oder `#logs`, dazu `piston_from_cobbled_siftslate` des Originals.
+Darunter sind Truhe, Fass, Bienenstock, Bücherregal und Gemeißeltes Bücherregal, Schüssel, alle Tische,
+Notenblock, Jukebox, Kolben, Schleifstein, Haken, alle 16 Betten, Schild, die Holzwerkzeuge samt Speer,
+Lagerfeuer, Seelenlagerfeuer und Räucherofen. Das Ergebnis ist das Vanilla-Item.
+
+Unterschied zum Original: Ein Rezept nimmt entweder nur Weidenbretter oder nur Vanilla-Bretter;
+gemischt geht es nicht. Bei einem neuen Minecraft-Update wird das Skript erneut ausgeführt.
 
 ### Ergebnis ist ein Vanilla-Item
 
@@ -36,6 +44,11 @@ Rezepte, deren Ergebnis hier nur als Vanilla-Block existiert, ergeben diesen: Si
 -Stufen und -Mauern → Tiefenschiefer-Varianten; Weidentür, -falltür, -zaun, -zauntor, -knopf,
 -druckplatte, -schild, -hängeschild, -regal, -treppe, -stufe und -boot → Mangrove; Ichorglasscheibe →
 lila Glasscheibe; Ichorschnee → Schnee.
+
+**Ichorglasscheibe (#10, entschieden 03.11.):** Im Original 1.1.1 ein eigener Block (6 Ichorglas → 16
+Scheiben, eigene Textur). Ohne Client-Mod gibt es keine freien Zustände für eine verbindende Scheibe.
+Deshalb bleibt das Ergebnis die lila Vanilla-Glasscheibe mit Vanilla-Aussehen. Sie ist kein geschütztes
+Sift-Item und verhält sich wie jede lila Scheibe.
 
 ## Sift-Items und ihre Vanilla-Basis
 

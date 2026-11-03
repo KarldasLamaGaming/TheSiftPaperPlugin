@@ -183,7 +183,8 @@ dass keines fehlt) und seit alpha.6 auch alle Block-Items (Pflanzen auf Faden-Ba
 Glas-Basis, Siftschiefer, Weidenholz usw. auf Pilzblock-Basis). Charoit gibt also kein Buch, Überwucherte
 Wedel geben keinen Bogen, Ichorglas keine Glasscheiben oder Leuchtfeuer. Die Sift-Rezepte (Namensraum
 `the_sift`, z. B. Weidenbretter → Stöcke/Werkbank, Weidenstamm → Holzkohle, 6 Ichorglas →
-Ichorglasscheibe, Siftschiefer an der Steinsäge) nehmen sie weiter an:
+Ichorglasscheibe, Siftschiefer an der Steinsäge, seit alpha.24 auch 42 Holzrezepte mit Weidenbrettern
+oder -stämmen wie Truhe, Betten und Holzwerkzeuge, siehe ABWEICHUNGEN.md) nehmen sie weiter an:
 
 - Werkbank und Crafter: Vanilla-Rezepte nehmen sie nicht an (z. B. kein Reparieren durch Kombinieren).
 - Schmiedetisch: keine Vanilla-Aufwertung mit Siftit-Vorlage, -Barren oder -Teil; Rüstungsbesätze auf
