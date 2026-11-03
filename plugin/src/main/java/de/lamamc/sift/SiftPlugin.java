@@ -147,6 +147,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private void startMobs() {
         org.bukkit.configuration.ConfigurationSection config = getConfig().getConfigurationSection("mobs");
         mobs = new de.lamamc.sift.mob.MobManager(this, config);
+        mobs.names(id -> messages.has("mobs.names." + id) ? messages.raw("mobs.names." + id) : null);
         mobSpawner = new de.lamamc.sift.mob.MobSpawner(mobs);
         if (config == null || !config.getBoolean("enabled", true)) {
             getLogger().info("Sift mobs are off (mobs.enabled)");
