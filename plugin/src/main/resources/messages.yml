@@ -14,6 +14,9 @@ mobs:
   unknown: "<red>Unbekannter Sift-Mob: <mob>"
   disabled: "<red><mob> ist in der config.yml abgeschaltet (mobs.<id>.enabled)."
   limit-world: "Grenze von <limit> Sift-Mobs in dieser Welt erreicht"
+  echo_golem:
+    # Übergabe des Seelenblocks bei vollem Inventar
+    inventory-full: "<yellow>Inventar voll: Der Echo Golem legt dir den Seelenblock vor die Füße."
 
 portals:
   # Buch mit der Melodie der Portale in Antiken Städten (liegt mit einer Chance in deren Truhen)

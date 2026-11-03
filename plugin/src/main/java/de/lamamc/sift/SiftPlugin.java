@@ -181,6 +181,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         de.lamamc.sift.mob.echogolem.EchoGolemKind golemKind = new de.lamamc.sift.mob.echogolem.EchoGolemKind(golem, items, blocks,
                 () -> canyonLandmarks);
+        golemKind.messages(messages);
         mobs.register(golemKind);
         golemLight = new de.lamamc.sift.mob.echogolem.GolemLight(this, golem, getLogger());
         golemKind.light(golemLight);

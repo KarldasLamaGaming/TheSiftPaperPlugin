@@ -460,6 +460,10 @@ mobs:
     # Seelenblöcke aufheben (setzt sie zu Luft); nur in der Sift, die Gamerule mob_griefing gilt zusätzlich
     pickup:
       enabled: true
+    # Gebundener Golem: Rechtsklick seines Spielers (ohne Echo-Splitter) übergibt den getragenen Seelenblock sofort
+    # (ins Inventar, sonst vor die Füße). false = wie im Original: der Golem lässt ihn fallen und setzt sich.
+    bonded:
+      right-click-gives: true
     # Leuchten, während er einen Seelenblock trägt: model = leuchtender Seelenblock im Modell,
     # light-block = unsichtbarer Lichtblock in seinem Kopfblock (nur in Luft gesetzt, nur eigene entfernt), level 1–15
     glow:

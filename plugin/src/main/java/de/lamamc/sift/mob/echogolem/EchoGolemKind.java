@@ -61,6 +61,21 @@ public final class EchoGolemKind extends MobKind {
     private int pathsThisTick;
     private long exitTick = -1;
 
+    private de.lamamc.sift.Messages messages;
+
+    public void messages(de.lamamc.sift.Messages messages) {
+        this.messages = messages;
+    }
+
+    de.lamamc.sift.Messages messages() {
+        return messages;
+    }
+
+    /** mobs.echo_golem.bonded.right-click-gives: the owner's right-click hands the block over (else: dropped, original). */
+    boolean rightClickGives() {
+        return config.getBoolean("bonded.right-click-gives", true);
+    }
+
     public EchoGolemKind(ConfigurationSection config, SiftItems items, CustomBlockRegistry blocks, Supplier<SoulCanyonLandmarks> landmarks) {
         super(ID, config);
         this.items = items;
