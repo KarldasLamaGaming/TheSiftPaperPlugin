@@ -98,15 +98,21 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         resourcePack = new ResourcePackService(this);
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
         getServer().getPluginManager().registerEvents(resourcePack, this);
-        portals = new de.lamamc.sift.world.portal.PortalService(this, new de.lamamc.sift.world.portal.PortalRegistry(),
+        // portals.melody: the old form is a list (the fixed tune); since alpha.20 a section
+        org.bukkit.configuration.ConfigurationSection tuneConfig = getConfig().getConfigurationSection("portals.melody");
+        List<Integer> melody = tuneConfig != null ? tuneConfig.getIntegerList("fixed") : getConfig().getIntegerList("portals.melody");
+        boolean perPortal = tuneConfig == null || tuneConfig.getBoolean("per-portal", true);
+        de.lamamc.sift.world.portal.PortalRegistry registry = new de.lamamc.sift.world.portal.PortalRegistry();
+        registry.tunes(perPortal, tuneConfig == null ? 8 : Math.clamp(tuneConfig.getInt("length", 8), 1, 32));
+        portals = new de.lamamc.sift.world.portal.PortalService(this, registry,
                 new de.lamamc.sift.world.portal.PortalSurface(this, getConfig().getInt("portals.light-level", 12)));
         getServer().getPluginManager().registerEvents(portals, this);
         portals.start(getConfig().getInt("portals.check-ticks", 2));
-        List<Integer> melody = getConfig().getIntegerList("portals.melody");
         consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
                 melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
                 portalKeys());
         consoles.setKeysEnabled(getConfig().getBoolean("portals.keys.enabled", true));
+        consoles.setTunes(perPortal, tuneConfig == null || tuneConfig.getBoolean("recall-enabled", true));
         consoles.setAncientCitySequence(getConfig().getIntegerList("portals.ancient-city.melody").stream()
                 .mapToInt(Integer::intValue).filter(n -> n >= 1 && n <= 8).toArray());
         getServer().getPluginManager().registerEvents(consoles, this);
