@@ -172,6 +172,8 @@ Blub:
 - **Mielon-Texturen:** Die Sonder-Texturen des Originals für Blubs namens „Mielon“ fehlen.
 
 Sifter:
+- **Ziele wie im Original:** jagt nur Spieler, schlägt aber jeden zurück, der ihn verletzt
+  (`HurtByTargetGoal`). Ein gezähmter Blub, der seinen Spieler verteidigt, kann deshalb von einem Sifter getötet werden.
 - **Basis:** unsichtbares Schwein; Hitbox 0,9 × 0,9 statt 0,9 × 0,95. Das Schwein bekommt das Attribut
   Angriffsschaden dazu.
 - **KI:** Das Schwein behält nur Schwimmen, Umherstreifen und Umschauen. Zielwahl (nächster sichtbarer
@@ -239,6 +241,11 @@ Echo Golem (seit alpha.19):
   Lichtblock in Luft am Kopf (folgt bei Blockwechsel, sicher aufgeräumt) und ein selbst leuchtender
   Seelenblock-Würfel im Modell (`light_emission`).
 - **Kopf:** Das Modell dreht sich als Ganzes; das getrennte Kopfdrehen (±55°) und das Hinschauen fehlen.
+- **Übergabe an den gebundenen Spieler (alpha.19.2):** nur im Überlebens- oder Abenteuermodus (das Original gibt auch
+  im Kreativmodus); bei vollem Inventar landet der Block vor den Füßen (nur der Spieler kann ihn aufheben) mit Hinweis,
+  das Advancement kommt trotzdem. **Rechtsklick des Besitzers** (ohne Splitter) auf seinen tragenden Golem übergibt
+  den Block sofort, statt ihn fallen zu lassen (`mobs.echo_golem.bonded.right-click-gives`, Standard an; `false` =
+  Original). Treffer und Rechtsklicks auf ungebundene Golems lassen ihn weiter fallen.
 - **Binden** nur über die UUID des Spielers (das Original stellt die Bindung auch über den Namen wieder her). Gespeichert
   wie im Original als `bonded_player` / `bonded_player_name` (PDC `the_sift:`). Beim Binden spielt zusätzlich ein Klang
   (Allay), weil die Herzen allein leicht zu übersehen sind.
