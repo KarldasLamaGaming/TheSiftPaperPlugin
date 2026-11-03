@@ -254,6 +254,10 @@ final class PortalCommand {
         if (!p.consoles().isEmpty()) {
             sender.sendRichMessage("<gray>Klänge der Konsolen: " + sounds);
         }
+        if (p.kind() != SiftPortal.Kind.SIFT_EXIT) {
+            sender.sendRichMessage("<gray>Melodie: <white>" + de.lamamc.sift.core.portal.ConsoleSounds.text(consoles.sequenceFor(p))
+                    + "</white> (" + consoles.tuneSource(p) + ")");
+        }
         return Command.SINGLE_SUCCESS;
     }
 

@@ -141,13 +141,43 @@ worldgen:
 
 # Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
 # Portale (Schritt 7): Durchgang in die Sift und zurück, Konsolen aus Klingendem Tiefenschiefer
+access:
+  # Ab wann die Sift betreten werden kann:
+  #   always       = immer offen (Standard)
+  #   after-dragon = delay-days Tage nach dem ersten Drachenkill
+  #   fixed-date   = ab dem Zeitpunkt in date
+  #   manual       = geschlossen, bis ein Admin /sift open eingibt
+  # /sift open und /sift close setzen einen Zustand, der den Modus überstimmt und Neustarts übersteht;
+  # /sift access reset kehrt zum Modus zurück. Spieler mit thesift.access.bypass kommen immer hinein.
+  mode: always
+  # Wartezeit nach dem ersten Drachenkill in Tagen (after-dragon), Kommazahlen erlaubt
+  delay-days: 7
+  # Öffnungszeitpunkt für fixed-date im ISO-Format, z. B. "2026-12-01T18:00" (ohne Zone = Server-Zeitzone)
+  # oder "2026-12-01T18:00+01:00"
+  date: ""
+  # Vorwarnung in Sekunden, bevor Spieler beim Schließen aus der Sift geschickt werden
+  close-warning-seconds: 30
+  # Welten, deren Drachenkill zählt (Weltnamen). Leer = jede End-Welt
+  dragon-worlds: []
+
 portals:
   # Lichtstärke der Portalfläche (Original: 12)
   light-level: 12
   # alle N Ticks prüfen, wer eine offene Portalfläche berührt
   check-ticks: 2
-  # Melodie der Konsole, Töne 1–8 (Original: 1 3 7 6 5 2 4 8)
-  melody: [1, 3, 7, 6, 5, 2, 4, 8]
+  # Melodie der Konsolen (Töne 1–8). Seit alpha.20 bekommt jedes Schrein-Portal eine eigene, zufällig gewürfelte
+  # Melodie (nur im Portal-Register der Welt gespeichert, kein Seed, nichts im Repo). Die alte Form
+  # "melody: [Liste]" geht weiter (= fixed).
+  melody:
+    # false: alle Schreine wieder mit der festen Melodie
+    per-portal: true
+    # Länge der eigenen Melodien (8 = jeder Klang genau einmal; mehr = mit Wiederholungen)
+    length: 8
+    # Schleichen + Rechtsklick mit leerer Hand auf einen Notenblock eines geweckten Portals zeigt die Melodie erneut
+    recall-enabled: true
+    # feste Melodie: für schon geweckte Portale aus der Zeit davor und bei per-portal: false (Original 1 3 7 6 5 2 4 8;
+    # steht öffentlich im Repo, auf dem Live-Server ändern)
+    fixed: [1, 3, 7, 6, 5, 2, 4, 8]
   # Klingender Tiefenschiefer in diesem Umkreis um den Rahmen gehört als Konsole zum Portal (Original: 10)
   frame-radius: 10
   # Portal-Schreine (nur neue Chunks): einer je Zelle aus N × N Chunks, im mittleren Drittel der Zelle;

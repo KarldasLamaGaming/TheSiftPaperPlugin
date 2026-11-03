@@ -141,6 +141,19 @@ Unterschiede:
     Antiken Stadt, bis Phase 2 die Melodie dort als Option bringt.
   - Der Sift-Kompass zeigt den Weg. Die Schlüssel ersetzen den Singer.
   - Schreine, Schlüssel und Kompass gibt es im Original nicht; ihre Texturen sind eigene.
+- **Melodie je Portal (seit alpha.20):** Im Original öffnet eine Melodie (1-3-7-6-5-2-4-8) jedes Portal.
+  Hier bekommt jeder neue oder noch schlafende Schrein eine eigene, zufällig gewürfelte Melodie, die nur im
+  Portal-Register der Welt steht (kein Seed, keine Koordinaten, kein Salz). Sie erscheint beim Wecken, und
+  Schleichen + Rechtsklick mit leerer Hand auf eine Konsole eines geweckten Portals zeigt sie erneut. Schon
+  geweckte und offene Portale behalten die feste Melodie; `portals.melody.per-portal: false` stellt das
+  Original wieder her. Die Antike Stadt behält ihre lange Melodie aus dem Buch.
+
+## Zugang zur Sift (seit alpha.20)
+
+Neu, im Original gibt es das nicht: Die Sift lässt sich zeitlich sperren (`access.mode`: immer, Tage nach
+dem ersten Drachenkill, ab Datum oder nur per Befehl). Solange sie zu ist, kommt niemand ohne
+`thesift.access.bypass` hinein, auch keine Mobs oder Items; Wecken und Öffnen der Portale gehen weiter.
+Beim Schließen werden Spieler nach einem Countdown zurückgeschickt. Standard ist `always` (wie das Original).
 
 ## Mobs (seit Phase 2)
 

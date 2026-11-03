@@ -79,7 +79,25 @@ public final class SonorousConsoles implements Listener {
 
     /** The tune that opens this portal. */
     public int[] sequenceFor(SiftPortal portal) {
-        return portal.kind() == SiftPortal.Kind.ANCIENT_CITY ? ancientCitySequence : sequence;
+        if (portal.kind() == SiftPortal.Kind.ANCIENT_CITY) {
+            return ancientCitySequence;
+        }
+        return perPortal && portal.tune() != null ? portal.tune() : sequence;
+    }
+
+    /** Where the tune of a portal comes from (for /sift portal info). */
+    public String tuneSource(SiftPortal portal) {
+        return portal.kind() == SiftPortal.Kind.ANCIENT_CITY ? "Antike Stadt (portals.ancient-city.melody)"
+                : perPortal && portal.tune() != null ? "eigene Melodie dieses Portals" : "feste Melodie (portals.melody.fixed)";
+    }
+
+    private boolean perPortal = true;
+    private boolean recall = true;
+
+    /** portals.melody.per-portal (false: every shrine uses the fixed tune again) and recall-enabled. */
+    public void setTunes(boolean perPortal, boolean recall) {
+        this.perPortal = perPortal;
+        this.recall = recall;
     }
 
     public void setKeysEnabled(boolean enabled) {
@@ -122,7 +140,7 @@ public final class SonorousConsoles implements Listener {
     /** The hint for this portal (the Ancient City's tune is not told, it is in a book in the city's chests). */
     public void sendHint(org.bukkit.command.CommandSender player, SiftPortal portal) {
         if (portal.kind() != SiftPortal.Kind.ANCIENT_CITY) {
-            sendHint(player);
+            sendHint(player, sequenceFor(portal));
             return;
         }
         player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Dieses Portal öffnet ein eigenes, "
@@ -133,8 +151,12 @@ public final class SonorousConsoles implements Listener {
 
     /** Tells a player how to open the portal: the tune and the controls. */
     public void sendHint(org.bukkit.command.CommandSender player) {
+        sendHint(player, sequence);
+    }
+
+    private void sendHint(org.bukkit.command.CommandSender player, int[] tune) {
         player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Spiel diese Melodie, um das Portal zu öffnen:");
-        player.sendRichMessage("  <white><bold>" + de.lamamc.sift.core.portal.ConsoleSounds.text(sequence) + "</bold></white>");
+        player.sendRichMessage("  <white><bold>" + de.lamamc.sift.core.portal.ConsoleSounds.text(tune) + "</bold></white>");
         player.sendRichMessage("<gray>Rechtsklick auf einen Notenblock schaltet seinen Klang weiter (1 → 2 → … → 8 → 1), "
                 + "Linksklick spielt ihn. Die Actionbar zeigt die Nummer des Klangs.");
     }
@@ -258,6 +280,10 @@ public final class SonorousConsoles implements Listener {
             if (player.isSneaking() && !player.getInventory().getItemInMainHand().isEmpty()) {
                 return; // placing a block on the console
             }
+            if (player.isSneaking() && recall && recallTune(player, block)) {
+                event.setCancelled(true);
+                return;
+            }
             event.setCancelled(true);
             if (mode == Mode.HORN) {
                 glitch(block);
@@ -274,6 +300,23 @@ public final class SonorousConsoles implements Listener {
             showSound(player, sound(block));
             heard(player, block, sound(block));
         }
+    }
+
+    /**
+     * Sneaking + right-click with an empty hand on a note block of an awake (not yet open) portal shows its tune
+     * again, to this player only (chat and action bar). Not for the Ancient City, whose tune is in its book.
+     */
+    private boolean recallTune(Player player, Block noteBlock) {
+        Block console = noteBlock.getRelative(BlockFace.DOWN);
+        Optional<SiftPortal> portal = portals.registry().withConsole(noteBlock.getWorld(), console.getX(), console.getY(), console.getZ());
+        if (portal.isEmpty() || portal.get().state() != PortalState.UNLOCKED || portal.get().kind() == SiftPortal.Kind.ANCIENT_CITY) {
+            return false;
+        }
+        String tune = de.lamamc.sift.core.portal.ConsoleSounds.text(sequenceFor(portal.get()));
+        player.sendRichMessage("<light_purple>Die Melodie dieses Portals:</light_purple> <white><bold>" + tune + "</bold></white>");
+        player.sendActionBar(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(
+                "<light_purple>Melodie: <white><bold>" + tune));
+        return true;
     }
 
     private void heard(Player player, Block noteBlock, int note) {

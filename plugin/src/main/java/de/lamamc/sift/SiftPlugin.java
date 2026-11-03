@@ -54,6 +54,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.world.portal.SonorousConsoles consoles;
     private final java.util.Map<String, de.lamamc.sift.world.portal.ShrinePopulator> shrines = new java.util.HashMap<>();
     private Messages messages;
+    private de.lamamc.sift.world.access.SiftGate gate;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
@@ -98,15 +99,21 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         resourcePack = new ResourcePackService(this);
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
         getServer().getPluginManager().registerEvents(resourcePack, this);
-        portals = new de.lamamc.sift.world.portal.PortalService(this, new de.lamamc.sift.world.portal.PortalRegistry(),
+        // portals.melody: the old form is a list (the fixed tune); since alpha.20 a section
+        org.bukkit.configuration.ConfigurationSection tuneConfig = getConfig().getConfigurationSection("portals.melody");
+        List<Integer> melody = tuneConfig != null ? tuneConfig.getIntegerList("fixed") : getConfig().getIntegerList("portals.melody");
+        boolean perPortal = tuneConfig == null || tuneConfig.getBoolean("per-portal", true);
+        de.lamamc.sift.world.portal.PortalRegistry registry = new de.lamamc.sift.world.portal.PortalRegistry();
+        registry.tunes(perPortal, tuneConfig == null ? 8 : Math.clamp(tuneConfig.getInt("length", 8), 1, 32));
+        portals = new de.lamamc.sift.world.portal.PortalService(this, registry,
                 new de.lamamc.sift.world.portal.PortalSurface(this, getConfig().getInt("portals.light-level", 12)));
         getServer().getPluginManager().registerEvents(portals, this);
         portals.start(getConfig().getInt("portals.check-ticks", 2));
-        List<Integer> melody = getConfig().getIntegerList("portals.melody");
         consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
                 melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
                 portalKeys());
         consoles.setKeysEnabled(getConfig().getBoolean("portals.keys.enabled", true));
+        consoles.setTunes(perPortal, tuneConfig == null || tuneConfig.getBoolean("recall-enabled", true));
         consoles.setAncientCitySequence(getConfig().getIntegerList("portals.ancient-city.melody").stream()
                 .mapToInt(Integer::intValue).filter(n -> n >= 1 && n <= 8).toArray());
         getServer().getPluginManager().registerEvents(consoles, this);
@@ -127,6 +134,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         messages = Messages.load(this);
+        gate = new de.lamamc.sift.world.access.SiftGate(this, messages, getConfig().getConfigurationSection("access"));
+        getServer().getPluginManager().registerEvents(gate, this);
+        portals.setGate(gate);
+        gate.start();
         if (getConfig().getBoolean("portals.ancient-city.enabled", true)) {
             de.lamamc.sift.world.portal.AncientCityPortals cities = new de.lamamc.sift.world.portal.AncientCityPortals(this, blocks,
                     portals, getConfig().getInt("portals.frame-radius", 10), getLogger());
@@ -389,6 +400,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.world.portal.SonorousConsoles consoles() {
         return consoles;
+    }
+
+    public de.lamamc.sift.world.access.SiftGate gate() {
+        return gate;
     }
 
     public de.lamamc.sift.world.portal.PortalService portals() {
