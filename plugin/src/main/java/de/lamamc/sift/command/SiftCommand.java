@@ -64,6 +64,14 @@ public final class SiftCommand {
     }
 
     private MobCommand mobCommand;
+    private AccessCommand accessCommand;
+
+    private AccessCommand accessCommand() {
+        if (accessCommand == null) {
+            accessCommand = new AccessCommand(plugin, plugin.gate());
+        }
+        return accessCommand;
+    }
 
     private MobCommand mobCommand() {
         if (mobCommand == null) {
@@ -114,6 +122,9 @@ public final class SiftCommand {
                         plugin::shrineSites)
                         .node().requires(SiftCommand::admin))
                 .then(mobCommand().spawnNode().requires(SiftCommand::admin))
+                .then(accessCommand().node().requires(SiftCommand::admin))
+                .then(accessCommand().openShortcut().requires(SiftCommand::admin))
+                .then(accessCommand().closeShortcut().requires(SiftCommand::admin))
                 .then(Commands.literal("debug").requires(SiftCommand::admin)
                         .then(mobCommand().debugNode())
                         .then(Commands.literal("infect").executes(ctx -> {
