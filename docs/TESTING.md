@@ -542,7 +542,13 @@ Test in der Sift, Überlebensmodus. Werte unter `mobs.echo_golem`, Seelen-Singer
 - [ ] Aufheben: Der Seelenblock wird zu Luft; `mob_griefing false` oder `pickup.enabled: false` → er hebt nichts auf.
 - [ ] Seelen-Singer: erscheint 7–12 Blöcke vom Golem, nicht direkt an der Schlucht; nimmt den Block; taucht nach
       etwa 30 s ohne Golem wieder ab. Ein Singer aus dem Spawn-Ei nimmt Golem-Blöcke ebenfalls an.
-- [ ] Echo-Splitter: Herzen, Splitter verbraucht (nicht im Kreativmodus), Golem bringt dir die Seele: Er kommt
+- [ ] Echo-Splitter (alpha.19.1): Rechtsklick mit dem Splitter in der Haupt- **oder** Nebenhand bindet einen ungebundenen
+      Golem in jedem Zustand (sucht, trägt, sitzt): Herzen, Klang, Splitter verbraucht (nicht im Kreativmodus).
+      `/sift debug golems` zeigt danach „gebunden an <Name>“. Ein tragender Golem behält dabei seine Seele. Auf einem
+      schon gebundenen Golem passiert mit dem Splitter nichts, er bleibt in der Hand. Nach einem Neustart ist er noch
+      gebunden.
+- [ ] Rechtsklicks auf andere Sift-Mobs wirken wieder (Blub mit Seelenblock zähmen, Sitzen, Singer-Tausch per Rechtsklick).
+- [ ] Gebundener Golem bringt dir die Seele: Er kommt
       heran, verbeugt sich, der Seelenblock landet im Inventar (Advancement „Friend of the Sift“). Bist du weiter als
       64 Blöcke weg, läuft er um den Schlucht-Eingang herum.
 - [ ] Ein Treffer oder Rechtsklick (ohne Splitter) lässt den Seelenblock als Item fallen; er setzt sich 30 s hin.

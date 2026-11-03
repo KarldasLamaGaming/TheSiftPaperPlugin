@@ -5,6 +5,7 @@ import de.lamamc.sift.core.mob.EchoGolemMission;
 import de.lamamc.sift.core.mob.EchoGolemMission.Phase;
 import de.lamamc.sift.core.mob.EchoGolemMission.State;
 import de.lamamc.sift.core.mob.EchoGolemRules;
+import de.lamamc.sift.core.mob.GolemBinding;
 import de.lamamc.sift.mob.MobManager;
 import de.lamamc.sift.mob.SiftMob;
 import de.lamamc.sift.world.SiftWorlds;
@@ -51,6 +52,9 @@ import org.bukkit.util.Vector;
 public final class EchoGolem extends SiftMob {
 
     private static final NamespacedKey STATE = new NamespacedKey("the_sift", "echo_golem_state");
+    /** The bonded player, like the original's NBT fields bonded_player / bonded_player_name. */
+    static final NamespacedKey BONDED_PLAYER = new NamespacedKey("the_sift", "bonded_player");
+    static final NamespacedKey BONDED_PLAYER_NAME = new NamespacedKey("the_sift", "bonded_player_name");
     private static final NamespacedKey FRIEND = new NamespacedKey("the_sift", "the_sift/friend_of_the_sift");
     private static final NamespacedKey FATHER = new NamespacedKey("the_sift", "the_sift/like_father_and_son");
     private static final String MISSION = "mission";
@@ -899,31 +903,46 @@ public final class EchoGolem extends SiftMob {
     @Override
     protected boolean interact(Player player, EquipmentSlot hand) {
         ItemStack held = player.getInventory().getItem(hand);
-        if (held.getType() == Material.ECHO_SHARD && de.lamamc.sift.item.SiftItems.idOf(held) == null) {
-            if (owner != null) {
+        boolean shard = held.getType() == Material.ECHO_SHARD && de.lamamc.sift.item.SiftItems.idOf(held) == null;
+        GolemBinding.Result result = GolemBinding.decide(shard, owner != null, player.getUniqueId().equals(owner), hasSoul);
+        switch (result) {
+            case BIND -> {
+                bond(player);
+                if (GolemBinding.consumesShard(result, player.getGameMode() == GameMode.CREATIVE)) {
+                    held.subtract(1);
+                }
                 return true;
             }
-            owner = player.getUniqueId();
-            ownerName = player.getName();
-            singer = null;
-            patrolTarget = null;
-            patrolCooldown = 0;
-            if (player.getGameMode() != GameMode.CREATIVE) {
-                held.subtract(1);
+            case ALREADY_BONDED -> {
+                return true; // nothing happens, the shard is kept
             }
-            Location at = sheep.getLocation();
-            sheep.getWorld().spawnParticle(Particle.HEART, at.getX(), at.getY() + sheep.getHeight() * 0.7, at.getZ(), 7, 0.45, 0.55,
-                    0.45, 0.08);
-            if (mission.state() == State.BOW) {
-                finishBow();
+            case RELEASE_SOUL -> {
+                releaseSoul();
+                return true;
             }
-            return true;
+            default -> {
+                return false;
+            }
         }
-        if (hasSoul && (owner == null || owner.equals(player.getUniqueId()))) {
-            releaseSoul();
-            return true;
+    }
+
+    /** Binds the golem to the player (in any state); saved at once, under the original's field names. */
+    private void bond(Player player) {
+        owner = player.getUniqueId();
+        ownerName = player.getName();
+        singer = null;
+        patrolTarget = null;
+        patrolCooldown = 0;
+        var pdc = sheep.getPersistentDataContainer();
+        pdc.set(BONDED_PLAYER, PersistentDataType.STRING, owner.toString());
+        pdc.set(BONDED_PLAYER_NAME, PersistentDataType.STRING, ownerName);
+        Location at = sheep.getLocation();
+        sheep.getWorld().spawnParticle(Particle.HEART, at.getX(), at.getY() + sheep.getHeight() * 0.7, at.getZ(), 7, 0.45, 0.55,
+                0.45, 0.08);
+        playSound(net.kyori.adventure.key.Key.key("minecraft", "entity.allay.item_given"), 1.0f, 0.9f);
+        if (mission.state() == State.BOW) {
+            finishBow();
         }
-        return false;
     }
 
     /** Every hit makes it drop the block (releaseCarriedSoul in hurtServer of the original). */
@@ -1238,7 +1257,8 @@ public final class EchoGolem extends SiftMob {
         put(s, "entrance", entrance);
         put(s, "midpoint", midpoint);
         if (owner != null) {
-            s.append(";owner=").append(owner).append(";owner_name=").append(ownerName == null ? "" : ownerName);
+            sheep.getPersistentDataContainer().set(BONDED_PLAYER, PersistentDataType.STRING, owner.toString());
+            sheep.getPersistentDataContainer().set(BONDED_PLAYER_NAME, PersistentDataType.STRING, ownerName == null ? "" : ownerName);
         }
         if (anchor != null) {
             s.append(";anchor=").append(anchor.getBlockX()).append(',').append(anchor.getBlockY()).append(',').append(anchor.getBlockZ());
@@ -1253,6 +1273,15 @@ public final class EchoGolem extends SiftMob {
     }
 
     private void load(PersistentDataContainer pdc) {
+        String bonded = pdc.get(BONDED_PLAYER, PersistentDataType.STRING);
+        if (bonded != null) {
+            try {
+                owner = UUID.fromString(bonded);
+                ownerName = pdc.get(BONDED_PLAYER_NAME, PersistentDataType.STRING);
+            } catch (IllegalArgumentException ignored) {
+                owner = null;
+            }
+        }
         String text = pdc.get(STATE, PersistentDataType.STRING);
         if (text == null) {
             return;
@@ -1272,7 +1301,7 @@ public final class EchoGolem extends SiftMob {
             cluster = pos(values.get("cluster"));
             entrance = pos(values.get("entrance"));
             midpoint = pos(values.get("midpoint"));
-            if (values.containsKey("owner")) {
+            if (owner == null && values.containsKey("owner")) { // alpha.19 kept it in the state string
                 owner = UUID.fromString(values.get("owner"));
                 ownerName = values.get("owner_name");
             }

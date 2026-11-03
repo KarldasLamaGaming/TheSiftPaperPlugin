@@ -25,7 +25,6 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
@@ -142,6 +141,11 @@ public final class BaseMobGuard implements Listener {
         }
     }
 
+    /**
+     * Every right-click on a Sift mob: the vanilla interaction of the base mob is cancelled, the Sift mob gets it
+     * once. Paper 26.3 only fires PlayerInteractAtEntityEvent (which shares this handler list); older builds also
+     * fired a plain PlayerInteractEntityEvent for the same click, hence the filter.
+     */
     @EventHandler(priority = EventPriority.LOW)
     public void onInteract(PlayerInteractEntityEvent event) {
         Entity clicked = event.getRightClicked();
@@ -150,10 +154,16 @@ public final class BaseMobGuard implements Listener {
         }
         event.setCancelled(true);
         SiftMob mob = mobs.mob(clicked);
-        if (mob != null && !mob.dying() && !(event instanceof PlayerInteractAtEntityEvent)) {
-            mob.interact(event.getPlayer(), event.getHand());
+        long tick = mobs.currentTick();
+        var player = event.getPlayer().getUniqueId();
+        if (mob != null && !mob.dying()
+                && clicks.accept(tick, player, clicked.getEntityId(), event.getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND)
+                && mob.interact(event.getPlayer(), event.getHand())) {
+            clicks.handled(tick, player, clicked.getEntityId());
         }
     }
+
+    private final de.lamamc.sift.core.mob.ClickFilter clicks = new de.lamamc.sift.core.mob.ClickFilter();
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDamaged(EntityDamageEvent event) {
