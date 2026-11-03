@@ -51,12 +51,18 @@ public final class PortalService implements Listener {
     private final Random random = new Random();
     private final java.util.Queue<ShrinePopulator.Built> shrineQueue = ShrinePopulator.newQueue();
     private int ticks;
+    private de.lamamc.sift.world.access.SiftGate gate;
 
     public PortalService(Plugin plugin, PortalRegistry registry, PortalSurface surface) {
         this.plugin = plugin;
         this.registry = registry;
         this.surface = surface;
         this.logger = plugin.getLogger();
+    }
+
+    /** The time lock of the Sift (alpha.20); without one every entrance stays open. */
+    public void setGate(de.lamamc.sift.world.access.SiftGate gate) {
+        this.gate = gate;
     }
 
     public PortalRegistry registry() {
@@ -191,6 +197,13 @@ public final class PortalService implements Listener {
         }
         Location target;
         if (portal.kind() != SiftPortal.Kind.SIFT_EXIT) {
+            if (gate != null && !gate.mayEnter(entity)) {
+                if (entity instanceof Player player) {
+                    gate.refuse(player);
+                }
+                guard.arrived(entity.getUniqueId()); // not again every tick while it stands in the portal
+                return;
+            }
             World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
             Location anchor = sift == null ? null : MainPortalBuilder.anchor(sift);
             if (anchor == null) {

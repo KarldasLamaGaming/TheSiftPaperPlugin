@@ -54,6 +54,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.world.portal.SonorousConsoles consoles;
     private final java.util.Map<String, de.lamamc.sift.world.portal.ShrinePopulator> shrines = new java.util.HashMap<>();
     private Messages messages;
+    private de.lamamc.sift.world.access.SiftGate gate;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
@@ -133,6 +134,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         messages = Messages.load(this);
+        gate = new de.lamamc.sift.world.access.SiftGate(this, messages, getConfig().getConfigurationSection("access"));
+        getServer().getPluginManager().registerEvents(gate, this);
+        portals.setGate(gate);
+        gate.start();
         if (getConfig().getBoolean("portals.ancient-city.enabled", true)) {
             de.lamamc.sift.world.portal.AncientCityPortals cities = new de.lamamc.sift.world.portal.AncientCityPortals(this, blocks,
                     portals, getConfig().getInt("portals.frame-radius", 10), getLogger());
@@ -395,6 +400,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.world.portal.SonorousConsoles consoles() {
         return consoles;
+    }
+
+    public de.lamamc.sift.world.access.SiftGate gate() {
+        return gate;
     }
 
     public de.lamamc.sift.world.portal.PortalService portals() {

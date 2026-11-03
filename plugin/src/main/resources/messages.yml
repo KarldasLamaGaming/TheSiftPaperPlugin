@@ -26,3 +26,14 @@ portals:
     page-1: "<dark_gray>Im Herzen der Stadt schläft ein Tor. Der Singer weckt es, oder das Echo eines Resonators.\n\nDoch öffnen lässt es sich nur mit dem alten Lied, Ton für Ton auf den Konsolen gespielt."
     page-2: "<dark_gray>Das Lied der Tiefe:\n\n<black><bold><melody></bold>\n\n<dark_gray>Rechtsklick wechselt den Klang, ein Schlag spielt ihn."
 
+# Zeitsperre der Sift (config access.*)
+access:
+  # Ankündigung an alle, wenn die Sift öffnet
+  opened: "<light_purple><bold>Die Sift ist geöffnet!</bold></light_purple> <gray>Die Portale führen jetzt hinein."
+  # Actionbar, wenn jemand ohne Zugang hinein will
+  closed: "<red>Die Sift ist geschlossen."
+  closed-until: "<red>Die Sift ist geschlossen <gray>(öffnet in <time>)"
+  # Chat beim Beginn des Countdowns und Actionbar jede Sekunde
+  closing: "<red>Die Sift schließt in <seconds> Sekunden. <gray>Danach wirst du zurückgeschickt."
+  countdown: "<red>Die Sift schließt in <seconds> s"
+  sent-back: "<gray>Die Sift ist geschlossen, du wurdest zurückgeschickt."
