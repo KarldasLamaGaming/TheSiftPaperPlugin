@@ -147,6 +147,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private void startMobs() {
         org.bukkit.configuration.ConfigurationSection config = getConfig().getConfigurationSection("mobs");
         mobs = new de.lamamc.sift.mob.MobManager(this, config);
+        mobs.names(id -> messages.has("mobs.names." + id) ? messages.raw("mobs.names." + id) : null);
         mobSpawner = new de.lamamc.sift.mob.MobSpawner(mobs);
         if (config == null || !config.getBoolean("enabled", true)) {
             getLogger().info("Sift mobs are off (mobs.enabled)");
@@ -181,6 +182,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         de.lamamc.sift.mob.echogolem.EchoGolemKind golemKind = new de.lamamc.sift.mob.echogolem.EchoGolemKind(golem, items, blocks,
                 () -> canyonLandmarks);
+        golemKind.messages(messages);
         mobs.register(golemKind);
         golemLight = new de.lamamc.sift.mob.echogolem.GolemLight(this, golem, getLogger());
         golemKind.light(golemLight);

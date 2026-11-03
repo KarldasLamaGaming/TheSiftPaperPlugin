@@ -115,7 +115,7 @@ final class Sifter extends SiftMob {
         double bestDistance = range * range;
         for (Player player : pig.getWorld().getPlayers()) {
             double d = player.getLocation().distanceSquared(pig.getLocation());
-            if (d <= bestDistance && attackable(player) && !player.isDead() && pig.hasLineOfSight(player)) {
+            if (d <= bestDistance && SifterRules.hunts(true, !attackable(player)) && !player.isDead() && pig.hasLineOfSight(player)) {
                 best = player;
                 bestDistance = d;
             }
@@ -183,7 +183,7 @@ final class Sifter extends SiftMob {
         }
         if (event instanceof EntityDamageByEntityEvent byEntity) {
             LivingEntity attacker = attacker(byEntity.getDamager());
-            if (attacker != null && attacker != pig && attackable(attacker)) {
+            if (attacker != null && SifterRules.retaliates(attacker == pig, attacker instanceof Player, !attackable(attacker))) {
                 pig.setTarget(attacker); // HurtByTargetGoal
             }
         }

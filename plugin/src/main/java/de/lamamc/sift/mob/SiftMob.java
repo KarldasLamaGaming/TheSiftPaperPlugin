@@ -50,6 +50,11 @@ public abstract class SiftMob {
         return animations;
     }
 
+    /** Tint state of the model (for /sift debug mobs). */
+    public String describeTint() {
+        return rig.describeTint();
+    }
+
     /** Rotation of the model as sent (for /sift debug mobs). */
     public String describeRig() {
         return rig.describe();

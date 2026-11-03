@@ -346,6 +346,19 @@ Modelle). Test in der Sift, Überlebensmodus, wo nicht anders angegeben.
       zählt 7 je Blub).
 - [ ] Gezähmter Blub geht durch ein offenes Portal mit (Modell ist danach wieder da).
 
+## Mobs: Namen und Treffer-Färbung (alpha.19.2)
+
+- [ ] Todesnachrichten nennen den Sift-Mob, nicht den Basis-Mob: von einem Sifter getötet → „… wurde von Sifter
+      erschlagen“ (nicht „Schwein“), ebenso Dunkler Schnüffler (nicht Eisbär). Ein gezähmter Blub, der von einem Sifter
+      getötet wird: „Blub wurde von Sifter erschlagen“. `/kill` auf einen Sift-Mob meldet seinen Namen.
+- [ ] Über keinem Sift-Mob erscheint ein Namensschild (auch nicht beim Anschauen aus der Nähe).
+- [ ] Sifter gegen Blub (gewollt, wie im Original): Ein Sifter greift von sich aus nur Spieler an. Greift ein
+      gezähmter Blub ihn an (er verteidigt dich), schlägt der Sifter zurück und kann den Blub töten.
+- [ ] Treffer-Färbung: Blub treffen → das ganze Modell färbt sich kurz gleichmäßig rötlich und wird nach einer halben
+      Sekunde wieder normal; kein Schachbrett-Muster. `/sift debug mobs` direkt danach: „Färbung: Treffer, 7 von 7
+      Displays“, danach „normal, 0 von 7“, „fremde Displays dieses Mobs: 0“. Sieht er doch gescheckt aus: bitte die
+      Zeile „Färbung“ notieren (fremde Displays > 0 wären die Ursache, sie werden binnen 5 s entfernt).
+
 ## Mobs: Modellteile beim Chunk-Entladen (Hotfix alpha.17)
 
 Gilt für alle Sift-Mobs. Die Modellteile (Item-Displays) werden nie gespeichert und tragen die Markierung
@@ -548,11 +561,19 @@ Test in der Sift, Überlebensmodus. Werte unter `mobs.echo_golem`, Seelen-Singer
       schon gebundenen Golem passiert mit dem Splitter nichts, er bleibt in der Hand. Nach einem Neustart ist er noch
       gebunden.
 - [ ] Rechtsklicks auf andere Sift-Mobs wirken wieder (Blub mit Seelenblock zähmen, Sitzen, Singer-Tausch per Rechtsklick).
-- [ ] Gebundener Golem bringt dir die Seele: Er kommt
-      heran, verbeugt sich, der Seelenblock landet im Inventar (Advancement „Friend of the Sift“). Bist du weiter als
-      64 Blöcke weg, läuft er um den Schlucht-Eingang herum.
-- [ ] Ein Treffer oder Rechtsklick (ohne Splitter) lässt den Seelenblock als Item fallen; er setzt sich 30 s hin.
-      Ein gebundener Golem reagiert auf Rechtsklick nur bei seinem Spieler.
+- [ ] **Übergabe an dich (alpha.19.2)**, im Überlebens- oder Abenteuermodus, ohne ihn anzuklicken: Er kommt heran,
+      verbeugt sich, der Seelenblock landet im **Inventar**, Advancement „Friend of the Sift“, Klang; das Leuchten
+      erlischt. `/sift debug golems`: „letzte Übergabe: … ins Inventar übergeben an <Name> (Verbeugung)“.
+- [ ] Dasselbe mit **vollem Inventar**: Der Block liegt dir vor den Füßen (nur du kannst ihn aufheben), Hinweis in der
+      Actionbar, Advancement trotzdem; Debug: „Inventar voll, vor die Füße gelegt“.
+- [ ] **Rechtsklick** (ohne Splitter) auf deinen gebundenen, tragenden Golem: sofortige Übergabe wie oben, er lässt
+      den Block **nicht** fallen. Mit `mobs.echo_golem.bonded.right-click-gives: false` (Neustart): wie im Original,
+      er lässt ihn fallen und setzt sich.
+- [ ] **Kreativ- oder Zuschauermodus**: Er bringt dir nichts (behält den Block, patrouilliert); Rechtsklick bewirkt
+      nichts. Zurück im Überlebensmodus kommt er wieder zu dir. Weiter als 64 Blöcke weg: Er läuft um den Eingang.
+- [ ] Ein Treffer lässt den Seelenblock als Item fallen; er setzt sich 30 s hin (`/sift debug golems`: „zuletzt
+      fallen gelassen: Schaden … durch …“). Rechtsklick eines anderen Spielers auf einen gebundenen Golem: nichts.
+      Ein **ungebundener** Golem lässt den Block bei Rechtsklick weiter fallen.
 - [ ] Tod: keine Beute, Erfahrung 4–7 nur bei Spieler-Kill; trug er einen Block, fällt der vorher heraus.
 - [ ] Erscheinen um Spieler: weit weg von jeder Schlucht fliegen; nach einer Weile erscheint 82–160 Blöcke entfernt
       ein Golem, solange in 165 Blöcken keiner ist.

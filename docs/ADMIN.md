@@ -478,6 +478,14 @@ Einzeln schaltbar unter `mobs.dark_sniffer`: `sonic.enabled`, `dig.enabled`, `in
 (ruhige Wächter streicheln ihn ab und zu). Spawn-Ei `dark_sniffer_spawn_egg`. `/sift debug infect` infiziert
 den nächsten normalen Schnüffler sofort (Test der Infektion).
 
+### Namen der Sift-Mobs (ab alpha.19.2)
+
+Jeder unsichtbare Basis-Mob trägt den Namen seines Sift-Mobs (`messages.yml` → `mobs.names`) als unsichtbaren
+Namen, damit Todesnachrichten und `/kill` „Sifter“ statt „Schwein“ sagen. Ein Namensschild erscheint nicht
+(unsichtbare Mobs zeigen keinen Namen). Nebenwirkung: Spigot schreibt für benannte Mobs beim Tod eine Konsolenzeile
+„Named entity … died: …“; abschalten in `spigot.yml` mit `settings.log-named-deaths: false`. Ein Name macht Mobs nicht
+dauerhaft, natürliche Sifter verschwinden weiter.
+
 ### Echo Golem (ab alpha.19)
 
 Basis Schaf (Größe 1,28, Hitbox 1,15 × 1,66, Stufenhöhe 1,5), friedlich, verschwindet nie. Er sucht die nächste
@@ -486,7 +494,9 @@ Seelenblock auf (der Block wird zu Luft; nur in der Sift, `pickup.enabled`, Game
 wieder hinaus. Ungebunden ruft er einen **Seelen-Singer** (erscheint 7–12 Blöcke entfernt, nimmt den Block unter
 einer Verbeugung an, Advancement „Like father and son“ für Spieler in 16 Blöcken, taucht nach 30 s ohne Golem
 wieder ab). Mit einem **Echo-Splitter** (Rechtsklick) wird er an den Spieler gebunden und bringt ihm den Block ins
-Inventar (Advancement „Friend of the Sift“). Jeder Treffer und jeder Rechtsklick ohne Splitter lässt den Block
+Inventar (Advancement „Friend of the Sift“; volles Inventar: vor die Füße; nur im Überlebens- oder Abenteuermodus).
+Rechtsklick seines Spielers übergibt sofort (`bonded.right-click-gives`). Jeder Treffer und jeder Rechtsklick ohne
+Splitter auf einen ungebundenen Golem lässt den Block
 fallen; danach sitzt er 30 s. Keine Beute, Erfahrung 4–7. Spawn-Ei `echo_golem_spawn_egg`.
 
 Erscheinen (`mobs.echo_golem.spawn`): alle 80 Ticks zuerst an einem Schlucht-Eingang, der noch „Golem ausstehend“

@@ -179,6 +179,7 @@ public final class MobManager implements Listener {
             base.getPersistentDataContainer().set(MOB_KEY, PersistentDataType.STRING, kind.id());
             base.setRemoveWhenFarAway(natural);
             hide(base);
+            name(base, kind);
             kind.prepare(base, true);
             if (setup != null) {
                 setup.accept(base);
@@ -191,6 +192,34 @@ public final class MobManager implements Listener {
         base.setInvisible(true);
         base.setSilent(true);
         base.setCanPickupItems(false);
+    }
+
+    /** Marker: the base mob's custom name was set by us (a name from elsewhere is kept). */
+    public static final NamespacedKey AUTO_NAME = new NamespacedKey("the_sift", "auto_name");
+    private java.util.function.Function<String, String> names = id -> null;
+
+    /** Names of the kinds (messages.yml mobs.names). */
+    public void names(java.util.function.Function<String, String> names) {
+        this.names = names;
+    }
+
+    /**
+     * The base mob carries the Sift mob's name (death messages, /kill), hidden: invisible entities show no name tag,
+     * and customNameVisible stays off.
+     */
+    void name(Mob base, MobKind kind) {
+        boolean ours = base.getPersistentDataContainer().has(AUTO_NAME);
+        if (!de.lamamc.sift.core.mob.MobNames.apply(base.customName() != null, ours)) {
+            return;
+        }
+        base.customName(net.kyori.adventure.text.Component.text(de.lamamc.sift.core.mob.MobNames.nameFor(kind.id(), names)));
+        base.setCustomNameVisible(false);
+        base.getPersistentDataContainer().set(AUTO_NAME, PersistentDataType.BOOLEAN, true);
+    }
+
+    /** The name of a kind as shown to players. */
+    public String displayName(String kindId) {
+        return de.lamamc.sift.core.mob.MobNames.nameFor(kindId, names);
     }
 
     public int count(World world) {
@@ -308,6 +337,7 @@ public final class MobManager implements Listener {
             return; // unknown or disabled kind: leave the entity alone (an update may bring the kind back)
         }
         hide(base);
+        name(base, kind);
         kind.prepare(base, false);
         SiftMob mob = kind.create(base, this);
         mobs.put(base.getUniqueId(), mob);
@@ -325,6 +355,9 @@ public final class MobManager implements Listener {
                     continue;
                 }
                 mob.serverTick();
+                if ((tick + mob.base.getEntityId()) % 100 == 0 && mob.deathTicks < 0) {
+                    mob.rig.removeStrangers(); // a second set of displays would show as a two-colour checkerboard
+                }
                 if (mob.deathTicks < 0 && !mob.rig.intact()) {
                     mob.rig.spawn(this.render);
                 } else if (render) {

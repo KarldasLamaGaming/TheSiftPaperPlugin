@@ -70,4 +70,16 @@ class SifterRulesTest {
         assertEquals(2, max);
         assertEquals(5, lootingMax);
     }
+
+    @Test
+    void huntsOnlyPlayersButStrikesBackAtAnyAttacker() {
+        // like the original: NearestAttackableTargetGoal(Player) + HurtByTargetGoal
+        org.junit.jupiter.api.Assertions.assertTrue(SifterRules.hunts(true, false));
+        org.junit.jupiter.api.Assertions.assertFalse(SifterRules.hunts(true, true), "creative/spectator");
+        org.junit.jupiter.api.Assertions.assertFalse(SifterRules.hunts(false, false), "a Blub (or any mob) is never hunted");
+        org.junit.jupiter.api.Assertions.assertTrue(SifterRules.retaliates(false, false, false), "a Blub that bit it");
+        org.junit.jupiter.api.Assertions.assertTrue(SifterRules.retaliates(false, true, false), "a survival player");
+        org.junit.jupiter.api.Assertions.assertFalse(SifterRules.retaliates(false, true, true), "a creative player");
+        org.junit.jupiter.api.Assertions.assertFalse(SifterRules.retaliates(true, false, false), "itself");
+    }
 }

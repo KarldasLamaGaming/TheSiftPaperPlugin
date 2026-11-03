@@ -6,6 +6,7 @@ import de.lamamc.sift.core.mob.EchoGolemMission.Phase;
 import de.lamamc.sift.core.mob.EchoGolemMission.State;
 import de.lamamc.sift.core.mob.EchoGolemRules;
 import de.lamamc.sift.core.mob.GolemBinding;
+import de.lamamc.sift.core.mob.GolemHandover;
 import de.lamamc.sift.mob.MobManager;
 import de.lamamc.sift.mob.SiftMob;
 import de.lamamc.sift.world.SiftWorlds;
@@ -112,6 +113,9 @@ public final class EchoGolem extends SiftMob {
 
     private double walked;
     private Location last;
+    /** For /sift debug golems: what happened at the last handover and the last drop, with time and reason. */
+    private String lastHandover;
+    private String lastRelease;
 
     EchoGolem(EchoGolemKind kind, Sheep sheep, MobManager manager) {
         super(kind, sheep, manager);
@@ -226,7 +230,8 @@ public final class EchoGolem extends SiftMob {
         if (ignored != null && now >= ignoredUntil) {
             ignored = null;
         }
-        boolean ownerInReach = ownerWithin(4.5);
+        Player deliveryTo = deliveryPlayer();
+        boolean ownerInReach = deliveryTo != null && deliveryTo.getLocation().distanceSquared(sheep.getLocation()) <= 4.5 * 4.5;
         EchoGolemMission.Step step = mission.tick(hasSoul, owner != null, ownerInReach);
         switch (mission.state()) {
             case SEARCH -> search();
@@ -788,7 +793,7 @@ public final class EchoGolem extends SiftMob {
     }
 
     private void deliverToOwner() {
-        Player player = ownerPlayer();
+        Player player = deliveryPlayer();
         if (player != null && player.getLocation().distanceSquared(sheep.getLocation()) <= rules.ownerRange() * rules.ownerRange()) {
             patrolTarget = null;
             double d2 = player.getLocation().distanceSquared(sheep.getLocation());
@@ -854,7 +859,11 @@ public final class EchoGolem extends SiftMob {
             face(singer.base().getLocation());
         }
         switch (step) {
-            case GIVE_TO_OWNER -> giveToOwner(player);
+            case GIVE_TO_OWNER -> {
+                if (!handOver(player, "Verbeugung")) {
+                    mission.startCarry(onSurface()); // kept: look for the player again or patrol
+                }
+            }
             case RESUME_CARRY -> mission.startCarry(onSurface());
             case END -> {
                 if (hasSoul) {
@@ -868,26 +877,64 @@ public final class EchoGolem extends SiftMob {
         }
     }
 
-    private void giveToOwner(Player player) {
-        if (player == null || !hasSoul) {
-            return;
+    /**
+     * Hands the soul block to the bonded player (bow at tick 26, or the owner's right-click): checks first
+     * ({@link GolemHandover}), then a fresh soul block into the inventory, the rest in front of the player's feet
+     * (owned by them, hint in the action bar), and only then the advancement, the sound and losing the load.
+     * Returns false when the golem keeps the block.
+     */
+    private boolean handOver(Player player, String how) {
+        GolemHandover.Result result = GolemHandover.decide(hasSoul, player != null && player.isOnline(),
+                player != null && player.getUniqueId().equals(owner), player != null && player.getWorld().equals(sheep.getWorld()),
+                player == null || !player.getWorld().equals(sheep.getWorld()) ? Double.MAX_VALUE
+                        : player.getLocation().distance(sheep.getLocation()), 4.5, mode(player));
+        if (result != GolemHandover.Result.GIVE) {
+            lastHandover = stamp() + result.reason() + " (" + how + ")";
+            return false;
+        }
+        ItemStack soul = golemKind.items().create(SOUL_ID, 1);
+        if (soul == null) {
+            lastHandover = stamp() + "Seelenblock-Item fehlt, behalten (" + how + ")";
+            return false;
+        }
+        var rest = player.getInventory().addItem(soul);
+        for (ItemStack left : rest.values()) {
+            player.getWorld().dropItem(player.getLocation(), left, item -> item.setOwner(player.getUniqueId()));
+        }
+        if (!rest.isEmpty() && golemKind.messages() != null) {
+            player.sendActionBar(golemKind.messages().get("mobs.echo_golem.inventory-full"));
         }
         hasSoul = false;
         golemKind.toPlayers.incrementAndGet();
-        ItemStack soul = golemKind.items().create(SOUL_ID, 1);
-        if (soul != null) {
-            player.getInventory().addItem(soul).values().forEach(rest -> player.getWorld().dropItem(player.getLocation(), rest));
-        }
         award(player, FRIEND);
         playSound("entity.echo_golem.item_drop", 1.0f, 1.04f);
         forgetCanyon(rules.ignoreCanyonTicks());
         anchor = null;
         patrolTarget = null;
+        lastHandover = stamp() + GolemHandover.outcome(!rest.isEmpty()) + " an " + player.getName() + " (" + how + ")";
+        return true;
     }
 
-    private boolean ownerWithin(double distance) {
+    private static GolemHandover.Mode mode(Player player) {
+        if (player == null) {
+            return GolemHandover.Mode.SURVIVAL;
+        }
+        return switch (player.getGameMode()) {
+            case CREATIVE -> GolemHandover.Mode.CREATIVE;
+            case SPECTATOR -> GolemHandover.Mode.SPECTATOR;
+            case ADVENTURE -> GolemHandover.Mode.ADVENTURE;
+            default -> GolemHandover.Mode.SURVIVAL;
+        };
+    }
+
+    private static String stamp() {
+        return java.time.LocalTime.now().withNano(0) + " ";
+    }
+
+    /** The bonded player when a delivery to them is possible: online, same world, survival or adventure. */
+    private Player deliveryPlayer() {
         Player player = ownerPlayer();
-        return player != null && player.getLocation().distanceSquared(sheep.getLocation()) <= distance * distance;
+        return player != null && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE) ? player : null;
     }
 
     private Player ownerPlayer() {
@@ -904,7 +951,8 @@ public final class EchoGolem extends SiftMob {
     protected boolean interact(Player player, EquipmentSlot hand) {
         ItemStack held = player.getInventory().getItem(hand);
         boolean shard = held.getType() == Material.ECHO_SHARD && de.lamamc.sift.item.SiftItems.idOf(held) == null;
-        GolemBinding.Result result = GolemBinding.decide(shard, owner != null, player.getUniqueId().equals(owner), hasSoul);
+        GolemBinding.Result result = GolemBinding.decide(shard, owner != null, player.getUniqueId().equals(owner), hasSoul,
+                golemKind.rightClickGives());
         switch (result) {
             case BIND -> {
                 bond(player);
@@ -916,8 +964,15 @@ public final class EchoGolem extends SiftMob {
             case ALREADY_BONDED -> {
                 return true; // nothing happens, the shard is kept
             }
+            case GIVE -> {
+                if (handOver(player, "Rechtsklick")) {
+                    stop();
+                    mission.resumeSearch();
+                }
+                return true; // kept (e.g. creative): nothing else happens
+            }
             case RELEASE_SOUL -> {
-                releaseSoul();
+                releaseSoul("Rechtsklick von " + player.getName());
                 return true;
             }
             default -> {
@@ -948,7 +1003,8 @@ public final class EchoGolem extends SiftMob {
     /** Every hit makes it drop the block (releaseCarriedSoul in hurtServer of the original). */
     @Override
     protected void hurt(EntityDamageEvent event) {
-        releaseSoul();
+        String by = event instanceof org.bukkit.event.entity.EntityDamageByEntityEvent e ? " durch " + e.getDamager().getName() : "";
+        releaseSoul("Schaden " + event.getCause() + by);
         stop();
         playSound("entity.echo_golem.hurt", 1.0f, 0.9f + random.nextFloat() * 0.2f);
     }
@@ -962,10 +1018,11 @@ public final class EchoGolem extends SiftMob {
         releaseTarget();
     }
 
-    private void releaseSoul() {
+    private void releaseSoul(String reason) {
         if (!hasSoul) {
             return;
         }
+        lastRelease = stamp() + reason;
         hasSoul = false;
         golemKind.dropped.incrementAndGet();
         ItemStack soul = golemKind.items().create(SOUL_ID, 1);
@@ -1333,6 +1390,8 @@ public final class EchoGolem extends SiftMob {
                 cluster == null ? "-" : cluster.x() + " " + cluster.y() + " " + cluster.z(),
                 entrance == null ? "-" : entrance.x() + " " + entrance.y() + " " + entrance.z(),
                 entered ? " (drin)" : "", routeFailures,
-                owner == null ? ", ungebunden" : ", gebunden an " + (ownerName == null ? owner : ownerName));
+                owner == null ? ", ungebunden" : ", gebunden an " + (ownerName == null ? owner : ownerName))
+                + (lastHandover == null ? "" : "; letzte Übergabe: " + lastHandover)
+                + (lastRelease == null ? "" : "; zuletzt fallen gelassen: " + lastRelease);
     }
 }

@@ -34,6 +34,40 @@ class GolemBindingTest {
     }
 
     @Test
+    void ownersRightClickHandsOverWhenSwitchedOn() {
+        // bonded + carrying + owner + right-click
+        assertEquals(Result.GIVE, GolemBinding.decide(false, true, true, true, true));
+        assertEquals(Result.RELEASE_SOUL, GolemBinding.decide(false, true, true, true, false), "original behaviour");
+        // another player: nothing, with or without the switch
+        assertEquals(Result.NONE, GolemBinding.decide(false, true, false, true, true));
+        // unbonded golem: still dropped
+        assertEquals(Result.RELEASE_SOUL, GolemBinding.decide(false, false, false, true, true));
+        // nothing carried: nothing happens
+        assertEquals(Result.NONE, GolemBinding.decide(false, true, true, false, true));
+        // the echo shard still wins
+        assertEquals(Result.ALREADY_BONDED, GolemBinding.decide(true, true, true, true, true));
+    }
+
+    @Test
+    void handoverChecksPlayerBeforeGiving() {
+        GolemHandover.Mode survival = GolemHandover.Mode.SURVIVAL;
+        assertEquals(GolemHandover.Result.GIVE, GolemHandover.decide(true, true, true, true, 2.0, 4.5, survival));
+        assertEquals(GolemHandover.Result.GIVE, GolemHandover.decide(true, true, true, true, 4.5, 4.5, GolemHandover.Mode.ADVENTURE));
+        assertEquals(GolemHandover.Result.KEEP_FAR, GolemHandover.decide(true, true, true, true, 6.0, 4.5, survival));
+        assertEquals(GolemHandover.Result.KEEP_OFFLINE, GolemHandover.decide(true, false, true, true, 1.0, 4.5, survival));
+        assertEquals(GolemHandover.Result.KEEP_NOT_OWNER, GolemHandover.decide(true, true, false, true, 1.0, 4.5, survival));
+        assertEquals(GolemHandover.Result.KEEP_OTHER_WORLD, GolemHandover.decide(true, true, true, false, 1.0, 4.5, survival));
+        assertEquals(GolemHandover.Result.KEEP_MODE,
+                GolemHandover.decide(true, true, true, true, 1.0, 4.5, GolemHandover.Mode.SPECTATOR));
+        assertEquals(GolemHandover.Result.KEEP_MODE,
+                GolemHandover.decide(true, true, true, true, 1.0, 4.5, GolemHandover.Mode.CREATIVE));
+        assertEquals(GolemHandover.Result.NOTHING, GolemHandover.decide(false, true, true, true, 1.0, 4.5, survival));
+        // inventory free or full: both handed over, only the place differs
+        assertEquals("ins Inventar übergeben", GolemHandover.outcome(false));
+        assertEquals("Inventar voll, vor die Füße gelegt", GolemHandover.outcome(true));
+    }
+
+    @Test
     void clickFilterLetsEachClickThroughOnce() {
         ClickFilter filter = new ClickFilter();
         // Paper 26.3: one event per hand; older builds: two events for the same click
