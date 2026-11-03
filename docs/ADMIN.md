@@ -215,7 +215,7 @@ ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-It
 | Item | Werte (`config.yml` → `items`) |
 |---|---|
 | Rohes/Gebratenes Sifterfleisch | `food`: 3/1,8 und 8/12,8 (wie Schweinefleisch); Quelle: Sifter (Phase 2) |
-| Ichorflasche | `drinks`: Farbe, 3 s Regeneration; Füllen am Ichor kommt mit Phase 3 |
+| Ichorflasche | `drinks`: Farbe, 3 s Regeneration; Füllen an Ichor oder Kessel in der Sift (ab alpha.21, siehe „Ichor“) |
 | Schallplatten Rift, Wellspring | `music-discs`: Lied aus dem Datapack; Rift liegt in Truhen verlassener Portale |
 
 ### Loot und Advancements
@@ -585,6 +585,25 @@ Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben re
 
 - `/sift debug find <id> [radius]` sucht den nächsten Block (z. B. `siftslate_siftite_ore`) um dich
   herum und zeigt einen anklickbaren Teleport.
+
+## Ichor (ab alpha.21)
+
+In der Sift ist alles Wasser Ichor; es ist Vanilla-Wasser mit der Biomfarbe `#9dc5ff`. Einstellungen unter
+`ichor.*` (alles einzeln schaltbar, `ichor.enabled: false` schaltet alles ab):
+
+| Option | Wirkung (Werte des Originals) |
+|---|---|
+| `regeneration` | Lebewesen im Ichor bekommen Regeneration I (101 Ticks, ohne Partikel, mit Symbol), alle 10 Ticks erneuert |
+| `drag-mobs` | Mobs und Items werden im Ichor gebremst (×0,92 waagrecht, ×0,94 senkrecht je Tick); Spieler nicht |
+| `source-conversion` | `false` (Standard): Gamerule `water_source_conversion` der Sift aus, keine unendlichen Quellen |
+| `lava-results` | Fließende Lava an Ichor → Siftschiefer-Bruchstein, Lava auf Ichor → Siftschiefer, Lavaquelle → Obsidian |
+| `bucket` | Eimer an Ichor oder vollem Kessel in der Sift → Ichoreimer (Advancement „Blut der Götter“) |
+| `bottles` | Glasflasche an Ichor-Quelle oder Kessel in der Sift → Ichorflasche (Kessel −1); Ichorflasche auf Kessel → +1 Stufe |
+| `mist` | Staubpartikel in Ichorfarben über Quellblöcken nahe Spielern (Takt, Radius, Anzahl) |
+
+Junge Sniffer, die in der Sift in oder direkt über Ichor erscheinen, werden verhindert (wie im Original).
+Außerhalb der Sift ist Ichor gewöhnliches Wasser: Ein Ichoreimer setzt dort Wasser, ein Kessel bleibt ein
+Wasserkessel.
 
 ## Zugang zur Sift (ab alpha.20)
 

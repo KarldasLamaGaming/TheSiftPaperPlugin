@@ -71,6 +71,23 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Gegenprobe Chorus im End: `/sift debug chorus 6 0 100` (und weitere Stellen) meldet
       „0 in Sift-Zuständen“.
 
+## Ichor (ab alpha.21)
+
+- [ ] Im Ichor schwimmen: Regeneration-Symbol ohne Partikel, Leben füllt sich; nach dem Verlassen noch ~5 s.
+- [ ] Spieler werden im Ichor nicht zusätzlich gebremst; ein Tier oder ein Item im Ichor treibt langsamer
+      als in Oberwelt-Wasser.
+- [ ] Zwei Ichor-Quellen mit einem Loch dazwischen: Das Loch wird keine Quelle (keine unendlichen Quellen).
+- [ ] Lava fließt seitlich an Ichor: Siftschiefer-Bruchstein; Lava fließt auf Ichor: Siftschiefer; Ichor
+      erreicht eine Lavaquelle: Obsidian.
+- [ ] Eimer an Ichor: Ichoreimer (eigenes Bild, Name „Ichoreimer“), Advancement „Blut der Götter“. Leeren
+      setzt Ichor bzw. in der Oberwelt Wasser. Eimer an vollem Kessel in der Sift: Ichoreimer.
+- [ ] Glasflasche an Ichor-Quelle: Ichorflasche; an fließendem Ichor: nichts. Glasflasche am Kessel: Ichorflasche,
+      Kessel −1. Ichorflasche auf leeren oder halben Kessel: +1 Stufe, Glasflasche zurück. Klänge hörbar.
+- [ ] Mit einem Stapel Glasflaschen: eine wird verbraucht, die Ichorflasche landet im Inventar.
+- [ ] Nebel: An einem Ichor-See sieht man gelegentlich türkis/rosa/goldene Staubpartikel über der Oberfläche.
+- [ ] Sniffer-Ei an Ichor ausbrüten: Das Junge erscheint nicht, wenn es in oder über Ichor schlüpft.
+- [ ] `ichor.enabled: false` + Neustart: nichts davon passiert (Gamerule bleibt, wie sie zuletzt war).
+
 ## Abbau
 
 - [ ] Siftschiefer: Diamantspitzhacke ≈ 0,6 s, von Hand ≈ 15 s ohne Drop, Axt langsam wie von Hand.
