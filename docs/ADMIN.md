@@ -329,8 +329,9 @@ auch nach einem Neustart oder Relog.
   - Im Horn-Modus schlafen die Konsolen; ein Notenblock darauf klingt nur verzerrt.
   - Im Noten-Modus hat ein Notenblock darauf die 8 Klänge der Sift statt der Vanilla-Töne:
     Rechtsklick schaltet den Klang weiter (1 → 2 → … → 8 → 1), Schlagen spielt ihn; die Actionbar zeigt „Klang N von 8“.
-- **Öffnen:** Die Melodie `portals.melody` (Original: 1-3-7-6-5-2-4-8) auf den Konsolen eines geweckten
-  Portals spielen. Danach folgen ein Farbstoß, die Konsolen spielen die Melodie mit Lichtstrahlen nach,
+- **Öffnen:** Die Melodie des Portals auf den Konsolen eines geweckten Portals spielen (ab alpha.20 hat
+  jeder Schrein seine eigene, siehe „Melodie je Portal“; ältere geweckte Portale und `per-portal: false`
+  nutzen `portals.melody.fixed`, Original 1-3-7-6-5-2-4-8). Danach folgen ein Farbstoß, die Konsolen spielen die Melodie mit Lichtstrahlen nach,
   und die Fläche füllt sich vom Rand zur Mitte.
 - **Offen** bleibt das Portal dauerhaft. Die rückwärts gespielte Melodie schließt es hier nicht, nur
   `/sift portal deactivate`.
@@ -341,6 +342,37 @@ auch nach einem Neustart oder Relog.
 
 Portale gibt es nur dort, wo sie registriert sind: in den Portal-Schreinen (unten) oder per Befehl. Pro
 Welt stehen sie im Weltspeicher (`the_sift:portals`).
+
+### Melodie je Portal (ab alpha.20)
+
+Im Original öffnet eine Melodie alle Portale. Hier bekommt jeder Schrein seine eigene, die man beim Wecken
+erfährt:
+
+```yaml
+portals:
+  melody:
+    per-portal: true        # false = alle Schreine nutzen wieder fixed
+    length: 8               # Länge neuer Melodien (1–32); die ersten 8 Töne nutzen jeden Klang einmal
+    recall-enabled: true    # Schleichen + Rechtsklick mit leerer Hand auf eine Konsole zeigt die Melodie erneut
+    fixed: [1, 3, 7, 6, 5, 2, 4, 8]
+```
+
+- **Woher die Melodie kommt:** Sie wird beim Registrieren des Portals **einmal zufällig gewürfelt**
+  (`SecureRandom`) und steht **nur im Portal-Register der Welt** (`the_sift:portals`, Segment `| tune …`).
+  Seed, Koordinaten oder ein Salz fließen nicht ein; aus dem öffentlichen Code und dem Seed lässt sie sich
+  nicht berechnen. Es gibt kein Geheimnis, das verwaltet werden müsste.
+- **Welche Portale:** neue Schreine (Weltgenerierung, `/sift portal create`) und beim ersten Start mit
+  alpha.20 alle noch **schlafenden** Schreine. Schon **geweckte** und **offene** Portale behalten die feste
+  Melodie, damit niemand umlernen muss. Die Antike Stadt behält `portals.ancient-city.melody` (nur im Buch).
+- **Anzeige:** beim Wecken an Spieler in der Nähe (Schlüssel oder Singer), beim Rückruf (nur an diesen
+  Spieler) und für Admins in `/sift portal info`. Nie im Log.
+- **Welt kopieren:** Das Register gehört zur Welt; eine Kopie nimmt die Melodien mit. Ein neues Register
+  (neue Welt) ergibt neue Melodien für schlafende Schreine. Neu würfeln per Befehl gibt es nicht.
+- Die alte Form `portals.melody: [1, 3, …]` wird weiter gelesen (gilt als `fixed`).
+
+**Öffentliches Repo:** `config.yml` mit `portals.melody.fixed` und `portals.ancient-city.melody` steht im
+öffentlichen Repository. Auf dem Live-Server die Melodie der Antiken Stadt (und bei Bedarf `fixed`) in der
+eigenen `config.yml` ändern, sonst kann sie jeder nachlesen. Die Melodien je Portal stehen nirgends im Repo.
 
 ### Portal-Schreine (Schritt 7b)
 
@@ -407,7 +439,7 @@ sie, danach das Resource Pack neu bauen bzw. veröffentlichen:
 | `/sift portal activate [id]` | Sofort öffnen (bei offenem Portal: Fläche erneuern) |
 | `/sift portal deactivate [id]` | Schließen; Konsolen bleiben wach. Das Haupt-Portal der Sift bleibt immer offen. |
 | `/sift portal remove <id>` | Abmelden (Blöcke bleiben stehen) |
-| `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen mit ihrer Klangnummer 1–8; Liste aller Portale mit Teleport |
+| `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen mit ihrer Klangnummer 1–8, Melodie mit Herkunft (eigene / feste / Antike Stadt); Liste aller Portale mit Teleport |
 | `/sift portal locate` | Nächster Portal-Schrein der Welt (berechnet, auch ungeneriert) mit Teleport-Klick |
 
 Ohne `id` wirkt der Befehl auf das nächste Portal im Umkreis von 64 Blöcken. Von der Konsole aus:
@@ -553,6 +585,63 @@ Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben re
 - `/sift debug find <id> [radius]` sucht den nächsten Block (z. B. `siftslate_siftite_ore`) um dich
   herum und zeigt einen anklickbaren Teleport.
 
+## Zugang zur Sift (ab alpha.20)
+
+Die Sift lässt sich zeitlich sperren, z. B. bis eine Woche nach dem ersten Drachenkill. Gesperrt ist nur der
+Weg **hinein**: Wecken, Melodie spielen und Öffnen der Portale gehen weiter, und hinaus (durch das
+Haupt-Portal) geht es immer.
+
+```yaml
+access:
+  mode: always              # always | after-dragon | fixed-date | manual
+  delay-days: 7             # after-dragon: Tage nach dem ersten Drachenkill (Kommazahlen erlaubt)
+  date: ""                  # fixed-date: ISO, z. B. "2026-12-01T18:00" (ohne Zone = Server-Zeitzone) oder "2026-12-01T18:00+01:00"
+  close-warning-seconds: 30 # Vorwarnung beim Schließen
+  dragon-worlds: []         # Welten, deren Drachenkill zählt; leer = jede End-Welt
+```
+
+- **always:** immer offen (Standard, Verhalten wie vor alpha.20).
+- **after-dragon:** offen ab erstem Drachenkill + `delay-days`. Der erste Kill wird **einmal** mit Zeit und
+  Welt im Weltspeicher der Hauptwelt gespeichert (`the_sift:dragon_first_kill`, `…_world`); spätere Kills
+  ändern nichts. Wurde der Drache schon besiegt, bevor das Plugin lief, ist die Zeit unbekannt: Die Sift
+  bleibt zu, bis ein Admin `/sift access set dragon-kill <Datum>` setzt (Warnung in Konsole und `status`).
+- **fixed-date:** offen ab `date`. Ohne gültiges Datum bleibt sie zu (Warnung beim Laden).
+- **manual:** zu, bis `/sift open`.
+- `/sift open` und `/sift close` setzen einen **Befehlszustand**, der den Modus überstimmt und Neustarts
+  übersteht (`the_sift:access_override`). `/sift access reset` kehrt zum Modus zurück.
+
+**Solange die Sift zu ist:**
+- Portale führen niemanden hinein: Spieler ohne Bypass bekommen eine Meldung in der Actionbar (mit
+  Restzeit, wenn bekannt), Mobs und Items bleiben still draußen.
+- Teleports in die Sift (`/tp`, andere Plugins, `/sift tp`) werden abgebrochen, Respawn in der Sift geht an
+  den Spawn der Hauptwelt, und wer sich in der Sift einloggt, wird zurückgeschickt.
+
+**Beim Schließen** (Befehl, Modus oder Reload) läuft ein Countdown von `close-warning-seconds` (Chat beim
+Start, Actionbar jede Sekunde). Danach geht jeder ohne Bypass zu seinem Rückkehrpunkt (wo er durch ein Portal
+hinein ist), sonst zum Spawn der Hauptwelt. Wird vorher wieder geöffnet, bricht der Countdown ab.
+**Beim Öffnen** bekommt der ganze Server eine Ankündigung (`messages.yml access.opened`).
+
+**Bypass:** Recht `thesift.access.bypass` (Standard: OP). Es ist **nicht** in `thesift.admin` enthalten,
+damit Admins die Sperre auch selbst testen können. Mit LuckPerms:
+
+```
+lp user <Spieler> permission set thesift.access.bypass true
+lp group admin permission set thesift.access.bypass true
+```
+
+Wer OP ist, hat es automatisch; zum Testen ohne Bypass `lp user <Spieler> permission set thesift.access.bypass false`.
+
+| Befehl | Wirkung |
+|---|---|
+| `/sift access [status]` | Offen/zu, Grund, Modus, Befehlszustand, Öffnungszeit mit Restzeit, erster Drachenkill mit Welt, laufender Countdown, Zeitzone |
+| `/sift access open` / `/sift open` | Öffnen (Befehlszustand, bleibt nach Neustart) |
+| `/sift access close` / `/sift close` | Schließen mit Countdown (Befehlszustand, bleibt nach Neustart) |
+| `/sift access reset` | Befehlszustand löschen, es gilt wieder `access.mode` |
+| `/sift access set dragon-kill <ISO-Datum\|now\|clear>` | Zeitpunkt des ersten Drachenkills setzen oder löschen |
+| `/sift access reload` | Nur den Abschnitt `access` aus `config.yml` neu lesen (Datei asynchron gelesen) |
+
+Texte stehen in `messages.yml` unter `access.*`.
+
 ## Befehle (`thesift.admin`)
 
 | Befehl | Wirkung |
@@ -561,6 +650,7 @@ Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben re
 | `/sift items` | Item-Menü (auch mit `thesift.admin.items`) |
 | `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben (auch mit `thesift.admin.items`) |
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
+| `/sift access …`, `/sift open`, `/sift close` | Zugang zur Sift (siehe „Zugang zur Sift“) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
 | `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung) |

@@ -287,6 +287,54 @@ Melodie und Konsolen im Überlebensmodus spielen: Im Kreativmodus zerbricht ein 
 - [ ] Mehrere Truhen in Antiker Stadt, Bastion und Endsiedlung öffnen: Gelegentlich (8 %) liegt der
       passende Schlüssel darin, der normale Inhalt bleibt.
 
+## Melodie je Portal (ab alpha.20)
+
+- [ ] Zwei neu generierte Schreine (oder `/sift portal create` an zwei Rahmen) wecken: Jeder zeigt beim
+      Wecken eine andere Melodie (Chat und Actionbar an Spieler in der Nähe). Mit dem Schlüssel und mit dem
+      Singer (Ziegenhorn) prüfen.
+- [ ] Die gezeigte Melodie öffnet genau diesen Schrein; die feste Melodie 1-3-7-6-5-2-4-8 öffnet ihn nicht.
+- [ ] Rückruf: Schleichen + Rechtsklick mit leerer Hand auf einen Notenblock eines geweckten Schreins zeigt
+      die Melodie nur dir; der Klang des Notenblocks schaltet dabei nicht weiter. An einem schlafenden oder
+      offenen Portal und an der Antiken Stadt passiert nichts Besonderes. `recall-enabled: false` schaltet
+      den Rückruf ab.
+- [ ] Neustart: `/sift portal info` zeigt dieselben Melodien wie vorher.
+- [ ] Ein schon vor alpha.20 geweckter Schrein behält 1-3-7-6-5-2-4-8 (`info`: „feste Melodie“).
+- [ ] `portals.melody.per-portal: false` + Neustart: alle Schreine öffnen wieder mit `fixed`.
+- [ ] Antike Stadt: weiter nur die lange Melodie aus dem Buch, kein Hinweis beim Wecken.
+- [ ] Konsole (`logs/latest.log`): keine Melodie im Log.
+
+## Zugang zur Sift (ab alpha.20)
+
+Zum Testen einen Spieler **ohne** Bypass nehmen (OP hat ihn: `lp user <Spieler> permission set
+thesift.access.bypass false`, danach wieder entfernen).
+
+- [ ] `/sift close` während du in der Sift bist: Chat „schließt in 30 Sekunden“, Actionbar zählt herunter,
+      danach stehst du an der Stelle, an der du hinein bist (ohne Rückkehrpunkt, z. B. nach `/sift tp`: am
+      Spawn der Hauptwelt) mit der Meldung „zurückgeschickt“.
+- [ ] `/sift close`, dann vor Ablauf `/sift open`: Countdown bricht ab, niemand wird zurückgeschickt.
+- [ ] Geschlossen durch ein offenes Portal gehen: Actionbar „Die Sift ist geschlossen“ (bei after-dragon /
+      fixed-date mit Restzeit), man bleibt draußen. Tier hineinführen / Item hineinwerfen: bleibt draußen.
+- [ ] Geschlossen: Schrein wecken und Melodie spielen geht weiter, das Portal öffnet sich.
+- [ ] Geschlossen: `/tp <Spieler>` zu jemandem in der Sift bzw. `/execute in the_sift:the_sift run tp …`
+      wird abgebrochen (mit Meldung).
+- [ ] In der Sift ausloggen, `/sift close` abwarten, einloggen: man wird zurückgeschickt.
+- [ ] Bett/Respawnpunkt in der Sift, geschlossen sterben: Respawn am Spawn der Hauptwelt.
+- [ ] Hinaus durch das Haupt-Portal geht auch geschlossen (Spieler mit Bypass drinnen, dann ohne testen).
+- [ ] Mit Bypass (`lp user <Spieler> permission set thesift.access.bypass true`): hinein trotz geschlossen,
+      kein Countdown, kein Zurückschicken.
+- [ ] `/sift open`: Ankündigung im Chat an alle.
+- [ ] Neustart nach `/sift close`: bleibt zu (`/sift access status`: „Befehl: geschlossen“); `/sift access
+      reset` kehrt zum Modus zurück.
+- [ ] `access.mode: after-dragon`, `/sift access reload`: zu, „wartet auf den ersten Drachenkill“. Drachen im
+      End besiegen: `status` zeigt Zeit und Welt, Öffnung in `delay-days`. `/sift access set dragon-kill
+      2026-01-01` (Vergangenheit): öffnet mit Ankündigung. `clear` löscht den Kill.
+- [ ] `access.dragon-worlds: [eine_andere_welt]`: ein Drachenkill in `world_the_end` zählt nicht.
+- [ ] Server, dessen Drache schon vor dem Plugin besiegt wurde, mit after-dragon: Warnung beim Start und in
+      `status`, Sift bleibt zu, bis `set dragon-kill` gegeben wird.
+- [ ] `access.mode: fixed-date`, `date` in zwei Minuten, `reload`: `status` zeigt die Restzeit; zum Zeitpunkt
+      öffnet die Sift mit Ankündigung.
+- [ ] `access.mode: manual`: zu, bis `/sift open`.
+
 ## Mobs: Blub (ab Phase 2)
 
 Vorher in `config.yml` nichts ändern; die Werte stehen unter `mobs.blub`. Resource Pack neu laden (neue
