@@ -103,6 +103,48 @@ final class RigDisplays {
         return released;
     }
 
+    /** Displays of this mob that are not in its list (would lie in the model twice: z-fighting), removed so far. */
+    static long strangersRemoved;
+
+    /**
+     * Removes item displays that carry this mob's marker but are not its own (a second set lying in the same place
+     * shows up as a checkerboard of two colours). Runs from the mob ticker, never from an entity event.
+     */
+    int removeStrangers() {
+        int removed = 0;
+        String owner = mob.base.getUniqueId().toString();
+        for (Entity entity : mob.base.getNearbyEntities(4, 4, 4)) {
+            if (entity instanceof ItemDisplay display && !displays.contains(display)
+                    && owner.equals(display.getPersistentDataContainer().get(MobManager.RIG_KEY, PersistentDataType.STRING))) {
+                display.remove();
+                removed++;
+            }
+        }
+        strangersRemoved += removed;
+        return removed;
+    }
+
+    /** Tint state for /sift debug mobs: hurt or normal, how many displays show the hurt item, strangers nearby. */
+    String describeTint() {
+        int tinted = 0;
+        for (ItemDisplay display : displays) {
+            if (display.getItemStack().hasData(DataComponentTypes.CUSTOM_MODEL_DATA)) {
+                tinted++;
+            }
+        }
+        int strangers = 0;
+        String owner = mob.base.getUniqueId().toString();
+        for (Entity entity : mob.base.getNearbyEntities(4, 4, 4)) {
+            if (entity instanceof ItemDisplay display && !displays.contains(display)
+                    && owner.equals(display.getPersistentDataContainer().get(MobManager.RIG_KEY, PersistentDataType.STRING))) {
+                strangers++;
+            }
+        }
+        return (mob.hurtTicks > 0 ? "Treffer (noch " + mob.hurtTicks + " Ticks)" : mob.dying() ? "Tod" : "normal")
+                + ", " + tinted + " von " + displays.size() + " Displays mit Treffer-Farbe (erwartet " + matrices.length
+                + "), fremde Displays dieses Mobs in 4 Blöcken: " + strangers + ", bisher entfernt: " + strangersRemoved;
+    }
+
     /** Sends the current pose; returns how many displays got a new transformation. */
     int update(RenderSettings settings) {
         if (displays.isEmpty() || settings.onlyWhenWatched() && displays.getFirst().getTrackedBy().isEmpty()) {

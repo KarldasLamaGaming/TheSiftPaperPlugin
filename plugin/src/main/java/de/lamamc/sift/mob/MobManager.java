@@ -355,6 +355,9 @@ public final class MobManager implements Listener {
                     continue;
                 }
                 mob.serverTick();
+                if ((tick + mob.base.getEntityId()) % 100 == 0 && mob.deathTicks < 0) {
+                    mob.rig.removeStrangers(); // a second set of displays would show as a two-colour checkerboard
+                }
                 if (mob.deathTicks < 0 && !mob.rig.intact()) {
                     mob.rig.spawn(this.render);
                 } else if (render) {
