@@ -59,4 +59,20 @@ public record SifterRules(int biteTicks, int soundTick, int damageTick, double r
         }
         return count;
     }
+
+    /**
+     * Whom a Sifter hunts on its own (NearestAttackableTargetGoal(Player) of the original): players only, not in
+     * creative or spectator mode. Never other mobs, Sift mobs included.
+     */
+    public static boolean hunts(boolean isPlayer, boolean creativeOrSpectator) {
+        return isPlayer && !creativeOrSpectator;
+    }
+
+    /**
+     * Whom a Sifter strikes back at (HurtByTargetGoal of the original): anyone who hurt it, e.g. a tamed Blub
+     * defending its player, except itself and creative or spectator players.
+     */
+    public static boolean retaliates(boolean self, boolean isPlayer, boolean creativeOrSpectator) {
+        return !self && (!isPlayer || !creativeOrSpectator);
+    }
 }
