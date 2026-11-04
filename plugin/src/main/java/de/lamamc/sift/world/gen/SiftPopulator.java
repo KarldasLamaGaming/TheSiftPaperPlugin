@@ -52,9 +52,11 @@ public final class SiftPopulator extends BlockPopulator {
     private final PortalReservation reservation;
     private final LandmarkLog log;
     private final SoulCanyons canyons;
+    private final IchorWaters waters;
 
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
-                         PortalReservation reservation, LandmarkLog log, SoulCanyons canyons, Logger logger) {
+                         PortalReservation reservation, LandmarkLog log, SoulCanyons canyons, IchorWaters waters, Logger logger) {
+        this.waters = waters;
         this.reservation = reservation;
         this.canyons = canyons;
         this.log = log;
@@ -82,6 +84,10 @@ public final class SiftPopulator extends BlockPopulator {
 
     public LandmarkLog log() {
         return log;
+    }
+
+    public IchorWaters waters() {
+        return waters;
     }
 
     public SoulCanyons canyons() {
@@ -133,6 +139,11 @@ public final class SiftPopulator extends BlockPopulator {
         }
         if (settings.soulCanyons() && canyons.isSelected(seed, chunkX, chunkZ)) {
             canyon(region, random, chunkX, chunkZ);
+        }
+        if (waters != null) {
+            // original order: fluid springs (step 8), then surface lakes (step 9, before the trees)
+            waters.springs(region, random, chunkX, chunkZ);
+            waters.lake(region, random, chunkX, chunkZ, biome, reservation);
         }
         if (settings.willowTrees()) {
             if (settings.denseWillowBiomes().contains(biome)) {

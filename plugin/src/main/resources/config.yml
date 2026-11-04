@@ -114,6 +114,27 @@ worldgen:
     enabled: true
   # Seelenschluchten (Original 1.1.1): höchstens eine je Zelle aus N × N Chunks, ein mäandernder Graben mit
   # Seelenblöcken im Boden; Heimat des Echo Golems. Nur neue Chunks; /sift debug canyon build baut eine von Hand.
+  # Ichor-Seen an der Oberfläche (ab alpha.25, Original 1.1.1): SMALL bis MEGA je nach Gelände, mit Strand,
+  # Felsformationen und Ufer-Pflanzen. Kaskaden und Weideninseln folgen später. Nur neue Chunks.
+  ichor-lakes:
+    enabled: true
+    # 1 von N Chunks versucht einen See (Original: 1/3, in Lichtungen 1/2)
+    rarity: 3
+    biomes: [ichor_snowy_peaks, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, sift_wastes, siftslate_peaks, siftslate_slopes]
+    clearing-rarity: 2
+    clearing-biomes: [overgrown_clearing, overgrown_slopes]
+    # Leuchten wie im Original: wassergeloggte Lichtblöcke Stufe 12 an der Oberfläche, je N Blöcke einer (0 = aus)
+    light-spacing: 3
+    shore-plants: true
+  # Ichor-Quellen in Felswänden unter Tage (Original: 16 Versuche je Chunk, y 15–110, mindestens 12 unter der Oberfläche)
+  ichor-springs:
+    enabled: true
+    count: 16
+    min-y: 15
+    max-y: 110
+    below-surface: 12
+    # die Quelle wird ein wassergeloggter Lichtblock Stufe 12
+    light: true
   soul-canyons:
     enabled: true
     cell-chunks: 12

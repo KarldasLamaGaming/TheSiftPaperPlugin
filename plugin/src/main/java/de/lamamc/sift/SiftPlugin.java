@@ -376,12 +376,17 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                             getConfig().getConfigurationSection("worldgen.soul-canyons")));
             canyonParticles.start(this);
             SoulCanyons canyons = new SoulCanyons(blocks, canyonLandmarks, worldgen.canyonCellChunks(), worldgen.canyonMinSouls());
+            de.lamamc.sift.world.gen.IchorWaters waters = new de.lamamc.sift.world.gen.IchorWaters(
+                    de.lamamc.sift.world.gen.IchorWaters.Settings.load(getConfig().getConfigurationSection("worldgen")));
+            waters.load(world);
+            waters.listen(this);
             siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
-                    landmarkLog, canyons, getLogger());
+                    landmarkLog, canyons, waters, getLogger());
             // worldgen threads record, the main thread writes into the world's persistent data
             getServer().getScheduler().runTaskTimer(this, () -> {
                 landmarkLog.save(world);
                 canyonLandmarks.save(world);
+                waters.save(world);
             }, 100L, 100L);
             world.getPopulators().add(siftPopulator);
             getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
@@ -394,6 +399,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         if (siftPopulator != null && sift != null) {
             siftPopulator.log().save(sift);
             canyonLandmarks.save(sift);
+            siftPopulator.waters().save(sift);
         }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
