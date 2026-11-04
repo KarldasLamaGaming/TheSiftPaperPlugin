@@ -29,12 +29,6 @@ Stand: 31.10.2026 (nach alpha.10)
 | [#15](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/15) | Verlassene Portale: `chance` 0,25 mit Phase 3 auf 1,0 | wartet auf Phase 3 |
 | [#17](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/17) | Phase 2 (Mobs) und Phase 3 (Ichor, Himmel, Monolithen, Bögen, Seelenschluchten, Sniffer-Höhlen) | nach Phase 1 |
 
-## Phase 3, offen
-
-| Punkt | Stand |
-|---|---|
-| Ichor-Kaskaden (zwei Seen mit Wasserfall an Steilhängen) und Weideninseln in großen überwucherten Seen | Folge-PR nach alpha.25 |
-
 ## Nächster Schritt
 
 - Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt

@@ -229,6 +229,10 @@ Nur in neu generierten Chunks. Zum Testen in ein unerkundetes Gebiet der Sift ge
       unsichtbarer Lichtblock mehr. Dasselbe mit einem Schwamm am Ufer.
 - [ ] Quelle über `/sift debug ichor` [Teleport] ansteuern: Ichor fließt aus einer Felswand, die Quelle leuchtet.
 - [ ] `/sift debug worldgen`: Zeile „Ichor-Seen … Zeit je Kandidat“ (im Mittel wenige Millisekunden).
+- [ ] Ab alpha.25.1: `/sift debug worldgen` zeigt nicht gebaute Seen je Variante (z. B. „SMALL zu uneben“,
+      „CASCADE Kaskade: unten zu uneben“) und „Weideninseln“.
+- [ ] Kaskade (selten, nur in Hügeln): unterer See, darüber ein Teich auf einem flachen Sims, dazwischen ein
+      Wasserfall aus Ichor. Weideninsel (selten, große überwucherte Seen): Insel mit einer Weide im See.
 - [ ] `worldgen.ichor-lakes.enabled: false` bzw. `ichor-springs.enabled: false` und Neustart: In neuen Chunks
       entstehen keine Seen bzw. Quellen.
 

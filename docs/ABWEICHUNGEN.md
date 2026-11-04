@@ -114,10 +114,17 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
     Becken- und Uferblöcke, Felsformationen in großen Seen;
   - die Quellen (16 Versuche je Chunk, Felswand mit genau einer Öffnung).
 
+  - seit alpha.25.1 auch **Kaskaden** (an einem Steilhang: unterer See, Teich auf einem Bergsims, Abfluss
+    mit fallendem Ichor) und **Weideninseln** in großen überwucherten Seen (27 %, mit einer kleinen Weide).
+
   Unterschiede:
-  - Noch nicht dabei: **Kaskaden** (zwei Seen mit Wasserfall an Steilhängen) und **Weideninseln** in großen
-    überwucherten Seen. In steilem Gelände entsteht bis dahin kein See, wo das Original eine Kaskade baut.
   - Am Ufer wachsen kleine Pflanzen wie im Original, die Blumengruppen fehlen.
+  - Rund um 0/0 (etwa ±200 Blöcke) entstehen beim ersten Start keine Seen: Bis das Haupt-Portal steht, ist dort
+    der ganze Suchbereich reserviert. Das Original baut das Portal vor der Generierung und reserviert nur seine
+    Fläche + 15 Blöcke; das Plugin macht das ab dann ebenso.
+  - Größen: Auch im Original sind große Seen selten. In 12 Regionen (~1700 Chunks) des Originals gibt es 10 flache
+    Seen: 8 SMALL, 2 MEDIUM, kein LARGE oder MEGA. Die Geländeschwellen sind dieselben.
+  - Die Form kleiner Seen (Radius 4–7) wirkt eckig; das Original nutzt dieselbe Formel und sieht genauso aus.
   - Ichor ist Wasser; das Leuchten (Stufe 12) kommt von wassergeloggten Lichtblöcken an der Oberfläche
     (jeder dritte Block) und in jeder Quelle. Wird ihr Ichor mit Eimer oder Schwamm entfernt, verschwindet
     auch das Licht.

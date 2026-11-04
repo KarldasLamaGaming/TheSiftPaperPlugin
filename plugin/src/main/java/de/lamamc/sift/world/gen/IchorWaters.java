@@ -70,6 +70,7 @@ public final class IchorWaters implements Listener {
         public final AtomicLong springChunks = new AtomicLong();
         public final AtomicLong lights = new AtomicLong();
         public final AtomicLong lightsRemoved = new AtomicLong();
+        public final AtomicLong islands = new AtomicLong();
     }
 
     private final Settings settings;
@@ -94,7 +95,12 @@ public final class IchorWaters implements Listener {
     // ---- lakes ----------------------------------------------------------------------------------------------
 
     /** Surface lake of this chunk (feature step vegetal_decoration, before the trees). */
-    public void lake(GenRegion region, Random random, int chunkX, int chunkZ, String biome, PortalReservation reservation) {
+    /** Places a willow with its root at a block (the willow island of a large overgrown lake). */
+    public interface Trees {
+        boolean placeAt(GenRegion region, Random random, int x, int y, int z);
+    }
+
+    public void lake(GenRegion region, Random random, int chunkX, int chunkZ, String biome, PortalReservation reservation, Trees trees) {
         int rarity = settings.lakeBiomes().contains(biome) ? settings.lakeRarity()
                 : settings.clearingBiomes().contains(biome) ? settings.clearingRarity() : 0;
         if (!settings.lakes() || rarity == 0 || random.nextInt(rarity) != 0) {
@@ -110,6 +116,12 @@ public final class IchorWaters implements Listener {
             reason = "Platz reserviert";
         } else {
             apply(region, random, plan);
+            if (plan.islandRoot() != null && trees != null) {
+                int[] r = plan.islandRoot();
+                if (trees.placeAt(region, random, r[0], r[1], r[2])) {
+                    stats.islands.incrementAndGet();
+                }
+            }
             reason = null;
         }
         long nanos = System.nanoTime() - start;
@@ -117,17 +129,20 @@ public final class IchorWaters implements Listener {
         stats.lakeMaxNanos.accumulateAndGet(nanos, Math::max);
         if (reason == null) {
             stats.lakes.incrementAndGet();
-            stats.lakeVariants.merge(plan.variant().name(), 1, Integer::sum);
+            stats.lakeVariants.merge(plan.kind(), 1, Integer::sum);
             int[] c = plan.waterCells().get(plan.waterCells().size() / 2);
-            lakes.add(SoulCanyonLandmarks.pack(c[0], plan.waterY(), c[1]));
+            lakes.add(SoulCanyonLandmarks.pack(c[0], c[1], c[2]));
             dirty = true;
         } else {
-            stats.lakeRejects.merge(reason, 1, Integer::sum);
+            // per variant, so it shows which terrain checks stop the big lakes (alpha.25.1)
+            stats.lakeRejects.merge(plan.kind() + " " + reason, 1, Integer::sum);
         }
     }
 
     private void apply(GenRegion region, Random random, IchorLakePlan.Result plan) {
         BlockData water = Material.WATER.createBlockData();
+        org.bukkit.block.data.Levelled falling = (org.bukkit.block.data.Levelled) Material.WATER.createBlockData();
+        falling.setLevel(8); // falling ichor of the cascade curtain
         for (IchorLakePlan.Edit e : plan.edits()) {
             if (!region.writable(e.x(), e.y(), e.z())) {
                 continue;
@@ -139,15 +154,18 @@ public final class IchorWaters implements Listener {
                     }
                 }
                 case IchorLakePlan.ICHOR -> region.set(e.x(), e.y(), e.z(), water);
+                case IchorLakePlan.AIR -> region.set(e.x(), e.y(), e.z(), Material.AIR.createBlockData());
+                case IchorLakePlan.FALLING -> region.set(e.x(), e.y(), e.z(), falling);
                 default -> region.setSift(e.x(), e.y(), e.z(), e.block());
             }
         }
         int spacing = settings.lightSpacing();
         if (spacing > 0) {
             for (int[] cell : plan.waterCells()) {
-                if (Math.floorMod(cell[0], spacing) == 0 && Math.floorMod(cell[1], spacing) == 0
-                        && region.writable(cell[0], plan.waterY(), cell[1]) && region.type(cell[0], plan.waterY(), cell[1]) == Material.WATER) {
-                    region.set(cell[0], plan.waterY(), cell[1], light());
+                if (Math.floorMod(cell[0], spacing) == 0 && Math.floorMod(cell[2], spacing) == 0 && region.writable(cell[0], cell[1], cell[2])
+                        && region.data(cell[0], cell[1], cell[2]) instanceof org.bukkit.block.data.Levelled level && level.getLevel() == 0
+                        && region.type(cell[0], cell[1], cell[2]) == Material.WATER) {
+                    region.set(cell[0], cell[1], cell[2], light());
                     stats.lights.incrementAndGet();
                 }
             }

@@ -424,11 +424,11 @@ public final class SiftCommand {
             sender.sendRichMessage(String.format(java.util.Locale.ROOT,
                     "<gray>Ichor-Seen: <white>%d</white> von <white>%d</white> Kandidaten gebaut %s%s, Zeit je Kandidat "
                             + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens; Quellen: <white>%d</white> "
-                            + "(<white>%.2f ms</white> je Chunk); Lichtblöcke <white>%d</white>, wieder entfernt <white>%d</white>",
+                            + "(<white>%.2f ms</white> je Chunk); Lichtblöcke <white>%d</white>, wieder entfernt <white>%d</white>; Weideninseln <white>%d</white>",
                     w.lakes.get(), lakeCandidates, w.lakeVariants, w.lakeRejects.isEmpty() ? "" : " (nicht gebaut: " + w.lakeRejects + ")",
                     lakeCandidates == 0 ? 0.0 : w.lakeNanos.get() / 1e6 / lakeCandidates, w.lakeMaxNanos.get() / 1e6,
                     w.springs.get(), springChunks == 0 ? 0.0 : w.springNanos.get() / 1e6 / springChunks,
-                    w.lights.get(), w.lightsRemoved.get()));
+                    w.lights.get(), w.lightsRemoved.get(), w.islands.get()));
         }
         return Command.SINGLE_SUCCESS;
     }

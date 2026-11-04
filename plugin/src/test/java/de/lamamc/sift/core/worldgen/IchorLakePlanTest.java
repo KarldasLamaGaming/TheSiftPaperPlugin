@@ -78,6 +78,40 @@ class IchorLakePlanTest {
     }
 
     @Test
+    void aLedgeLeadsToTheCascadeVariant() {
+        // plateau at 80 up to x = 6, a ramp down to 63 at x = 11, flat below: drop 17 between upper and lower spot
+        IntBinaryOperator ledge = (x, z) -> x <= 6 ? 80 : x >= 11 ? 63 : (int) Math.round(80 - (x - 6) * 3.4);
+        int cascades = 0;
+        for (int seed = 0; seed < 20; seed++) {
+            IchorLakePlan.Result r = IchorLakePlan.plan(world(ledge), new Random(seed), 0, 0);
+            if (r.cascade()) {
+                cascades++;
+                assertEquals("CASCADE", r.kind());
+                if (r.built()) {
+                    assertTrue(r.edits().stream().anyMatch(e -> e.block().equals(IchorLakePlan.FALLING)), "a falling curtain");
+                    assertTrue(r.waterCells().stream().anyMatch(c -> c[1] > 70), "an upper pond");
+                }
+            }
+        }
+        assertTrue(cascades >= 10, "82 % of the tries take the cascade path: " + cascades + " of 20");
+    }
+
+    @Test
+    void largeOvergrownLakesSometimesGetAWillowIsland() {
+        int islands = 0;
+        for (int seed = 0; seed < 60; seed++) {
+            IchorLakePlan.Result r = IchorLakePlan.plan(world((x, z) -> 63), new Random(seed), 0, 0);
+            if (r.built() && r.islandRoot() != null) {
+                islands++;
+                assertTrue(r.islandRoot()[1] > r.waterY(), "the willow stands above the water");
+                int[] root = r.islandRoot();
+                assertTrue(r.waterCells().stream().noneMatch(c -> c[0] == root[0] && c[2] == root[2]), "no ichor under the tree");
+            }
+        }
+        assertTrue(islands > 0, "some of 60 MEGA lakes in an overgrown biome get an island");
+    }
+
+    @Test
     void variantsByRelief() {
         assertEquals(IchorLakePlan.Variant.MEGA, IchorLakePlan.variant(99, 3));
         assertEquals(IchorLakePlan.Variant.LARGE, IchorLakePlan.variant(71, 5));

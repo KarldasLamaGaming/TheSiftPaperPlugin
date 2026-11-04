@@ -253,6 +253,10 @@ Wie im Original 1.1.1 (Werte in `worldgen.ichor-lakes.*` und `worldgen.ichor-spr
   - Die Variante hängt vom Gelände ab: SMALL (Radius 4–7) bis MEGA (Radius 14–16).
   - Es wird nur gebaut, wenn das Gelände flach genug ist, ein Strand passt und kein Ichor in 15–20 Blöcken liegt.
   - Becken aus Sculk oder Siftschiefer, Ufer je Biom, Felsformationen in großen Seen, kleine Pflanzen am Ufer.
+  - Ab alpha.25.1: In sehr hügeligem Gelände versucht das Plugin wie das Original in 82 % der Fälle eine
+    **Kaskade**. Sie besteht aus einem unteren See, einem Teich auf einem Bergsims und einem Abfluss mit fallendem
+    Ichor; meist ist das Gelände dafür doch zu uneben. Große überwucherte Seen bekommen zu 27 % eine
+    **Weideninsel**.
 - **Quellen:** 16 Versuche je Chunk zwischen y 15 und 110, mindestens 12 Blöcke unter der Oberfläche, nur in
   einer Felswand mit genau einer Öffnung. Daraus fließt Ichor in Höhlen.
 - **Leuchten:** Wassergeloggte Lichtblöcke Stufe 12 (`light-spacing`, Standard jeder 3. Block der Oberfläche;
@@ -265,7 +269,7 @@ Wie im Original 1.1.1 (Werte in `worldgen.ichor-lakes.*` und `worldgen.ichor-spr
   die Generierungszeit.
 - **Zeitbudget** (Smoke-Test, 256 neue Chunks): im Mittel 1,0 ms je See-Kandidat (höchstens 18 ms) und
   0,1 ms je Chunk für Quellen.
-- Kaskaden und Weideninseln des Originals folgen in einem eigenen PR.
+- `/sift debug worldgen` zählt nicht gebaute Seen je Variante (SMALL … MEGA, CASCADE) mit Grund, dazu die Weideninseln.
 
 **Alte Chunks (#16):** Neue Weltgenerierungs-Features (Seen, Quellen, später Monolithen, Bögen …) entstehen nur
 in Chunks, die nach dem Update **neu generiert** werden. Schon erkundete Gebiete bekommen sie nicht.
