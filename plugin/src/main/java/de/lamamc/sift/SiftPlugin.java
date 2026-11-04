@@ -138,6 +138,12 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(gate, this);
         portals.setGate(gate);
         gate.start();
+        if (getConfig().getBoolean("ichor.enabled", true)) {
+            de.lamamc.sift.world.ichor.IchorListener ichor = new de.lamamc.sift.world.ichor.IchorListener(
+                    this, items, blocks, getConfig().getConfigurationSection("ichor"));
+            getServer().getPluginManager().registerEvents(ichor, this);
+            ichor.start();
+        }
         if (getConfig().getBoolean("portals.ancient-city.enabled", true)) {
             de.lamamc.sift.world.portal.AncientCityPortals cities = new de.lamamc.sift.world.portal.AncientCityPortals(this, blocks,
                     portals, getConfig().getInt("portals.frame-radius", 10), getLogger());

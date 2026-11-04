@@ -141,6 +141,38 @@ worldgen:
 
 # Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
 # Portale (Schritt 7): Durchgang in die Sift und zurück, Konsolen aus Klingendem Tiefenschiefer
+ichor:
+  # Ichor-Verhalten (ab alpha.21). In der Sift ist alles Wasser Ichor.
+  enabled: true
+  # Regeneration für Lebewesen im Ichor (Original: Regeneration I, 101 Ticks, ohne Partikel)
+  regeneration:
+    enabled: true
+    amplifier: 0
+    duration-ticks: 101
+    interval-ticks: 10
+  # Bremsung im Ichor wie im Original (×0,92 waagrecht, ×0,94 senkrecht je Tick), nur Mobs und Items;
+  # Spieler werden nicht gebremst (würde ruckeln)
+  drag-mobs:
+    enabled: true
+    horizontal: 0.92
+    vertical: 0.94
+    interval-ticks: 2
+  # false = Ichor bildet keine unendlichen Quellen (Gamerule water_source_conversion der Sift)
+  source-conversion: false
+  # Lava an Ichor: fließende Lava → Siftschiefer-Bruchstein, Lava auf Ichor → Siftschiefer (Quelle → Obsidian)
+  lava-results: true
+  # Eimer an Ichor ergibt einen Ichor-Eimer (auch am vollen Kessel)
+  bucket: true
+  # Glasflasche an einer Ichor-Quelle oder einem Kessel in der Sift ergibt eine Ichor-Flasche;
+  # eine Ichor-Flasche füllt einen Kessel um eine Stufe
+  bottles: true
+  # Nebel-Partikel (Staub in Ichorfarben) über Ichor-Quellen nahe Spielern
+  mist:
+    enabled: true
+    interval-ticks: 20
+    radius: 16
+    samples: 24
+
 access:
   # Ab wann die Sift betreten werden kann:
   #   always       = immer offen (Standard)

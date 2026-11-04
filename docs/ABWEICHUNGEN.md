@@ -161,6 +161,24 @@ Unterschiede:
   geweckte und offene Portale behalten die feste Melodie; `portals.melody.per-portal: false` stellt das
   Original wieder her. Die Antike Stadt behält ihre lange Melodie aus dem Buch.
 
+## Ichor (seit alpha.21)
+
+Im Original ist Ichor eine eigene Flüssigkeit (eigene Texturen, Lichtstufe 12, fließt langsamer und nur
+etwa 6 Blöcke weit). Ohne Client-Mod ist Ichor Vanilla-Wasser in der Sift mit Ichor-Biomfarbe. Das Verhalten
+wird nachgebildet:
+- Regeneration I wie im Original.
+- Bremsung nur für Mobs und Items: Spieler würden bei einer Bremsung durch den Server ruckeln.
+- Keine unendlichen Quellen, Lava ergibt Siftschiefer bzw. Bruchstein, Eimer und Flasche, Kessel.
+- Nicht nachgebildet:
+  - das eigene Fließtempo und die geringere Reichweite;
+  - das Leuchten (Generierte Seen und Quellen bekommen Licht ab alpha.25);
+  - „ichorlogged“-Blöcke (wassergeloggte Blöcke sind normales Wasser);
+  - die eigene Luftanzeige;
+  - die Blasen- und Spritz-Partikel (ersetzt durch Staub-Nebel über Quellen);
+  - das Leuchten des Kessels;
+  - Tropfstein füllt den Kessel nur wie bei Vanilla (nicht aus 13 Blöcken Höhe).
+- Außerhalb der Sift ist Ichor Wasser (Ichoreimer setzt Wasser).
+
 ## Zugang zur Sift (seit alpha.20)
 
 Neu, im Original gibt es das nicht: Die Sift lässt sich zeitlich sperren (`access.mode`: immer, Tage nach
