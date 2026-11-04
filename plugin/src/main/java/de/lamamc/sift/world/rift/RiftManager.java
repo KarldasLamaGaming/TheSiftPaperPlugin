@@ -13,7 +13,6 @@ import de.lamamc.sift.world.portal.PortalService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -384,50 +383,54 @@ public final class RiftManager implements Listener {
             naturalRifts(sift);
         }
         Set<UUID> touching = new HashSet<>();
-        for (Iterator<Rift> it = rifts.iterator(); it.hasNext(); ) {
-            Rift rift = it.next();
-            if (rift.closing()) {
-                if (tick - rift.closingSince > openTicks) {
-                    remove(rift);
-                    it.remove();
-                }
-                continue;
-            }
-            if (tick >= rift.expires - openTicks) {
-                close(rift);
-                continue;
-            }
-            if (!rift.world.isChunkLoaded(rift.x >> 4, rift.z >> 4)) {
-                continue;
-            }
-            if (display(rift) == null && tick % 20 == 0) {
-                spawnDisplay(rift); // the chunk was unloaded and the display with it
-            }
-            if (ambient && tick % 40 == 0) {
-                Location center = rift.location().add(0, 2, 0);
-                for (Player player : rift.world.getPlayers()) {
-                    if (player.getLocation().distanceSquared(center) <= 32 * 32) {
-                        player.playSound(center, Sound.BLOCK_BEACON_AMBIENT, SoundCategory.BLOCKS, 1.0f, 1.0f);
-                    }
-                }
-            }
-            if (mobAvoidance && tick % 20 == 0) {
-                keepMobsAway(rift);
-            }
-            for (Entity entity : rift.world.getNearbyEntities(rift.box())) {
-                if (!traveller(entity)) {
-                    continue;
-                }
-                touching.add(entity.getUniqueId());
-                Long until = latched.get(entity.getUniqueId());
-                if (until != null) {
-                    continue;
-                }
-                transfer(entity, rift);
-            }
-        }
+        // a snapshot: travelling opens counter rifts, commands close rifts (alpha.23.1)
+        de.lamamc.sift.core.rift.RiftSweep.run(rifts, rift -> tickRift(rift, touching));
         // release entities that stopped touching rifts once their cooldown is over
         latched.entrySet().removeIf(e -> !touching.contains(e.getKey()) && e.getValue() <= tick);
+    }
+
+    /** One tick of one rift; false when it is gone. */
+    private boolean tickRift(Rift rift, Set<UUID> touching) {
+        if (rift.closing()) {
+            if (tick - rift.closingSince > openTicks) {
+                remove(rift);
+                return false;
+            }
+            return true;
+        }
+        if (tick >= rift.expires - openTicks) {
+            close(rift);
+            return true;
+        }
+        if (!rift.world.isChunkLoaded(rift.x >> 4, rift.z >> 4)) {
+            return true;
+        }
+        if (display(rift) == null && tick % 20 == 0) {
+            spawnDisplay(rift); // the chunk was unloaded and the display with it
+        }
+        if (ambient && tick % 40 == 0) {
+            Location center = rift.location().add(0, 2, 0);
+            for (Player player : rift.world.getPlayers()) {
+                if (player.getLocation().distanceSquared(center) <= 32 * 32) {
+                    player.playSound(center, Sound.BLOCK_BEACON_AMBIENT, SoundCategory.BLOCKS, 1.0f, 1.0f);
+                }
+            }
+        }
+        if (mobAvoidance && tick % 20 == 0) {
+            keepMobsAway(rift);
+        }
+        for (Entity entity : rift.world.getNearbyEntities(rift.box())) {
+            if (!traveller(entity)) {
+                continue;
+            }
+            touching.add(entity.getUniqueId());
+            Long until = latched.get(entity.getUniqueId());
+            if (until != null) {
+                continue;
+            }
+            transfer(entity, rift);
+        }
+        return true;
     }
 
     private static boolean traveller(Entity entity) {
