@@ -85,6 +85,8 @@ final class RiftCommand {
         long[] n = rifts.naturalStats();
         sender.sendMessage(Component.text("Natürliche Platzsuche seit Start: " + n[0] + " Suchen, " + n[1] + " geöffnet, "
                 + n[2] + " ohne Platz aufgegeben; " + n[3] + " Versuche in ungeladenen Chunks", NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("Riss-Displays ohne Riss: jetzt " + rifts.orphans(false) + ", seit Start entfernt "
+                + n[4] + " (Aufräumen alle 10 s)", NamedTextColor.GRAY));
         for (RiftManager.Rift rift : all) {
             Location l = rift.location();
             String where = l.getWorld().getKey() + " " + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ();

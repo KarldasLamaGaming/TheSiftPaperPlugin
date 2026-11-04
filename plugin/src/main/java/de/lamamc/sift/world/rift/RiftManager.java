@@ -144,6 +144,7 @@ public final class RiftManager implements Listener {
     private long naturalOpened;
     private long naturalFailed;
     private long naturalUnloaded;
+    private long orphansRemoved;
     private long tick;
 
     private final boolean natural;
@@ -230,6 +231,12 @@ public final class RiftManager implements Listener {
 
     /** {@code relaxed} (admin): no ground needed and entities in the way do not matter. */
     private Rift open(World world, int x, int y, int z, boolean alongX, boolean intoSift, Rift origin, long life, boolean relaxed) {
+        BoundingBox wanted = new Rift(0, world, x, y, z, alongX, intoSift, null, 0).box();
+        for (Rift other : rifts) {
+            if (other.world.equals(world) && other.box().expand(1, RiftRules.HEIGHT, 1).overlaps(wanted)) {
+                return null; // never a rift in, on top of or under another one (alpha.23.1)
+            }
+        }
         if (!RiftRules.fits(space(world), x, y, z, alongX, !relaxed) || !relaxed && !world.getNearbyEntities(
                 new Rift(0, world, x, y, z, alongX, intoSift, null, 0).box(), e -> !(e instanceof Display)).isEmpty()) {
             return null;
@@ -267,9 +274,34 @@ public final class RiftManager implements Listener {
         return null;
     }
 
-    /** Natural rifts: searches, opened, given up (no spot in all attempts), attempts on unloaded chunks. */
+    /**
+     * Rift displays in the loaded chunks that belong to no open rift (left over, e.g. after an error); with
+     * {@code remove} they are removed. Returns how many were found.
+     */
+    public int orphans(boolean remove) {
+        Set<UUID> live = new HashSet<>();
+        rifts.forEach(r -> {
+            if (r.display != null) {
+                live.add(r.display);
+            }
+        });
+        int found = 0;
+        for (World world : Bukkit.getWorlds()) {
+            for (ItemDisplay display : world.getEntitiesByClass(ItemDisplay.class)) {
+                if (display.getPersistentDataContainer().has(DISPLAY) && !live.contains(display.getUniqueId())) {
+                    found++;
+                    if (remove) {
+                        display.remove();
+                    }
+                }
+            }
+        }
+        return found;
+    }
+
+    /** Natural rifts: searches, opened, given up (no spot in all attempts), attempts on unloaded chunks; removed orphan displays. */
     public long[] naturalStats() {
-        return new long[] {naturalSearches, naturalOpened, naturalFailed, naturalUnloaded};
+        return new long[] {naturalSearches, naturalOpened, naturalFailed, naturalUnloaded, orphansRemoved};
     }
 
     public void close(Rift rift) {
@@ -420,6 +452,12 @@ public final class RiftManager implements Listener {
             naturalRifts(sift);
         }
         Set<UUID> touching = new HashSet<>();
+        if (tick % 200 == 0) {
+            int removed = orphans(true);
+            if (removed > 0) {
+                orphansRemoved += removed;
+            }
+        }
         // a snapshot: travelling opens counter rifts, commands close rifts (alpha.23.1)
         de.lamamc.sift.core.rift.RiftSweep.run(rifts, rift -> tickRift(rift, touching));
         // release entities that stopped touching rifts once their cooldown is over
