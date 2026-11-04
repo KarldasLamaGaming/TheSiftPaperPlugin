@@ -605,6 +605,47 @@ Junge Sniffer, die in der Sift in oder direkt über Ichor erscheinen, werden ver
 Außerhalb der Sift ist Ichor gewöhnliches Wasser: Ein Ichoreimer setzt dort Wasser, ein Kessel bleibt ein
 Wasserkessel.
 
+## Risse (ab alpha.22)
+
+Wie im Original 1.1.1:
+- **Natürliche Risse** öffnen sich nur in der Sift, je Spieler alle 4,5–5,5 Minuten, 20–64 Blöcke entfernt.
+  - Platzbedarf: 9 × 5 Blöcke Luft oder Pflanzen, fester Boden 1–3 darunter.
+  - Sie bleiben 5 Minuten offen und führen **hinaus** zum Respawnpunkt (Bett oder Seelenanker in der
+    Hauptwelt), sonst zum Welt-Spawn.
+- **Gegen-Riss:** Dort öffnet sich ein Riss, der bis zum Schließen des Ursprungs zurückführt. Ein offener
+  Gegen-Riss in `counter.reuse-radius` (64) wird weiterverwendet.
+  - Sonst wird in Ringen von `counter.min-radius` bis `counter.max-radius` (16–256, Schritt 16, 16 Punkte)
+    gesucht.
+  - Nicht im Spawn-Schutz (`spawn-protection` in `server.properties`) und nur, wo der Spieler bauen darf.
+    Gefragt wird über ein Test-Ereignis, das Claim-Plugins wie GriefPrevention, WorldGuard oder Lands
+    abbrechen.
+  - Findet sich kein Platz, landet der Spieler am Respawnpunkt und bekommt einen Hinweis.
+- **Alle Wesen reisen mit** (Spieler, Mobs, Items, nicht Zuschauer).
+  - Mobs und Items, die hinausgehen, landen am Welt-Spawn ohne Gegen-Riss.
+  - Nach einer Reise wirkt kein Riss, bis man ihn verlassen hat und `reentry-cooldown-ticks` (100) vorbei
+    sind.
+- **Hinein** (Gegen-Riss oder gesetzter Riss außerhalb der Sift): zurück zum Ursprungs-Riss, sonst zum
+  Haupt-Portal der Sift. Die Zeitsperre (`access.*`) gilt; der Rückkehrpunkt wird am Riss gesetzt.
+- **Mobs meiden Risse:** Pfade, die in die Nähe führen, werden abgebrochen (`mob-avoidance`).
+- **Licht:** 3 Lichtblöcke der Stufe 15 (`light`), nur in Luft.
+  - Sie stehen auch im Chunk-Speicher und werden beim Schließen, beim Serverstopp und nach einem Absturz
+    (beim Laden des Chunks) entfernt.
+  - Offene Risse überstehen keinen Neustart.
+- **Klänge:** `entity.rift.appear` beim Öffnen; Leuchtfeuer-Summen in 32 Blöcken (`ambient-sound`).
+- **Advancements:** „Rifter“ bei jeder Reise. „Rift Resonance“: die Schallplatte „Rift“ in eine leere
+  Jukebox in 16 Blöcken eines offenen Risses legen.
+- **Item `sift_rift`** (`/sift give <Spieler> sift_rift`): nur im Kreativmodus oder mit `thesift.admin`.
+  Rechtsklick auf einen Block öffnet dort einen Riss (in der Sift: hinaus, sonst in die Sift). Es wird
+  nicht verbraucht.
+
+Alles steht unter `rifts.*`; `rifts.enabled: false` schaltet Risse ganz ab.
+
+| Befehl | Wirkung |
+|---|---|
+| `/sift rift open [x y z]` | Riss 3 Blöcke vor dir öffnen (mit Position: dort, entlang X; auch von der Konsole mit `/execute in <welt> run …`) |
+| `/sift rift close` | Nächsten offenen Riss in 32 Blöcken schließen |
+| `/sift rift list` | Alle offenen Risse mit Ziel und Teleport-Klick |
+
 ## Zugang zur Sift (ab alpha.20)
 
 Die Sift lässt sich zeitlich sperren, z. B. bis eine Woche nach dem ersten Drachenkill. Gesperrt ist nur der
@@ -670,6 +711,7 @@ Texte stehen in `messages.yml` unter `access.*`.
 | `/sift items` | Item-Menü (auch mit `thesift.admin.items`) |
 | `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben (auch mit `thesift.admin.items`) |
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
+| `/sift rift open\|close\|list` | Risse (siehe „Risse“) |
 | `/sift access …`, `/sift open`, `/sift close` | Zugang zur Sift (siehe „Zugang zur Sift“) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |

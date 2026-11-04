@@ -355,6 +355,26 @@ thesift.access.bypass false`, danach wieder entfernen).
       öffnet die Sift mit Ankündigung.
 - [ ] `access.mode: manual`: zu, bis `/sift open`.
 
+## Risse (ab alpha.22)
+
+Für schnelle Tests `rifts.natural.first-delay-ticks: 200` und `interval-ticks: 400` setzen, danach zurück.
+- [ ] Natürlicher Riss in der Sift erscheint 20–64 Blöcke entfernt, mit Klang beim Öffnen; leuchtende
+      Fläche mit Oberwelt-Vorschau, öffnet sich animiert, Leuchtfeuer-Summen in der Nähe; leuchtet nachts.
+- [ ] Hindurchgehen: Ankunft am eigenen Bett (bzw. Welt-Spawn) in einem Gegen-Riss mit Sift-Vorschau;
+      Advancement „Rifter“. Zurück durch den Gegen-Riss: Ankunft am Ursprungs-Riss in der Sift.
+- [ ] Nach der Ankunft wirkt der Riss erst nach dem Verlassen wieder (kein Hin und Her).
+- [ ] Bett in einem Claim eines anderen Spielers (GriefPrevention/WorldGuard) bzw. im Spawn-Schutz: der
+      Gegen-Riss öffnet außerhalb davon.
+- [ ] Nach 5 Minuten schließen beide Risse (animiert); die Lichtblöcke sind weg (F3 bzw. Lichtniveau).
+- [ ] Zeitsperre: `/sift close`, dann durch den Gegen-Riss in der Oberwelt: Meldung „geschlossen“, man
+      bleibt draußen. Mit `thesift.access.bypass` geht es.
+- [ ] Mobs laufen nicht freiwillig in einen Riss; ein hineingeschobenes Tier reist mit.
+- [ ] Item `sift_rift` im Kreativmodus: Rechtsklick auf den Boden öffnet einen Riss (Oberwelt: in die Sift);
+      ohne Platz: Hinweis. Im Überlebensmodus ohne Adminrecht passiert nichts.
+- [ ] `/sift rift open`, `close`, `list` (Teleport-Klick).
+- [ ] Schallplatte „Rift“ in eine leere Jukebox neben einem offenen Riss: Advancement „Rift Resonance“.
+- [ ] Serverstopp mit offenem Riss: Nach dem Start sind dort keine Lichtblöcke mehr.
+
 ## Mobs: Blub (ab Phase 2)
 
 Vorher in `config.yml` nichts ändern; die Werte stehen unter `mobs.blub`. Resource Pack neu laden (neue

@@ -179,6 +179,25 @@ wird nachgebildet:
   - Tropfstein füllt den Kessel nur wie bei Vanilla (nicht aus 13 Blöcken Höhe).
 - Außerhalb der Sift ist Ichor Wasser (Ichoreimer setzt Wasser).
 
+## Risse (seit alpha.22)
+
+Verhalten, Zeiten, Abstände, Licht und Klänge wie im Original 1.1.1. Unterschiede:
+- **Aussehen:** Das Original zeichnet den Riss mit einem eigenen Shader (fließende Energie, Vorschau des
+  Ziels, die beim Näherkommen erscheint). Hier ist er eine leuchtende Fläche aus einem Display.
+  - Am Rand die Energie-Textur, in der Mitte das Vorschaubild des Ziels (Sift bzw. Oberwelt, Texturen des
+    Originals).
+  - Öffnen und Schließen sind als Skalierung animiert.
+- **Kein Ladebildschirm:** Der Client zeigt den normalen Dimensionswechsel.
+- **Neustart:** Offene Risse werden nicht gespeichert und sind nach einem Neustart weg (im Original bleiben
+  sie). Ihre Lichtblöcke werden sicher entfernt.
+- **Mob-Meidung:** Das Original verteuert die Wegfindung um Risse. Hier werden Pfade, die hineinführen,
+  abgebrochen (Paper hat keine Pfadkosten je Fläche).
+- **Gegen-Riss:**
+  - Er entsteht nur für Spieler; Mobs und Items, die hinausgehen, landen am Welt-Spawn.
+  - Er sucht nicht im Spawn-Schutz und nicht dort, wo der Spieler nicht bauen darf (Claims).
+- **Zeitsperre:** Risse in die Sift beachten die Zeitsperre aus alpha.20 (neu).
+- **Item `sift_rift`:** wie im Original nur im Kreativmodus, zusätzlich für Admins.
+
 ## Zugang zur Sift (seit alpha.20)
 
 Neu, im Original gibt es das nicht: Die Sift lässt sich zeitlich sperren (`access.mode`: immer, Tage nach
