@@ -66,6 +66,7 @@ public final class IchorListener implements Listener {
     private final boolean bucket;
     private final boolean bottles;
     private final boolean mist;
+    private final boolean falseAlarm;
     private final int mistInterval;
     private final int mistRadius;
     private final int mistSamples;
@@ -89,6 +90,7 @@ public final class IchorListener implements Listener {
         bucket = c.getBoolean("bucket", true);
         bottles = c.getBoolean("bottles", true);
         mist = c.getBoolean("mist.enabled", true);
+        falseAlarm = c.getBoolean("false-alarm", true);
         mistInterval = Math.max(1, c.getInt("mist.interval-ticks", 20));
         mistRadius = Math.max(2, c.getInt("mist.radius", 16));
         mistSamples = Math.max(0, c.getInt("mist.samples", 24));
@@ -288,6 +290,28 @@ public final class IchorListener implements Listener {
 
     private static void sound(Player player, Location at, String key) {
         player.getWorld().playSound(at, key, SoundCategory.BLOCKS, 1.0f, 1.0f);
+    }
+
+    /**
+     * Advancement „False Alarm“ (IchorSnowballAdvancementMixin): a player's ichor snowball hits something within 16
+     * blocks of a living warden (alpha.26).
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onSnowballHit(org.bukkit.event.entity.ProjectileHitEvent event) {
+        if (!falseAlarm || !(event.getEntity() instanceof org.bukkit.entity.Snowball ball)
+                || !(ball.getShooter() instanceof Player player) || !"ichor_snowball".equals(SiftItems.idOf(ball.getItem()))) {
+            return;
+        }
+        Location impact = ball.getLocation(); // where the snowball hit
+        boolean warden = !impact.getWorld().getNearbyEntities(org.bukkit.util.BoundingBox.of(impact, 16, 16, 16),
+                e -> e instanceof org.bukkit.entity.Warden w && !w.isDead() && w.isValid()).isEmpty();
+        if (warden) {
+            var advancement = Bukkit.getAdvancement(new org.bukkit.NamespacedKey("the_sift", "the_sift/false_alarm"));
+            if (advancement != null) {
+                var progress = player.getAdvancementProgress(advancement);
+                progress.getRemainingCriteria().forEach(progress::awardCriteria);
+            }
+        }
     }
 
     /** Like the original: a baby sniffer born in or right above ichor does not survive (Sift only). */

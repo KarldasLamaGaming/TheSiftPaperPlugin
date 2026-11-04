@@ -107,7 +107,14 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.
 - Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
-- Monolithen, Bögen, Schnüffler-Höhlen, Lavaböden und Ichorschnee kommen mit Phase 3.
+- Monolithen, Bögen, Schnüffler-Höhlen und Lavaböden kommen mit Phase 3.
+- **Ichor-Schnee (seit alpha.26)** wie im Original 1.1.1: in `ichor_snowy_peaks` auf jedem natürlichen Boden
+  1–2 Schichten (gleiches Rauschen), kleine Gipfelpflanzen werden ersetzt, auch auf Weidenkronen, und
+  Siftschiefer-Bewuchs darunter wird verschneit. Unterschiede:
+  - Ichor-Schnee ist Vanilla-Schnee.
+  - Neuer Schneefall in der Sift folgt noch Vanilla; Ichor-Schneefall nur in diesem Biom kommt mit alpha.32.
+- **Advancement „False Alarm“ (seit alpha.26):** wie im Original. Ein geworfener Ichor-Schneeball trifft etwas
+  in 16 Blöcken eines lebenden Wärters.
 - **Ichor-Seen und -Quellen (seit alpha.25)** baut das Plugin beim Generieren statt der Datapack-Features.
   Übernommen aus dem Original 1.1.1:
   - Häufigkeit (1/3, Lichtungen 1/2), die Varianten SMALL bis MEGA nach dem Gelände, Strand und Uferglättung,

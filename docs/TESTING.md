@@ -236,6 +236,21 @@ Nur in neu generierten Chunks. Zum Testen in ein unerkundetes Gebiet der Sift ge
 - [ ] `worldgen.ichor-lakes.enabled: false` bzw. `ichor-springs.enabled: false` und Neustart: In neuen Chunks
       entstehen keine Seen bzw. Quellen.
 
+## Ichor-Schnee und False Alarm (ab alpha.26)
+
+- [ ] In ein neues Ichor-Schneegipfel-Gebiet gehen:
+      `/execute in the_sift:the_sift positioned 90000 150 90000 run locate biome the_sift:ichor_snowy_peaks`,
+      dann den Teleport-Klick bzw. `/execute in the_sift:the_sift run tp @s <x> 200 <z>`.
+- [ ] Der Boden ist überall verschneit (meist 1 Schicht, stellenweise 2), Weidenkronen tragen Schnee,
+      Siftschiefer-Bewuchs unter dem Schnee sieht verschneit aus, keine kleinen Pflanzen unter dem Schnee.
+- [ ] Außerhalb der Ichor-Schneegipfel liegt kein generierter Schnee.
+- [ ] `/sift debug worldgen` → Zeile „Ichor-Schnee: … Schichten in … Chunks“.
+- [ ] False Alarm: `/sift give @s ichor_snowball 4`, einen Wärter herbeirufen (z. B. `/summon warden ~5 ~ ~`
+      in einer Testwelt) und einen Ichor-Schneeball in seine Nähe werfen (bis 16 Blöcke) → Advancement
+      „False Alarm“. Ein normaler Schneeball gibt es nicht.
+- [ ] `worldgen.ichor-snow.enabled: false` bzw. `ichor.false-alarm: false` + Neustart: kein Schnee bzw. kein
+      Advancement.
+
 ## Seelenschluchten (ab alpha.18, Phase 2 Schritt 6a)
 
 Neue Schluchten entstehen nur in **neu generierten** Chunks. Für schon generiertes Gelände gibt es

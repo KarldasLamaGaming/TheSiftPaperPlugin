@@ -271,6 +271,13 @@ Wie im Original 1.1.1 (Werte in `worldgen.ichor-lakes.*` und `worldgen.ichor-spr
   0,1 ms je Chunk für Quellen.
 - `/sift debug worldgen` zählt nicht gebaute Seen je Variante (SMALL … MEGA, CASCADE) mit Grund, dazu die Weideninseln.
 
+### Ichor-Schnee (ab alpha.26)
+
+`worldgen.ichor-snow.enabled` (Standard an), `willow-crowns`: In den Ichor-Schneegipfeln bekommt jede Spalte mit
+natürlichem Boden 1–2 Schichten Ichor-Schnee (Vanilla-Schnee). Kleine Pflanzen werden ersetzt, auch Weidenkronen
+werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug worldgen` zeigt die Schichten.
+`ichor.false-alarm` schaltet das Advancement „False Alarm“ (Ichor-Schneeball in 16 Blöcken eines Wärters).
+
 **Alte Chunks (#16):** Neue Weltgenerierungs-Features (Seen, Quellen, später Monolithen, Bögen …) entstehen nur
 in Chunks, die nach dem Update **neu generiert** werden. Schon erkundete Gebiete bekommen sie nicht.
 Vor dem Produktionsstart die Sift zurücksetzen (siehe TESTING.md → „Sift-Welt zurücksetzen“), danach nur

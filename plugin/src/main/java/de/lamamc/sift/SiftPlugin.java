@@ -382,6 +382,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             waters.listen(this);
             siftPopulator = new SiftPopulator(blocks, new PlantSupport(blockSettings, blocks), worldgen, templates, reservation,
                     landmarkLog, canyons, waters, getLogger());
+            siftPopulator.snow(new de.lamamc.sift.world.gen.IchorSnow(getConfig().getBoolean("worldgen.ichor-snow.enabled", true),
+                    getConfig().getBoolean("worldgen.ichor-snow.willow-crowns", true)));
             // worldgen threads record, the main thread writes into the world's persistent data
             getServer().getScheduler().runTaskTimer(this, () -> {
                 landmarkLog.save(world);

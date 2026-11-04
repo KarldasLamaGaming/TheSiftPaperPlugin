@@ -53,6 +53,7 @@ public final class SiftPopulator extends BlockPopulator {
     private final LandmarkLog log;
     private final SoulCanyons canyons;
     private final IchorWaters waters;
+    private IchorSnow snow;
 
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
                          PortalReservation reservation, LandmarkLog log, SoulCanyons canyons, IchorWaters waters, Logger logger) {
@@ -84,6 +85,15 @@ public final class SiftPopulator extends BlockPopulator {
 
     public LandmarkLog log() {
         return log;
+    }
+
+    /** Ichor snow on the ichor snowy peaks (alpha.26); null = off. */
+    public void snow(IchorSnow snow) {
+        this.snow = snow;
+    }
+
+    public IchorSnow snow() {
+        return snow;
     }
 
     public IchorWaters waters() {
@@ -169,6 +179,9 @@ public final class SiftPopulator extends BlockPopulator {
         if (settings.surfaceSculk() && anyBiome(region, chunkX, chunkZ, settings.sculkBiomes())
                 && sculk.place(region, seed, chunkX, chunkZ)) {
             stats.sculkChunks.incrementAndGet();
+        }
+        if (snow != null) {
+            snow.place(region, seed, chunkX, chunkZ); // top_layer_modification: last
         }
     }
 
