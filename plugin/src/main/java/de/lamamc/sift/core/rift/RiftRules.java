@@ -35,6 +35,11 @@ public final class RiftRules {
      * ground 1 to 3 blocks below the middle and both ends.
      */
     public static boolean fits(Space space, int x, int y, int z, boolean alongX) {
+        return fits(space, x, y, z, alongX, true);
+    }
+
+    /** As above; without {@code needGround} (admin rifts, alpha.23.1) only the open space counts. */
+    public static boolean fits(Space space, int x, int y, int z, boolean alongX, boolean needGround) {
         for (int i = -HALF_WIDTH; i <= HALF_WIDTH; i++) {
             int bx = alongX ? x + i : x;
             int bz = alongX ? z : z + i;
@@ -43,6 +48,9 @@ public final class RiftRules {
                     return false;
                 }
             }
+        }
+        if (!needGround) {
+            return true;
         }
         for (int i : new int[] {-HALF_WIDTH, 0, HALF_WIDTH}) {
             int bx = alongX ? x + i : x;
@@ -75,6 +83,28 @@ public final class RiftRules {
             for (int a = 0; a < n; a++) {
                 double angle = Math.PI * 2 * a / n;
                 out.add(new int[] {x + (int) Math.round(Math.cos(angle) * r), z + (int) Math.round(Math.sin(angle) * r)});
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Spots to try for an admin rift around a target block, nearest first: columns in square rings up to
+     * {@code radius}, and per column the heights target, +1, −1, +2, −2 … up to ±{@code dy}.
+     */
+    public static List<int[]> nearby(int x, int y, int z, int radius, int dy) {
+        List<int[]> out = new ArrayList<>();
+        for (int r = 0; r <= radius; r++) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+                        continue;
+                    }
+                    for (int k = 0; k <= 2 * dy; k++) {
+                        int off = (k + 1) / 2 * (k % 2 == 0 ? -1 : 1);
+                        out.add(new int[] {x + dx, y + off, z + dz});
+                    }
+                }
             }
         }
         return out;

@@ -38,9 +38,9 @@ final class RiftCommand {
             sender.sendMessage(Component.text("Nur für Spieler (Riss öffnet vor dir).", NamedTextColor.RED));
             return 0;
         }
-        RiftManager.Rift rift = rifts.openFor(player, player.getLocation().getBlock().getRelative(player.getFacing(), 3));
+        RiftManager.Rift rift = rifts.openFor(player, player.getLocation().getBlock().getRelative(player.getFacing(), 5));
         if (rift == null) {
-            sender.sendMessage(Component.text("Nicht genug Platz für den Riss (9 × 5 frei, Boden 1–3 darunter).", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Kein Platz für den Riss in der Nähe (9 × 5 Blöcke Luft, Suchradius rifts.admin.search-radius).", NamedTextColor.RED));
             return 0;
         }
         sender.sendMessage(Component.text("Riss #" + rift.id() + " geöffnet, führt " + (rift.intoSift() ? "in die Sift." : "hinaus."),
@@ -53,10 +53,9 @@ final class RiftCommand {
         var pos = ctx.getArgument("pos", io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver.class)
                 .resolve(ctx.getSource());
         Location at = ctx.getSource().getLocation();
-        RiftManager.Rift rift = rifts.open(at.getWorld(), pos.blockX(), pos.blockY(), pos.blockZ(), true,
-                !de.lamamc.sift.world.SiftWorlds.isSift(at.getWorld()), null, rifts.lifetime());
+        RiftManager.Rift rift = rifts.openNear(at.getWorld(), pos.blockX(), pos.blockY(), pos.blockZ(), true);
         if (rift == null) {
-            ctx.getSource().getSender().sendMessage(Component.text("Nicht genug Platz für den Riss (9 × 5 frei entlang X, Boden 1–3 darunter).", NamedTextColor.RED));
+            ctx.getSource().getSender().sendMessage(Component.text("Kein Platz für den Riss in der Nähe (9 × 5 Blöcke Luft, Suchradius rifts.admin.search-radius).", NamedTextColor.RED));
             return 0;
         }
         ctx.getSource().getSender().sendMessage(Component.text("Riss #" + rift.id() + " geöffnet, führt "
@@ -83,6 +82,9 @@ final class RiftCommand {
         CommandSender sender = ctx.getSource().getSender();
         var all = rifts.rifts();
         sender.sendMessage(Component.text(all.size() + " Risse offen", NamedTextColor.GOLD));
+        long[] n = rifts.naturalStats();
+        sender.sendMessage(Component.text("Natürliche Platzsuche seit Start: " + n[0] + " Suchen, " + n[1] + " geöffnet, "
+                + n[2] + " ohne Platz aufgegeben; " + n[3] + " Versuche in ungeladenen Chunks", NamedTextColor.GRAY));
         for (RiftManager.Rift rift : all) {
             Location l = rift.location();
             String where = l.getWorld().getKey() + " " + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ();

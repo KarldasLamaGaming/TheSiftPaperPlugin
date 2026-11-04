@@ -199,6 +199,11 @@ rifts:
   mob-avoidance: true
   # nach einer Reise wirkt kein Riss, bis man ihn verlassen hat und diese Zeit vorbei ist
   reentry-cooldown-ticks: 100
+  # Risse von Admins (/sift rift open, Item sift_rift): nächster Platz in diesem Umkreis (Blöcke, Höhe ±),
+  # nur 9 × 5 Blöcke Luft nötig, kein Boden (auch in hügeligem Gelände)
+  admin:
+    search-radius: 12
+    search-height: 6
   # Gegen-Riss am Respawnpunkt: vorhandenen in diesem Umkreis weiterverwenden, sonst in Ringen suchen
   counter:
     reuse-radius: 64

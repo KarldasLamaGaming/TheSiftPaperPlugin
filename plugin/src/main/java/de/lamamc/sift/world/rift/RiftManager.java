@@ -140,6 +140,10 @@ public final class RiftManager implements Listener {
     private final Map<UUID, Long> latched = new HashMap<>();
     private final Set<Long> activeLights = new HashSet<>();
     private int nextId = 1;
+    private long naturalSearches;
+    private long naturalOpened;
+    private long naturalFailed;
+    private long naturalUnloaded;
     private long tick;
 
     private final boolean natural;
@@ -163,6 +167,8 @@ public final class RiftManager implements Listener {
     private final int counterAngles;
     private final boolean spawnProtection;
     private final boolean claims;
+    private final int adminRadius;
+    private final int adminHeight;
 
     public RiftManager(Plugin plugin, de.lamamc.sift.block.CustomBlockRegistry blocks, Messages messages, SiftAdvancements advancements,
                        SiftGate gate, ConfigurationSection config) {
@@ -194,6 +200,8 @@ public final class RiftManager implements Listener {
         counterAngles = Math.max(1, c.getInt("counter.angles", 16));
         spawnProtection = c.getBoolean("counter.respect-spawn-protection", true);
         claims = c.getBoolean("counter.respect-claims", true);
+        adminRadius = Math.max(0, c.getInt("admin.search-radius", 12));
+        adminHeight = Math.max(0, c.getInt("admin.search-height", 6));
     }
 
     public void start() {
@@ -217,7 +225,12 @@ public final class RiftManager implements Listener {
 
     /** Opens a rift with its base at this block, or returns null if there is no room. */
     public Rift open(World world, int x, int y, int z, boolean alongX, boolean intoSift, Rift origin, long life) {
-        if (!RiftRules.fits(space(world), x, y, z, alongX) || !world.getNearbyEntities(
+        return open(world, x, y, z, alongX, intoSift, origin, life, false);
+    }
+
+    /** {@code relaxed} (admin): no ground needed and entities in the way do not matter. */
+    private Rift open(World world, int x, int y, int z, boolean alongX, boolean intoSift, Rift origin, long life, boolean relaxed) {
+        if (!RiftRules.fits(space(world), x, y, z, alongX, !relaxed) || !relaxed && !world.getNearbyEntities(
                 new Rift(0, world, x, y, z, alongX, intoSift, null, 0).box(), e -> !(e instanceof Display)).isEmpty()) {
             return null;
         }
@@ -235,7 +248,28 @@ public final class RiftManager implements Listener {
     public Rift openFor(Player player, Block base) {
         BlockFace facing = player.getFacing();
         boolean alongX = facing == BlockFace.NORTH || facing == BlockFace.SOUTH;
-        return open(base.getWorld(), base.getX(), base.getY(), base.getZ(), alongX, !SiftWorlds.isSift(base.getWorld()), null, lifetime);
+        return openNear(base.getWorld(), base.getX(), base.getY(), base.getZ(), alongX);
+    }
+
+    /**
+     * Admin rift (item and command, alpha.23.1): the nearest spot within rifts.admin.search-radius where 9 × 5
+     * blocks are open, without needing ground (hilly terrain). In the Sift it leads out, elsewhere in.
+     */
+    public Rift openNear(World world, int x, int y, int z, boolean alongX) {
+        for (int[] p : RiftRules.nearby(x, y, z, adminRadius, adminHeight)) {
+            for (boolean axis : new boolean[] {alongX, !alongX}) {
+                Rift rift = open(world, p[0], p[1], p[2], axis, !SiftWorlds.isSift(world), null, lifetime, true);
+                if (rift != null) {
+                    return rift;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Natural rifts: searches, opened, given up (no spot in all attempts), attempts on unloaded chunks. */
+    public long[] naturalStats() {
+        return new long[] {naturalSearches, naturalOpened, naturalFailed, naturalUnloaded};
     }
 
     public void close(Rift rift) {
@@ -465,18 +499,22 @@ public final class RiftManager implements Listener {
     }
 
     private Rift naturalNear(Player player) {
+        naturalSearches++;
         Location at = player.getLocation();
         for (int i = 0; i < attempts; i++) {
             int[] xz = RiftRules.around(at.getX(), at.getZ(), random.nextDouble() * Math.PI * 2,
                     minDistance + random.nextDouble() * (maxDistance - minDistance));
             if (!at.getWorld().isChunkLoaded(xz[0] >> 4, xz[1] >> 4)) {
+                naturalUnloaded++;
                 continue;
             }
             Rift rift = inColumn(at.getWorld(), xz[0], xz[1], random.nextBoolean(), false, null, lifetime);
             if (rift != null) {
+                naturalOpened++;
                 return rift;
             }
         }
+        naturalFailed++;
         return null;
     }
 
