@@ -69,6 +69,8 @@ public final class SiftiteKeeper implements Listener {
     private final boolean particles;
     private final Map<UUID, Session> sessions = new HashMap<>();
     private final Map<UUID, Long> startAt = new HashMap<>();
+    /** Saved during this death event: the list before, to undo if the death does not drop after all. */
+    private final Map<UUID, List<byte[]>> secured = new HashMap<>();
     private long tick;
 
     /** A delivery in progress: the mini rift and one flying display per pending entry already let out. */
@@ -151,9 +153,6 @@ public final class SiftiteKeeper implements Listener {
     /** Early, so grave or backpack plugins do not take the Siftite first. */
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
-        if (event.getKeepInventory()) {
-            return; // vanilla keeps everything
-        }
         Player player = event.getPlayer();
         List<ItemStack> taken = new ArrayList<>();
         for (ItemStack drop : event.getDrops()) {
@@ -161,7 +160,12 @@ public final class SiftiteKeeper implements Listener {
                 taken.add(drop);
             }
         }
-        if (taken.isEmpty()) {
+        // the event's flag, i.e. keep_inventory of the world the player died in (per world in 26.3)
+        if (!SiftiteRecovery.secure(event.getKeepInventory(), taken.size())) {
+            if (event.getKeepInventory() && hasSiftite(player)) {
+                logger.info("Siftite of " + player.getName() + " not saved: keep_inventory is on in " + player.getWorld().getName()
+                        + " (the inventory stays as it is)");
+            }
             return;
         }
         stop(player.getUniqueId()); // a delivery still running: its items are still in the list
@@ -182,6 +186,30 @@ public final class SiftiteKeeper implements Listener {
             return;
         }
         event.getDrops().removeAll(taken);
+        secured.put(player.getUniqueId(), old);
+    }
+
+    /**
+     * After all plugins: if one cancelled the death or switched keepInventory on after us, the player keeps
+     * the items in the inventory, so the saved copies are removed again (no duplicates).
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onDeathDone(PlayerDeathEvent event) {
+        List<byte[]> old = secured.remove(event.getPlayer().getUniqueId());
+        if (old != null && SiftiteRecovery.revert(event.getKeepInventory(), event.isCancelled())) {
+            save(event.getPlayer(), old);
+            logger.info("Siftite of " + event.getPlayer().getName() + " not kept on the side: the death was cancelled "
+                    + "or keepInventory was switched on by another plugin");
+        }
+    }
+
+    private boolean hasSiftite(Player player) {
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if (ids.contains(SiftItems.idOf(stack))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @EventHandler

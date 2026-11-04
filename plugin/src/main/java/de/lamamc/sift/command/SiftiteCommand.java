@@ -28,7 +28,7 @@ final class SiftiteCommand {
 
     LiteralArgumentBuilder<CommandSourceStack> node() {
         return Commands.literal("siftite")
-                .then(Commands.literal("list").then(playerArgument().executes(this::list)))
+                .then(Commands.literal("list").executes(this::listSelf).then(playerArgument().executes(this::list)))
                 .then(Commands.literal("restore").then(playerArgument().executes(this::restore)));
     }
 
@@ -39,9 +39,20 @@ final class SiftiteCommand {
         });
     }
 
+    /** Without a name: the sender (alpha.23.1). */
+    private int listSelf(CommandContext<CommandSourceStack> ctx) {
+        if (!(ctx.getSource().getSender() instanceof Player player)) {
+            ctx.getSource().getSender().sendMessage(Component.text("Von der Konsole: /sift siftite list <Spieler>", NamedTextColor.RED));
+            return 0;
+        }
+        return list(ctx.getSource().getSender(), player.getName());
+    }
+
     private int list(CommandContext<CommandSourceStack> ctx) {
-        CommandSender sender = ctx.getSource().getSender();
-        String name = StringArgumentType.getString(ctx, "player");
+        return list(ctx.getSource().getSender(), StringArgumentType.getString(ctx, "player"));
+    }
+
+    private int list(CommandSender sender, String name) {
         Player online = Bukkit.getPlayerExact(name);
         List<byte[]> pending;
         if (online != null) {
@@ -61,6 +72,12 @@ final class SiftiteCommand {
             String id = SiftItems.idOf(stack);
             sender.sendMessage(Component.text("- " + stack.getAmount() + " × " + (id == null ? stack.getType().getKey() : id), NamedTextColor.GRAY));
         }
+        // game rules are per world in 26.3: only worlds with keep_inventory false keep Siftite on the side
+        StringBuilder rules = new StringBuilder("keep_inventory je Welt (Tod in einer Welt mit true: Vanilla behält alles, nichts wird gesichert): ");
+        for (org.bukkit.World world : Bukkit.getWorlds()) {
+            rules.append(world.getKey().asString()).append('=').append(world.getGameRuleValue(org.bukkit.GameRules.KEEP_INVENTORY)).append("  ");
+        }
+        sender.sendMessage(Component.text(rules.toString().trim(), NamedTextColor.DARK_GRAY));
         return Command.SINGLE_SUCCESS;
     }
 

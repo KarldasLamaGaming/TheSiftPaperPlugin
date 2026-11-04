@@ -47,6 +47,23 @@ class RiftRulesTest {
     }
 
     @Test
+    void adminRiftsDoNotNeedGround() {
+        Flat flat = new Flat();
+        assertFalse(RiftRules.fits(flat, 0, 70, 0, true), "natural: floating");
+        assertTrue(RiftRules.fits(flat, 0, 70, 0, true, false), "admin: space is enough");
+        assertFalse(RiftRules.fits(flat, 0, 62, 0, true, false), "still not inside the ground");
+    }
+
+    @Test
+    void nearbySearchStartsAtTheTarget() {
+        List<int[]> spots = RiftRules.nearby(10, 64, 10, 2, 3);
+        assertArrayEquals(new int[] {10, 64, 10}, spots.getFirst());
+        assertArrayEquals(new int[] {10, 65, 10}, spots.get(1));
+        assertArrayEquals(new int[] {10, 63, 10}, spots.get(2));
+        assertEquals(25 * 7, spots.size(), "5 × 5 columns, 7 heights each");
+    }
+
+    @Test
     void ringSearchStartsAtTheAnchor() {
         List<int[]> cols = RiftRules.ringColumns(100, 200, 16, 48, 16, 16);
         assertArrayEquals(new int[] {100, 200}, cols.getFirst());

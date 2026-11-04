@@ -621,13 +621,19 @@ Wie im Original 1.1.1:
   - Bei vollem Inventar kreisen die Gegenstände, bis Platz ist (Hinweis in der Actionbar).
   - Rüstung wird nicht wieder angelegt.
 - **Advancement** „Keep Inventory“ bei der ersten Rückgabe.
+- **`keep_inventory` gilt in 26.3 je Welt:** `/gamerule keep_inventory …` ändert nur die Welt, in der der Befehl
+  läuft (von der Konsole: die Hauptwelt; für die Sift `/execute in the_sift:the_sift run gamerule …`).
+  Maßgeblich ist die Welt, in der der Spieler stirbt. Ist es dort `true`, behält Vanilla das ganze Inventar
+  und es wird nichts gesichert; es geht aber auch nichts verloren. `/sift siftite list` zeigt den Wert je Welt.
+- Bricht ein anderes Plugin den Tod ab oder schaltet `keepInventory` nachträglich ein, wird die Sicherung
+  wieder entfernt, damit nichts doppelt entsteht.
 
 Einstellungen: `siftite.keep-on-death.*` (`enabled`, `delay-ticks`, `emit-interval-ticks`, `open-ticks`,
 `particles`).
 
 | Befehl | Wirkung |
 |---|---|
-| `/sift siftite list <Spieler>` | Gesicherte Siftit-Stapel, die noch nicht zurück sind (auch für Offline-Spieler) |
+| `/sift siftite list [Spieler]` | Gesicherte Siftit-Stapel, die noch nicht zurück sind (auch für Offline-Spieler; ohne Namen: man selbst), dazu `keep_inventory` je Welt |
 | `/sift siftite restore <Spieler>` | Notausgang: alles Gesicherte sofort ins Inventar (Rest vor die Füße, nur für diesen Spieler aufhebbar), Sicherung geleert, laufende Lieferung beendet |
 
 ## Risse (ab alpha.22)
@@ -645,6 +651,7 @@ Wie im Original 1.1.1:
     Gefragt wird über ein Test-Ereignis, das Claim-Plugins wie GriefPrevention, WorldGuard oder Lands
     abbrechen.
   - Findet sich kein Platz, landet der Spieler am Respawnpunkt und bekommt einen Hinweis.
+  - Blätter, Weidenlaub und Pflanzen zählen nicht als Boden; Baumkronen werden übergangen (ab alpha.23.1).
 - **Alle Wesen reisen mit** (Spieler, Mobs, Items, nicht Zuschauer).
   - Mobs und Items, die hinausgehen, landen am Welt-Spawn ohne Gegen-Riss.
   - Nach einer Reise wirkt kein Riss, bis man ihn verlassen hat und `reentry-cooldown-ticks` (100) vorbei
@@ -667,9 +674,9 @@ Alles steht unter `rifts.*`; `rifts.enabled: false` schaltet Risse ganz ab.
 
 | Befehl | Wirkung |
 |---|---|
-| `/sift rift open [x y z]` | Riss 3 Blöcke vor dir öffnen (mit Position: dort, entlang X; auch von der Konsole mit `/execute in <welt> run …`) |
+| `/sift rift open [x y z]` | Riss 5 Blöcke vor dir öffnen (mit Position: dort; auch von der Konsole mit `/execute in <welt> run …`). Ab alpha.23.1 wird im Umkreis `rifts.admin.search-radius` (12, Höhe ±6) der nächste Platz mit 9 × 5 Blöcken Luft gesucht; Boden ist nicht nötig. Risse liegen nie in, auf oder unter einem anderen Riss |
 | `/sift rift close` | Nächsten offenen Riss in 32 Blöcken schließen |
-| `/sift rift list` | Alle offenen Risse mit Ziel und Teleport-Klick |
+| `/sift rift list` | Alle offenen Risse mit Ziel und Teleport-Klick; dazu Zähler der natürlichen Platzsuche (Suchen, geöffnet, aufgegeben, ungeladene Chunks) und Riss-Displays ohne Riss (werden alle 10 s entfernt) |
 
 ## Zugang zur Sift (ab alpha.20)
 

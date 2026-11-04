@@ -371,6 +371,12 @@ thesift.access.bypass false`, danach wieder entfernen).
 - [ ] `/sift siftite list <Spieler>` (online und offline) und `/sift siftite restore <Spieler>`: alles sofort
       im Inventar, die Liste ist leer, kein weiterer Mini-Riss.
 - [ ] Totem der Unsterblichkeit: kein Tod, nichts wird gesichert.
+- [ ] Hotfix alpha.23.1:
+  - `keep_inventory` gilt je Welt. In der Sift `/execute in the_sift:the_sift run gamerule keep_inventory true`,
+    dann `… false`, in der Sift sterben: Siftit wird gesichert.
+  - Mit `true` nur in der Hauptwelt und Tod in der Sift: wird ebenfalls gesichert.
+  - Mit `true` in der Sterbewelt: alles bleibt im Inventar, Log-Zeile „not saved: keep_inventory is on in …“.
+  - `/sift siftite list` ohne Namen zeigt die eigenen Stapel und `keep_inventory` je Welt.
 
 ## Risse (ab alpha.22)
 
@@ -391,6 +397,13 @@ Für schnelle Tests `rifts.natural.first-delay-ticks: 200` und `interval-ticks: 
 - [ ] `/sift rift open`, `close`, `list` (Teleport-Klick).
 - [ ] Schallplatte „Rift“ in eine leere Jukebox neben einem offenen Riss: Advancement „Rift Resonance“.
 - [ ] Serverstopp mit offenem Riss: Nach dem Start sind dort keine Lichtblöcke mehr.
+- [ ] Hotfix alpha.23.1:
+  - Durch einen natürlichen Riss gehen, dann `/sift rift close` und zweimal `/sift rift open`: keine
+    ConcurrentModificationException im Log.
+  - `/sift rift open` in hügeligem Gelände der Sift: Der Riss öffnet am nächsten freien Platz.
+  - Bett unter Bäumen: Der Gegen-Riss steht auf dem Boden, nicht über den Kronen.
+  - Zweimal `/sift rift open` an derselben Stelle: Der zweite Riss steht daneben, nie darüber.
+  - `/sift rift list` zeigt die Zähler; „Riss-Displays ohne Riss: jetzt 0“.
 
 ## Mobs: Blub (ab Phase 2)
 

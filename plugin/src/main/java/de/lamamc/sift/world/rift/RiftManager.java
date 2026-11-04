@@ -13,7 +13,6 @@ import de.lamamc.sift.world.portal.PortalService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -129,6 +128,7 @@ public final class RiftManager implements Listener {
     }
 
     private final Plugin plugin;
+    private final de.lamamc.sift.block.CustomBlockRegistry blocks;
     private final Messages messages;
     private final SiftAdvancements advancements;
     private final SiftGate gate;
@@ -140,6 +140,11 @@ public final class RiftManager implements Listener {
     private final Map<UUID, Long> latched = new HashMap<>();
     private final Set<Long> activeLights = new HashSet<>();
     private int nextId = 1;
+    private long naturalSearches;
+    private long naturalOpened;
+    private long naturalFailed;
+    private long naturalUnloaded;
+    private long orphansRemoved;
     private long tick;
 
     private final boolean natural;
@@ -163,9 +168,13 @@ public final class RiftManager implements Listener {
     private final int counterAngles;
     private final boolean spawnProtection;
     private final boolean claims;
+    private final int adminRadius;
+    private final int adminHeight;
 
-    public RiftManager(Plugin plugin, Messages messages, SiftAdvancements advancements, SiftGate gate, ConfigurationSection config) {
+    public RiftManager(Plugin plugin, de.lamamc.sift.block.CustomBlockRegistry blocks, Messages messages, SiftAdvancements advancements,
+                       SiftGate gate, ConfigurationSection config) {
         this.plugin = plugin;
+        this.blocks = blocks;
         this.messages = messages;
         this.advancements = advancements;
         this.gate = gate;
@@ -192,6 +201,8 @@ public final class RiftManager implements Listener {
         counterAngles = Math.max(1, c.getInt("counter.angles", 16));
         spawnProtection = c.getBoolean("counter.respect-spawn-protection", true);
         claims = c.getBoolean("counter.respect-claims", true);
+        adminRadius = Math.max(0, c.getInt("admin.search-radius", 12));
+        adminHeight = Math.max(0, c.getInt("admin.search-height", 6));
     }
 
     public void start() {
@@ -215,7 +226,18 @@ public final class RiftManager implements Listener {
 
     /** Opens a rift with its base at this block, or returns null if there is no room. */
     public Rift open(World world, int x, int y, int z, boolean alongX, boolean intoSift, Rift origin, long life) {
-        if (!RiftRules.fits(space(world), x, y, z, alongX) || !world.getNearbyEntities(
+        return open(world, x, y, z, alongX, intoSift, origin, life, false);
+    }
+
+    /** {@code relaxed} (admin): no ground needed and entities in the way do not matter. */
+    private Rift open(World world, int x, int y, int z, boolean alongX, boolean intoSift, Rift origin, long life, boolean relaxed) {
+        BoundingBox wanted = new Rift(0, world, x, y, z, alongX, intoSift, null, 0).box();
+        for (Rift other : rifts) {
+            if (other.world.equals(world) && other.box().expand(1, RiftRules.HEIGHT, 1).overlaps(wanted)) {
+                return null; // never a rift in, on top of or under another one (alpha.23.1)
+            }
+        }
+        if (!RiftRules.fits(space(world), x, y, z, alongX, !relaxed) || !relaxed && !world.getNearbyEntities(
                 new Rift(0, world, x, y, z, alongX, intoSift, null, 0).box(), e -> !(e instanceof Display)).isEmpty()) {
             return null;
         }
@@ -233,7 +255,53 @@ public final class RiftManager implements Listener {
     public Rift openFor(Player player, Block base) {
         BlockFace facing = player.getFacing();
         boolean alongX = facing == BlockFace.NORTH || facing == BlockFace.SOUTH;
-        return open(base.getWorld(), base.getX(), base.getY(), base.getZ(), alongX, !SiftWorlds.isSift(base.getWorld()), null, lifetime);
+        return openNear(base.getWorld(), base.getX(), base.getY(), base.getZ(), alongX);
+    }
+
+    /**
+     * Admin rift (item and command, alpha.23.1): the nearest spot within rifts.admin.search-radius where 9 × 5
+     * blocks are open, without needing ground (hilly terrain). In the Sift it leads out, elsewhere in.
+     */
+    public Rift openNear(World world, int x, int y, int z, boolean alongX) {
+        for (int[] p : RiftRules.nearby(x, y, z, adminRadius, adminHeight)) {
+            for (boolean axis : new boolean[] {alongX, !alongX}) {
+                Rift rift = open(world, p[0], p[1], p[2], axis, !SiftWorlds.isSift(world), null, lifetime, true);
+                if (rift != null) {
+                    return rift;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Rift displays in the loaded chunks that belong to no open rift (left over, e.g. after an error); with
+     * {@code remove} they are removed. Returns how many were found.
+     */
+    public int orphans(boolean remove) {
+        Set<UUID> live = new HashSet<>();
+        rifts.forEach(r -> {
+            if (r.display != null) {
+                live.add(r.display);
+            }
+        });
+        int found = 0;
+        for (World world : Bukkit.getWorlds()) {
+            for (ItemDisplay display : world.getEntitiesByClass(ItemDisplay.class)) {
+                if (display.getPersistentDataContainer().has(DISPLAY) && !live.contains(display.getUniqueId())) {
+                    found++;
+                    if (remove) {
+                        display.remove();
+                    }
+                }
+            }
+        }
+        return found;
+    }
+
+    /** Natural rifts: searches, opened, given up (no spot in all attempts), attempts on unloaded chunks; removed orphan displays. */
+    public long[] naturalStats() {
+        return new long[] {naturalSearches, naturalOpened, naturalFailed, naturalUnloaded, orphansRemoved};
     }
 
     public void close(Rift rift) {
@@ -384,50 +452,60 @@ public final class RiftManager implements Listener {
             naturalRifts(sift);
         }
         Set<UUID> touching = new HashSet<>();
-        for (Iterator<Rift> it = rifts.iterator(); it.hasNext(); ) {
-            Rift rift = it.next();
-            if (rift.closing()) {
-                if (tick - rift.closingSince > openTicks) {
-                    remove(rift);
-                    it.remove();
-                }
-                continue;
-            }
-            if (tick >= rift.expires - openTicks) {
-                close(rift);
-                continue;
-            }
-            if (!rift.world.isChunkLoaded(rift.x >> 4, rift.z >> 4)) {
-                continue;
-            }
-            if (display(rift) == null && tick % 20 == 0) {
-                spawnDisplay(rift); // the chunk was unloaded and the display with it
-            }
-            if (ambient && tick % 40 == 0) {
-                Location center = rift.location().add(0, 2, 0);
-                for (Player player : rift.world.getPlayers()) {
-                    if (player.getLocation().distanceSquared(center) <= 32 * 32) {
-                        player.playSound(center, Sound.BLOCK_BEACON_AMBIENT, SoundCategory.BLOCKS, 1.0f, 1.0f);
-                    }
-                }
-            }
-            if (mobAvoidance && tick % 20 == 0) {
-                keepMobsAway(rift);
-            }
-            for (Entity entity : rift.world.getNearbyEntities(rift.box())) {
-                if (!traveller(entity)) {
-                    continue;
-                }
-                touching.add(entity.getUniqueId());
-                Long until = latched.get(entity.getUniqueId());
-                if (until != null) {
-                    continue;
-                }
-                transfer(entity, rift);
+        if (tick % 200 == 0) {
+            int removed = orphans(true);
+            if (removed > 0) {
+                orphansRemoved += removed;
             }
         }
+        // a snapshot: travelling opens counter rifts, commands close rifts (alpha.23.1)
+        de.lamamc.sift.core.rift.RiftSweep.run(rifts, rift -> tickRift(rift, touching));
         // release entities that stopped touching rifts once their cooldown is over
         latched.entrySet().removeIf(e -> !touching.contains(e.getKey()) && e.getValue() <= tick);
+    }
+
+    /** One tick of one rift; false when it is gone. */
+    private boolean tickRift(Rift rift, Set<UUID> touching) {
+        if (rift.closing()) {
+            if (tick - rift.closingSince > openTicks) {
+                remove(rift);
+                return false;
+            }
+            return true;
+        }
+        if (tick >= rift.expires - openTicks) {
+            close(rift);
+            return true;
+        }
+        if (!rift.world.isChunkLoaded(rift.x >> 4, rift.z >> 4)) {
+            return true;
+        }
+        if (display(rift) == null && tick % 20 == 0) {
+            spawnDisplay(rift); // the chunk was unloaded and the display with it
+        }
+        if (ambient && tick % 40 == 0) {
+            Location center = rift.location().add(0, 2, 0);
+            for (Player player : rift.world.getPlayers()) {
+                if (player.getLocation().distanceSquared(center) <= 32 * 32) {
+                    player.playSound(center, Sound.BLOCK_BEACON_AMBIENT, SoundCategory.BLOCKS, 1.0f, 1.0f);
+                }
+            }
+        }
+        if (mobAvoidance && tick % 20 == 0) {
+            keepMobsAway(rift);
+        }
+        for (Entity entity : rift.world.getNearbyEntities(rift.box())) {
+            if (!traveller(entity)) {
+                continue;
+            }
+            touching.add(entity.getUniqueId());
+            Long until = latched.get(entity.getUniqueId());
+            if (until != null) {
+                continue;
+            }
+            transfer(entity, rift);
+        }
+        return true;
     }
 
     private static boolean traveller(Entity entity) {
@@ -459,24 +537,28 @@ public final class RiftManager implements Listener {
     }
 
     private Rift naturalNear(Player player) {
+        naturalSearches++;
         Location at = player.getLocation();
         for (int i = 0; i < attempts; i++) {
             int[] xz = RiftRules.around(at.getX(), at.getZ(), random.nextDouble() * Math.PI * 2,
                     minDistance + random.nextDouble() * (maxDistance - minDistance));
             if (!at.getWorld().isChunkLoaded(xz[0] >> 4, xz[1] >> 4)) {
+                naturalUnloaded++;
                 continue;
             }
             Rift rift = inColumn(at.getWorld(), xz[0], xz[1], random.nextBoolean(), false, null, lifetime);
             if (rift != null) {
+                naturalOpened++;
                 return rift;
             }
         }
+        naturalFailed++;
         return null;
     }
 
     /** Tries the surface of a column (rising up to 2 blocks, both axes). */
     private Rift inColumn(World world, int x, int z, boolean alongX, boolean intoSift, Rift origin, long life) {
-        int top = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING) + 1;
+        int top = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
         for (int rise = 0; rise <= 2; rise++) {
             for (boolean axis : new boolean[] {alongX, !alongX}) {
                 Rift rift = open(world, x, top + rise, z, axis, intoSift, origin, life);
@@ -486,6 +568,17 @@ public final class RiftManager implements Listener {
             }
         }
         return null;
+    }
+
+    /** Leaves and plants are no ground for a rift (alpha.23.1: a counter rift hung over tree tops). */
+    private boolean plantOrLeaves(Block block) {
+        Material type = block.getType();
+        if (Tag.LEAVES.isTagged(type) || type == Material.BAMBOO || type == Material.CACTUS || type == Material.CHORUS_PLANT
+                || type == Material.CHORUS_FLOWER || Tag.WART_BLOCKS.isTagged(type)) {
+            return true;
+        }
+        var custom = blocks == null ? null : blocks.at(block);
+        return custom != null && custom.id().equals("overgrown_willow_foliage");
     }
 
     private RiftRules.Space space(World world) {
@@ -503,7 +596,7 @@ public final class RiftManager implements Listener {
             @Override
             public boolean solid(int x, int y, int z) {
                 Block block = world.getBlockAt(x, y, z);
-                return block.getType().isSolid() && !block.isReplaceable();
+                return block.getType().isSolid() && !block.isReplaceable() && !plantOrLeaves(block);
             }
 
             @Override
@@ -628,7 +721,7 @@ public final class RiftManager implements Listener {
         }
         // no counter rift (or a mob or item): arrive at the anchor itself
         Location safe = anchor.clone();
-        safe.setY(main.getHighestBlockYAt(safe, HeightMap.MOTION_BLOCKING) + 1);
+        safe.setY(main.getHighestBlockYAt(safe, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1);
         return safe;
     }
 
@@ -645,7 +738,7 @@ public final class RiftManager implements Listener {
         if (!claims) {
             return true;
         }
-        int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING) + 1;
+        int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
         Block block = world.getBlockAt(x, y, z);
         BlockPlaceEvent probe = new BlockPlaceEvent(block, block.getState(), block.getRelative(BlockFace.DOWN),
                 ItemStack.of(Material.STONE), player, true, EquipmentSlot.HAND);
