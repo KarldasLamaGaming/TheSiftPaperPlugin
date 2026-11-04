@@ -371,6 +371,12 @@ thesift.access.bypass false`, danach wieder entfernen).
 - [ ] `/sift siftite list <Spieler>` (online und offline) und `/sift siftite restore <Spieler>`: alles sofort
       im Inventar, die Liste ist leer, kein weiterer Mini-Riss.
 - [ ] Totem der Unsterblichkeit: kein Tod, nichts wird gesichert.
+- [ ] Hotfix alpha.23.1:
+  - `keep_inventory` gilt je Welt. In der Sift `/execute in the_sift:the_sift run gamerule keep_inventory true`,
+    dann `… false`, in der Sift sterben: Siftit wird gesichert.
+  - Mit `true` nur in der Hauptwelt und Tod in der Sift: wird ebenfalls gesichert.
+  - Mit `true` in der Sterbewelt: alles bleibt im Inventar, Log-Zeile „not saved: keep_inventory is on in …“.
+  - `/sift siftite list` ohne Namen zeigt die eigenen Stapel und `keep_inventory` je Welt.
 
 ## Risse (ab alpha.22)
 

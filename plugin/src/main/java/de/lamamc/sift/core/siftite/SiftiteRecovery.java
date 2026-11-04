@@ -30,6 +30,23 @@ public final class SiftiteRecovery {
         return ids;
     }
 
+    /**
+     * Whether to save the Siftite of a death: only when vanilla really drops the inventory. The flag is the
+     * death event's keepInventory, which Paper takes from the game rule of the world the player died in
+     * (game rules are per world in 26.3).
+     */
+    public static boolean secure(boolean keepInventory, int siftiteStacks) {
+        return !keepInventory && siftiteStacks > 0;
+    }
+
+    /**
+     * After every plugin had its say: when the death was cancelled or keepInventory was switched on later,
+     * the player keeps the items, so the saved copies must go again (else they would exist twice).
+     */
+    public static boolean revert(boolean keepInventoryAtEnd, boolean cancelled) {
+        return keepInventoryAtEnd || cancelled;
+    }
+
     /** New pending list: what is still waiting, then this death's items (order of delivery). */
     public static <T> List<T> append(List<T> pending, List<T> taken) {
         List<T> out = new ArrayList<>(pending);

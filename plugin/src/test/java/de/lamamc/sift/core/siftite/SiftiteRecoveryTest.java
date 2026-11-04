@@ -16,6 +16,16 @@ class SiftiteRecoveryTest {
     }
 
     @Test
+    void keepInventoryOfTheDeathDecides() {
+        assertTrue(SiftiteRecovery.secure(false, 2), "keep_inventory false in the death world: saved");
+        assertFalse(SiftiteRecovery.secure(true, 2), "true: vanilla keeps the inventory, nothing to save");
+        assertFalse(SiftiteRecovery.secure(false, 0), "no Siftite");
+        assertTrue(SiftiteRecovery.revert(true, false), "another plugin switched keepInventory on: undo, no duplicate");
+        assertTrue(SiftiteRecovery.revert(false, true), "death cancelled: undo");
+        assertFalse(SiftiteRecovery.revert(false, false));
+    }
+
+    @Test
     void pendingListNeverLosesOrDoubles() {
         List<String> pending = SiftiteRecovery.append(List.of("sword"), List.of("helmet", "ingot x5"));
         assertEquals(List.of("sword", "helmet", "ingot x5"), pending, "older items first, then this death's");
