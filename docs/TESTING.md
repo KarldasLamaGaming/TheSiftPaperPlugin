@@ -251,6 +251,28 @@ Nur in neu generierten Chunks. Zum Testen in ein unerkundetes Gebiet der Sift ge
 - [ ] `worldgen.ichor-snow.enabled: false` bzw. `ichor.false-alarm: false` + Neustart: kein Schnee bzw. kein
       Advancement.
 
+## Monolithen und Bögen (ab alpha.27)
+
+Nur in **neu generierten** Chunks. Nur mit Spieler (Optik):
+- [ ] Neues Gelände erzeugen: weit hinaus teleportieren, z. B.
+      `/execute in the_sift:the_sift run tp @s 20000 200 20000`, ein paar Minuten herumfliegen (oder Chunky).
+- [ ] `/sift debug landmarks` → „Monolithen bekannt: … üppig, … kahl; Bögen: …“ mit den je drei nächsten.
+      Klick auf **[Teleport]** stellt dich auf die Spitze des Monolithen bzw. auf den Scheitel des Bogens.
+- [ ] **Üppiger Monolith:** schiefe Siftschiefer-Säule (Radius 5–7, 31–55 hoch), nach oben schmaler, drei
+      Terrassen-Wülste, unregelmäßiger Rand, am Fuß ein Wurzelwulst ins Gelände. Oben Siftschiefer-Bewuchs mit
+      Pflanzen. 1–3 kleinere Nebensäulen daneben, meist ebenfalls bewachsen.
+- [ ] **Kahler Monolith:** wie oben, aber schlanker (Radius 4–6, 24–44 hoch), oben nackter Siftschiefer, höchstens
+      eine Nebensäule.
+- [ ] **Bogen:** natürliche Brücke über eine Senke, 26–30 Blöcke zwischen den Füßen, aus Gesundem Sculk (mit
+      Streifen aus trockenem Sculk an der Unterseite) oder Siftschiefer; die Füße gehen weich ins Gelände über,
+      ein paar Einkerbungen, oben Pflanzen; auf Bewuchs-Boden ein Siftschiefer-Bogen mit bewachsener Oberseite.
+      Bögen sind selten, weil nur wenige Chunks eine passende Senke haben.
+- [ ] Kein Monolith und kein Bogen in 22 bzw. 23 Blöcken um das Haupt-Portal, keine Monolithen dicht
+      nebeneinander oder in Seen.
+- [ ] `/sift debug worldgen` → Zeile „Monolithen: … Bögen: …“ mit Gründen und Zeit je Kandidat.
+- [ ] Schalter: `worldgen.monoliths.enabled: false` (oder `lush.enabled` / `bare.enabled`) bzw.
+      `worldgen.arches.enabled: false`, Neustart, neues Gelände: keine neuen Monolithen bzw. Bögen.
+
 ## Seelenschluchten (ab alpha.18, Phase 2 Schritt 6a)
 
 Neue Schluchten entstehen nur in **neu generierten** Chunks. Für schon generiertes Gelände gibt es

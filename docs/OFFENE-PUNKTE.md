@@ -33,6 +33,9 @@ Stand: 31.10.2026 (nach alpha.10)
 
 - Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt
   fertig (alpha.14). Dunkler Schnüffler im PR, Spieltest siehe `docs/TESTING.md` → Mobs: Dunkler Schnüffler.
+- Phase 3: Ichor, Rifts, Siftit-Erhalt, Seen, Quellen, Kaskaden und Ichor-Schnee fertig (alpha.21–26).
+  Monolithen und Bögen im PR (alpha.27), Spieltest siehe `docs/TESTING.md` → Monolithen und Bögen.
+  Danach Sniffer-Höhlen (alpha.28).
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
 - Schritt 6b: Echo Golem (alpha.19, im PR), Spieltest siehe `docs/TESTING.md` → Mobs: Echo Golem. Danach ist
   Phase 2 vollständig.
