@@ -152,6 +152,7 @@ public final class SiftCommand {
                         .then(Commands.literal("menu").executes(this::debugMenu))
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
+                        .then(Commands.literal("ichor").executes(this::debugIchor))
                         .then(Commands.literal("canyon").then(Commands.literal("build").executes(this::debugCanyonBuild)))
                         .then(Commands.literal("golems").executes(ctx -> {
                             var sender = ctx.getSource().getSender();
@@ -416,6 +417,45 @@ public final class SiftCommand {
                         + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens",
                 s.canyons.get(), candidates, s.canyonRejects.isEmpty() ? "" : " (nicht gebaut: " + s.canyonRejects + ")",
                 candidates == 0 ? 0.0 : s.canyonNanos.get() / 1e6 / candidates, s.canyonMaxNanos.get() / 1e6));
+        if (populator.waters() != null) {
+            var w = populator.waters().stats();
+            long lakeCandidates = w.lakeCandidates.get();
+            long springChunks = w.springChunks.get();
+            sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                    "<gray>Ichor-Seen: <white>%d</white> von <white>%d</white> Kandidaten gebaut %s%s, Zeit je Kandidat "
+                            + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens; Quellen: <white>%d</white> "
+                            + "(<white>%.2f ms</white> je Chunk); Lichtblöcke <white>%d</white>, wieder entfernt <white>%d</white>",
+                    w.lakes.get(), lakeCandidates, w.lakeVariants, w.lakeRejects.isEmpty() ? "" : " (nicht gebaut: " + w.lakeRejects + ")",
+                    lakeCandidates == 0 ? 0.0 : w.lakeNanos.get() / 1e6 / lakeCandidates, w.lakeMaxNanos.get() / 1e6,
+                    w.springs.get(), springChunks == 0 ? 0.0 : w.springNanos.get() / 1e6 / springChunks,
+                    w.lights.get(), w.lightsRemoved.get()));
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** /sift debug ichor: the nearest generated ichor lakes and springs, with teleport (alpha.25). */
+    private int debugIchor(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        var populator = plugin.siftPopulator();
+        if (populator == null || populator.waters() == null) {
+            sender.sendRichMessage("<red>Die Sift-Weltgenerierung ist nicht aktiv.");
+            return 0;
+        }
+        var waters = populator.waters();
+        var at = ctx.getSource().getLocation();
+        boolean inSift = SiftWorlds.isSift(at.getWorld());
+        double x = inSift ? at.getX() : 0;
+        double z = inSift ? at.getZ() : 0;
+        sender.sendRichMessage("<gold>Ichor in der Sift: <white>" + waters.lakeCount() + "</white> Seen, <white>" + waters.springCount()
+                + "</white> Quellen bekannt (nur seit alpha.25 generierte Chunks), nächste " + (inSift ? "zu dir" : "zu 0/0") + ":");
+        for (boolean lakes : new boolean[] {true, false}) {
+            for (var p : waters.nearest(lakes, x, z, 5)) {
+                int distance = (int) Math.sqrt(p.horizontalDistanceSquared(x, z));
+                String tp = "/execute in the_sift:the_sift run tp @s " + p.x() + " " + (p.y() + (lakes ? 2 : 1)) + " " + p.z();
+                sender.sendRichMessage("<gray>" + (lakes ? "See" : "Quelle") + " bei <white>" + p.x() + " " + p.y() + " " + p.z()
+                        + "</white> (" + distance + " Blöcke) <click:run_command:'" + tp + "'><aqua>[Teleport]</aqua></click>");
+            }
+        }
         return Command.SINGLE_SUCCESS;
     }
 
