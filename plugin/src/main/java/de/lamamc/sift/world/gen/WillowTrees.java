@@ -47,7 +47,14 @@ final class WillowTrees {
         if (reservation.intersectsBuilt(rootX, rootZ, 12) || !isTreeGround(region, rootX, rootY - 1, rootZ)) {
             return false;
         }
-        boolean big = random.nextFloat() < bigChance;
+        return placeAt(region, random, rootX, rootY, rootZ, random.nextFloat() < bigChance);
+    }
+
+    /** A willow with its root at this block (also the willow island of an ichor lake, alpha.25.1). */
+    boolean placeAt(GenRegion region, Random random, int rootX, int rootY, int rootZ, boolean big) {
+        if (!isTreeGround(region, rootX, rootY - 1, rootZ)) {
+            return false;
+        }
         SiftTemplates.Template template = templates.get(big ? BIG : SMALL);
         if (template == null) {
             return false;

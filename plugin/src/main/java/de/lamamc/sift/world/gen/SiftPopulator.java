@@ -143,7 +143,8 @@ public final class SiftPopulator extends BlockPopulator {
         if (waters != null) {
             // original order: fluid springs (step 8), then surface lakes (step 9, before the trees)
             waters.springs(region, random, chunkX, chunkZ);
-            waters.lake(region, random, chunkX, chunkZ, biome, reservation);
+            waters.lake(region, random, chunkX, chunkZ, biome, reservation,
+                    (r, rand, x, y, z) -> !reservation.intersectsBuilt(x, z, 12) && willows.placeAt(r, rand, x, y, z, false));
         }
         if (settings.willowTrees()) {
             if (settings.denseWillowBiomes().contains(biome)) {
