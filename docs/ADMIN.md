@@ -245,6 +245,33 @@ Neustart nötig, gilt nur für neue Chunks):
 Weiden, Lotus, Sonnenstrahlpflanze usw. entstehen aus den Vorlagen und Werten des Originals; Abweichungen
 in `docs/ABWEICHUNGEN.md`.
 
+### Ichor-Seen und -Quellen (ab alpha.25)
+
+Wie im Original 1.1.1 (Werte in `worldgen.ichor-lakes.*` und `worldgen.ichor-springs.*`):
+- **Seen:** In 1 von 3 Chunks der Wald-, Gipfel- und Ödland-Biome (Lichtung und Hänge: 1 von 2) wird ein See
+  versucht, nicht im Tiefen Dunkel.
+  - Die Variante hängt vom Gelände ab: SMALL (Radius 4–7) bis MEGA (Radius 14–16).
+  - Es wird nur gebaut, wenn das Gelände flach genug ist, ein Strand passt und kein Ichor in 15–20 Blöcken liegt.
+  - Becken aus Sculk oder Siftschiefer, Ufer je Biom, Felsformationen in großen Seen, kleine Pflanzen am Ufer.
+- **Quellen:** 16 Versuche je Chunk zwischen y 15 und 110, mindestens 12 Blöcke unter der Oberfläche, nur in
+  einer Felswand mit genau einer Öffnung. Daraus fließt Ichor in Höhlen.
+- **Leuchten:** Wassergeloggte Lichtblöcke Stufe 12 (`light-spacing`, Standard jeder 3. Block der Oberfläche;
+  bei Quellen der Quellblock selbst).
+  - Nimmt ein Spieler das Ichor eines solchen Blocks mit dem Eimer oder saugt ein Schwamm es auf, wird der
+    Lichtblock zu Luft.
+  - Andere Lichtblöcke (Risse Stufe 15, Golems Stufe 14, eigene) werden nicht angefasst.
+- **Finden:** `/sift debug ichor` zeigt die nächsten Seen und Quellen mit Koordinaten und Teleport-Klick (in
+  der Sift: zu dir, sonst zu 0/0). `/sift debug worldgen` zeigt Zahlen, Gründe für nicht gebaute Seen und
+  die Generierungszeit.
+- **Zeitbudget** (Smoke-Test, 256 neue Chunks): im Mittel 1,0 ms je See-Kandidat (höchstens 18 ms) und
+  0,1 ms je Chunk für Quellen.
+- Kaskaden und Weideninseln des Originals folgen in einem eigenen PR.
+
+**Alte Chunks (#16):** Neue Weltgenerierungs-Features (Seen, Quellen, später Monolithen, Bögen …) entstehen nur
+in Chunks, die nach dem Update **neu generiert** werden. Schon erkundete Gebiete bekommen sie nicht.
+Vor dem Produktionsstart die Sift zurücksetzen (siehe TESTING.md → „Sift-Welt zurücksetzen“), danach nur
+noch neue Gebiete erkunden.
+
 ### Seelenschluchten
 
 `worldgen.soul-canyons` (Standard an, `[Start]`, nur neue Chunks): `cell-chunks` (12), `portal-clearance` (34),
@@ -755,6 +782,7 @@ Texte stehen in `messages.yml` unter `access.*`.
 | `/sift debug item <id>` | Komponenten eines Sift-Items anzeigen |
 | `/sift debug break <x> <y> <z> <werkzeug> [none\|silk\|fortune1-3] [anzahl]` | Abbauzeit, Drops und XP eines Sift-Blocks berechnen, mit Statistik über viele Abbauvorgänge |
 | `/sift debug find <id> [radius]` | Nächsten Sift-Block dieser Id suchen |
+| `/sift debug ichor` | Nächste Ichor-Seen und -Quellen mit Koordinaten und Teleport (ab alpha.25) |
 | `/sift debug worldgen` | Was die Weltgenerierung seit dem Start gesetzt hat (Weiden, Flecken, Sculk, verlassene Portale, Seelenschluchten mit Zeit je Kandidat) und warum Portale oder Schluchten ausfielen |
 | `/sift debug canyon build` | Seelenschlucht an der eigenen Position (oder bis 32 Blöcke daneben) in geladenem Gelände bauen und eintragen (nur Testserver) |
 | `/sift debug portals` | Alle protokollierten verlassenen Portale: gebaute mit Teleport, abgelehnte mit Grund |
