@@ -1,0 +1,21 @@
+{
+  "textures": {
+    "view": "the_sift:item/rift/into_sift",
+    "particle": "the_sift:item/rift/into_sift"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#view"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#view"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#view"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#view"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#view"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#view"}
+      }
+    }
+  ]
+}

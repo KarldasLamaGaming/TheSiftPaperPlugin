@@ -211,6 +211,20 @@ rifts:
     # nur, wo der Spieler bauen darf (Claim-Plugins wie GriefPrevention, WorldGuard, Lands werden gefragt)
     respect-claims: true
 
+siftite:
+  # Siftit-Erhalt beim Tod (ab alpha.23) wie im Original: Siftit-Gegenstände (Tag the_sift:siftite_items)
+  # werden beim Tod gesichert (nicht bei keepInventory) und kommen nach dem Respawn über einen Mini-Riss
+  # einzeln zurück. Notausgang: /sift siftite list|restore <Spieler>
+  keep-on-death:
+    enabled: true
+    # Wartezeit nach Respawn oder Login
+    delay-ticks: 40
+    # alle so viele Ticks fliegt ein weiterer Gegenstand aus dem Mini-Riss
+    emit-interval-ticks: 5
+    # Öffnen und Schließen des Mini-Risses
+    open-ticks: 12
+    particles: true
+
 access:
   # Ab wann die Sift betreten werden kann:
   #   always       = immer offen (Standard)

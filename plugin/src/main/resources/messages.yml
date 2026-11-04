@@ -42,3 +42,7 @@ access:
 rifts:
   no-space: "<red>Nicht genug Platz für den Riss"
   no-exit: "<red>Der Riss konnte in sinnvoller Entfernung nicht geöffnet werden, du landest am Spawnpunkt."
+
+# Siftit-Erhalt beim Tod (config siftite.keep-on-death.*)
+siftite:
+  inventory-full: "<yellow>Inventar voll: Deine Siftit-Gegenstände warten, bis Platz ist."
