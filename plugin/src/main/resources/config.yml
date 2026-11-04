@@ -173,6 +173,44 @@ ichor:
     radius: 16
     samples: 24
 
+rifts:
+  # Risse (ab alpha.22) wie im Original: Sie öffnen sich von selbst nahe Spielern in der Sift und führen
+  # hinaus zum Respawnpunkt; dort öffnet sich ein Gegen-Riss, der bis zum Schließen zurückführt.
+  # Risse in die Sift beachten die Zeitsperre (access.*). Offene Risse überstehen keinen Neustart.
+  enabled: true
+  natural:
+    enabled: true
+    # erster Riss nach dem Betreten, danach Abstand (+ Zufallsanteil), bei Fehlschlag neuer Versuch
+    first-delay-ticks: 5400
+    interval-ticks: 5400
+    interval-random-ticks: 1200
+    retry-ticks: 200
+    min-distance: 20
+    max-distance: 64
+    attempts: 48
+  lifetime-ticks: 6000
+  # Öffnen und Schließen (Animation)
+  open-ticks: 16
+  # 3 Lichtblöcke der Stufe 15 im Riss (nur in Luft, werden sicher wieder entfernt)
+  light: true
+  # Leuchtfeuer-Summen für Spieler in 32 Blöcken
+  ambient-sound: true
+  # Mobs meiden Risse (Pfade, die hineinführen, werden abgebrochen)
+  mob-avoidance: true
+  # nach einer Reise wirkt kein Riss, bis man ihn verlassen hat und diese Zeit vorbei ist
+  reentry-cooldown-ticks: 100
+  # Gegen-Riss am Respawnpunkt: vorhandenen in diesem Umkreis weiterverwenden, sonst in Ringen suchen
+  counter:
+    reuse-radius: 64
+    min-radius: 16
+    max-radius: 256
+    step: 16
+    angles: 16
+    # nicht im Spawn-Schutz (spawn-protection in server.properties)
+    respect-spawn-protection: true
+    # nur, wo der Spieler bauen darf (Claim-Plugins wie GriefPrevention, WorldGuard, Lands werden gefragt)
+    respect-claims: true
+
 access:
   # Ab wann die Sift betreten werden kann:
   #   always       = immer offen (Standard)

@@ -123,6 +123,7 @@ public final class SiftCommand {
                         .node().requires(SiftCommand::admin))
                 .then(mobCommand().spawnNode().requires(SiftCommand::admin))
                 .then(accessCommand().node().requires(SiftCommand::admin))
+                .then(new RiftCommand(plugin.rifts()).node().requires(source -> admin(source) && plugin.rifts() != null))
                 .then(accessCommand().openShortcut().requires(SiftCommand::admin))
                 .then(accessCommand().closeShortcut().requires(SiftCommand::admin))
                 .then(Commands.literal("debug").requires(SiftCommand::admin)

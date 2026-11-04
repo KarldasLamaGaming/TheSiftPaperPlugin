@@ -55,6 +55,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private final java.util.Map<String, de.lamamc.sift.world.portal.ShrinePopulator> shrines = new java.util.HashMap<>();
     private Messages messages;
     private de.lamamc.sift.world.access.SiftGate gate;
+    private SiftAdvancements advancements;
+    private de.lamamc.sift.world.rift.RiftManager rifts;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
@@ -94,8 +96,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new SiftFire(this, blocks, blockSettings), this);
         getServer().getPluginManager().registerEvents(new SiftFuel(blockSettings), this);
         getServer().getPluginManager().registerEvents(new LootNormalizer(items), this);
-        getServer().getPluginManager().registerEvents(new SiftAdvancements(blocks, recipes,
-                getConfig().getBoolean("recipes.discover-on-join", true), getLogger()), this);
+        advancements = new SiftAdvancements(blocks, recipes, getConfig().getBoolean("recipes.discover-on-join", true), getLogger());
+        getServer().getPluginManager().registerEvents(advancements, this);
         resourcePack = new ResourcePackService(this);
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
         getServer().getPluginManager().registerEvents(resourcePack, this);
@@ -143,6 +145,11 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                     this, items, blocks, getConfig().getConfigurationSection("ichor"));
             getServer().getPluginManager().registerEvents(ichor, this);
             ichor.start();
+        }
+        if (getConfig().getBoolean("rifts.enabled", true)) {
+            rifts = new de.lamamc.sift.world.rift.RiftManager(this, messages, advancements, gate, getConfig().getConfigurationSection("rifts"));
+            getServer().getPluginManager().registerEvents(rifts, this);
+            rifts.start();
         }
         if (getConfig().getBoolean("portals.ancient-city.enabled", true)) {
             de.lamamc.sift.world.portal.AncientCityPortals cities = new de.lamamc.sift.world.portal.AncientCityPortals(this, blocks,
@@ -384,6 +391,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
         }
+        if (rifts != null) {
+            rifts.removeAll();
+        }
         if (golemLight != null) {
             golemLight.removeAll(); // before the golems detach: no block changes are scheduled any more
         }
@@ -406,6 +416,11 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.world.portal.SonorousConsoles consoles() {
         return consoles;
+    }
+
+    /** Null when rifts.enabled is false. */
+    public de.lamamc.sift.world.rift.RiftManager rifts() {
+        return rifts;
     }
 
     public de.lamamc.sift.world.access.SiftGate gate() {
