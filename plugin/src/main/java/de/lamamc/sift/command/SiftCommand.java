@@ -417,6 +417,12 @@ public final class SiftCommand {
                         + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens",
                 s.canyons.get(), candidates, s.canyonRejects.isEmpty() ? "" : " (nicht gebaut: " + s.canyonRejects + ")",
                 candidates == 0 ? 0.0 : s.canyonNanos.get() / 1e6 / candidates, s.canyonMaxNanos.get() / 1e6));
+        if (populator.snow() != null) {
+            var snow = populator.snow();
+            sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                    "<gray>Ichor-Schnee: <white>%d</white> Schichten in <white>%d</white> Chunks, <white>%.2f ms</white> je Chunk",
+                    snow.layers.get(), snow.chunks.get(), s.chunks.get() == 0 ? 0.0 : snow.nanos.get() / 1e6 / s.chunks.get()));
+        }
         if (populator.waters() != null) {
             var w = populator.waters().stats();
             long lakeCandidates = w.lakeCandidates.get();

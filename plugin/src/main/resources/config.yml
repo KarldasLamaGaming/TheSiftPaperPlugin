@@ -126,6 +126,11 @@ worldgen:
     # Leuchten wie im Original: wassergeloggte Lichtblöcke Stufe 12 an der Oberfläche, je N Blöcke einer (0 = aus)
     light-spacing: 3
     shore-plants: true
+  # Ichor-Schnee (ab alpha.26, Original 1.1.1): in ichor_snowy_peaks 1–2 Schichten Schnee auf jedem natürlichen
+  # Boden (kleine Pflanzen werden ersetzt), auch auf Weidenkronen. Nur neue Chunks.
+  ichor-snow:
+    enabled: true
+    willow-crowns: true
   # Ichor-Quellen in Felswänden unter Tage (Original: 16 Versuche je Chunk, y 15–110, mindestens 12 unter der Oberfläche)
   ichor-springs:
     enabled: true
@@ -187,6 +192,8 @@ ichor:
   # Glasflasche an einer Ichor-Quelle oder einem Kessel in der Sift ergibt eine Ichor-Flasche;
   # eine Ichor-Flasche füllt einen Kessel um eine Stufe
   bottles: true
+  # Advancement „False Alarm“: ein geworfener Ichor-Schneeball trifft etwas in 16 Blöcken eines Wärters (ab alpha.26)
+  false-alarm: true
   # Nebel-Partikel (Staub in Ichorfarben) über Ichor-Quellen nahe Spielern
   mist:
     enabled: true
