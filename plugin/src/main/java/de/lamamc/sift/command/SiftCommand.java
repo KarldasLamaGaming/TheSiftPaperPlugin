@@ -417,6 +417,21 @@ public final class SiftCommand {
                         + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens",
                 s.canyons.get(), candidates, s.canyonRejects.isEmpty() ? "" : " (nicht gebaut: " + s.canyonRejects + ")",
                 candidates == 0 ? 0.0 : s.canyonNanos.get() / 1e6 / candidates, s.canyonMaxNanos.get() / 1e6));
+        if (populator.landforms() != null) {
+            var l = populator.landforms().stats();
+            long mc = l.monolithCandidates.get();
+            long ac = l.archCandidates.get();
+            sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                    "<gray>Monolithen: <white>%d</white> üppig + <white>%d</white> kahl (+ <white>%d</white> Nebensäulen) von "
+                            + "<white>%d</white> Kandidaten%s, Zeit je Kandidat <white>%.1f ms</white> im Mittel, <white>%.1f ms</white> "
+                            + "höchstens; Bögen: <white>%d</white> (davon <white>%d</white> Sculk) von <white>%d</white> Kandidaten%s, "
+                            + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens",
+                    l.lush.get(), l.bare.get(), l.satellites.get(), mc,
+                    l.monolithRejects.isEmpty() ? "" : " (nicht gebaut: " + l.monolithRejects + ")",
+                    mc == 0 ? 0.0 : l.monolithNanos.get() / 1e6 / mc, l.monolithMaxNanos.get() / 1e6,
+                    l.arches.get(), l.healthyArches.get(), ac, l.archRejects.isEmpty() ? "" : " (nicht gebaut: " + l.archRejects + ")",
+                    ac == 0 ? 0.0 : l.archNanos.get() / 1e6 / ac, l.archMaxNanos.get() / 1e6));
+        }
         if (populator.snow() != null) {
             var snow = populator.snow();
             sender.sendRichMessage(String.format(java.util.Locale.ROOT,
@@ -569,6 +584,26 @@ public final class SiftCommand {
             }
             if (plugin.canyonParticles() != null) {
                 sender.sendRichMessage("<gray>Seelen-Partikel: <white>" + plugin.canyonParticles().describe(from));
+            }
+        }
+        var landforms = plugin.siftPopulator() == null ? null : plugin.siftPopulator().landforms();
+        if (landforms != null) {
+            var from = ctx.getSource().getLocation();
+            double fromX = SiftWorlds.isSift(from.getWorld()) && center == null ? from.getX() : centerX;
+            double fromZ = SiftWorlds.isSift(from.getWorld()) && center == null ? from.getZ() : centerZ;
+            sender.sendRichMessage("<gray>Monolithen bekannt: <white>" + landforms.count(de.lamamc.sift.world.gen.Landforms.Kind.LUSH)
+                    + "</white> üppig, <white>" + landforms.count(de.lamamc.sift.world.gen.Landforms.Kind.BARE)
+                    + "</white> kahl; Bögen: <white>" + landforms.count(de.lamamc.sift.world.gen.Landforms.Kind.ARCH)
+                    + "</white> (nur seit alpha.27 generierte Chunks); Teleport auf die Spitze bzw. den Scheitel:");
+            for (boolean monoliths : new boolean[] {true, false}) {
+                for (var found : landforms.nearest(monoliths, fromX, fromZ, 3)) {
+                    var p = found.top();
+                    sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                            "  <gray>%s bei %d %d %d, %d Blöcke entfernt</gray> <click:run_command:'/execute in the_sift:the_sift run "
+                                    + "tp @s %d %d %d'><hover:show_text:'Teleport'><aqua>[Teleport]</aqua></hover></click>",
+                            found.kind().label, p.x(), p.y(), p.z(), Math.round(Math.sqrt(p.horizontalDistanceSquared(fromX, fromZ))),
+                            p.x(), p.y() + 1, p.z()));
+                }
             }
         }
         sender.sendRichMessage("<gray>Sculk-Regionen (Mitte, Durchmesser) in den 512er-Zellen um " + centerX + " " + centerZ + ":");

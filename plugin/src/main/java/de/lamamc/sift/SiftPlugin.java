@@ -384,11 +384,16 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                     landmarkLog, canyons, waters, getLogger());
             siftPopulator.snow(new de.lamamc.sift.world.gen.IchorSnow(getConfig().getBoolean("worldgen.ichor-snow.enabled", true),
                     getConfig().getBoolean("worldgen.ichor-snow.willow-crowns", true)));
+            de.lamamc.sift.world.gen.Landforms landforms = new de.lamamc.sift.world.gen.Landforms(
+                    de.lamamc.sift.world.gen.Landforms.Settings.load(getConfig().getConfigurationSection("worldgen")));
+            landforms.load(world);
+            siftPopulator.landforms(landforms);
             // worldgen threads record, the main thread writes into the world's persistent data
             getServer().getScheduler().runTaskTimer(this, () -> {
                 landmarkLog.save(world);
                 canyonLandmarks.save(world);
                 waters.save(world);
+                landforms.save(world);
             }, 100L, 100L);
             world.getPopulators().add(siftPopulator);
             getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
@@ -402,6 +407,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             siftPopulator.log().save(sift);
             canyonLandmarks.save(sift);
             siftPopulator.waters().save(sift);
+            siftPopulator.landforms().save(sift);
         }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
