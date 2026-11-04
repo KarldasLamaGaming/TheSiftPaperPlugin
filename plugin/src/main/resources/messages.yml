@@ -37,3 +37,8 @@ access:
   closing: "<red>Die Sift schließt in <seconds> Sekunden. <gray>Danach wirst du zurückgeschickt."
   countdown: "<red>Die Sift schließt in <seconds> s"
   sent-back: "<gray>Die Sift ist geschlossen, du wurdest zurückgeschickt."
+
+# Risse (config rifts.*)
+rifts:
+  no-space: "<red>Nicht genug Platz für den Riss"
+  no-exit: "<red>Der Riss konnte in sinnvoller Entfernung nicht geöffnet werden, du landest am Spawnpunkt."
