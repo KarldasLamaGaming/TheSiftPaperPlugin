@@ -10,7 +10,7 @@ Stand: 31.10.2026 (nach alpha.10)
 | Issue | Punkt | Stand |
 |---|---|---|
 | [#11](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/11) | Weidenlaub: Härte 0,7 (config) vs. 0,2 (Plan) | Original geprüft: 0,7 ist richtig; Spieltest offen, dann schließen |
-| [#16](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/16) | Alte Chunks (alpha.2–4): keine Bäume, Lotus-Reste | Testserver-Sift zurücksetzen; Produktion startet frisch |
+| [#16](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/16) | Alte Chunks (alpha.2–4): keine Bäume, Lotus-Reste | Nur Doku (ADMIN „Alte Chunks“, seit alpha.25): Sift vor dem Produktionsstart zurücksetzen |
 
 ## Tests (`test`)
 
@@ -28,6 +28,12 @@ Stand: 31.10.2026 (nach alpha.10)
 |---|---|---|
 | [#15](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/15) | Verlassene Portale: `chance` 0,25 mit Phase 3 auf 1,0 | wartet auf Phase 3 |
 | [#17](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/17) | Phase 2 (Mobs) und Phase 3 (Ichor, Himmel, Monolithen, Bögen, Seelenschluchten, Sniffer-Höhlen) | nach Phase 1 |
+
+## Phase 3, offen
+
+| Punkt | Stand |
+|---|---|
+| Ichor-Kaskaden (zwei Seen mit Wasserfall an Steilhängen) und Weideninseln in großen überwucherten Seen | Folge-PR nach alpha.25 |
 
 ## Nächster Schritt
 

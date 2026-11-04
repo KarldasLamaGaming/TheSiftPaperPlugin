@@ -214,6 +214,24 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Ofen: Weidenstamm, -holz, -bretter (je 1,5 Items) und -setzling (0,5) per Klick und Shift-Klick in den
       Brennstoff-Slot; der Ofen brennt. Weidenlaub geht nicht hinein.
 
+## Ichor-Seen und -Quellen (ab alpha.25)
+
+Nur in neu generierten Chunks. Zum Testen in ein unerkundetes Gebiet der Sift gehen, z. B.
+`/execute in the_sift:the_sift run tp @s 20000 150 20000`, und ein paar hundert Blöcke herumfliegen.
+- [ ] `/sift debug ichor`: Es werden Seen und Quellen mit Koordinaten gelistet; [Teleport] klicken.
+- [ ] See ansehen:
+  - Ufer flach und zum Wasser hin abfallend; Becken aus Sculk oder Siftschiefer.
+  - Kleine Pflanzen am Ufer; bei großen Seen Felsen im Wasser.
+  - Ichor-Farbe.
+- [ ] Nachts leuchtet der See (Lichtniveau mit F3 an der Oberfläche etwa 12). Im Ichor schwimmen gibt
+      Regeneration (alpha.21).
+- [ ] Eimer an einem leuchtenden Block der Oberfläche (F3 zeigt `light` im Ziel): Danach ist dort Luft, kein
+      unsichtbarer Lichtblock mehr. Dasselbe mit einem Schwamm am Ufer.
+- [ ] Quelle über `/sift debug ichor` [Teleport] ansteuern: Ichor fließt aus einer Felswand, die Quelle leuchtet.
+- [ ] `/sift debug worldgen`: Zeile „Ichor-Seen … Zeit je Kandidat“ (im Mittel wenige Millisekunden).
+- [ ] `worldgen.ichor-lakes.enabled: false` bzw. `ichor-springs.enabled: false` und Neustart: In neuen Chunks
+      entstehen keine Seen bzw. Quellen.
+
 ## Seelenschluchten (ab alpha.18, Phase 2 Schritt 6a)
 
 Neue Schluchten entstehen nur in **neu generierten** Chunks. Für schon generiertes Gelände gibt es

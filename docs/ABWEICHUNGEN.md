@@ -107,8 +107,22 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.
 - Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
-- Monolithen, Bögen, Schnüffler-Höhlen, Ichor-Seen und -Quellen, Lavaböden und Ichorschnee kommen mit
-  Phase 3.
+- Monolithen, Bögen, Schnüffler-Höhlen, Lavaböden und Ichorschnee kommen mit Phase 3.
+- **Ichor-Seen und -Quellen (seit alpha.25)** baut das Plugin beim Generieren statt der Datapack-Features.
+  Übernommen aus dem Original 1.1.1:
+  - Häufigkeit (1/3, Lichtungen 1/2), die Varianten SMALL bis MEGA nach dem Gelände, Strand und Uferglättung,
+    Becken- und Uferblöcke, Felsformationen in großen Seen;
+  - die Quellen (16 Versuche je Chunk, Felswand mit genau einer Öffnung).
+
+  Unterschiede:
+  - Noch nicht dabei: **Kaskaden** (zwei Seen mit Wasserfall an Steilhängen) und **Weideninseln** in großen
+    überwucherten Seen. In steilem Gelände entsteht bis dahin kein See, wo das Original eine Kaskade baut.
+  - Am Ufer wachsen kleine Pflanzen wie im Original, die Blumengruppen fehlen.
+  - Ichor ist Wasser; das Leuchten (Stufe 12) kommt von wassergeloggten Lichtblöcken an der Oberfläche
+    (jeder dritte Block) und in jeder Quelle. Wird ihr Ichor mit Eimer oder Schwamm entfernt, verschwindet
+    auch das Licht.
+  - Vergleich, gleicher Seed und dieselben 166 Chunks: Original 1 See (69 Spalten), Plugin 1 See (125 Spalten).
+    Größe und Form unterscheiden sich, weil der Zufall nicht derselbe ist.
 - **Seelenschluchten (seit alpha.18)** baut das Plugin beim Generieren statt des Datapack-Features (Form,
   Rampe, Seelen-Adern und Markierungen wie im Original 1.1.1, gleiche Zellen und gleiches Salz). Unterschiede:
   - Der Zufall kommt vom Plugin, also andere Form und Richtung als im Original an derselben Stelle.
