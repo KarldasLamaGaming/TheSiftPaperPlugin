@@ -128,6 +128,7 @@ public final class RiftManager implements Listener {
     }
 
     private final Plugin plugin;
+    private final de.lamamc.sift.block.CustomBlockRegistry blocks;
     private final Messages messages;
     private final SiftAdvancements advancements;
     private final SiftGate gate;
@@ -163,8 +164,10 @@ public final class RiftManager implements Listener {
     private final boolean spawnProtection;
     private final boolean claims;
 
-    public RiftManager(Plugin plugin, Messages messages, SiftAdvancements advancements, SiftGate gate, ConfigurationSection config) {
+    public RiftManager(Plugin plugin, de.lamamc.sift.block.CustomBlockRegistry blocks, Messages messages, SiftAdvancements advancements,
+                       SiftGate gate, ConfigurationSection config) {
         this.plugin = plugin;
+        this.blocks = blocks;
         this.messages = messages;
         this.advancements = advancements;
         this.gate = gate;
@@ -479,7 +482,7 @@ public final class RiftManager implements Listener {
 
     /** Tries the surface of a column (rising up to 2 blocks, both axes). */
     private Rift inColumn(World world, int x, int z, boolean alongX, boolean intoSift, Rift origin, long life) {
-        int top = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING) + 1;
+        int top = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
         for (int rise = 0; rise <= 2; rise++) {
             for (boolean axis : new boolean[] {alongX, !alongX}) {
                 Rift rift = open(world, x, top + rise, z, axis, intoSift, origin, life);
@@ -489,6 +492,17 @@ public final class RiftManager implements Listener {
             }
         }
         return null;
+    }
+
+    /** Leaves and plants are no ground for a rift (alpha.23.1: a counter rift hung over tree tops). */
+    private boolean plantOrLeaves(Block block) {
+        Material type = block.getType();
+        if (Tag.LEAVES.isTagged(type) || type == Material.BAMBOO || type == Material.CACTUS || type == Material.CHORUS_PLANT
+                || type == Material.CHORUS_FLOWER || Tag.WART_BLOCKS.isTagged(type)) {
+            return true;
+        }
+        var custom = blocks == null ? null : blocks.at(block);
+        return custom != null && custom.id().equals("overgrown_willow_foliage");
     }
 
     private RiftRules.Space space(World world) {
@@ -506,7 +520,7 @@ public final class RiftManager implements Listener {
             @Override
             public boolean solid(int x, int y, int z) {
                 Block block = world.getBlockAt(x, y, z);
-                return block.getType().isSolid() && !block.isReplaceable();
+                return block.getType().isSolid() && !block.isReplaceable() && !plantOrLeaves(block);
             }
 
             @Override
@@ -631,7 +645,7 @@ public final class RiftManager implements Listener {
         }
         // no counter rift (or a mob or item): arrive at the anchor itself
         Location safe = anchor.clone();
-        safe.setY(main.getHighestBlockYAt(safe, HeightMap.MOTION_BLOCKING) + 1);
+        safe.setY(main.getHighestBlockYAt(safe, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1);
         return safe;
     }
 
@@ -648,7 +662,7 @@ public final class RiftManager implements Listener {
         if (!claims) {
             return true;
         }
-        int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING) + 1;
+        int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
         Block block = world.getBlockAt(x, y, z);
         BlockPlaceEvent probe = new BlockPlaceEvent(block, block.getState(), block.getRelative(BlockFace.DOWN),
                 ItemStack.of(Material.STONE), player, true, EquipmentSlot.HAND);

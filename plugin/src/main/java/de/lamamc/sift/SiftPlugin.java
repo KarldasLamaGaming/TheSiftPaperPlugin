@@ -148,7 +148,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             ichor.start();
         }
         if (getConfig().getBoolean("rifts.enabled", true)) {
-            rifts = new de.lamamc.sift.world.rift.RiftManager(this, messages, advancements, gate, getConfig().getConfigurationSection("rifts"));
+            rifts = new de.lamamc.sift.world.rift.RiftManager(this, blocks, messages, advancements, gate, getConfig().getConfigurationSection("rifts"));
             getServer().getPluginManager().registerEvents(rifts, this);
             rifts.start();
         }
