@@ -355,6 +355,23 @@ thesift.access.bypass false`, danach wieder entfernen).
       öffnet die Sift mit Ankündigung.
 - [ ] `access.mode: manual`: zu, bis `/sift open`.
 
+## Siftit-Erhalt beim Tod (ab alpha.23)
+
+- [ ] Mit Siftit-Schwert, -Helm, 5 Barren und anderen Gegenständen sterben: Nur die anderen fallen; nach dem
+      Respawn öffnet sich nach 2 s ein Mini-Riss, die Siftit-Gegenstände fliegen einzeln zu dir (Partikel),
+      danach schließt er sich. Advancement „Keep Inventory“. Der Helm liegt im Inventar, nicht auf dem Kopf.
+- [ ] Inventar voll beim Respawn: Die Gegenstände kreisen, Hinweis in der Actionbar; Platz schaffen → sie
+      kommen.
+- [ ] Während des Flugs ausloggen und wieder einloggen: Der Rest kommt erneut, nichts doppelt
+      (`/sift siftite list <Spieler>` vorher und nachher vergleichen).
+- [ ] Während des Flugs Server stoppen und starten: wie oben.
+- [ ] Zweimal sterben, bevor alles zurück ist: alle Gegenstände beider Tode kommen zurück.
+- [ ] `/gamerule keep_inventory true`: Vanilla behält alles, kein Mini-Riss.
+- [ ] Mit einem Grab-Plugin (falls auf dem Server): Siftit landet nicht im Grab, sondern kommt zurück.
+- [ ] `/sift siftite list <Spieler>` (online und offline) und `/sift siftite restore <Spieler>`: alles sofort
+      im Inventar, die Liste ist leer, kein weiterer Mini-Riss.
+- [ ] Totem der Unsterblichkeit: kein Tod, nichts wird gesichert.
+
 ## Risse (ab alpha.22)
 
 Für schnelle Tests `rifts.natural.first-delay-ticks: 200` und `interval-ticks: 400` setzen, danach zurück.

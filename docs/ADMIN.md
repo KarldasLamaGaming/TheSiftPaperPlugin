@@ -224,7 +224,7 @@ ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-It
   ersetzt die Sift-Items beim Erzeugen der Beute durch die echten Items.
 - Die 22 Advancements des Originals sind im Datapack. Automatisch: Sift betreten, Biome erkunden, Siftit-
   Rüstung, Sculkblumensamen, antike Stätte. Vom Plugin vergeben: Charoiterz und Siftiterz abbauen, Holz in
-  der Sift anzünden. Die übrigen (Mobs, Riss, Ichor, Charoit-Verzaubern, Siftit-Erhalt) kommen mit ihren
+  der Sift anzünden. Die übrigen (Mobs, Riss, Ichor, Charoit-Verzaubern; Siftit-Erhalt seit alpha.23) kommen mit ihren
   Funktionen.
 
 ## Weltgenerierung
@@ -605,6 +605,31 @@ Junge Sniffer, die in der Sift in oder direkt über Ichor erscheinen, werden ver
 Außerhalb der Sift ist Ichor gewöhnliches Wasser: Ein Ichoreimer setzt dort Wasser, ein Kessel bleibt ein
 Wasserkessel.
 
+## Siftit-Erhalt beim Tod (ab alpha.23)
+
+Wie im Original 1.1.1:
+- **Beim Tod** (nicht bei `keepInventory`) werden alle Siftit-Gegenstände (Tag `the_sift:siftite_items`:
+  Erz, Klumpen, Barren, Vorlage, Werkzeuge, Speer, Rüstung) gesichert.
+  - Ort: in den Spielerdaten (`the_sift:siftite_pending`).
+  - Erst wenn die Sicherung zurückgelesen vollständig ist, werden sie aus den Drops genommen.
+  - Das Plugin greift früh ein (Priorität LOW), damit Grab- oder Rucksack-Plugins sie nicht vorher nehmen.
+- **Rückgabe:** 2 s nach Respawn oder Login öffnet sich neben dem Spieler ein Mini-Riss. Alle 5 Ticks fliegt
+  ein Gegenstand heraus, der Reihe nach zum Spieler, mit `END_ROD`-Partikeln.
+  - Ein Gegenstand verlässt die Sicherung erst im selben Moment, in dem er im Inventar landet. Bei Logout,
+    Neustart oder Absturz während der Lieferung geht nichts verloren und nichts wird doppelt: Nach dem
+    nächsten Login geht es weiter.
+  - Bei vollem Inventar kreisen die Gegenstände, bis Platz ist (Hinweis in der Actionbar).
+  - Rüstung wird nicht wieder angelegt.
+- **Advancement** „Keep Inventory“ bei der ersten Rückgabe.
+
+Einstellungen: `siftite.keep-on-death.*` (`enabled`, `delay-ticks`, `emit-interval-ticks`, `open-ticks`,
+`particles`).
+
+| Befehl | Wirkung |
+|---|---|
+| `/sift siftite list <Spieler>` | Gesicherte Siftit-Stapel, die noch nicht zurück sind (auch für Offline-Spieler) |
+| `/sift siftite restore <Spieler>` | Notausgang: alles Gesicherte sofort ins Inventar (Rest vor die Füße, nur für diesen Spieler aufhebbar), Sicherung geleert, laufende Lieferung beendet |
+
 ## Risse (ab alpha.22)
 
 Wie im Original 1.1.1:
@@ -712,6 +737,7 @@ Texte stehen in `messages.yml` unter `access.*`.
 | `/sift give <spieler> <id> [anzahl]` | Sift-Block oder -Item geben (auch mit `thesift.admin.items`) |
 | `/sift pack info`, `reload`, `send <spieler>` | Resource Pack anzeigen, neu laden, erneut senden |
 | `/sift rift open\|close\|list` | Risse (siehe „Risse“) |
+| `/sift siftite list\|restore <Spieler>` | Siftit-Erhalt (siehe „Siftit-Erhalt beim Tod“) |
 | `/sift access …`, `/sift open`, `/sift close` | Zugang zur Sift (siehe „Zugang zur Sift“) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
