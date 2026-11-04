@@ -57,6 +57,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.world.access.SiftGate gate;
     private SiftAdvancements advancements;
     private de.lamamc.sift.world.rift.RiftManager rifts;
+    private de.lamamc.sift.world.siftite.SiftiteKeeper siftiteKeeper;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
@@ -150,6 +151,12 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             rifts = new de.lamamc.sift.world.rift.RiftManager(this, messages, advancements, gate, getConfig().getConfigurationSection("rifts"));
             getServer().getPluginManager().registerEvents(rifts, this);
             rifts.start();
+        }
+        if (getConfig().getBoolean("siftite.keep-on-death.enabled", true)) {
+            siftiteKeeper = new de.lamamc.sift.world.siftite.SiftiteKeeper(this, messages, advancements,
+                    getConfig().getConfigurationSection("siftite.keep-on-death"));
+            getServer().getPluginManager().registerEvents(siftiteKeeper, this);
+            siftiteKeeper.start();
         }
         if (getConfig().getBoolean("portals.ancient-city.enabled", true)) {
             de.lamamc.sift.world.portal.AncientCityPortals cities = new de.lamamc.sift.world.portal.AncientCityPortals(this, blocks,
@@ -394,6 +401,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         if (rifts != null) {
             rifts.removeAll();
         }
+        if (siftiteKeeper != null) {
+            siftiteKeeper.stopAll(); // the saved lists stay in the player data
+        }
         if (golemLight != null) {
             golemLight.removeAll(); // before the golems detach: no block changes are scheduled any more
         }
@@ -416,6 +426,11 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.world.portal.SonorousConsoles consoles() {
         return consoles;
+    }
+
+    /** Null when siftite.keep-on-death.enabled is false. */
+    public de.lamamc.sift.world.siftite.SiftiteKeeper siftiteKeeper() {
+        return siftiteKeeper;
     }
 
     /** Null when rifts.enabled is false. */

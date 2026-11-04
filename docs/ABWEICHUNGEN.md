@@ -179,6 +179,15 @@ wird nachgebildet:
   - Tropfstein füllt den Kessel nur wie bei Vanilla (nicht aus 13 Blöcken Höhe).
 - Außerhalb der Sift ist Ichor Wasser (Ichoreimer setzt Wasser).
 
+## Siftit-Erhalt beim Tod (seit alpha.23)
+
+Ablauf, Zeiten und Flugbahn wie im Original 1.1.1. Unterschiede:
+- **Aussehen:** Der Mini-Riss ist ein leuchtender Würfel (Display mit der Sift-Vorschau-Textur). Die
+  zurückfliegenden Gegenstände sind Item-Displays.
+- **Fluch des Verschwindens:** Im Original bleiben auch solche Siftit-Gegenstände erhalten. Hier entfernt
+  Paper sie vor dem Ereignis aus den Drops; sie bleiben verloren.
+- **Neu:** `/sift siftite list|restore` als Notausgang für Admins.
+
 ## Risse (seit alpha.22)
 
 Verhalten, Zeiten, Abstände, Licht und Klänge wie im Original 1.1.1. Unterschiede:
