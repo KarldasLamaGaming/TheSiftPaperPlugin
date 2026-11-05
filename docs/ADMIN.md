@@ -292,6 +292,16 @@ werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug w
 - **Zeitbudget** (Smoke-Test, 256 neue Chunks): 2,1 ms je Monolith-Kandidat im Mittel (höchstens 28 ms),
   0,3 ms je Bogen-Kandidat (höchstens 30 ms), zusammen etwa 0,7 ms je Chunk.
 
+### Sculk-Spitzen, Bewuchs-Aufräumen, Lavaboden (ab alpha.30)
+
+- `worldgen.dry-sculk-spikes.enabled`, `overgrown`/`wastes` je mit `rarity` und `biomes` (Original 1/21 bzw.
+  1/16), `portal-clearance` (18), `reserve-radius` (18). `/sift debug landmarks` zeigt die drei nächsten mit
+  Teleport (Welt-PDC `the_sift:dry_sculk_spikes`).
+- `worldgen.covered-growth-cleanup.enabled`: in jedem neuen Chunk zuletzt, 56 Blöcke unter der Oberfläche bis zu
+  ihr: bedeckter Bewuchs wird kahl, Pflanzen über Ichor werden entfernt.
+- `worldgen.lava-floor.enabled`, `max-y` (11): Luft bis zu dieser Höhe wird Lava.
+- `/sift debug worldgen` zählt Spitzen (mit Gründen und Zeit) sowie aufgeräumte Blöcke und Lava.
+
 ### Himmel und Atmosphäre (ab alpha.29)
 
 - `atmosphere.clouds` (Standard `false`): Wolken in der Sift. Beim Start setzt das Plugin im installierten
