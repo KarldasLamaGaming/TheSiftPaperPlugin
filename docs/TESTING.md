@@ -290,6 +290,23 @@ Nur in **neu generierten** Chunks. Nur mit Spieler:
       `worldgen.lava-floor.enabled` je auf `false`, Neustart, neues Gelände: keine Spitzen / kein Aufräumen /
       keine Lava (Hohlräume unter y 11 bleiben leer).
 
+## Wetter und Ichor-Schneefall (ab alpha.32)
+
+Nur mit Spieler (Niederschlag bildet nur in Chunks bei Spielern Schnee):
+- [ ] Eigenes Wetter: in der Hauptwelt `/weather clear`, dann `/sift tp` und `/weather rain` in der Sift.
+      `/sift debug weather` → Hauptwelt klar, Sift Regen; zurück in der Hauptwelt regnet es nicht.
+- [ ] In die Ichor-Schneegipfel: `/execute in the_sift:the_sift positioned 0 100 0 run locate biome
+      the_sift:ichor_snowy_peaks`, Teleport-Klick. Bei `/weather rain` fällt dort sichtbar Schnee, auch weit unten,
+      und auf dem Boden bildet sich nach und nach eine Schneeschicht (Vanilla: zuerst 1 Schicht).
+- [ ] Neben einer Fackel (Blocklicht ab 10) bildet sich kein Schnee.
+- [ ] In anderen Biomen (z. B. `the_sift:siftslate_peaks`, `the_sift:overgrown_forest`) regnet es nur, es
+      entsteht kein Schnee, auch nicht auf hohen Gipfeln.
+- [ ] Ein Ichor-See oder ein mit `/setblock ~ ~ ~ water` gesetzter Block in den Schneegipfeln friert nicht zu.
+- [ ] `/sift debug weather` → „Schnee gebildet …, abgelehnt …“ mit den Biomen der Ablehnungen.
+- [ ] Mehr Schichten: `/gamerule minecraft:snow_accumulation_height 8` in der Sift → es bleiben höchstens 2.
+- [ ] Schalter: `weather.ichor-snowfall.enabled: false` und Neustart → Vanilla-Verhalten (Schnee nur hoch oben
+      in den Schneegipfeln, Regen unten); `weather.ichor-freezes: true` → Ichor friert in den Schneegipfeln.
+
 ## Himmel und Atmosphäre (ab alpha.29)
 
 Nur mit Spieler:

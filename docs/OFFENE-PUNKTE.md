@@ -57,11 +57,13 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
 
 - Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt
   fertig (alpha.14). Dunkler Schnüffler im PR, Spieltest siehe `docs/TESTING.md` → Mobs: Dunkler Schnüffler.
-- Phase 3: Ichor, Rifts, Siftit-Erhalt, Seen, Quellen, Kaskaden und Ichor-Schnee fertig (alpha.21–26).
-  Monolithen, Bögen, Schnüffler-Höhlen und Atmosphäre fertig (alpha.27–29). Die letzten Worldgen-Features
-  (Sculk-Spitzen, Bewuchs-Aufräumen, Lavaboden) im PR (alpha.30), Spieltest siehe `docs/TESTING.md`; damit sind
-  alle Java-Weltgenerierungs-Features des Originals übernommen (alpha.30 gemergt). Allay-Spawner im PR (alpha.31),
-  Spieltest siehe `docs/TESTING.md` → Mobs: Allays. Danach Wetter und Ichor-Schneefall (alpha.32).
+- Phase 3 ist mit alpha.32 (Wetter und Ichor-Schneefall, im PR) inhaltlich vollständig: Ichor, Rifts, Siftit-Erhalt,
+  alle 18 Java-Weltgenerierungs-Features des Originals, Atmosphäre, Allays und Wetter (alpha.21–32). Was davon ohne
+  Client-Mod nicht geht, steht in ABWEICHUNGEN.md → „Himmel und Atmosphäre“.
+- Vor dem Produktionsstart: die Spieltests #11, #12, #13, #20, #25 abschließen, #30 (Item-Displays beim
+  Chunk-Entladen) nach den Hotfixes prüfen und schließen, Plugin-Kompatibilität (#18) auf dem Produktivserver
+  prüfen, die Sift einmal zurücksetzen (#16, TESTING → „Sift-Welt zurücksetzen“), bestehende `config.yml` mit den
+  neuen Standardwerten abgleichen (u. a. `abandoned-portals.chance: 1.0`), #17 schließen.
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
 - Schritt 6b: Echo Golem (alpha.19, im PR), Spieltest siehe `docs/TESTING.md` → Mobs: Echo Golem. Danach ist
   Phase 2 vollständig.

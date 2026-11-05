@@ -154,6 +154,7 @@ public final class SiftCommand {
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
                         .then(Commands.literal("ichor").executes(this::debugIchor))
                         .then(Commands.literal("allays").executes(this::debugAllays))
+                        .then(Commands.literal("weather").executes(this::debugWeather))
                         .then(Commands.literal("intro").executes(ctx -> debugIntro(ctx, null))
                                 .then(Commands.literal("reset").executes(ctx -> debugIntro(ctx, "reset")))
                                 .then(Commands.literal("play").executes(ctx -> debugIntro(ctx, "play"))))
@@ -481,6 +482,27 @@ public final class SiftCommand {
                     lakeCandidates == 0 ? 0.0 : w.lakeNanos.get() / 1e6 / lakeCandidates, w.lakeMaxNanos.get() / 1e6,
                     w.springs.get(), springChunks == 0 ? 0.0 : w.springNanos.get() / 1e6 / springChunks,
                     w.lights.get(), w.lightsRemoved.get(), w.islands.get()));
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** /sift debug weather: weather of the main world and of the Sift, snow and ice counters (alpha.32). */
+    private int debugWeather(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        World main = Bukkit.getWorlds().get(0);
+        for (World w : sift == null ? java.util.List.of(main) : java.util.List.of(main, sift)) {
+            sender.sendRichMessage("<gray>" + w.getKey() + ": " + (w.isThundering() ? "<white>Gewitter</white>" : w.hasStorm()
+                    ? "<white>Regen</white>" : "<white>klar</white>") + ", noch <white>" + w.getWeatherDuration() / 20 + " s</white>, "
+                    + "klar für <white>" + w.getClearWeatherDuration() / 20 + " s</white>");
+        }
+        var weather = plugin.weather();
+        if (weather != null) {
+            sender.sendRichMessage("<gray>Ichor-Schneefall " + (weather.snowfall() ? "<green>an</green>" : "<red>aus</red>")
+                    + " (höchstens <white>" + weather.maxLayers() + "</white> Schichten, Ichor friert " + (weather.ichorFreezes() ? "" : "nicht ")
+                    + "zu); seit dem Start Schnee gebildet <white>" + weather.snowFormed.get() + "</white>, abgelehnt <white>"
+                    + weather.snowRefused.get() + "</white>" + (weather.refusals.isEmpty() ? "" : " " + weather.refusals)
+                    + ", Eis abgelehnt <white>" + weather.iceRefused.get() + "</white>");
         }
         return Command.SINGLE_SUCCESS;
     }

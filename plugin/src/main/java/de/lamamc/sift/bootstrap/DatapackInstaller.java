@@ -71,6 +71,21 @@ public final class DatapackInstaller {
         return changed;
     }
 
+    /** Sets the temperature of a Sift biome in the installed datapack; false if the biome file is missing or unchanged. */
+    public static boolean coolBiome(Path target, String biome, double temperature) throws IOException {
+        Path path = target.resolve("data/the_sift/worldgen/biome/" + biome + ".json");
+        if (!Files.isRegularFile(path)) {
+            return false;
+        }
+        String json = Files.readString(path);
+        String cooled = de.lamamc.sift.core.atmosphere.BiomeTemperature.set(json, temperature);
+        if (cooled.equals(json)) {
+            return false;
+        }
+        Files.writeString(path, cooled);
+        return true;
+    }
+
     /** Removes a folder of the installed datapack (e.g. an optional part switched off in config.yml). */
     public static void remove(Path target, String relative) throws IOException {
         deleteTree(target.resolve(relative));

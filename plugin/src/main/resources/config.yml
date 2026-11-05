@@ -234,6 +234,19 @@ worldgen:
       # alle N Ticks ein Lauf
       interval-ticks: 10
 
+# Wetter in der Sift (ab alpha.32, Original 1.1.1). Was über Paper nicht geht, steht in docs/ABWEICHUNGEN.md
+# → „Himmel und Atmosphäre“.
+weather:
+  # Ichor-Schneefall: Bei Niederschlag schneit es in der Sift nur in ichor_snowy_peaks, dort aber in jeder Höhe
+  # (das Plugin setzt beim Start die Temperatur des Bioms im Datapack auf `temperature`; Vanilla schneit nur unter
+  # 0,15). Nur bei Blocklicht unter 10, höchstens `max-layers` Schichten. Temperatur wirkt nach einem Neustart.
+  ichor-snowfall:
+    enabled: true
+    temperature: 0.0
+    max-layers: 2
+  # Ichor friert im Original nie zu (eigene Flüssigkeit); hier ist er Wasser, false verhindert Eis
+  ichor-freezes: false
+
 # Himmel und Atmosphäre der Sift (ab alpha.29). Was ein Vanilla-Client davon zeigen kann, steht in
 # docs/ABWEICHUNGEN.md → „Himmel und Atmosphäre“.
 atmosphere:

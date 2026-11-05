@@ -59,6 +59,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.world.rift.RiftManager rifts;
     private de.lamamc.sift.world.atmosphere.SiftIntro intro;
     private de.lamamc.sift.mob.allay.AllaySpawner allays;
+    private de.lamamc.sift.world.weather.SiftWeather weather;
     private de.lamamc.sift.world.siftite.SiftiteKeeper siftiteKeeper;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
@@ -153,6 +154,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         intro.start(this);
         allays = new de.lamamc.sift.mob.allay.AllaySpawner(getConfig().getConfigurationSection("mobs.allay"));
         allays.start(this);
+        weather = new de.lamamc.sift.world.weather.SiftWeather(getConfig().getConfigurationSection("weather"));
+        getServer().getPluginManager().registerEvents(weather, this);
         if (getConfig().getBoolean("rifts.enabled", true)) {
             rifts = new de.lamamc.sift.world.rift.RiftManager(this, blocks, messages, advancements, gate, getConfig().getConfigurationSection("rifts"));
             getServer().getPluginManager().registerEvents(rifts, this);
@@ -461,6 +464,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     /** Null when siftite.keep-on-death.enabled is false. */
     public de.lamamc.sift.world.siftite.SiftiteKeeper siftiteKeeper() {
         return siftiteKeeper;
+    }
+
+    public de.lamamc.sift.world.weather.SiftWeather weather() {
+        return weather;
     }
 
     public de.lamamc.sift.mob.allay.AllaySpawner allays() {
