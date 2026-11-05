@@ -107,7 +107,14 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.
 - Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
-- Monolithen, Bögen, Schnüffler-Höhlen und Lavaböden kommen mit Phase 3.
+- Schnüffler-Höhlen und Lavaböden kommen mit Phase 3.
+- **Monolithen und Bögen (seit alpha.27)** baut das Plugin beim Generieren, als Port von SiftMonolithFeature und
+  SiftArchFeature aus 1.1.1 mit denselben Werten (Häufigkeiten, Biome, Radien, Höhen, Terrassen, Nebensäulen,
+  Bogen-Suche über 4 Achsen, Kurve, Einkerbungen, Bewuchs). Unterschiede:
+  - Der Zufall ist der des Plugin-Populators, nicht der Feature-Seed von Vanilla; dieselben Orte wie im
+    Original entstehen daher nicht, die Häufigkeit ist dieselbe.
+  - Solange das Haupt-Portal noch nicht steht, gilt das ganze Suchgebiet (±200 Blöcke um 0/0) als Portal
+    (wie bei Seen und verlassenen Portalen); dort entstehen anfangs keine Monolithen und Bögen.
 - **Ichor-Schnee (seit alpha.26)** wie im Original 1.1.1: in `ichor_snowy_peaks` auf jedem natürlichen Boden
   1–2 Schichten (gleiches Rauschen), kleine Gipfelpflanzen werden ersetzt, auch auf Weidenkronen, und
   Siftschiefer-Bewuchs darunter wird verschneit. Unterschiede:

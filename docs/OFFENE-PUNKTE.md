@@ -29,10 +29,38 @@ Stand: 31.10.2026 (nach alpha.10)
 | [#15](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/15) | Verlassene Portale: `chance` 0,25 mit Phase 3 auf 1,0 | wartet auf Phase 3 |
 | [#17](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/17) | Phase 2 (Mobs) und Phase 3 (Ichor, Himmel, Monolithen, Bögen, Seelenschluchten, Sniffer-Höhlen) | nach Phase 1 |
 
+## Phase 4 – Ideen (nach dem Original-Port)
+
+Nur Ideensammlung, noch nicht geplant oder umgesetzt. Reihenfolge: zuerst die Spezial-Items und der
+Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
+
+1. **Boss „Großer Echo Golem“**
+   - Riesiger Golem mit Seelenblöcken als Panzer. Die Spieler nehmen ihm die Blöcke ab; nur ohne Blöcke nimmt er
+     Schaden. Mehrere Phasen.
+   - Ort: zerfallener Tempel (Struktur aus dem Populator).
+   - Beute: verzauberte Netherit-Rüstung (ähnlich der Diamant-Ausrüstung in den End-Städten); die Spieler dürfen
+     die abgenommenen Seelenblöcke behalten; dazu ein Spezial-Item.
+   - Offen: Skalierung für mehrere Spieler, Zurücksetzen der Arena, Display-Grenzen für den Boss, Beute je Spieler.
+2. **Boss-Drops**
+   - Wärter (Warden) → „Herz des Wärters“
+   - Enderdrache → „Drachenschuppe“
+   - Wither → Spezial-Item (Arbeitstitel „Kern des Withers“)
+   - Großer Echo Golem → Spezial-Item (Name offen)
+   - Offen: feste Menge je Kill, Schutz vor Farmen (Wither- und Wärter-Farmen).
+3. **Charoite und „Sculk Enchanter“**
+   - Eigener Block. Er steht nur im Boss-Tempel und ist craftbar, aber sehr aufwendig.
+   - Erlaubt Verzauberungen bis 2 Stufen über dem Vanilla-Maximum (z. B. Haltbarkeit V, Schärfe VII).
+     Ausnahme: einstufige Verzauberungen (Reparatur usw.).
+   - Zutaten: Charoite, je ein Item der drei Vanilla-Bosse, Siftit, Erfahrungslevel.
+   - Offen: Bedienung des Menüs, Whitelist in der Config, Grenze je Gegenstand, Balance im PvP.
+
 ## Nächster Schritt
 
 - Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt
   fertig (alpha.14). Dunkler Schnüffler im PR, Spieltest siehe `docs/TESTING.md` → Mobs: Dunkler Schnüffler.
+- Phase 3: Ichor, Rifts, Siftit-Erhalt, Seen, Quellen, Kaskaden und Ichor-Schnee fertig (alpha.21–26).
+  Monolithen und Bögen im PR (alpha.27), Spieltest siehe `docs/TESTING.md` → Monolithen und Bögen.
+  Danach Sniffer-Höhlen (alpha.28).
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
 - Schritt 6b: Echo Golem (alpha.19, im PR), Spieltest siehe `docs/TESTING.md` → Mobs: Echo Golem. Danach ist
   Phase 2 vollständig.

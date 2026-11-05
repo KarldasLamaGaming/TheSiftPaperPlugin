@@ -54,6 +54,7 @@ public final class SiftPopulator extends BlockPopulator {
     private final SoulCanyons canyons;
     private final IchorWaters waters;
     private IchorSnow snow;
+    private Landforms landforms;
 
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
                          PortalReservation reservation, LandmarkLog log, SoulCanyons canyons, IchorWaters waters, Logger logger) {
@@ -94,6 +95,15 @@ public final class SiftPopulator extends BlockPopulator {
 
     public IchorSnow snow() {
         return snow;
+    }
+
+    /** Monoliths and cliff arches (alpha.27); null = off. */
+    public void landforms(Landforms landforms) {
+        this.landforms = landforms;
+    }
+
+    public Landforms landforms() {
+        return landforms;
     }
 
     public IchorWaters waters() {
@@ -156,6 +166,10 @@ public final class SiftPopulator extends BlockPopulator {
             waters.lake(region, random, chunkX, chunkZ, biome, reservation,
                     (r, rand, x, y, z) -> !reservation.intersectsBuilt(x, z, 12) && willows.placeAt(r, rand, x, y, z, false));
         }
+        if (landforms != null) {
+            // original order: lush monolith, bare monolith, (dry sculk spikes,) cliff arch, then the willows
+            landforms.place(region, random, chunkX, chunkZ, reservation);
+        }
         if (settings.willowTrees()) {
             if (settings.denseWillowBiomes().contains(biome)) {
                 for (int i = 0; i < settings.denseWillowCount(); i++) {
@@ -215,7 +229,7 @@ public final class SiftPopulator extends BlockPopulator {
         }
     }
 
-    private static String biome(GenRegion region, int x, int z) {
+    static String biome(GenRegion region, int x, int z) {
         int y = region.height(HeightMap.WORLD_SURFACE_WG, x, z);
         var key = region.region().getBiome(x, Math.min(y, region.maxY() - 1), z).getKey();
         return key.getNamespace().equals("the_sift") ? key.getKey() : key.toString();

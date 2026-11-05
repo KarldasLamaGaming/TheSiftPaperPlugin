@@ -278,7 +278,21 @@ natürlichem Boden 1–2 Schichten Ichor-Schnee (Vanilla-Schnee). Kleine Pflanze
 werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug worldgen` zeigt die Schichten.
 `ichor.false-alarm` schaltet das Advancement „False Alarm“ (Ichor-Schneeball in 16 Blöcken eines Wärters).
 
-**Alte Chunks (#16):** Neue Weltgenerierungs-Features (Seen, Quellen, später Monolithen, Bögen …) entstehen nur
+### Monolithen und Bögen (ab alpha.27)
+
+- `worldgen.monoliths.enabled` (Standard an), einzeln `lush.enabled` / `bare.enabled`. Je Variante und
+  Biomgruppe `rarity` (1 von N Chunks) und `biomes`, Werte des Originals: üppig 1/11 (überwuchert) bzw. 1/8
+  (Ödland, Hänge, Schneegipfel), kahl 1/20 bzw. 1/15. `portal-clearance` (22) und `reserve-radius` (22,
+  reservierte Fläche gegen Seen, Portale und andere Monolithen).
+- `worldgen.arches.enabled`, `rarity` (5), `biomes` (alle Sift-Biome außer der Tiefen Dunkelheit),
+  `portal-clearance` (23). Gebaut wird nur, wo eine Achse durch die Chunk-Mitte eine Senke findet, daher selten.
+- `/sift debug landmarks` zeigt die je drei nächsten Monolithen und Bögen mit Teleport-Klick (auf die Spitze bzw.
+  den Scheitel). Gespeichert im Welt-PDC der Sift (`the_sift:lush_monoliths`, `bare_monoliths`, `arches`).
+  `/sift debug worldgen` zählt gebaute und nicht gebaute (mit Grund) und die Zeit je Kandidat.
+- **Zeitbudget** (Smoke-Test, 256 neue Chunks): 2,1 ms je Monolith-Kandidat im Mittel (höchstens 28 ms),
+  0,3 ms je Bogen-Kandidat (höchstens 30 ms), zusammen etwa 0,7 ms je Chunk.
+
+**Alte Chunks (#16):** Neue Weltgenerierungs-Features (Seen, Quellen, Monolithen, Bögen …) entstehen nur
 in Chunks, die nach dem Update **neu generiert** werden. Schon erkundete Gebiete bekommen sie nicht.
 Vor dem Produktionsstart die Sift zurücksetzen (siehe TESTING.md → „Sift-Welt zurücksetzen“), danach nur
 noch neue Gebiete erkunden.

@@ -131,6 +131,31 @@ worldgen:
   ichor-snow:
     enabled: true
     willow-crowns: true
+  # Monolithen (ab alpha.27, Original 1.1.1): schiefe, sich verjüngende Siftslate-Säulen mit Terrassen und
+  # 0–3 kleineren Nebensäulen. Üppige (Radius 5–7, Höhe 31–55) tragen oben Siftslate-Bewuchs mit Pflanzen,
+  # kahle (Radius 4–6, Höhe 24–44) nicht. 1 von N Chunks, wenn die gewürfelte Stelle in einem der Biome liegt.
+  # Nur neue Chunks; /sift debug landmarks zeigt die nächsten mit Teleport.
+  monoliths:
+    enabled: true
+    lush:
+      enabled: true
+      overgrown: {rarity: 11, biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes]}
+      wastes: {rarity: 8, biomes: [ichor_snowy_peaks, sift_wastes, siftslate_slopes]}
+    bare:
+      enabled: true
+      overgrown: {rarity: 20, biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes]}
+      wastes: {rarity: 15, biomes: [ichor_snowy_peaks, sift_wastes, siftslate_peaks, siftslate_slopes]}
+    # Mindestabstand zum Haupt-Portal und reservierte Fläche ±N Blöcke (gegen Seen, Portale, andere Monolithen)
+    portal-clearance: 22
+    reserve-radius: 22
+  # Felsbögen (ab alpha.27, Original 1.1.1): Brücke aus Sculk oder Siftslate über eine Senke, 26–30 Blöcke
+  # zwischen den Füßen. 1 von N Chunks; gebaut wird nur, wo eine Achse durch die Chunk-Mitte eine Senke findet.
+  arches:
+    enabled: true
+    rarity: 5
+    biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes,
+      sift_wastes, siftslate_peaks, siftslate_slopes]
+    portal-clearance: 23
   # Ichor-Quellen in Felswänden unter Tage (Original: 16 Versuche je Chunk, y 15–110, mindestens 12 unter der Oberfläche)
   ichor-springs:
     enabled: true
