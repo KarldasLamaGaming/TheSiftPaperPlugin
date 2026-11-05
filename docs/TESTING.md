@@ -273,6 +273,18 @@ Nur in **neu generierten** Chunks. Nur mit Spieler (Optik):
 - [ ] Schalter: `worldgen.monoliths.enabled: false` (oder `lush.enabled` / `bare.enabled`) bzw.
       `worldgen.arches.enabled: false`, Neustart, neues Gelände: keine neuen Monolithen bzw. Bögen.
 
+## Himmel und Atmosphäre (ab alpha.29)
+
+Nur mit Spieler:
+- [ ] In die Sift gehen (`/sift tp`): Am Himmel sind keine Wolken, auch nicht nach `/weather rain` (Original:
+      Wolken nur bei Regen; Vanilla kann das nicht unterscheiden, deshalb ganz aus).
+- [ ] `/sift debug intro reset`, dann die Sift verlassen und wieder betreten: Kurz nach der Ankunft (Boden unter
+      den Füßen) spielt einmal der Intro-Klang. Ein zweites Betreten spielt ihn nicht mehr.
+- [ ] Wiedergabe-Test ohne Reisen: `/sift debug intro play`; Status mit `/sift debug intro`.
+- [ ] Nach einem Server-Neustart spielt der Klang für denselben Spieler nicht erneut.
+- [ ] Schalter: `atmosphere.clouds: true` und Neustart → Wolken wieder sichtbar; `atmosphere.intro-sound.enabled:
+      false` und Neustart, `/sift debug intro reset`, Sift betreten → kein Klang.
+
 ## Schnüffler-Höhlen (ab alpha.28)
 
 Nur in **neu generierten** Chunks. Nur mit Spieler:
