@@ -55,6 +55,7 @@ public final class SiftPopulator extends BlockPopulator {
     private final IchorWaters waters;
     private IchorSnow snow;
     private Landforms landforms;
+    private SnifferCaves snifferCaves;
 
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
                          PortalReservation reservation, LandmarkLog log, SoulCanyons canyons, IchorWaters waters, Logger logger) {
@@ -104,6 +105,15 @@ public final class SiftPopulator extends BlockPopulator {
 
     public Landforms landforms() {
         return landforms;
+    }
+
+    /** Sniffer caves and sniffer plant patches (alpha.28); null = off. */
+    public void snifferCaves(SnifferCaves snifferCaves) {
+        this.snifferCaves = snifferCaves;
+    }
+
+    public SnifferCaves snifferCaves() {
+        return snifferCaves;
     }
 
     public IchorWaters waters() {
@@ -160,6 +170,9 @@ public final class SiftPopulator extends BlockPopulator {
         if (settings.soulCanyons() && canyons.isSelected(seed, chunkX, chunkZ)) {
             canyon(region, random, chunkX, chunkZ);
         }
+        if (snifferCaves != null) {
+            snifferCaves.caves(region, random, chunkX, chunkZ, seed, reservation); // underground_decoration, after the canyon
+        }
         if (waters != null) {
             // original order: fluid springs (step 8), then surface lakes (step 9, before the trees)
             waters.springs(region, random, chunkX, chunkZ);
@@ -189,6 +202,9 @@ public final class SiftPopulator extends BlockPopulator {
         if (settings.plantPatches() && settings.plantBiomes().contains(biome) && random.nextInt(settings.plantRarity()) == 0
                 && SurfacePlants.plantPatch(region, random, chunkX, chunkZ)) {
             stats.plantPatches.incrementAndGet();
+        }
+        if (snifferCaves != null) {
+            snifferCaves.plantPatch(region, random, chunkX, chunkZ, reservation); // last of vegetal_decoration
         }
         if (settings.surfaceSculk() && anyBiome(region, chunkX, chunkZ, settings.sculkBiomes())
                 && sculk.place(region, seed, chunkX, chunkZ)) {

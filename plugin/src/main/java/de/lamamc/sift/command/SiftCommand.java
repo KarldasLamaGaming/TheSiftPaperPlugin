@@ -432,6 +432,19 @@ public final class SiftCommand {
                     l.arches.get(), l.healthyArches.get(), ac, l.archRejects.isEmpty() ? "" : " (nicht gebaut: " + l.archRejects + ")",
                     ac == 0 ? 0.0 : l.archNanos.get() / 1e6 / ac, l.archMaxNanos.get() / 1e6));
         }
+        if (populator.snifferCaves() != null) {
+            var c = populator.snifferCaves().stats();
+            long cc = c.candidates.get();
+            sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                    "<gray>Schnüffler-Höhlen: <white>%d</white> von <white>%d</white> Kandidaten%s, Zeit je Kandidat "
+                            + "<white>%.1f ms</white> im Mittel, <white>%.1f ms</white> höchstens; Eier <white>%d</white>, Pflanzen "
+                            + "<white>%d</white>; Schnüffler erzeugt <white>%d</white> von <white>%d</white> (wartend <white>%d</white>, "
+                            + "aufgegeben <white>%d</white>); Pflanzenflecken <white>%d</white>",
+                    c.caves.get(), cc, c.rejects.isEmpty() ? "" : " (nicht gebaut: " + c.rejects + ")",
+                    cc == 0 ? 0.0 : c.nanos.get() / 1e6 / cc, c.maxNanos.get() / 1e6, c.eggs.get(), c.plants.get(),
+                    c.sniffersSpawned.get(), c.sniffersQueued.get(), populator.snifferCaves().pendingSniffers(), c.sniffersGivenUp.get(),
+                    c.plantPatches.get()));
+        }
         if (populator.snow() != null) {
             var snow = populator.snow();
             sender.sendRichMessage(String.format(java.util.Locale.ROOT,
@@ -604,6 +617,25 @@ public final class SiftCommand {
                             found.kind().label, p.x(), p.y(), p.z(), Math.round(Math.sqrt(p.horizontalDistanceSquared(fromX, fromZ))),
                             p.x(), p.y() + 1, p.z()));
                 }
+            }
+        }
+        var snifferCaves = plugin.siftPopulator() == null ? null : plugin.siftPopulator().snifferCaves();
+        if (snifferCaves != null) {
+            var from = ctx.getSource().getLocation();
+            double fromX = SiftWorlds.isSift(from.getWorld()) && center == null ? from.getX() : centerX;
+            double fromZ = SiftWorlds.isSift(from.getWorld()) && center == null ? from.getZ() : centerZ;
+            sender.sendRichMessage("<gray>Schnüffler-Höhlen bekannt: <white>" + snifferCaves.count()
+                    + "</white> (nur seit alpha.28 generierte Chunks); Teleport ins Nest bzw. zum Eingang:");
+            for (var found : snifferCaves.nearest(fromX, fromZ, 3)) {
+                var n = found.nest();
+                var e = found.entrance();
+                sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                        "  <gray>Höhle, Nest bei %d %d %d, %d Blöcke entfernt</gray> <click:run_command:'/execute in the_sift:the_sift run "
+                                + "tp @s %d %d %d'><hover:show_text:'Teleport ins Nest'><aqua>[Nest]</aqua></hover></click> "
+                                + "<click:run_command:'/execute in the_sift:the_sift run tp @s %d %d %d'><hover:show_text:'Teleport zum Eingang'>"
+                                + "<aqua>[Eingang]</aqua></hover></click>",
+                        n.x(), n.y(), n.z(), Math.round(Math.sqrt(n.horizontalDistanceSquared(fromX, fromZ))), n.x(), n.y(), n.z(),
+                        e.x(), e.y() + 1, e.z()));
             }
         }
         sender.sendRichMessage("<gray>Sculk-Regionen (Mitte, Durchmesser) in den 512er-Zellen um " + centerX + " " + centerZ + ":");

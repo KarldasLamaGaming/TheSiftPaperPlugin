@@ -239,7 +239,7 @@ Neustart nötig, gilt nur für neue Chunks):
 | Blumenflecken (Lotus, Sonnenstrahl, Flüsterblüte) | alle außer Ödland; Ödland seltener | jeder 9. Chunk, Ödland jeder 7. |
 | Pflanzenflecken auf Siftschiefer | alle | jeder 10. Chunk |
 | Oberflächen-Sculk (Vanilla-Sculk mit Sensoren, Kreischern, die Wärter rufen können, Katalysatoren) | alle außer Ichorschnee-Gipfel und Tiefes Dunkel | höchstens eine Region (50–120 Blöcke) je 512 × 512 |
-| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 20 × 20 Chunks (im mittleren Drittel der Zelle), davon baut nur der Anteil `chance` (Standard 0.25, siehe unten), nur auf passendem Gelände |
+| Verlassene Portale mit Truhe (`the_sift:chests/abandoned_portal`) | alle außer Tiefes Dunkel | ein Kandidat je 20 × 20 Chunks (im mittleren Drittel der Zelle), davon baut der Anteil `chance` (Standard 1.0, siehe unten), nur auf passendem Gelände |
 | Seelenschluchten (ab alpha.18): mäandernder Graben, bis 20 Blöcke tief, Seelenblöcke im Boden, aufsteigende Seelen-Partikel | alle | höchstens eine je 12 × 12 Chunks (Zellen um 6 Chunks versetzt, mittleres Drittel), nur auf passendem Gelände, mindestens 34 Blöcke vom Haupt-Portal |
 
 Weiden, Lotus, Sonnenstrahlpflanze usw. entstehen aus den Vorlagen und Werten des Originals; Abweichungen
@@ -291,6 +291,18 @@ werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug w
   `/sift debug worldgen` zählt gebaute und nicht gebaute (mit Grund) und die Zeit je Kandidat.
 - **Zeitbudget** (Smoke-Test, 256 neue Chunks): 2,1 ms je Monolith-Kandidat im Mittel (höchstens 28 ms),
   0,3 ms je Bogen-Kandidat (höchstens 30 ms), zusammen etwa 0,7 ms je Chunk.
+
+### Schnüffler-Höhlen (ab alpha.28)
+
+- `worldgen.sniffer-caves.enabled` (Standard an). `overgrown` und `wastes` je mit `cell-chunks`, `candidates`
+  und `biomes` (Original: überwuchert 16 Chunks mit 4 Kandidaten je Zelle, Ödland/Hänge/Gipfel/Schneegipfel 28
+  mit 3). `portal-clearance` (12), `family` (Schnüffler-Familie im Nest), `ichor-light` (Becken leuchtet).
+- `worldgen.sniffer-plant-patches.enabled`, `rarity` (14), `biomes`.
+- Die Familie wird beim Generieren vorgemerkt und auf dem Main-Thread erzeugt, sobald die Nest-Chunks geladen
+  sind (höchstens 4 je Tick, 80 Versuche); vorgemerkte Schnüffler gehen bei einem Neustart verloren.
+- `/sift debug landmarks` zeigt die drei nächsten Höhlen mit **[Nest]**- und **[Eingang]**-Teleport (Welt-PDC
+  `the_sift:sniffer_caves`), `/sift debug worldgen` Kandidaten, Gründe, Zeit, Eier, Pflanzen und Schnüffler.
+- Fackellilien, Kannenpflanzen und Blumen bleiben auf Sift-Boden stehen (wie im Original).
 
 **Alte Chunks (#16):** Neue Weltgenerierungs-Features (Seen, Quellen, Monolithen, Bögen …) entstehen nur
 in Chunks, die nach dem Update **neu generiert** werden. Schon erkundete Gebiete bekommen sie nicht.
@@ -344,12 +356,13 @@ Gelände aus. Das Plugin protokolliert seit alpha.6 jeden Kandidaten im Weltspei
 
 Chunks, die vor alpha.6 generiert wurden, stehen nicht im Protokoll.
 
-`worldgen.abandoned-portals.chance` (0.0–1.0, Standard 0.25) legt fest, welcher Anteil der Kandidaten
-überhaupt bauen darf; die Auswahl hängt nur von Seed und Chunk ab. Im Original stehen auf vielen Plätzen
-schon Seelenschluchten, Ichor-Seen, Lavaböden und Monolithen, die erst mit Phase 3 kommen. Mit 0.25 entsteht
-bis dahin etwa die Menge des Originals (Seed `lamakingdom`, 49 Kandidaten: 7 gebaut, Original 6). Mit
-Phase 3 wird der Wert 1.0. Nicht ausgewählte Kandidaten stehen in `/sift debug portals` als „nicht
-ausgewählt (chance 0.25)“.
+`worldgen.abandoned-portals.chance` (0.0–1.0, Standard seit alpha.28 **1.0** wie im Original, vorher 0.25)
+legt fest, welcher Anteil der Kandidaten überhaupt bauen darf; die Auswahl hängt nur von Seed und Chunk ab.
+Seit Seelenschluchten, Seen, Monolithen und Höhlen wie im Original Plätze belegen, ergibt 1.0 dieselbe Menge
+wie das Original (Seed `lamakingdom`, gleiche 52 Kandidaten außerhalb der Startsperre: je 8 gebaut).
+**Update auf alpha.28:** Eine vorhandene `config.yml` behält `chance: 0.25`; dort von Hand auf `1.0` setzen.
+Nicht ausgewählte Kandidaten (nur bei `chance` unter 1.0) stehen in `/sift debug portals` als „nicht
+ausgewählt (chance …)“.
 
 **Update auf alpha.6:** Eine vorhandene `config.yml` behält `worldgen.abandoned-portals.cell-chunks: 32`
 und hat noch kein `chance`; für die Verteilung des Originals `cell-chunks: 20` und `chance: 0.25` setzen
