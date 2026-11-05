@@ -156,6 +156,24 @@ worldgen:
     biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes,
       sift_wastes, siftslate_peaks, siftslate_slopes]
     portal-clearance: 23
+  # Trockene Sculk-Spitzen (ab alpha.30, Original 1.1.1): schiefe, spitz zulaufende Spitze aus trockenem Sculk
+  # (Radius 3–4, 19–31 hoch) mit 2–4 kleineren daneben. 1 von N Chunks, wenn die gewürfelte Stelle in einem der
+  # Biome liegt. /sift debug landmarks zeigt die nächsten mit Teleport.
+  dry-sculk-spikes:
+    enabled: true
+    overgrown: {rarity: 21, biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes]}
+    wastes: {rarity: 16, biomes: [ichor_snowy_peaks, sift_wastes, siftslate_peaks, siftslate_slopes]}
+    portal-clearance: 18
+    reserve-radius: 18
+  # Bewuchs aufräumen (ab alpha.30, Original 1.1.1), in jedem Chunk zuletzt: Siftschiefer-Bewuchs und trockener
+  # Sculk-Bewuchs unter einem vollen Block werden wieder kahl, Bewuchs auf trockenem Sculk wird trockener Bewuchs,
+  # verschneiter Bewuchs passt zum Ichor-Schnee, und Pflanzen, die über Ichor in der Luft hängen, werden entfernt.
+  covered-growth-cleanup:
+    enabled: true
+  # Lavaboden (ab alpha.30, Original 1.1.1): jeder Luftblock bis y 11 wird Lava (tiefe Höhlen enden in Lava).
+  lava-floor:
+    enabled: true
+    max-y: 11
   # Schnüffler-Höhlen (ab alpha.28, Original 1.1.1): vom Chunk-Mittelpunkt ein gewundener Gang 9 Blöcke hinab
   # in eine Nest-Kammer aus Sculk, mit Ichor-Becken in einer Nebenkammer, Fackellilien oder Kannenpflanzen,
   # Nest aus Weidenlaub (Pflanzen, manchmal ein Schnüffler-Ei) und einer Schnüffler-Familie (2 Erwachsene,

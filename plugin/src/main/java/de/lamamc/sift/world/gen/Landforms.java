@@ -1,6 +1,7 @@
 package de.lamamc.sift.world.gen;
 
 import de.lamamc.sift.core.worldgen.ArchPlan;
+import de.lamamc.sift.core.worldgen.DrySpikePlan;
 import de.lamamc.sift.core.worldgen.LandformWorld;
 import de.lamamc.sift.core.worldgen.MonolithPlan;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import org.bukkit.persistence.PersistentDataType;
 public final class Landforms {
 
     public enum Kind {
-        LUSH("üppiger Monolith"), BARE("kahler Monolith"), ARCH("Bogen");
+        LUSH("üppiger Monolith"), BARE("kahler Monolith"), ARCH("Bogen"), SPIKE("trockene Sculk-Spitze");
 
         public final String label;
 
@@ -44,6 +45,7 @@ public final class Landforms {
                 case LUSH -> "lush_monoliths";
                 case BARE -> "bare_monoliths";
                 case ARCH -> "arches";
+                case SPIKE -> "dry_sculk_spikes";
             });
         }
     }
@@ -60,7 +62,8 @@ public final class Landforms {
 
     public record Settings(boolean lush, Placement lushOvergrown, Placement lushWastes, boolean bare, Placement bareOvergrown,
                            Placement bareWastes, int monolithPortalClearance, int monolithReserve, boolean arches, Placement arch,
-                           int archPortalClearance) {
+                           int archPortalClearance, boolean spikes, Placement spikesOvergrown, Placement spikesWastes, int spikePortalClearance,
+                           int spikeReserve) {
 
         private static final List<String> OVERGROWN = List.of("overgrown_clearing", "overgrown_forest", "overgrown_forest_slopes",
                 "overgrown_peaks", "overgrown_slopes");
@@ -80,7 +83,11 @@ public final class Landforms {
                     arches, Placement.load(w, "arches", 5, List.of("ichor_snowy_peaks", "overgrown_clearing", "overgrown_forest",
                             "overgrown_forest_slopes", "overgrown_peaks", "overgrown_slopes", "sift_wastes", "siftslate_peaks",
                             "siftslate_slopes")),
-                    Math.max(0, w.getInt("arches.portal-clearance", 23)));
+                    Math.max(0, w.getInt("arches.portal-clearance", 23)),
+                    w.getBoolean("dry-sculk-spikes.enabled", true), Placement.load(w, "dry-sculk-spikes.overgrown", 21, OVERGROWN),
+                    Placement.load(w, "dry-sculk-spikes.wastes", 16, List.of("ichor_snowy_peaks", "sift_wastes", "siftslate_peaks",
+                            "siftslate_slopes")),
+                    Math.max(0, w.getInt("dry-sculk-spikes.portal-clearance", 18)), Math.max(0, w.getInt("dry-sculk-spikes.reserve-radius", 18)));
         }
     }
 
@@ -99,12 +106,17 @@ public final class Landforms {
         public final AtomicLong archNanos = new AtomicLong();
         public final AtomicLong archMaxNanos = new AtomicLong();
         public final Map<String, Integer> archRejects = new ConcurrentHashMap<>();
+        public final AtomicLong spikeCandidates = new AtomicLong();
+        public final AtomicLong spikes = new AtomicLong();
+        public final AtomicLong spikeNanos = new AtomicLong();
+        public final AtomicLong spikeMaxNanos = new AtomicLong();
+        public final Map<String, Integer> spikeRejects = new ConcurrentHashMap<>();
     }
 
     private final Settings settings;
     private final Stats stats = new Stats();
     private final Map<Kind, Set<Long>> records = Map.of(Kind.LUSH, ConcurrentHashMap.newKeySet(), Kind.BARE,
-            ConcurrentHashMap.newKeySet(), Kind.ARCH, ConcurrentHashMap.newKeySet());
+            ConcurrentHashMap.newKeySet(), Kind.ARCH, ConcurrentHashMap.newKeySet(), Kind.SPIKE, ConcurrentHashMap.newKeySet());
     private volatile boolean dirty;
 
     public Landforms(Settings settings) {
@@ -128,6 +140,10 @@ public final class Landforms {
         if (settings.bare()) {
             monolith(region, random, chunkX, chunkZ, reservation, settings.bareOvergrown(), false);
             monolith(region, random, chunkX, chunkZ, reservation, settings.bareWastes(), false);
+        }
+        if (settings.spikes()) {
+            spikes(region, random, chunkX, chunkZ, reservation, settings.spikesOvergrown());
+            spikes(region, random, chunkX, chunkZ, reservation, settings.spikesWastes());
         }
         if (settings.arches() && selected(region, random, chunkX, chunkZ, settings.arch())) {
             stats.archCandidates.incrementAndGet();
@@ -163,6 +179,23 @@ public final class Landforms {
             record(lush ? Kind.LUSH : Kind.BARE, r.topX(), r.topY(), r.topZ());
         } else {
             stats.monolithRejects.merge(r.reason(), 1, Integer::sum);
+        }
+    }
+
+    private void spikes(GenRegion region, Random random, int chunkX, int chunkZ, PortalReservation reservation, Placement placement) {
+        if (!selected(region, random, chunkX, chunkZ, placement)) {
+            return;
+        }
+        stats.spikeCandidates.incrementAndGet();
+        long start = System.nanoTime();
+        DrySpikePlan.Result r = DrySpikePlan.place(world(region, random, reservation), random, chunkX, chunkZ,
+                settings.spikePortalClearance(), settings.spikeReserve());
+        time(stats.spikeNanos, stats.spikeMaxNanos, start);
+        if (r.built()) {
+            stats.spikes.incrementAndGet();
+            record(Kind.SPIKE, r.x(), r.topY(), r.z());
+        } else {
+            stats.spikeRejects.merge(r.reason(), 1, Integer::sum);
         }
     }
 
@@ -299,10 +332,10 @@ public final class Landforms {
     public record Found(Kind kind, SoulCanyonLandmarks.Pos top) {
     }
 
-    /** Nearest recorded monoliths (lush and bare) or arches to x/z. */
-    public List<Found> nearest(boolean monoliths, double x, double z, int limit) {
+    /** Nearest recorded landforms of these kinds to x/z. */
+    public List<Found> nearest(List<Kind> kinds, double x, double z, int limit) {
         List<Found> all = new ArrayList<>();
-        for (Kind kind : monoliths ? List.of(Kind.LUSH, Kind.BARE) : List.of(Kind.ARCH)) {
+        for (Kind kind : kinds) {
             for (long packed : records.get(kind)) {
                 all.add(new Found(kind, SoulCanyonLandmarks.unpack(packed)));
             }
