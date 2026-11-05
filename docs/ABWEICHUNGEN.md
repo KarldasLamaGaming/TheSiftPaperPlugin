@@ -142,7 +142,7 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   1–2 Schichten (gleiches Rauschen), kleine Gipfelpflanzen werden ersetzt, auch auf Weidenkronen, und
   Siftschiefer-Bewuchs darunter wird verschneit. Unterschiede:
   - Ichor-Schnee ist Vanilla-Schnee.
-  - Neuer Schneefall in der Sift folgt noch Vanilla; Ichor-Schneefall nur in diesem Biom kommt mit alpha.32.
+  - Schneefall: siehe „Himmel und Atmosphäre“ → Wetter (seit alpha.32).
 - **Advancement „False Alarm“ (seit alpha.26):** wie im Original. Ein geworfener Ichor-Schneeball trifft etwas
   in 16 Blöcken eines lebenden Wärters.
 - **Ichor-Seen und -Quellen (seit alpha.25)** baut das Plugin beim Generieren statt der Datapack-Features.
@@ -284,6 +284,20 @@ Was ohne Client-Mod geht, ist übernommen; der Rest braucht den Client des Origi
   (`atmosphere.clouds: false` macht die Wolkenfarbe im Datapack durchsichtig), mit `true` immer sichtbar.
 - **Himmel:** Das Original zeichnet einen eigenen Polarlicht-Himmel ohne Sonne, Mond und Sterne (Client-Renderer).
   Hier bleibt der Vanilla-Himmel mit den Farben des Originals; Sonne, Mond und Sterne sind sichtbar.
+- **Wetter (seit alpha.32):**
+  - Wie im Original hat die Sift ihr eigenes Wetter. Paper führt das Wetter ohnehin je Welt, deshalb braucht
+    es dafür nichts (das Original braucht einen Mixin). `/weather` in der Sift gilt nur dort.
+  - **Ichor-Schneefall** wie im Original nur in `ichor_snowy_peaks`, dort in jeder Höhe, nur bei Blocklicht unter
+    10, höchstens 2 Schichten; in allen anderen Biomen bleibt es Regen, auch auf hohen Gipfeln. Das Original
+    tauscht dafür Vanillas Temperaturprüfung aus. Über Paper geht das nicht direkt (Vanilla bildet Schnee nur
+    unter Temperatur 0,15, das Biom hat 0,18 und erreicht das erst ab etwa y 104). Deshalb setzt das Plugin beim
+    Start die Temperatur des Bioms im Datapack auf 0,0 und prüft jeden gebildeten Schnee
+    (`weather.ichor-snowfall.*`). Folgen:
+    - Ein Vanilla-Client zeigt dort Schneefall statt Regen, auch unten (das Original zeigt unterhalb von y 104
+      Regen, obwohl Schnee liegen bleibt).
+    - Ichor-Schnee ist Vanilla-Schnee; leere Kessel füllen sich dort bei Schneefall mit Pulverschnee.
+  - **Ichor friert nicht zu:** Im Original ist Ichor eine eigene Flüssigkeit. Hier ist er Wasser und würde im
+    kalten Biom zu Eis werden; das Plugin verhindert das (`weather.ichor-freezes: false`).
 - **Ichor-Regen und Ichor-Schnee:** eigene Wetter-Texturen im Original. Ein Resource Pack kann die Regen- und
   Schneetextur nur für alle Welten tauschen, deshalb bleibt sie Vanilla.
 - **Ladebildschirm** beim Betreten (siehe Portale und Risse): der normale Dimensionswechsel.

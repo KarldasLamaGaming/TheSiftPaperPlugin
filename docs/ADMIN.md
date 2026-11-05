@@ -303,6 +303,17 @@ werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug w
 - `worldgen.lava-floor.enabled`, `max-y` (11): Luft bis zu dieser Höhe wird Lava.
 - `/sift debug worldgen` zählt Spitzen (mit Gründen und Zeit) sowie aufgeräumte Blöcke und Lava.
 
+### Wetter und Ichor-Schneefall (ab alpha.32)
+
+- Die Sift hat ihr eigenes Wetter (Paper je Welt); `/weather` in der Sift gilt nur dort.
+- `weather.ichor-snowfall.{enabled, temperature, max-layers}`: Schnee nur in `ichor_snowy_peaks`, dort in jeder
+  Höhe; das Plugin setzt dafür beim Start die Temperatur des Bioms im installierten Datapack (Log `Ichor snowfall:
+  temperature of ichor_snowy_peaks set to 0.0`, wirkt nach einem Neustart). Nur bei Blocklicht unter 10,
+  höchstens 2 Schichten (mehr erst mit der Gamerule `snow_accumulation_height`).
+- `weather.ichor-freezes` (false): Ichor (Wasser in der Sift) friert nicht zu.
+- `/sift debug weather` zeigt das Wetter beider Welten und die Zähler (Schnee gebildet, abgelehnt je Biom,
+  Eis abgelehnt).
+
 ### Himmel und Atmosphäre (ab alpha.29)
 
 - `atmosphere.clouds` (Standard `false`): Wolken in der Sift. Beim Start setzt das Plugin im installierten
