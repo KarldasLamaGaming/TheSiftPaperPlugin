@@ -201,8 +201,8 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
       Sculk mit sanft angeglichenem Gelände drumherum. Truhe öffnen: Beute aus
       `the_sift:chests/abandoned_portal` (echte Sift-Items, oft die Aufwertungsvorlage oder die Schallplatte
       Rift).
-- [ ] Menge: nach dem Vorgenerieren ist etwa jeder siebte bis achte Kandidat gebaut; die meisten anderen
-      stehen als „nicht ausgewählt (chance 0.25)“ in `/sift debug portals`.
+- [ ] Menge: nach dem Vorgenerieren ist etwa jeder siebte Kandidat gebaut (Original: 8 von 52); die anderen
+      stehen mit ihrem Grund (Gelände, Platz reserviert …) in `/sift debug portals`.
 - [ ] Abgelehnte Kandidaten aus `/sift debug portals` stichprobenartig anschauen: Der Grund passt zum
       Gelände (steiler Hang, Baum oder Ichor in der Chunkmitte …).
 - [ ] `/sift debug landmarks <x> <z>` um eine besuchte Gegend: jeder Kandidat hat einen Status (gebaut,

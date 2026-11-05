@@ -26,7 +26,7 @@ Stand: 31.10.2026 (nach alpha.10)
 
 | Issue | Punkt | Stand |
 |---|---|---|
-| [#15](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/15) | Verlassene Portale: `chance` 0,25 mit Phase 3 auf 1,0 | wartet auf Phase 3 |
+| [#15](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/15) | Verlassene Portale: `chance` 0,25 mit Phase 3 auf 1,0 | alpha.28: auf 1,0 gesetzt (gleiche 52 Kandidaten wie im Original: je 8 gebaut, 15 %). **Nach alpha.30 (letzte Worldgen-Features) erneut nachmessen, erst dann schließen.** |
 | [#17](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/17) | Phase 2 (Mobs) und Phase 3 (Ichor, Himmel, Monolithen, Bögen, Seelenschluchten, Sniffer-Höhlen) | nach Phase 1 |
 
 ## Phase 4 – Ideen (nach dem Original-Port)
@@ -59,8 +59,9 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
 - Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt
   fertig (alpha.14). Dunkler Schnüffler im PR, Spieltest siehe `docs/TESTING.md` → Mobs: Dunkler Schnüffler.
 - Phase 3: Ichor, Rifts, Siftit-Erhalt, Seen, Quellen, Kaskaden und Ichor-Schnee fertig (alpha.21–26).
-  Monolithen und Bögen im PR (alpha.27), Spieltest siehe `docs/TESTING.md` → Monolithen und Bögen.
-  Danach Sniffer-Höhlen (alpha.28).
+  Monolithen und Bögen fertig (alpha.27). Schnüffler-Höhlen im PR (alpha.28), Spieltest siehe
+  `docs/TESTING.md` → Schnüffler-Höhlen. Danach Atmosphäre (alpha.29) und die letzten Worldgen-Features (alpha.30);
+  nach alpha.30 die Portal-Häufigkeit für #15 erneut nachmessen.
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
 - Schritt 6b: Echo Golem (alpha.19, im PR), Spieltest siehe `docs/TESTING.md` → Mobs: Echo Golem. Danach ist
   Phase 2 vollständig.

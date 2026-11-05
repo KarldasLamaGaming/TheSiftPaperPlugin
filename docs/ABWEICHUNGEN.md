@@ -100,9 +100,9 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   Die übrigen Unterschiede ohne Phase 3 kommen vom Zufall (Vorlage, Spiegelung, erste Drehung) und davon,
   dass das Plugin das Haupt-Portal schon beim ersten Start baut. Im vollständigen Original blockieren
   Seelenschluchten, Ichor-Seen, Lavaböden, Monolithen und Dornen viele Plätze (sie reservieren ihre Fläche
-  vorher). Deshalb darf bis Phase 3 nur ein Viertel der Kandidaten bauen
-  (`worldgen.abandoned-portals.chance: 0.25`): 7 von 49 statt 24 von 49, das Original hat 6. Andere Plätze
-  als im Original, aber dieselbe Menge. Mit Phase 3 wird der Wert 1.0.
+  vorher). Deshalb durfte bis alpha.27 nur ein Viertel der Kandidaten bauen (`chance: 0.25`). Seit alpha.28
+  gilt wie im Original 1.0: Nachgemessen auf denselben Chunks wie das Original (Seed `lamakingdom`, 52 Kandidaten
+  außerhalb der Startsperre ±200) bauen das Original und das Plugin je 8 (15 %), davon 4 an denselben Stellen.
 - Das Haupt-Portal wird beim ersten Start gebaut, nachdem die Chunks um 0/0 generiert sind (das Original
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.

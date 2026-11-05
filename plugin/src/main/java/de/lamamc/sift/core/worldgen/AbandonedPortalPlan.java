@@ -20,7 +20,7 @@ public final class AbandonedPortalPlan {
      * (soul canyons, ichor lakes, lava floors, monoliths, spikes) take their space, 0.25 brings the count
      * close to it (seed "lamakingdom", 49 candidates: original 6 built, plugin 24 without this chance).
      */
-    public static final double DEFAULT_CHANCE = 0.25;
+    public static final double DEFAULT_CHANCE = 1.0;
     private static final long CHANCE_SALT = 0x5A1F7C0DE1A5B0B5L;
     /** Half size of the square the portal reserves against other solid features (centre −23 … +22). */
     public static final int RESERVE_BELOW = 23;
