@@ -51,6 +51,13 @@ public final class SiftBootstrap implements PluginBootstrap {
                 context.getLogger().info("Ancient City portals are off: vanilla city centres");
             }
             // atmosphere.clouds: false (default) hides the clouds, the original only shows them in rain
+            // weather.ichor-snowfall: snow in the whole of ichor_snowy_peaks like the original (biome temperature)
+            if (settings.getBoolean("weather.ichor-snowfall.enabled", true)) {
+                double temperature = settings.getDouble("weather.ichor-snowfall.temperature", 0.0);
+                if (DatapackInstaller.coolBiome(packDir, "ichor_snowy_peaks", temperature)) {
+                    context.getLogger().info("Ichor snowfall: temperature of ichor_snowy_peaks set to {}", temperature);
+                }
+            }
             if (!settings.getBoolean("atmosphere.clouds", false)) {
                 int cloudFiles = DatapackInstaller.hideClouds(packDir);
                 context.getLogger().info("Clouds of the Sift hidden ({} files)", cloudFiles);
