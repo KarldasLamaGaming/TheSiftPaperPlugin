@@ -54,4 +54,15 @@ class DatapackInstallerTest {
         Path jar = jarWith("datapack/data/x.json");
         assertThrows(IOException.class, () -> DatapackInstaller.install(jar, tmp.resolve("out")));
     }
+
+    @Test
+    void hidesTheCloudsOfTheInstalledPack() throws IOException {
+        Path target = tmp.resolve("clouds");
+        Path type = target.resolve("data/the_sift/dimension_type/the_sift.json");
+        Files.createDirectories(type.getParent());
+        Files.writeString(type, "{\"attributes\":{\"minecraft:visual/cloud_color\":\"#ffffffff\"}}");
+        assertEquals(1, DatapackInstaller.hideClouds(target), "the missing timeline is skipped");
+        assertTrue(Files.readString(type).contains("#00ffffff"));
+        assertEquals(0, DatapackInstaller.hideClouds(target), "already transparent");
+    }
 }

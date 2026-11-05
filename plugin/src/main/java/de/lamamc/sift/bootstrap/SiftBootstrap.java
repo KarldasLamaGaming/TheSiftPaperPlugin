@@ -43,10 +43,17 @@ public final class SiftBootstrap implements PluginBootstrap {
             context.getLogger().info("Datapack installed to {} ({} files)", packDir, files);
             // portals.ancient-city.enabled: false keeps the vanilla city centres (only new chunks are affected)
             java.io.File config = context.getDataDirectory().resolve("config.yml").toFile();
-            if (config.isFile() && !org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(config)
-                    .getBoolean("portals.ancient-city.enabled", true)) {
+            org.bukkit.configuration.file.YamlConfiguration settings = config.isFile()
+                    ? org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(config)
+                    : new org.bukkit.configuration.file.YamlConfiguration();
+            if (!settings.getBoolean("portals.ancient-city.enabled", true)) {
                 DatapackInstaller.remove(packDir, "data/minecraft/structure/ancient_city");
                 context.getLogger().info("Ancient City portals are off: vanilla city centres");
+            }
+            // atmosphere.clouds: false (default) hides the clouds, the original only shows them in rain
+            if (!settings.getBoolean("atmosphere.clouds", false)) {
+                int cloudFiles = DatapackInstaller.hideClouds(packDir);
+                context.getLogger().info("Clouds of the Sift hidden ({} files)", cloudFiles);
             }
         } catch (IOException e) {
             throw new IllegalStateException("Could not install the Sift datapack", e);

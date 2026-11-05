@@ -212,6 +212,20 @@ worldgen:
       # alle N Ticks ein Lauf
       interval-ticks: 10
 
+# Himmel und Atmosphäre der Sift (ab alpha.29). Was ein Vanilla-Client davon zeigen kann, steht in
+# docs/ABWEICHUNGEN.md → „Himmel und Atmosphäre“.
+atmosphere:
+  # Wolken in der Sift zeigen. Das Original zeigt sie nur bei Regen, ein Vanilla-Client kann das nicht;
+  # false blendet sie ganz aus (Alpha 0 der Wolkenfarbe im Datapack). Wirkt nach einem Neustart.
+  clouds: false
+  # Intro-Klang (the_sift:sift_intro) einmal je Spieler beim ersten Betreten der Sift, wie im Original
+  intro-sound:
+    enabled: true
+    volume: 0.4
+    # erst abspielen, wenn der Spieler so viele Ticks in der Sift ist und Boden in 8 Blöcken unter sich hat
+    # (das Original wartet auf das Ende des Ladebildschirms)
+    delay-ticks: 20
+
 # Werte der Sift-Items (Neustart nötig; bereits vorhandene Items behalten ihre alten Werte).
 # Portale (Schritt 7): Durchgang in die Sift und zurück, Konsolen aus Klingendem Tiefenschiefer
 ichor:
