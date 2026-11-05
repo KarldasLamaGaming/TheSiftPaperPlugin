@@ -541,6 +541,13 @@ Weidenstamm, -holz, -bretter, -laub und -setzling brennen wie im Original und ta
 
 ## Mobs (Phase 2)
 
+### Allays (ab alpha.31)
+
+`mobs.allay.{enabled, interval-ticks, attempts, min-distance, max-distance, local-radius, local-height}` und
+`profiles.<biom>.{chance, min-group, max-group, local-cap}` (Werte des Originals: Überwucherter Wald 0,72/2–4/16,
+Sift-Ödland 0,5/2–3/12, Lichtung 0,32/1–3/8). Vanilla-Allays, unabhängig von `mobs.enabled`.
+`/sift debug allays` zeigt Zähler und die nächsten Allays mit Teleport.
+
 Jeder Sift-Mob ist ein unsichtbarer, stummer Vanilla-Mob (Hitbox, Wegfindung, Kampf) mit dem Eintrag
 `the_sift:mob` in seinen Entity-Daten. Sein Modell besteht aus Item-Displays (eines je Würfel des
 Original-Modells), die auf ihm reiten. Die Displays werden nicht gespeichert: Beim Laden des Chunks, nach

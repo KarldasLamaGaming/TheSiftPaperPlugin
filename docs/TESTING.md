@@ -512,6 +512,16 @@ Für schnelle Tests `rifts.natural.first-delay-ticks: 200` und `interval-ticks: 
   - Zweimal `/sift rift open` an derselben Stelle: Der zweite Riss steht daneben, nie darüber.
   - `/sift rift list` zeigt die Zähler; „Riss-Displays ohne Riss: jetzt 0“.
 
+## Mobs: Allays (ab alpha.31)
+
+Nur mit Spieler (der Spawner arbeitet nur in der Nähe von Spielern in der Sift):
+- [ ] Im Überwucherten Wald stehen bleiben (`/execute in the_sift:the_sift positioned 0 100 0 run locate biome
+      the_sift:overgrown_forest`, Teleport-Klick), ein bis zwei Minuten warten. `/sift debug allays` → Gruppen und
+      Allays steigen; Klick auf **[Teleport]** führt zu ihnen: 2–4 Allays schweben etwa 5–12 Blöcke über dem Boden.
+- [ ] Im Sift-Ödland Gruppen von 2–3, in der Lichtung 1–3, in anderen Biomen (z. B. Siftschiefer-Gipfel) keine.
+- [ ] Nach längerem Warten bleibt die Zahl im Umkreis begrenzt (Wald höchstens 16).
+- [ ] Schalter `mobs.allay.enabled: false`, Neustart: keine neuen Allays.
+
 ## Mobs: Blub (ab Phase 2)
 
 Vorher in `config.yml` nichts ändern; die Werte stehen unter `mobs.blub`. Resource Pack neu laden (neue
