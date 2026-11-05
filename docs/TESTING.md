@@ -273,6 +273,25 @@ Nur in **neu generierten** Chunks. Nur mit Spieler (Optik):
 - [ ] Schalter: `worldgen.monoliths.enabled: false` (oder `lush.enabled` / `bare.enabled`) bzw.
       `worldgen.arches.enabled: false`, Neustart, neues Gelände: keine neuen Monolithen bzw. Bögen.
 
+## Schnüffler-Höhlen (ab alpha.28)
+
+Nur in **neu generierten** Chunks. Nur mit Spieler:
+- [ ] Neues Gelände in überwucherten Biomen oder im Ödland erzeugen (weit hinaus teleportieren, ein paar Minuten
+      fliegen), dann `/sift debug landmarks` → „Schnüffler-Höhlen bekannt: …“ mit den drei nächsten.
+- [ ] Klick auf **[Eingang]**: Am Boden öffnet sich ein Loch; ein gewundener Gang (14–16 Blöcke) führt etwa
+      9 Blöcke hinab, Wände aus Gesundem und trockenem Sculk.
+- [ ] Klick auf **[Nest]**: große Kammer, in der Mitte ein Nest aus Weidenlaub mit Pflanzen, manchmal ein
+      Schnüffler-Ei. Daneben eine Nebenkammer mit einem kleinen Ichor-Becken (leuchtet), am Boden Fackellilien
+      **oder** Kannenpflanzen.
+- [ ] Im Nest stehen zwei erwachsene Schnüffler, manchmal ein Junges. Sie erscheinen, sobald die Chunks geladen
+      sind (`/sift debug worldgen` → „Schnüffler erzeugt … von …“).
+- [ ] Fackellilien und Kannenpflanzen auf Sift-Boden bleiben stehen, wenn daneben ein Block gesetzt oder abgebaut
+      wird (Pflanzen in Höhlen, Flecken und am Ufer).
+- [ ] An der Oberfläche: selten Flecken aus 5–9 Fackellilien oder Kannenpflanzen auf Sculk oder Bewuchs.
+- [ ] Schalter: `worldgen.sniffer-caves.enabled: false` (oder nur `family: false`) bzw.
+      `worldgen.sniffer-plant-patches.enabled: false`, Neustart, neues Gelände: keine Höhlen / keine Schnüffler /
+      keine Flecken.
+
 ## Seelenschluchten (ab alpha.18, Phase 2 Schritt 6a)
 
 Neue Schluchten entstehen nur in **neu generierten** Chunks. Für schon generiertes Gelände gibt es

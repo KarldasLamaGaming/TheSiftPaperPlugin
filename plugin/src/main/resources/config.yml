@@ -156,6 +156,28 @@ worldgen:
     biomes: [ichor_snowy_peaks, overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes,
       sift_wastes, siftslate_peaks, siftslate_slopes]
     portal-clearance: 23
+  # Schnüffler-Höhlen (ab alpha.28, Original 1.1.1): vom Chunk-Mittelpunkt ein gewundener Gang 9 Blöcke hinab
+  # in eine Nest-Kammer aus Sculk, mit Ichor-Becken in einer Nebenkammer, Fackellilien oder Kannenpflanzen,
+  # Nest aus Weidenlaub (Pflanzen, manchmal ein Schnüffler-Ei) und einer Schnüffler-Familie (2 Erwachsene,
+  # zu 33 % ein Junges). Je Zelle aus N × N Chunks sind mehrere Chunks Kandidat. Nur neue Chunks;
+  # /sift debug landmarks zeigt die nächsten Höhlen mit Teleport.
+  sniffer-caves:
+    enabled: true
+    overgrown: {cell-chunks: 16, candidates: 4, biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes]}
+    wastes: {cell-chunks: 28, candidates: 3, biomes: [ichor_snowy_peaks, sift_wastes, siftslate_peaks, siftslate_slopes]}
+    # Mindestabstand des Nests zum Haupt-Portal (Blöcke)
+    portal-clearance: 12
+    # Schnüffler-Familie im Nest erzeugen
+    family: true
+    # Ichor-Becken leuchten wie die Seen (Lichtblöcke Stufe 12, Abstand wie ichor-lakes.light-spacing)
+    ichor-light: true
+  # Schnüffler-Pflanzenflecken (Original: 1 von 14 Chunks): 5–9 Fackellilien oder Kannenpflanzen auf Sculk
+  # oder Siftschiefer-Bewuchs um die Chunk-Mitte.
+  sniffer-plant-patches:
+    enabled: true
+    rarity: 14
+    biomes: [overgrown_clearing, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, overgrown_slopes, sift_wastes,
+      siftslate_peaks, siftslate_slopes]
   # Ichor-Quellen in Felswänden unter Tage (Original: 16 Versuche je Chunk, y 15–110, mindestens 12 unter der Oberfläche)
   ichor-springs:
     enabled: true

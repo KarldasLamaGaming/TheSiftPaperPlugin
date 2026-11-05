@@ -107,7 +107,17 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.
 - Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
-- Schnüffler-Höhlen und Lavaböden kommen mit Phase 3.
+- Lavaböden kommen mit Phase 3.
+- **Schnüffler-Höhlen (seit alpha.28)** baut das Plugin beim Generieren, als Port von SnifferCaveFeature aus 1.1.1
+  mit denselben Zellen (überwuchert 16 Chunks mit 4 Kandidaten, Ödland 28 mit 3), Formen, Blöcken, Pflanzen,
+  Nest und Familie (2 Erwachsene, zu 33 % ein Junges; das Plugin erzeugt sie wie das Original erst, wenn die
+  Chunks geladen sind). Dazu der Schnüffler-Pflanzenfleck (1/14). Unterschiede:
+  - Das Ichor-Becken leuchtet über Lichtblöcke wie die Seen (Schalter `ichor-light`).
+  - Der Zufall ist der des Plugin-Populators; die Kandidaten-Chunks sind dieselben wie im Original, ob dort
+    gebaut wird, kann abweichen.
+- **Fackellilien, Kannenpflanzen und Blumen auf Sift-Boden (seit alpha.28):** wie im Original (dort per Mixin)
+  bleiben sie auf Siftschiefer, Bewuchs, Sculk und Weidenlaub stehen. Selbst pflanzen lassen sie sich dort
+  weiterhin nicht (Vanilla-Regel des Clients).
 - **Monolithen und Bögen (seit alpha.27)** baut das Plugin beim Generieren, als Port von SiftMonolithFeature und
   SiftArchFeature aus 1.1.1 mit denselben Werten (Häufigkeiten, Biome, Radien, Höhen, Terrassen, Nebensäulen,
   Bogen-Suche über 4 Achsen, Kurve, Einkerbungen, Bewuchs). Unterschiede:

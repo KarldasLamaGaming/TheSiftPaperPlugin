@@ -311,7 +311,7 @@ public final class IchorWaters implements Listener {
         stats.springNanos.addAndGet(System.nanoTime() - start);
     }
 
-    private static BlockData light() {
+    static BlockData light() {
         Light light = (Light) Material.LIGHT.createBlockData();
         light.setLevel(LIGHT_LEVEL);
         light.setWaterlogged(true);

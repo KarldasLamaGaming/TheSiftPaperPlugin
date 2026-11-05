@@ -292,6 +292,18 @@ werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug w
 - **Zeitbudget** (Smoke-Test, 256 neue Chunks): 2,1 ms je Monolith-Kandidat im Mittel (höchstens 28 ms),
   0,3 ms je Bogen-Kandidat (höchstens 30 ms), zusammen etwa 0,7 ms je Chunk.
 
+### Schnüffler-Höhlen (ab alpha.28)
+
+- `worldgen.sniffer-caves.enabled` (Standard an). `overgrown` und `wastes` je mit `cell-chunks`, `candidates`
+  und `biomes` (Original: überwuchert 16 Chunks mit 4 Kandidaten je Zelle, Ödland/Hänge/Gipfel/Schneegipfel 28
+  mit 3). `portal-clearance` (12), `family` (Schnüffler-Familie im Nest), `ichor-light` (Becken leuchtet).
+- `worldgen.sniffer-plant-patches.enabled`, `rarity` (14), `biomes`.
+- Die Familie wird beim Generieren vorgemerkt und auf dem Main-Thread erzeugt, sobald die Nest-Chunks geladen
+  sind (höchstens 4 je Tick, 80 Versuche); vorgemerkte Schnüffler gehen bei einem Neustart verloren.
+- `/sift debug landmarks` zeigt die drei nächsten Höhlen mit **[Nest]**- und **[Eingang]**-Teleport (Welt-PDC
+  `the_sift:sniffer_caves`), `/sift debug worldgen` Kandidaten, Gründe, Zeit, Eier, Pflanzen und Schnüffler.
+- Fackellilien, Kannenpflanzen und Blumen bleiben auf Sift-Boden stehen (wie im Original).
+
 **Alte Chunks (#16):** Neue Weltgenerierungs-Features (Seen, Quellen, Monolithen, Bögen …) entstehen nur
 in Chunks, die nach dem Update **neu generiert** werden. Schon erkundete Gebiete bekommen sie nicht.
 Vor dem Produktionsstart die Sift zurücksetzen (siehe TESTING.md → „Sift-Welt zurücksetzen“), danach nur

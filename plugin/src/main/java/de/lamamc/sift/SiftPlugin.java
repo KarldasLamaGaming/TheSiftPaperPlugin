@@ -388,12 +388,19 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                     de.lamamc.sift.world.gen.Landforms.Settings.load(getConfig().getConfigurationSection("worldgen")));
             landforms.load(world);
             siftPopulator.landforms(landforms);
+            de.lamamc.sift.world.gen.SnifferCaves snifferCaves = new de.lamamc.sift.world.gen.SnifferCaves(
+                    de.lamamc.sift.world.gen.SnifferCaves.Settings.load(getConfig().getConfigurationSection("worldgen")),
+                    waters.settings().lightSpacing());
+            snifferCaves.load(world);
+            snifferCaves.start(this);
+            siftPopulator.snifferCaves(snifferCaves);
             // worldgen threads record, the main thread writes into the world's persistent data
             getServer().getScheduler().runTaskTimer(this, () -> {
                 landmarkLog.save(world);
                 canyonLandmarks.save(world);
                 waters.save(world);
                 landforms.save(world);
+                snifferCaves.save(world);
             }, 100L, 100L);
             world.getPopulators().add(siftPopulator);
             getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
@@ -408,6 +415,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             canyonLandmarks.save(sift);
             siftPopulator.waters().save(sift);
             siftPopulator.landforms().save(sift);
+            siftPopulator.snifferCaves().save(sift);
         }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
