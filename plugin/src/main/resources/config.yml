@@ -754,6 +754,22 @@ mobs:
 
   # Dunkler Schnüffler (Original: DarkSnifferEntity). Basis ist ein unsichtbarer Eisbär ohne eigenes Verhalten.
   # Modell: eigenes, vereinfachtes Modell auf der Original-Textur (nicht das Vanilla-Sniffer-Modell).
+  # Hilfsgeister (Allays) in der Sift (ab alpha.31, Original 1.1.1): alle 80 Ticks für einen Spieler in der Sift bis zu
+  # 18 Stellen 34–80 Blöcke entfernt, 6 Blöcke über dem Boden; die erste Stelle in einem der Biome entscheidet:
+  # mit der Chance des Bioms erscheint eine Gruppe, höchstens bis zur Grenze im Umkreis (96 × 48 Blöcke).
+  # Vanilla-Allays, unabhängig von mobs.enabled.
+  allay:
+    enabled: true
+    interval-ticks: 80
+    attempts: 18
+    min-distance: 34
+    max-distance: 80
+    local-radius: 96
+    local-height: 48
+    profiles:
+      overgrown_forest: {chance: 0.72, min-group: 2, max-group: 4, local-cap: 16}
+      sift_wastes: {chance: 0.5, min-group: 2, max-group: 3, local-cap: 12}
+      overgrown_clearing: {chance: 0.32, min-group: 1, max-group: 3, local-cap: 8}
   dark_sniffer:
     enabled: true
     # Größe des Basis-Eisbären (1,36 ergibt 1,9 × 1,9; Original 1,9 × 1,75)

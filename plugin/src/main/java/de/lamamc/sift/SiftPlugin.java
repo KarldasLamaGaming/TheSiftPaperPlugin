@@ -58,6 +58,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private SiftAdvancements advancements;
     private de.lamamc.sift.world.rift.RiftManager rifts;
     private de.lamamc.sift.world.atmosphere.SiftIntro intro;
+    private de.lamamc.sift.mob.allay.AllaySpawner allays;
     private de.lamamc.sift.world.siftite.SiftiteKeeper siftiteKeeper;
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
@@ -150,6 +151,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         intro = new de.lamamc.sift.world.atmosphere.SiftIntro(getConfig().getConfigurationSection("atmosphere.intro-sound"));
         intro.start(this);
+        allays = new de.lamamc.sift.mob.allay.AllaySpawner(getConfig().getConfigurationSection("mobs.allay"));
+        allays.start(this);
         if (getConfig().getBoolean("rifts.enabled", true)) {
             rifts = new de.lamamc.sift.world.rift.RiftManager(this, blocks, messages, advancements, gate, getConfig().getConfigurationSection("rifts"));
             getServer().getPluginManager().registerEvents(rifts, this);
@@ -458,6 +461,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     /** Null when siftite.keep-on-death.enabled is false. */
     public de.lamamc.sift.world.siftite.SiftiteKeeper siftiteKeeper() {
         return siftiteKeeper;
+    }
+
+    public de.lamamc.sift.mob.allay.AllaySpawner allays() {
+        return allays;
     }
 
     public de.lamamc.sift.world.atmosphere.SiftIntro intro() {
