@@ -25,6 +25,20 @@ public final class LandmarkPlacement {
         return selected.x() == chunkX && selected.z() == chunkZ;
     }
 
+    /** Whether the chunk is one of the first {@code candidates} candidates of its cell (sniffer caves: 4 or 3). */
+    public static boolean isSelectedChunk(long worldSeed, int chunkX, int chunkZ, int cellChunks, long salt, int candidates) {
+        int gridOffset = gridOffset(cellChunks, salt);
+        int cellX = Math.floorDiv(chunkX - gridOffset, cellChunks);
+        int cellZ = Math.floorDiv(chunkZ - gridOffset, cellChunks);
+        for (int index = 0; index < candidates; index++) {
+            ChunkPos selected = candidateChunk(worldSeed, cellX, cellZ, cellChunks, salt, index);
+            if (selected.x() == chunkX && selected.z() == chunkZ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static ChunkPos candidateChunk(long worldSeed, int cellX, int cellZ, int cellChunks, long salt, int candidateIndex) {
         return candidateChunk(worldSeed, cellX, cellZ, cellChunks, salt, candidateIndex,
                 salt == ABANDONED_PORTAL_SALT || salt == SOUL_CANYON_SALT);
