@@ -70,7 +70,7 @@ public final class PhysicsGuard implements Listener {
         event.setCancelled(true);
         if (vanillaNeighbors != null) {
             List<Block> toUpdate = vanillaNeighbors;
-            Bukkit.getScheduler().runTask(plugin, () -> toUpdate.forEach(PhysicsGuard::followUp));
+            Bukkit.getScheduler().runTask(plugin, () -> toUpdate.forEach(this::followUp));
         }
     }
 
@@ -87,17 +87,35 @@ public final class PhysicsGuard implements Listener {
         return false;
     }
 
+    /** Sift soil that holds vanilla flowers, pitcher plants and torchflower crops (VegetationBlockMixin and friends). */
+    private static final java.util.Set<String> SOIL = java.util.Set.of("siftslate", "siftslate_growth", "healthy_sculk",
+            "dry_healthy_sculk", "dry_healthy_sculk_growth", "overgrown_willow_foliage");
+
+    /**
+     * The original lets flowers (torchflowers, pitcher plants, wildflowers …) and pitcher and torchflower crops
+     * stand on Sift soil; vanilla would break them because the soil is a mushroom block here.
+     */
+    private boolean onSiftSoil(Block block) {
+        org.bukkit.Material type = block.getType();
+        if (!org.bukkit.Tag.FLOWERS.isTagged(type) && type != org.bukkit.Material.PITCHER_CROP
+                && type != org.bukkit.Material.TORCHFLOWER_CROP) {
+            return false;
+        }
+        CustomBlock soil = registry.at(block.getRelative(BlockFace.DOWN));
+        return soil != null && SOIL.contains(soil.id());
+    }
+
     private boolean isCustom(Block block) {
         return CustomBlockRegistry.STAND_IN_BLOCKS.contains(block.getType()) && registry.at(block) != null;
     }
 
     /** The part of the skipped shape update that matters for gameplay. */
-    private static void followUp(Block block) {
+    private void followUp(Block block) {
         BlockData data = block.getBlockData();
         if (data.getMaterial().isAir()) {
             return;
         }
-        if (!data.isSupported(block)) {
+        if (!data.isSupported(block) && !onSiftSoil(block)) {
             block.breakNaturally();
             return;
         }
