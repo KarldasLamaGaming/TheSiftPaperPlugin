@@ -153,6 +153,9 @@ public final class SiftCommand {
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
                         .then(Commands.literal("ichor").executes(this::debugIchor))
+                        .then(Commands.literal("intro").executes(ctx -> debugIntro(ctx, null))
+                                .then(Commands.literal("reset").executes(ctx -> debugIntro(ctx, "reset")))
+                                .then(Commands.literal("play").executes(ctx -> debugIntro(ctx, "play"))))
                         .then(Commands.literal("canyon").then(Commands.literal("build").executes(this::debugCanyonBuild)))
                         .then(Commands.literal("golems").executes(ctx -> {
                             var sender = ctx.getSource().getSender();
@@ -463,6 +466,31 @@ public final class SiftCommand {
                     lakeCandidates == 0 ? 0.0 : w.lakeNanos.get() / 1e6 / lakeCandidates, w.lakeMaxNanos.get() / 1e6,
                     w.springs.get(), springChunks == 0 ? 0.0 : w.springNanos.get() / 1e6 / springChunks,
                     w.lights.get(), w.lightsRemoved.get(), w.islands.get()));
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** /sift debug intro [reset|play]: whether the sender heard the intro sound of the Sift (alpha.29). */
+    private int debugIntro(CommandContext<CommandSourceStack> ctx, String action) {
+        var sender = ctx.getSource().getSender();
+        var intro = plugin.intro();
+        if (!(ctx.getSource().getExecutor() instanceof org.bukkit.entity.Player player)) {
+            sender.sendRichMessage("<red>Nur für Spieler.");
+            return 0;
+        }
+        if ("reset".equals(action)) {
+            de.lamamc.sift.world.atmosphere.SiftIntro.reset(player);
+            sender.sendRichMessage("<green>Intro vergessen</green><gray>: Es spielt beim nächsten Aufenthalt in der Sift erneut"
+                    + (intro.enabled() ? "." : " (atmosphere.intro-sound.enabled ist aus)."));
+        } else if ("play".equals(action)) {
+            intro.play(player);
+            sender.sendRichMessage("<green>Intro abgespielt</green> <gray>(" + de.lamamc.sift.world.atmosphere.SiftIntro.SOUND + ").");
+        } else {
+            sender.sendRichMessage("<gray>Intro-Klang: " + (intro.enabled() ? "<green>an</green>" : "<red>aus</red>") + ", für dich "
+                    + (de.lamamc.sift.world.atmosphere.SiftIntro.hasPlayed(player) ? "<white>schon gespielt</white>" : "<white>noch nicht gespielt</white>")
+                    + ", seit dem Start <white>" + intro.playedSinceStart() + "</white>× gespielt. "
+                    + "<click:run_command:'/sift debug intro reset'><aqua>[zurücksetzen]</aqua></click> "
+                    + "<click:run_command:'/sift debug intro play'><aqua>[jetzt abspielen]</aqua></click>");
         }
         return Command.SINGLE_SUCCESS;
     }
