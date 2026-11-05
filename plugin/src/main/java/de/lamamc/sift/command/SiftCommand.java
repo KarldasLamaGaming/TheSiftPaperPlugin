@@ -153,6 +153,7 @@ public final class SiftCommand {
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
                         .then(Commands.literal("ichor").executes(this::debugIchor))
+                        .then(Commands.literal("allays").executes(this::debugAllays))
                         .then(Commands.literal("intro").executes(ctx -> debugIntro(ctx, null))
                                 .then(Commands.literal("reset").executes(ctx -> debugIntro(ctx, "reset")))
                                 .then(Commands.literal("play").executes(ctx -> debugIntro(ctx, "play"))))
@@ -481,6 +482,32 @@ public final class SiftCommand {
                     w.springs.get(), springChunks == 0 ? 0.0 : w.springNanos.get() / 1e6 / springChunks,
                     w.lights.get(), w.lightsRemoved.get(), w.islands.get()));
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** /sift debug allays: allays in the Sift, the spawner's counters and the nearest allays with teleport (alpha.31). */
+    private int debugAllays(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        var spawner = plugin.allays();
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift == null || spawner == null) {
+            sender.sendRichMessage("<red>Die Sift-Welt ist nicht geladen.");
+            return 0;
+        }
+        var all = sift.getEntitiesByClass(org.bukkit.entity.Allay.class);
+        sender.sendRichMessage("<gray>Allays: Spawner " + (spawner.enabled() ? "<green>an</green>" : "<red>aus</red>") + ", seit dem Start <white>"
+                + spawner.groups() + "</white> Gruppen mit <white>" + spawner.allays() + "</white> Allays; jetzt geladen in der Sift <white>"
+                + all.size() + "</white>. Biome: <white>" + spawner.profiles().keySet() + "</white>");
+        var at = ctx.getSource().getLocation();
+        boolean inSift = SiftWorlds.isSift(at.getWorld());
+        all.stream().sorted(java.util.Comparator.comparingDouble(a -> inSift ? a.getLocation().distanceSquared(at) : 0)).limit(5).forEach(a -> {
+            var l = a.getLocation();
+            sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                    "  <gray>Allay bei %d %d %d%s</gray> <click:run_command:'/execute in the_sift:the_sift run tp @s %d %d %d'>"
+                            + "<aqua>[Teleport]</aqua></click>",
+                    l.getBlockX(), l.getBlockY(), l.getBlockZ(), inSift ? ", " + Math.round(l.distance(at)) + " Blöcke" : "",
+                    l.getBlockX(), l.getBlockY(), l.getBlockZ()));
+        });
         return Command.SINGLE_SUCCESS;
     }
 

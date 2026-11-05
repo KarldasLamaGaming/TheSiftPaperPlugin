@@ -125,6 +125,9 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   - Das Ichor-Becken leuchtet über Lichtblöcke wie die Seen (Schalter `ichor-light`).
   - Der Zufall ist der des Plugin-Populators; die Kandidaten-Chunks sind dieselben wie im Original, ob dort
     gebaut wird, kann abweichen.
+  - Viele Kandidaten scheitern an Erz, Siftschiefer-Bruchstein oder Geröll im Höhlenbereich
+    („fremder Block im Weg“). Das ist im Original genauso: Als Sift-Fels zählen dort nur Siftschiefer, Bewuchs
+    und Sculk, Erze und Blobs entstehen vor den Höhlen (alpha.30 geprüft; Original 10 Höhlen auf 111 Kandidaten).
 - **Fackellilien, Kannenpflanzen und Blumen auf Sift-Boden (seit alpha.28):** wie im Original (dort per Mixin)
   bleiben sie auf Siftschiefer, Bewuchs, Sculk und Weidenlaub stehen. Selbst pflanzen lassen sie sich dort
   weiterhin nicht (Vanilla-Regel des Clients).
@@ -297,6 +300,11 @@ dem ersten Drachenkill, ab Datum oder nur per Befehl). Solange sie zu ist, kommt
 Beim Schließen werden Spieler nach einem Countdown zurückgeschickt. Standard ist `always` (wie das Original).
 
 ## Mobs (seit Phase 2)
+
+**Allays (seit alpha.31)** wie im Original (SiftAllaySpawner 1.1.1): Vanilla-Allays erscheinen in Gruppen nahe
+Spielern im Überwucherten Wald (Chance 0,72, 2–4, höchstens 16 im Umkreis), im Sift-Ödland (0,5, 2–3, 12) und in
+der Lichtung (0,32, 1–3, 8), alle 80 Ticks, 34–80 Blöcke entfernt, 6 Blöcke über dem Boden. Es sind echte
+Vanilla-Allays, kein Sift-Mob mit eigenem Modell; sie erscheinen mit dem Spawn-Grund „Plugin“ statt „natürlich“.
 
 Allgemein, für alle Sift-Mobs:
 - **Darstellung:** Im Original zeichnet GeckoLib die Mobs auf dem Client. Hier trägt ein unsichtbarer

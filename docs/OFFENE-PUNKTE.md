@@ -26,7 +26,6 @@ Stand: 31.10.2026 (nach alpha.10)
 
 | Issue | Punkt | Stand |
 |---|---|---|
-| [#15](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/15) | Verlassene Portale: `chance` 0,25 mit Phase 3 auf 1,0 | alpha.28: auf 1,0 gesetzt (gleiche 52 Kandidaten wie im Original: je 8 gebaut, 15 %). alpha.30 nachgemessen (alle Worldgen-Features da): Plugin 5 von 52 (10 %), Original 8 (15 %); mehr Plätze von anderen Bauwerken reserviert (14 statt 11, v. a. die neuen Sculk-Spitzen). 1,0 ist der Höchstwert, der Rest ist Zufall und Generierungsreihenfolge → **kann geschlossen werden** |
 | [#17](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/17) | Phase 2 (Mobs) und Phase 3 (Ichor, Himmel, Monolithen, Bögen, Seelenschluchten, Sniffer-Höhlen) | nach Phase 1 |
 
 ## Phase 4 – Ideen (nach dem Original-Port)
@@ -61,7 +60,8 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
 - Phase 3: Ichor, Rifts, Siftit-Erhalt, Seen, Quellen, Kaskaden und Ichor-Schnee fertig (alpha.21–26).
   Monolithen, Bögen, Schnüffler-Höhlen und Atmosphäre fertig (alpha.27–29). Die letzten Worldgen-Features
   (Sculk-Spitzen, Bewuchs-Aufräumen, Lavaboden) im PR (alpha.30), Spieltest siehe `docs/TESTING.md`; damit sind
-  alle Java-Weltgenerierungs-Features des Originals übernommen. Danach Allay-Spawner (alpha.31) und Wetter (alpha.32).
+  alle Java-Weltgenerierungs-Features des Originals übernommen (alpha.30 gemergt). Allay-Spawner im PR (alpha.31),
+  Spieltest siehe `docs/TESTING.md` → Mobs: Allays. Danach Wetter und Ichor-Schneefall (alpha.32).
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
 - Schritt 6b: Echo Golem (alpha.19, im PR), Spieltest siehe `docs/TESTING.md` → Mobs: Echo Golem. Danach ist
   Phase 2 vollständig.
