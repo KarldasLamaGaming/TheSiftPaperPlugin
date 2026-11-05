@@ -27,12 +27,19 @@ public final class TopLayer {
     public final AtomicLong plants = new AtomicLong();
     public final AtomicLong lava = new AtomicLong();
     public final AtomicLong nanos = new AtomicLong();
+    public final AtomicLong lavaNanos = new AtomicLong();
+    /** Vanilla plants of GrowthCleanup.LAKE_PLANTS; every other block is skipped by its material first. */
+    private static final Set<Material> VANILLA_PLANTS = Set.of(Material.WILDFLOWERS, Material.TORCHFLOWER, Material.TORCHFLOWER_CROP,
+            Material.PITCHER_CROP, Material.PITCHER_PLANT);
     private final boolean cleanup;
     private final boolean lavaFloor;
     private final int lavaMaxY;
+    private final int depth;
 
-    public TopLayer(boolean cleanup, boolean lavaFloor, int lavaMaxY) {
+    /** @param depth blocks below the surface the cleanup looks at (56 in the original) */
+    public TopLayer(boolean cleanup, int depth, boolean lavaFloor, int lavaMaxY) {
         this.cleanup = cleanup;
+        this.depth = depth;
         this.lavaFloor = lavaFloor;
         this.lavaMaxY = lavaMaxY;
     }
@@ -43,7 +50,9 @@ public final class TopLayer {
             cleanup(region, chunkX, chunkZ);
         }
         if (lavaFloor) {
+            long lavaStart = System.nanoTime();
             lavaFloor(region, chunkX, chunkZ);
+            lavaNanos.addAndGet(System.nanoTime() - lavaStart);
         }
         nanos.addAndGet(System.nanoTime() - start);
     }
@@ -54,8 +63,12 @@ public final class TopLayer {
         for (int x = chunkX << 4; x < (chunkX << 4) + 16; x++) {
             for (int z = chunkZ << 4; z < (chunkZ << 4) + 16; z++) {
                 int surface = region.height(HeightMap.WORLD_SURFACE_WG, x, z);
-                int minY = Math.max(region.minY(), surface - 56);
+                int minY = Math.max(region.minY(), surface - depth);
                 for (int y = minY; y <= Math.min(maxY, surface); y++) {
+                    Material type = region.type(x, y, z);
+                    if (!de.lamamc.sift.block.CustomBlockRegistry.STAND_IN_BLOCKS.contains(type) && !VANILLA_PLANTS.contains(type)) {
+                        continue; // neither a Sift block nor one of the vanilla plants
+                    }
                     BlockData data = region.data(x, y, z);
                     CustomBlock custom = region.registry().of(data);
                     String id = custom != null ? custom.id() : data.getMaterial().getKey().toString();

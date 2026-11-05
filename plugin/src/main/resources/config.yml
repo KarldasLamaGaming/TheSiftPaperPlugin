@@ -170,6 +170,10 @@ worldgen:
   # verschneiter Bewuchs passt zum Ichor-Schnee, und Pflanzen, die über Ichor in der Luft hängen, werden entfernt.
   covered-growth-cleanup:
     enabled: true
+    # so viele Blöcke unter der Oberfläche wird geprüft (Original: 56). Bedeckter Bewuchs entsteht praktisch nur
+    # direkt unter der Oberfläche (gemessen: bei 8 gleich viele Funde je Chunk wie bei 56); 16 kostet etwa 2,5 ms
+    # je neuem Chunk, 56 etwa 8 ms.
+    depth: 16
   # Lavaboden (ab alpha.30, Original 1.1.1): jeder Luftblock bis y 11 wird Lava (tiefe Höhlen enden in Lava).
   lava-floor:
     enabled: true

@@ -398,7 +398,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             snifferCaves.start(this);
             siftPopulator.snifferCaves(snifferCaves);
             siftPopulator.topLayer(new de.lamamc.sift.world.gen.TopLayer(getConfig().getBoolean("worldgen.covered-growth-cleanup.enabled", true),
-                    getConfig().getBoolean("worldgen.lava-floor.enabled", true), getConfig().getInt("worldgen.lava-floor.max-y", 11)));
+                    Math.max(0, getConfig().getInt("worldgen.covered-growth-cleanup.depth", 16)), getConfig().getBoolean("worldgen.lava-floor.enabled", true), getConfig().getInt("worldgen.lava-floor.max-y", 11)));
             // worldgen threads record, the main thread writes into the world's persistent data
             getServer().getScheduler().runTaskTimer(this, () -> {
                 landmarkLog.save(world);

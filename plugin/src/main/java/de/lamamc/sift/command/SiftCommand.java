@@ -458,8 +458,9 @@ public final class SiftCommand {
             var t = populator.topLayer();
             sender.sendRichMessage(String.format(java.util.Locale.ROOT,
                     "<gray>Oberste Schicht: Bewuchs aufgeräumt <white>%d</white>, Pflanzen über Ichor entfernt <white>%d</white>, "
-                            + "Lavablöcke <white>%d</white>; <white>%.2f ms</white> je Chunk",
-                    t.growth.get(), t.plants.get(), t.lava.get(), s.chunks.get() == 0 ? 0.0 : t.nanos.get() / 1e6 / s.chunks.get()));
+                            + "Lavablöcke <white>%d</white>; <white>%.2f ms</white> je Chunk (davon Lavaboden <white>%.2f ms</white>)",
+                    t.growth.get(), t.plants.get(), t.lava.get(), s.chunks.get() == 0 ? 0.0 : t.nanos.get() / 1e6 / s.chunks.get(),
+                    s.chunks.get() == 0 ? 0.0 : t.lavaNanos.get() / 1e6 / s.chunks.get()));
         }
         if (populator.snow() != null) {
             var snow = populator.snow();
