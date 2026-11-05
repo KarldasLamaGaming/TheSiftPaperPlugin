@@ -252,6 +252,33 @@ Verhalten, Zeiten, Abstände, Licht und Klänge wie im Original 1.1.1. Unterschi
 - **Zeitsperre:** Risse in die Sift beachten die Zeitsperre aus alpha.20 (neu).
 - **Item `sift_rift`:** wie im Original nur im Kreativmodus, zusätzlich für Admins.
 
+## Himmel und Atmosphäre (seit alpha.29)
+
+Was ohne Client-Mod geht, ist übernommen; der Rest braucht den Client des Originals.
+
+**Wie im Original:**
+- Farben von Himmel, Nebel und Wasser, die Tag-und-Nacht-Zeitlinie, Umgebungsklänge, Musik und die
+  Schallplatten kommen 1:1 aus dem Datapack und dem Resource Pack des Originals.
+- **Intro-Klang:** `the_sift:sift_intro` spielt einmal je Spieler beim ersten Aufenthalt in der Sift (Umgebung,
+  Lautstärke 0,4). Das Original startet ihn, wenn der Ladebildschirm fertig ist; hier, sobald der Spieler
+  20 Ticks in der Sift ist und Boden in 8 Blöcken unter sich hat. Gemerkt wird das im Spieler
+  (`the_sift:intro_played`), es übersteht Neustarts; Spieler, die schon vor alpha.29 in der Sift waren, hören
+  es einmal beim nächsten Besuch. Schalter `atmosphere.intro-sound.*`.
+
+**Anders, weil ein Vanilla-Client es nicht kann:**
+- **Wolken:** Das Original zeigt Wolken nur bei Regen. Ein Vanilla-Client zeigt sie entweder immer oder nie
+  (er zeichnet sie nur, wenn die Wolkenfarbe nicht ganz durchsichtig ist). Standard: aus
+  (`atmosphere.clouds: false` macht die Wolkenfarbe im Datapack durchsichtig), mit `true` immer sichtbar.
+- **Himmel:** Das Original zeichnet einen eigenen Polarlicht-Himmel ohne Sonne, Mond und Sterne (Client-Renderer).
+  Hier bleibt der Vanilla-Himmel mit den Farben des Originals; Sonne, Mond und Sterne sind sichtbar.
+- **Ichor-Regen und Ichor-Schnee:** eigene Wetter-Texturen im Original. Ein Resource Pack kann die Regen- und
+  Schneetextur nur für alle Welten tauschen, deshalb bleibt sie Vanilla.
+- **Ladebildschirm** beim Betreten (siehe Portale und Risse): der normale Dimensionswechsel.
+- **Partikel `sift_note`** und die Nebel- und Blasen-Partikel des Ichors: Vanilla-Partikel als Ersatz
+  (Noten, Staub in Ichorfarben).
+- **Wolken-Shader** (`rendertype_ichor_clouds`) und weitere Shader: wirken in einem Resource Pack global und
+  sind deshalb nicht übernommen.
+
 ## Zugang zur Sift (seit alpha.20)
 
 Neu, im Original gibt es das nicht: Die Sift lässt sich zeitlich sperren (`access.mode`: immer, Tage nach

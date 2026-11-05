@@ -51,6 +51,26 @@ public final class DatapackInstaller {
         return count;
     }
 
+    /** Files of the installed datapack that hold the cloud colour of the Sift. */
+    static final String[] CLOUD_FILES = {"data/the_sift/dimension_type/the_sift.json", "data/the_sift/timeline/sift_day_night.json"};
+
+    /** Makes the cloud colour of the installed datapack transparent (no clouds); returns the files changed. */
+    public static int hideClouds(Path target) throws IOException {
+        int changed = 0;
+        for (String file : CLOUD_FILES) {
+            Path path = target.resolve(file);
+            if (Files.isRegularFile(path)) {
+                String json = Files.readString(path);
+                String hidden = de.lamamc.sift.core.atmosphere.CloudSwitch.hide(json);
+                if (!hidden.equals(json)) {
+                    Files.writeString(path, hidden);
+                    changed++;
+                }
+            }
+        }
+        return changed;
+    }
+
     /** Removes a folder of the installed datapack (e.g. an optional part switched off in config.yml). */
     public static void remove(Path target, String relative) throws IOException {
         deleteTree(target.resolve(relative));

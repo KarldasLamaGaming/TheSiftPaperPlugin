@@ -59,8 +59,8 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
 - Phase 2: Blub ist fertig (alpha.12), offene Spielertests in #25. Sifter fertig (alpha.13). Singer und Antike Stadt
   fertig (alpha.14). Dunkler Schnüffler im PR, Spieltest siehe `docs/TESTING.md` → Mobs: Dunkler Schnüffler.
 - Phase 3: Ichor, Rifts, Siftit-Erhalt, Seen, Quellen, Kaskaden und Ichor-Schnee fertig (alpha.21–26).
-  Monolithen und Bögen fertig (alpha.27). Schnüffler-Höhlen im PR (alpha.28), Spieltest siehe
-  `docs/TESTING.md` → Schnüffler-Höhlen. Danach Atmosphäre (alpha.29) und die letzten Worldgen-Features (alpha.30);
+  Monolithen, Bögen und Schnüffler-Höhlen fertig (alpha.27/28). Atmosphäre im PR (alpha.29), Spieltest siehe
+  `docs/TESTING.md` → Himmel und Atmosphäre. Danach die letzten Worldgen-Features (alpha.30);
   nach alpha.30 die Portal-Häufigkeit für #15 erneut nachmessen.
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
 - Schritt 6b: Echo Golem (alpha.19, im PR), Spieltest siehe `docs/TESTING.md` → Mobs: Echo Golem. Danach ist

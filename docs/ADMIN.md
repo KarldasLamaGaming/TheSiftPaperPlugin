@@ -292,6 +292,17 @@ werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug w
 - **Zeitbudget** (Smoke-Test, 256 neue Chunks): 2,1 ms je Monolith-Kandidat im Mittel (höchstens 28 ms),
   0,3 ms je Bogen-Kandidat (höchstens 30 ms), zusammen etwa 0,7 ms je Chunk.
 
+### Himmel und Atmosphäre (ab alpha.29)
+
+- `atmosphere.clouds` (Standard `false`): Wolken in der Sift. Beim Start setzt das Plugin im installierten
+  Datapack die Wolkenfarbe auf durchsichtig (Log `Clouds of the Sift hidden (2 files)`); wirkt nach einem
+  Neustart. `true` zeigt die Wolken immer.
+- `atmosphere.intro-sound.{enabled, volume, delay-ticks}`: Intro-Klang einmal je Spieler beim ersten Aufenthalt
+  in der Sift (Spieler-PDC `the_sift:intro_played`). `/sift debug intro` zeigt den Status, `reset` lässt ihn
+  erneut spielen, `play` spielt ihn sofort.
+- Was ohne Client-Mod nicht geht (Polarlicht-Himmel, Wolken nur bei Regen, Ichor-Wettertexturen,
+  Ladebildschirm): ABWEICHUNGEN.md → „Himmel und Atmosphäre“.
+
 ### Schnüffler-Höhlen (ab alpha.28)
 
 - `worldgen.sniffer-caves.enabled` (Standard an). `overgrown` und `wastes` je mit `cell-chunks`, `candidates`
