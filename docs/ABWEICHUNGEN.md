@@ -107,7 +107,17 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   baut es beim Serverstart vor der Generierung). Bäume und Pflanzen auf dem Bauplatz werden dabei entfernt;
   verlassene Portale halten sich vom Suchgebiet fern.
 - Die Dunklen Schnüffler in Sculk-Regionen kommen mit den Mobs (Phase 2).
-- Lavaböden kommen mit Phase 3.
+- **Trockene Sculk-Spitzen, Bewuchs-Aufräumen und Lavaboden (seit alpha.30)** baut das Plugin beim Generieren,
+  als Port von SiftDrySpikeFeature, CoveredGrowthCleanupFeature und SiftLavaFloorFeature aus 1.1.1 mit denselben
+  Werten (Spitzen 1/21 überwuchert, 1/16 Ödland, Reservierung ±18; Aufräumen 56 Blöcke unter der Oberfläche;
+  Lava bis y 11). Damit sind alle Java-Weltgenerierungs-Features des Originals übernommen. Unterschiede:
+  - „Voller Block über dem Bewuchs“ prüft das Plugin über die Paper-API (Ober- und Unterseite tragfähig, fest)
+    statt über die Kollisionsform; bei Vanilla-Vollblöcken und allen Sift-Blöcken ist das dasselbe.
+  - Der Zufall der Spitzen ist der des Plugin-Populators (andere Plätze, gleiche Häufigkeit).
+  - Das Aufräumen prüft standardmäßig 16 statt 56 Blöcke unter der Oberfläche
+    (`covered-growth-cleanup.depth`). Über die Paper-API kostet das Lesen jedes Blocks deutlich mehr als im
+    Original; bei 56 wären es etwa 8 ms je neuem Chunk. Bedeckter Bewuchs liegt praktisch nur direkt unter der
+    Oberfläche (bei 8 Blöcken dieselbe Zahl an Funden je Chunk wie bei 56).
 - **Schnüffler-Höhlen (seit alpha.28)** baut das Plugin beim Generieren, als Port von SnifferCaveFeature aus 1.1.1
   mit denselben Zellen (überwuchert 16 Chunks mit 4 Kandidaten, Ödland 28 mit 3), Formen, Blöcken, Pflanzen,
   Nest und Familie (2 Erwachsene, zu 33 % ein Junges; das Plugin erzeugt sie wie das Original erst, wenn die

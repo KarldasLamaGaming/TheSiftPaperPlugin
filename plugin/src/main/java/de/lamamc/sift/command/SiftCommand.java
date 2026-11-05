@@ -434,6 +434,12 @@ public final class SiftCommand {
                     mc == 0 ? 0.0 : l.monolithNanos.get() / 1e6 / mc, l.monolithMaxNanos.get() / 1e6,
                     l.arches.get(), l.healthyArches.get(), ac, l.archRejects.isEmpty() ? "" : " (nicht gebaut: " + l.archRejects + ")",
                     ac == 0 ? 0.0 : l.archNanos.get() / 1e6 / ac, l.archMaxNanos.get() / 1e6));
+            long sc = l.spikeCandidates.get();
+            sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                    "<gray>Trockene Sculk-Spitzen: <white>%d</white> von <white>%d</white> Kandidaten%s, <white>%.1f ms</white> im Mittel, "
+                            + "<white>%.1f ms</white> höchstens",
+                    l.spikes.get(), sc, l.spikeRejects.isEmpty() ? "" : " (nicht gebaut: " + l.spikeRejects + ")",
+                    sc == 0 ? 0.0 : l.spikeNanos.get() / 1e6 / sc, l.spikeMaxNanos.get() / 1e6));
         }
         if (populator.snifferCaves() != null) {
             var c = populator.snifferCaves().stats();
@@ -447,6 +453,14 @@ public final class SiftCommand {
                     cc == 0 ? 0.0 : c.nanos.get() / 1e6 / cc, c.maxNanos.get() / 1e6, c.eggs.get(), c.plants.get(),
                     c.sniffersSpawned.get(), c.sniffersQueued.get(), populator.snifferCaves().pendingSniffers(), c.sniffersGivenUp.get(),
                     c.plantPatches.get()));
+        }
+        if (populator.topLayer() != null) {
+            var t = populator.topLayer();
+            sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                    "<gray>Oberste Schicht: Bewuchs aufgeräumt <white>%d</white>, Pflanzen über Ichor entfernt <white>%d</white>, "
+                            + "Lavablöcke <white>%d</white>; <white>%.2f ms</white> je Chunk (davon Lavaboden <white>%.2f ms</white>)",
+                    t.growth.get(), t.plants.get(), t.lava.get(), s.chunks.get() == 0 ? 0.0 : t.nanos.get() / 1e6 / s.chunks.get(),
+                    s.chunks.get() == 0 ? 0.0 : t.lavaNanos.get() / 1e6 / s.chunks.get()));
         }
         if (populator.snow() != null) {
             var snow = populator.snow();
@@ -635,9 +649,13 @@ public final class SiftCommand {
             sender.sendRichMessage("<gray>Monolithen bekannt: <white>" + landforms.count(de.lamamc.sift.world.gen.Landforms.Kind.LUSH)
                     + "</white> üppig, <white>" + landforms.count(de.lamamc.sift.world.gen.Landforms.Kind.BARE)
                     + "</white> kahl; Bögen: <white>" + landforms.count(de.lamamc.sift.world.gen.Landforms.Kind.ARCH)
-                    + "</white> (nur seit alpha.27 generierte Chunks); Teleport auf die Spitze bzw. den Scheitel:");
-            for (boolean monoliths : new boolean[] {true, false}) {
-                for (var found : landforms.nearest(monoliths, fromX, fromZ, 3)) {
+                    + "</white> (seit alpha.27); trockene Sculk-Spitzen: <white>"
+                    + landforms.count(de.lamamc.sift.world.gen.Landforms.Kind.SPIKE)
+                    + "</white> (seit alpha.30); Teleport auf die Spitze bzw. den Scheitel:");
+            for (var kinds : java.util.List.of(java.util.List.of(de.lamamc.sift.world.gen.Landforms.Kind.LUSH,
+                    de.lamamc.sift.world.gen.Landforms.Kind.BARE), java.util.List.of(de.lamamc.sift.world.gen.Landforms.Kind.ARCH),
+                    java.util.List.of(de.lamamc.sift.world.gen.Landforms.Kind.SPIKE))) {
+                for (var found : landforms.nearest(kinds, fromX, fromZ, 3)) {
                     var p = found.top();
                     sender.sendRichMessage(String.format(java.util.Locale.ROOT,
                             "  <gray>%s bei %d %d %d, %d Blöcke entfernt</gray> <click:run_command:'/execute in the_sift:the_sift run "

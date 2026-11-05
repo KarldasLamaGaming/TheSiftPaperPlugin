@@ -273,6 +273,23 @@ Nur in **neu generierten** Chunks. Nur mit Spieler (Optik):
 - [ ] Schalter: `worldgen.monoliths.enabled: false` (oder `lush.enabled` / `bare.enabled`) bzw.
       `worldgen.arches.enabled: false`, Neustart, neues Gelände: keine neuen Monolithen bzw. Bögen.
 
+## Sculk-Spitzen, Bewuchs-Aufräumen, Lavaboden (ab alpha.30)
+
+Nur in **neu generierten** Chunks. Nur mit Spieler:
+- [ ] Neues Gelände erzeugen (`/execute in the_sift:the_sift run tp @s 40000 200 40000`, ein paar Minuten fliegen),
+      dann `/sift debug landmarks` → „trockene Sculk-Spitzen: …“ mit den drei nächsten; **[Teleport]** stellt dich
+      auf die Spitze.
+- [ ] Die Spitze: schiefe, nach oben spitz zulaufende Nadel aus trockenem Sculk (19–31 hoch), mit Wurzelwulst und
+      2–4 kleineren Spitzen daneben.
+- [ ] Lavaboden: in neuen Chunks tief hinab graben oder in eine tiefe Höhle fliegen
+      (`/execute in the_sift:the_sift run tp @s ~ 15 ~` im Zuschauermodus): Hohlräume bis y 11 sind mit Lava gefüllt.
+- [ ] Bewuchs-Aufräumen: Unter Bäumen, Felsen und Monolithen liegt kein grüner Siftschiefer-Bewuchs mehr, nur
+      kahler Siftschiefer bzw. trockener Sculk; über Ichor-Seen schweben keine Pflanzen.
+- [ ] `/sift debug worldgen` → Zeilen „Trockene Sculk-Spitzen: …“ und „Oberste Schicht: …“.
+- [ ] Schalter: `worldgen.dry-sculk-spikes.enabled`, `worldgen.covered-growth-cleanup.enabled`,
+      `worldgen.lava-floor.enabled` je auf `false`, Neustart, neues Gelände: keine Spitzen / kein Aufräumen /
+      keine Lava (Hohlräume unter y 11 bleiben leer).
+
 ## Himmel und Atmosphäre (ab alpha.29)
 
 Nur mit Spieler:

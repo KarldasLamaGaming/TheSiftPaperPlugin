@@ -56,6 +56,7 @@ public final class SiftPopulator extends BlockPopulator {
     private IchorSnow snow;
     private Landforms landforms;
     private SnifferCaves snifferCaves;
+    private TopLayer topLayer;
 
     public SiftPopulator(CustomBlockRegistry registry, PlantSupport support, WorldgenSettings settings, SiftTemplates templates,
                          PortalReservation reservation, LandmarkLog log, SoulCanyons canyons, IchorWaters waters, Logger logger) {
@@ -114,6 +115,15 @@ public final class SiftPopulator extends BlockPopulator {
 
     public SnifferCaves snifferCaves() {
         return snifferCaves;
+    }
+
+    /** Covered growth cleanup and lava floor (alpha.30); null = off. */
+    public void topLayer(TopLayer topLayer) {
+        this.topLayer = topLayer;
+    }
+
+    public TopLayer topLayer() {
+        return topLayer;
     }
 
     public IchorWaters waters() {
@@ -205,6 +215,9 @@ public final class SiftPopulator extends BlockPopulator {
         }
         if (snifferCaves != null) {
             snifferCaves.plantPatch(region, random, chunkX, chunkZ, reservation); // last of vegetal_decoration
+        }
+        if (topLayer != null) {
+            topLayer.place(region, chunkX, chunkZ); // top_layer_modification: cleanup and lava floor first
         }
         if (settings.surfaceSculk() && anyBiome(region, chunkX, chunkZ, settings.sculkBiomes())
                 && sculk.place(region, seed, chunkX, chunkZ)) {
