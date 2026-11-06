@@ -60,7 +60,8 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
 - Phase 3 ist mit alpha.32 (Wetter und Ichor-Schneefall, im PR) inhaltlich vollständig: Ichor, Rifts, Siftit-Erhalt,
   alle 18 Java-Weltgenerierungs-Features des Originals, Atmosphäre, Allays und Wetter (alpha.21–32). Was davon ohne
   Client-Mod nicht geht, steht in ABWEICHUNGEN.md → „Himmel und Atmosphäre“.
-- Vor dem Produktionsstart: die Spieltests #11, #12, #13, #20, #25 abschließen, #30 (Item-Displays beim
+- Vor dem Produktionsstart: Schritt für Schritt in `docs/GOLIVE.md` (Spieltests, Welt- und Spieler-Reset,
+  Config-Abgleich, Rollback). Kurzfassung: die Spieltests #11, #12, #13, #20, #25 abschließen, #30 (Item-Displays beim
   Chunk-Entladen) nach den Hotfixes prüfen und schließen, Plugin-Kompatibilität (#18) auf dem Produktivserver
   prüfen, die Sift einmal zurücksetzen (#16, TESTING → „Sift-Welt zurücksetzen“), bestehende `config.yml` mit den
   neuen Standardwerten abgleichen (u. a. `abandoned-portals.chance: 1.0`), #17 schließen.
