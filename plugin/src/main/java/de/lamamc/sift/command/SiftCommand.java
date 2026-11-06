@@ -82,7 +82,10 @@ public final class SiftCommand {
 
     public void register(Commands commands) {
         LiteralCommandNode<CommandSourceStack> root = Commands.literal("sift")
-                .requires(source -> admin(source) || items(source))
+                .requires(source -> admin(source) || items(source) || source.getSender().hasPermission("thesift.admin.reset"))
+                .then(Commands.literal("admin").requires(source -> source.getSender().hasPermission("thesift.admin.reset"))
+                        .then(Commands.literal("reset-players").executes(ctx -> resetPlayers(ctx, false))
+                                .then(Commands.literal("confirm").executes(ctx -> resetPlayers(ctx, true)))))
                 .then(Commands.literal("tp").requires(SiftCommand::admin).executes(this::teleport))
                 .then(Commands.literal("items").requires(SiftCommand::items).executes(this::openMenu))
                 .then(Commands.literal("give").requires(SiftCommand::items)
@@ -230,6 +233,40 @@ public final class SiftCommand {
 
     private static boolean admin(CommandSourceStack source) {
         return source.getSender().hasPermission(PERMISSION);
+    }
+
+    /**
+     * /sift admin reset-players [confirm]: go-live reset of all players (intro flag, siftite backups and every other
+     * the_sift: entry in the player, the_sift: advancements, Sift items in inventory, ender chest and shulker boxes).
+     * Only with admin.reset-players.enabled: true; the first call explains, "confirm" within 30 s carries it out.
+     */
+    private int resetPlayers(CommandContext<CommandSourceStack> ctx, boolean confirm) {
+        var sender = ctx.getSource().getSender();
+        var reset = plugin.playerReset();
+        if (reset == null || !reset.enabled()) {
+            sender.sendRichMessage("<red>Ausgeschaltet.</red> <gray>Erst <white>admin.reset-players.enabled: true</white> in der "
+                    + "config.yml setzen und neu starten (Schutz gegen versehentliches Zurücksetzen).");
+            return 0;
+        }
+        if (!confirm) {
+            reset.request();
+            sender.sendRichMessage("<gold>Achtung:</gold> <gray>Das setzt <white>alle Spieler</white> für die Sift auf null: Intro, "
+                    + "Siftit-Sicherungen, Rückkehrpunkte und alle anderen Sift-Daten im Spieler, alle Sift-Advancements, alle "
+                    + "Sift-Gegenstände in Inventar, Endertruhe und Shulkerkisten darin. Online-Spieler sofort, alle anderen beim "
+                    + "nächsten Login. Nicht rückgängig zu machen (außer mit dem Backup von <white>playerdata</white>). Bisherige "
+                    + "Resets: <white>" + reset.serverReset() + "</white>.</gray> "
+                    + "<click:suggest_command:'/sift admin reset-players confirm'><red>[Innerhalb von 30 s bestätigen]</red></click>");
+            return Command.SINGLE_SUCCESS;
+        }
+        if (!reset.confirm()) {
+            sender.sendRichMessage("<red>Keine Anfrage in den letzten 30 s.</red> <gray>Zuerst <white>/sift admin reset-players</white>.");
+            return 0;
+        }
+        int online = reset.resetOnline();
+        sender.sendRichMessage("<green>Reset " + reset.serverReset() + " ausgelöst:</green> <gray><white>" + online
+                + "</white> Spieler online zurückgesetzt, alle anderen beim nächsten Login (Details im Server-Log).");
+        plugin.getLogger().warning("Sift player reset " + reset.serverReset() + " ordered by " + sender.getName());
+        return Command.SINGLE_SUCCESS;
     }
 
     private static boolean items(CommandSourceStack source) {

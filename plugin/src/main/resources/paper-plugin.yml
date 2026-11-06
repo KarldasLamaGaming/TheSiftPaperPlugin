@@ -17,6 +17,9 @@ permissions:
   thesift.admin.items:
     description: /sift items (Item-Menü) und /sift give
     default: op
+  thesift.admin.reset:
+    description: /sift admin reset-players (Spieler für den Go-live auf null setzen; nicht in thesift.admin enthalten)
+    default: op
   thesift.access.bypass:
     description: Betreten der Sift, auch wenn sie geschlossen ist (nicht in thesift.admin enthalten)
     default: op
