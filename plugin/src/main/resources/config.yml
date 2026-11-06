@@ -234,6 +234,14 @@ worldgen:
       # alle N Ticks ein Lauf
       interval-ticks: 10
 
+# Go-live: /sift admin reset-players setzt alle Spieler für die Sift auf null (Intro, Siftit-Sicherungen, alle
+# Sift-Daten im Spieler, Sift-Advancements, Sift-Gegenstände in Inventar, Endertruhe und Shulkerkisten).
+# Recht thesift.admin.reset. Aus Sicherheit standardmäßig aus; nur für den Reset einschalten, danach wieder aus.
+# Spieler, die beim Reset offline sind, werden beim nächsten Login zurückgesetzt, solange enabled true ist.
+admin:
+  reset-players:
+    enabled: false
+
 # Wetter in der Sift (ab alpha.32, Original 1.1.1). Was über Paper nicht geht, steht in docs/ABWEICHUNGEN.md
 # → „Himmel und Atmosphäre“.
 weather:

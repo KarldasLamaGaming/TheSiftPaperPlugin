@@ -303,6 +303,14 @@ werden verschneit, Siftschiefer-Bewuchs darunter wird verschneit. `/sift debug w
 - `worldgen.lava-floor.enabled`, `max-y` (11): Luft bis zu dieser Höhe wird Lava.
 - `/sift debug worldgen` zählt Spitzen (mit Gründen und Zeit) sowie aufgeräumte Blöcke und Lava.
 
+### Spieler-Reset für den Go-live
+
+`/sift admin reset-players` (Recht `thesift.admin.reset`, nicht in `thesift.admin` enthalten; nur mit
+`admin.reset-players.enabled: true`) setzt alle Spieler für die Sift auf null: alle `the_sift:`-Daten im Spieler
+(Intro, Siftit-Sicherungen, Rückkehrpunkte), alle `the_sift:`-Advancements, alle Sift-Gegenstände in Inventar,
+Endertruhe und Shulkerkisten darin. Bestätigung mit `/sift admin reset-players confirm` innerhalb von 30 s.
+Online-Spieler sofort, Offline-Spieler beim nächsten Login (solange der Schalter an ist). Ablauf: `docs/GOLIVE.md`.
+
 ### Wetter und Ichor-Schneefall (ab alpha.32)
 
 - Die Sift hat ihr eigenes Wetter (Paper je Welt); `/weather` in der Sift gilt nur dort.
