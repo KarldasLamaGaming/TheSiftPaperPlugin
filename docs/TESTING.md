@@ -481,6 +481,16 @@ thesift.access.bypass false`, danach wieder entfernen).
 
 ## Siftit-Erhalt beim Tod (ab alpha.23)
 
+**Regression Hotfix alpha.34** (NPE bei jedem Tod mit Vanilla-Gegenständen). Jeweils in der Sift, Überlebensmodus,
+`/gamerule minecraft:keep_inventory false` in der Sift, danach `/sift siftite list` und Log prüfen:
+- [ ] Tod mit leerem Inventar (`/clear`, dann `/kill`): kein Fehler, nichts gesichert.
+- [ ] Tod nur mit Vanilla-Gegenständen (`/give @s cobblestone 5`, `/give @s stick`): kein Fehler, alles droppt.
+- [ ] Tod mit Sift-Gegenständen und Vanilla gemischt (`/sift give @s siftite_sword`, `/sift give @s siftite_ingot 3`,
+      `/give @s bread 4`): Siftit kommt nach dem Respawn per Mini-Riss zurück, das Brot droppt; kein Fehler.
+- [ ] Todesarten: Fallschaden (`/tp @s ~ ~60 ~`), Void (`/tp @s ~ -80 ~`), Mob (`/sift spawn sifter`, stehen bleiben).
+- [ ] Todesbildschirm 10 s offen lassen, dann respawnen: Siftit kommt genau einmal zurück (`/sift siftite list` danach
+      leer), im Log höchstens „Second death event … ignored“, keine Exception.
+
 - [ ] Mit Siftit-Schwert, -Helm, 5 Barren und anderen Gegenständen sterben: Nur die anderen fallen; nach dem
       Respawn öffnet sich nach 2 s ein Mini-Riss, die Siftit-Gegenstände fliegen einzeln zu dir (Partikel),
       danach schließt er sich. Advancement „Keep Inventory“. Der Helm liegt im Inventar, nicht auf dem Kopf.

@@ -63,4 +63,26 @@ class SiftiteRecoveryTest {
             assertTrue(o[1] >= 64 && o[1] <= 64.7 + 1e-9);
         }
     }
+
+    /** alpha.34 hotfix: vanilla items and empty slots have no Sift id (null); that crashed every death with them. */
+    @Test
+    void vanillaItemsAndEmptySlotsAreNoSiftite() {
+        var ids = SiftiteRecovery.idsFromTag(List.of("the_sift:siftite_ingot", "the_sift:siftite_sword"));
+        assertFalse(SiftiteRecovery.isSiftite(ids, null), "vanilla item or empty slot");
+        assertFalse(ids.contains(null), "the set itself takes null too (a TreeSet threw here)");
+        assertFalse(SiftiteRecovery.isSiftite(ids, "charoite"), "other Sift item");
+        assertTrue(SiftiteRecovery.isSiftite(ids, "siftite_sword"));
+        assertFalse(SiftiteRecovery.isSiftite(java.util.Set.of(), null), "empty tag, no Siftite at all");
+    }
+
+    /** alpha.34 hotfix: a second death event before respawning (death screen open) must not save twice. */
+    @Test
+    void onlyTheFirstDeathEventSinceRespawnCounts() {
+        assertTrue(SiftiteRecovery.firstDeath(false));
+        assertFalse(SiftiteRecovery.firstDeath(true));
+        // the pending list after one death is the same whether a second event comes or not
+        List<String> afterFirst = SiftiteRecovery.append(List.of(), List.of("sword"));
+        List<String> afterSecond = SiftiteRecovery.firstDeath(true) ? SiftiteRecovery.append(afterFirst, List.of("sword")) : afterFirst;
+        assertEquals(List.of("sword"), afterSecond);
+    }
 }

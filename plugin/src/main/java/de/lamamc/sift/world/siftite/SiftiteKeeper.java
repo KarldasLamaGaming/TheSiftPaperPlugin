@@ -71,6 +71,8 @@ public final class SiftiteKeeper implements Listener {
     private final Map<UUID, Long> startAt = new HashMap<>();
     /** Saved during this death event: the list before, to undo if the death does not drop after all. */
     private final Map<UUID, List<byte[]>> secured = new HashMap<>();
+    /** Players whose death was handled and who have not respawned yet (a second death event is ignored). */
+    private final Set<UUID> deadSinceRespawn = new java.util.HashSet<>();
     private long tick;
 
     /** A delivery in progress: the mini rift and one flying display per pending entry already let out. */
@@ -154,9 +156,24 @@ public final class SiftiteKeeper implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
+        if (!SiftiteRecovery.firstDeath(deadSinceRespawn.contains(player.getUniqueId()))) {
+            logger.info("Second death event for " + player.getName() + " before respawning ignored (Siftite already handled)");
+            return;
+        }
+        deadSinceRespawn.add(player.getUniqueId());
+        try {
+            secure(event, player);
+        } catch (RuntimeException e) {
+            // never lose items: whatever happened, the drops are untouched unless secure() finished
+            logger.log(java.util.logging.Level.WARNING, "Siftite of " + player.getName() + " not saved because of an error; "
+                    + "it drops normally", e);
+        }
+    }
+
+    private void secure(PlayerDeathEvent event, Player player) {
         List<ItemStack> taken = new ArrayList<>();
         for (ItemStack drop : event.getDrops()) {
-            if (ids.contains(SiftItems.idOf(drop))) {
+            if (SiftiteRecovery.isSiftite(ids, SiftItems.idOf(drop))) {
                 taken.add(drop);
             }
         }
@@ -185,7 +202,12 @@ public final class SiftiteKeeper implements Listener {
             save(player, old);
             return;
         }
-        event.getDrops().removeAll(taken);
+        try {
+            event.getDrops().removeAll(taken);
+        } catch (RuntimeException e) {
+            save(player, old); // the items stay in the drops, so the saved copies go
+            throw e;
+        }
         secured.put(player.getUniqueId(), old);
     }
 
@@ -195,6 +217,9 @@ public final class SiftiteKeeper implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDeathDone(PlayerDeathEvent event) {
+        if (event.isCancelled()) {
+            deadSinceRespawn.remove(event.getPlayer().getUniqueId()); // not dead after all: the next death counts
+        }
         List<byte[]> old = secured.remove(event.getPlayer().getUniqueId());
         if (old != null && SiftiteRecovery.revert(event.getKeepInventory(), event.isCancelled())) {
             save(event.getPlayer(), old);
@@ -205,7 +230,7 @@ public final class SiftiteKeeper implements Listener {
 
     private boolean hasSiftite(Player player) {
         for (ItemStack stack : player.getInventory().getContents()) {
-            if (ids.contains(SiftItems.idOf(stack))) {
+            if (SiftiteRecovery.isSiftite(ids, SiftItems.idOf(stack))) {
                 return true;
             }
         }
@@ -214,11 +239,16 @@ public final class SiftiteKeeper implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
+        deadSinceRespawn.remove(event.getPlayer().getUniqueId());
         schedule(event.getPlayer());
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        // a player who logs in dead (death screen open at logout) still has the death handled; alive: clear
+        if (!event.getPlayer().isDead()) {
+            deadSinceRespawn.remove(event.getPlayer().getUniqueId());
+        }
         schedule(event.getPlayer());
     }
 
