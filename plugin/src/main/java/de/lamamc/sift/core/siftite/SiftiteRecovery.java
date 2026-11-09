@@ -3,7 +3,6 @@ package de.lamamc.sift.core.siftite;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Siftite kept on death (alpha.23, values of the original 1.1.1): which items, the pending list kept until
@@ -21,9 +20,24 @@ public final class SiftiteRecovery {
     private SiftiteRecovery() {
     }
 
+    /** Is a stack with this Sift id (null for vanilla items and empty slots) one of the Siftite items? */
+    public static boolean isSiftite(Set<String> ids, String id) {
+        return id != null && ids.contains(id);
+    }
+
+    /**
+     * Whether a death event is handled: only the first one since the last respawn or login. A second event for a
+     * player who is already dead (e.g. fall damage from a late movement packet while the death screen is open)
+     * would otherwise save the same items twice.
+     */
+    public static boolean firstDeath(boolean alreadyHandledSinceRespawn) {
+        return !alreadyHandledSinceRespawn;
+    }
+
     /** Sift ids (without namespace) of the tag the_sift:siftite_items, from its JSON "values". */
     public static Set<String> idsFromTag(List<String> values) {
-        Set<String> ids = new TreeSet<>();
+        // a HashSet: contains(null) is false (a TreeSet throws), vanilla items have no Sift id
+        Set<String> ids = new java.util.HashSet<>();
         for (String value : values) {
             ids.add(value.startsWith("the_sift:") ? value.substring("the_sift:".length()) : value);
         }
