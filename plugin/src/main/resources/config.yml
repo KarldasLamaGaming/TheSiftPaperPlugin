@@ -391,19 +391,6 @@ portals:
   light-level: 12
   # alle N Ticks prüfen, wer eine offene Portalfläche berührt
   check-ticks: 2
-  # Melodie der Konsolen (Töne 1–8). Seit alpha.20 bekommt jedes Schrein-Portal eine eigene, zufällig gewürfelte
-  # Melodie (nur im Portal-Register der Welt gespeichert, kein Seed, nichts im Repo). Die alte Form
-  # "melody: [Liste]" geht weiter (= fixed).
-  melody:
-    # false: alle Schreine wieder mit der festen Melodie
-    per-portal: true
-    # Länge der eigenen Melodien (8 = jeder Klang genau einmal; mehr = mit Wiederholungen)
-    length: 8
-    # Schleichen + Rechtsklick mit leerer Hand auf einen Notenblock eines geweckten Portals zeigt die Melodie erneut
-    recall-enabled: true
-    # feste Melodie: für schon geweckte Portale aus der Zeit davor und bei per-portal: false (Original 1 3 7 6 5 2 4 8;
-    # steht öffentlich im Repo, auf dem Live-Server ändern)
-    fixed: [1, 3, 7, 6, 5, 2, 4, 8]
   # Klingender Tiefenschiefer in diesem Umkreis um den Rahmen gehört als Konsole zum Portal (Original: 10)
   frame-radius: 10
   # Portal-Schreine (nur neue Chunks): einer je Zelle aus N × N Chunks, im mittleren Drittel der Zelle;
@@ -413,52 +400,64 @@ portals:
     overworld: {enabled: true, cell-chunks: 64, min-distance: 0}
     nether: {enabled: true, cell-chunks: 16, min-distance: 0}
     end: {enabled: true, cell-chunks: 32, min-distance: 1100}
-  # Schlüssel je Dimension: Rechtsklick auf eine schlafende Konsole weckt alle Konsolen des Portals
-  # (der Schlüssel wird verbraucht). loot: Vanilla-Truhen, in denen er mit der Chance liegt.
+  # Schlüssel (seit alpha.37 der einzige Weg, ein Portal zu öffnen): Rechtsklick mit dem passenden Schlüssel auf eine
+  # Konsole weckt die Konsolen nacheinander, dann zündet das Portal und öffnet sich (keine Melodie mehr).
+  # loot: Vanilla-Truhen, in denen der Schlüssel mit der Chance liegt (0 = nie). Die Rezepte stehen unter recipes.
   keys:
-    # false = Schlüssel wecken keine Portale mehr (nur noch der Singer). Wache und offene Portale bleiben, wie sie sind.
+    # false = Schlüssel öffnen keine Portale mehr, nur noch Admins (/sift portal activate)
     enabled: true
+    # true = der Schlüssel wird beim Öffnen verbraucht (nicht im Kreativmodus; ein schon geweckter Konsolenkreis
+    # aus der Zeit vor alpha.37 öffnet sich ohne Verbrauch)
+    consume: true
     overworld:
       item: echo_resonator
-      loot: {tables: ["minecraft:chests/ancient_city"], chance: 0.08}
+      loot: {tables: ["minecraft:chests/ancient_city"], chance: 0.03}
     nether:
       item: soul_ember_core
-      loot: {tables: ["minecraft:chests/bastion_treasure", "minecraft:chests/bastion_other", "minecraft:chests/bastion_bridge", "minecraft:chests/bastion_hoglin_stable"], chance: 0.08}
+      loot: {tables: ["minecraft:chests/bastion_treasure", "minecraft:chests/bastion_other", "minecraft:chests/bastion_bridge", "minecraft:chests/bastion_hoglin_stable"], chance: 0.03}
     end:
+      # schwerste Stufe: nur über das Rezept
       item: void_resonator
-      loot: {tables: ["minecraft:chests/end_city_treasure"], chance: 0.08}
+      loot: {tables: ["minecraft:chests/end_city_treasure"], chance: 0.0}
+    # Portal im Zentrum der Antiken Stadt: eigener Schlüssel ohne Rezept, nur als seltener Truhenfund dort
+    # (ersetzt seit alpha.37 die geheime Melodie und das Buch)
+    ancient-city:
+      item: ancient_resonator
+      loot: {tables: ["minecraft:chests/ancient_city"], chance: 0.01}
   # Portal im Zentrum jeder neuen Antiken Stadt (wie im Original), zusätzlich zu den Schreinen. [Start]
-  # Wecken: Echo-Resonator (wenn portals.keys.enabled) oder der Singer. Es öffnet sich nur mit einer eigenen,
-  # längeren Melodie; der Hinweis beim Wecken nennt sie nicht, sie steht in einem Buch in den Truhen der Stadt.
+  # Öffnen: Antiker Resonator (portals.keys.ancient-city).
   ancient-city:
     enabled: true
-    # Töne 1–8, beliebig lang (einmal zufällig festgelegt, frei änderbar)
-    melody: [6, 2, 8, 4, 1, 7, 3, 5, 8, 2, 6, 1]
-    book:
-      chance: 0.15
-      tables: ["minecraft:chests/ancient_city"]
   # Sift-Kompass: Nadel und Entfernung (Actionbar) alle N Ticks auffrischen, solange man ihn hält
   compass:
     update-ticks: 40
-  # Rezepte der Schlüssel und des Kompasses (Format wie Vanilla-Rezeptdateien, Neustart nötig)
+  # Rezepte der Schlüssel und des Kompasses (Format wie Vanilla-Rezeptdateien, Neustart nötig). Gestaffelt
+  # Oberwelt < Nether < End. Zutaten: Vanilla-Items ("minecraft:x"), Tags ("#minecraft:x") und Sift-Items
+  # ("the_sift:x", z. B. spätere Boss-Items). Ein ungültiges Rezept (Tippfehler, Item gibt es nicht) wird mit einer
+  # Warnung im Log durch das eingebaute gleichen Namens ersetzt. Weitere Rezepte für denselben Schlüssel: neuer Name,
+  # gleiches result.
   recipes:
+    # Oberwelt: Schwerer Kern (Ominous-Tresor der Prüfungskammern), 4 Echo-Splitter, Sculk-Katalysator
     echo_resonator:
       type: minecraft:crafting_shaped
       category: misc
-      pattern: [" E ", "EGE", " C "]
-      key: {E: "minecraft:echo_shard", G: "minecraft:goat_horn", C: "minecraft:sculk_catalyst"}
+      pattern: [" E ", "EHE", " C "]
+      key: {E: "minecraft:echo_shard", H: "minecraft:heavy_core", C: "minecraft:sculk_catalyst"}
       result: {id: "the_sift:echo_resonator"}
+    # Nether: 3 Wither-Skelett-Schädel, Netherit-Barren, 2 Ghast-Tränen, Lohenrute
     soul_ember_core:
       type: minecraft:crafting_shaped
       category: misc
-      pattern: [" B ", "GAG", " S "]
-      key: {B: "minecraft:blaze_rod", G: "minecraft:ghast_tear", A: "minecraft:ancient_debris", S: "minecraft:soul_sand"}
+      pattern: ["WWW", "GNG", " B "]
+      key: {W: "minecraft:wither_skeleton_skull", G: "minecraft:ghast_tear", N: "minecraft:netherite_ingot", B: "minecraft:blaze_rod"}
       result: {id: "the_sift:soul_ember_core"}
+    # End (schwerste Stufe): Drachenkopf und Elytren (beide vom Endschiff, auch nach dem Drachenkill), 2 Shulker-Schalen,
+    # geplatzte Chorusfrucht. Drachenatem gibt es nur bei lebendem Drachen und ist deshalb nicht dabei.
     void_resonator:
       type: minecraft:crafting_shaped
       category: misc
-      pattern: [" P ", "PSP", " D "]
-      key: {P: "minecraft:popped_chorus_fruit", S: "minecraft:shulker_shell", D: "minecraft:dragon_breath"}
+      pattern: [" D ", "SES", " P "]
+      key: {D: "minecraft:dragon_head", S: "minecraft:shulker_shell", E: "minecraft:elytra", P: "minecraft:popped_chorus_fruit"}
       result: {id: "the_sift:void_resonator"}
     sift_compass:
       type: minecraft:crafting_shaped
@@ -651,7 +650,10 @@ mobs:
       movement-speed: 0.27
     # Erfahrung, wenn ein Spieler einen bleibenden Singer tötet [min, max] (Original 8–12)
     experience: [8, 12]
+    # Ruf per Ziegenhorn: der Singer erscheint im nächsten schlafenden Portal und singt. Seit alpha.37 lassen seine
+    # Schallwellen die Konsolen nur aufleuchten; öffnen kann das Portal nur der Schlüssel.
     summon:
+      enabled: true
       # Verzögerung nach dem Ziegenhorn in Ticks und Suchradius um den Spieler in Blöcken (Original 60 / 40)
       delay-ticks: 60
       radius: 40

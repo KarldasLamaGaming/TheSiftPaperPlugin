@@ -36,8 +36,8 @@ import org.bukkit.util.Vector;
 
 /**
  * One Singer, in one of two modes. Called ({@code summoned}): immobile and invulnerable in the portal, plays
- * appear → sing → disappear; during the song sound waves wake the sleeping consoles one by one, then the
- * portal counts as awake. Staying ({@code roaming}, from an egg or command): appears, then wanders within
+ * appear → sing → disappear; during the song sound waves reach the sleeping consoles one by one and make them
+ * light up. Since alpha.37 they do not wake them any more: only the portal's key opens it. Staying ({@code roaming}, from an egg or command): appears, then wanders within
  * the leash radius of where it appeared (never into passages lower than its height), trades soul blocks and
  * sinks into the ground if it gets stuck.
  */
@@ -214,7 +214,7 @@ final class Singer extends SiftMob {
             world.spawnParticle(Particle.DUST, point.getX(), point.getY(), point.getZ(), 4, 0.08, 0.08, 0.08, 0,
                     new Particle.DustOptions(WAVE_COLOR, 1.4f), true);
             if (age >= wave.total()) {
-                singerKind.consoles().wakeConsole(wave.console());
+                singerKind.consoles().echo(wave.console());
                 it.remove();
             }
         }
@@ -230,7 +230,7 @@ final class Singer extends SiftMob {
         return sing > last;
     }
 
-    /** All consoles awake: the portal counts as unlocked, players nearby get the hint. */
+    /** The song is over: players nearby learn that only a key opens the portal (alpha.37). */
     private void finishUnlock() {
         if (unlocked || targets == null) {
             return;
@@ -240,11 +240,11 @@ final class Singer extends SiftMob {
         if (portal.isEmpty() || portal.get().state() != de.lamamc.sift.core.portal.PortalState.LOCKED) {
             return;
         }
-        singerKind.consoles().markUnlocked(trader.getWorld(), portal.get());
         double r2 = 48 * 48;
         for (Player player : trader.getWorld().getPlayers()) {
             if (player.getLocation().distanceSquared(trader.getLocation()) <= r2) {
-                singerKind.consoles().sendHint(player, portal.get());
+                player.sendRichMessage("<light_purple>Die Konsolen hallen nach und schlafen weiter.</light_purple> <gray>Nur der "
+                        + "passende Schlüssel öffnet dieses Portal.");
             }
         }
     }

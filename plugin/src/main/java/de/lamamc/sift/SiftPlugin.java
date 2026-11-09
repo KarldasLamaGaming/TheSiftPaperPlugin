@@ -78,11 +78,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             return;
         }
         saveDefaultConfig();
-        // new settings of an update land in the existing config.yml; reading the merged file back, because
-        // sections that only exist in the defaults show up empty in memory until then
-        getConfig().options().copyDefaults(true);
-        saveConfig();
-        reloadConfig();
+        updateConfig();
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
@@ -97,7 +93,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(
                 new PhysicsGuard(this, blocks, blockSettings.placeOnlyInSift()), this);
         getServer().getPluginManager().registerEvents(new ItemMenuListener(items, SiftCommand.ITEMS_PERMISSION), this);
-        recipes = new SiftRecipes(items, getConfig().getConfigurationSection("portals.recipes"), getLogger());
+        recipes = new SiftRecipes(items, getConfig().getConfigurationSection("portals.recipes"),
+                getConfig().getDefaults() == null ? null : getConfig().getDefaults().getConfigurationSection("portals.recipes"), getLogger());
         recipes.register();
         getServer().getPluginManager().registerEvents(new SiftiteGuard(items), this);
         getServer().getPluginManager().registerEvents(new SiftFire(this, blocks, blockSettings), this);
@@ -108,23 +105,21 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         resourcePack = new ResourcePackService(this);
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
         getServer().getPluginManager().registerEvents(resourcePack, this);
-        // portals.melody: the old form is a list (the fixed tune); since alpha.20 a section
-        org.bukkit.configuration.ConfigurationSection tuneConfig = getConfig().getConfigurationSection("portals.melody");
-        List<Integer> melody = tuneConfig != null ? tuneConfig.getIntegerList("fixed") : getConfig().getIntegerList("portals.melody");
-        boolean perPortal = tuneConfig == null || tuneConfig.getBoolean("per-portal", true);
+        // since alpha.37 only the keys open portals; the tune settings are gone
+        for (String retired : List.of("portals.melody", "portals.ancient-city.melody", "portals.ancient-city.book")) {
+            if (getConfig().isSet(retired)) {
+                getLogger().warning(retired + " in config.yml is no longer used (alpha.37: only the keys open portals); "
+                        + "remove it, see docs/ADMIN.md");
+            }
+        }
         de.lamamc.sift.world.portal.PortalRegistry registry = new de.lamamc.sift.world.portal.PortalRegistry();
-        registry.tunes(perPortal, tuneConfig == null ? 8 : Math.clamp(tuneConfig.getInt("length", 8), 1, 32));
         portals = new de.lamamc.sift.world.portal.PortalService(this, registry,
                 new de.lamamc.sift.world.portal.PortalSurface(this, getConfig().getInt("portals.light-level", 12)));
         getServer().getPluginManager().registerEvents(portals, this);
         portals.start(getConfig().getInt("portals.check-ticks", 2));
-        consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals,
-                melody.isEmpty() ? de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE : melody.stream().mapToInt(Integer::intValue).toArray(),
-                portalKeys());
-        consoles.setKeysEnabled(getConfig().getBoolean("portals.keys.enabled", true));
-        consoles.setTunes(perPortal, tuneConfig == null || tuneConfig.getBoolean("recall-enabled", true));
-        consoles.setAncientCitySequence(getConfig().getIntegerList("portals.ancient-city.melody").stream()
-                .mapToInt(Integer::intValue).filter(n -> n >= 1 && n <= 8).toArray());
+        consoles = new de.lamamc.sift.world.portal.SonorousConsoles(this, blocks, portals, portalKeys(),
+                getConfig().getString("portals.keys.ancient-city.item", "ancient_resonator"));
+        consoles.setKeys(getConfig().getBoolean("portals.keys.enabled", true), getConfig().getBoolean("portals.keys.consume", true));
         getServer().getPluginManager().registerEvents(consoles, this);
         de.lamamc.sift.core.portal.KeyLoot keyLoot = new de.lamamc.sift.core.portal.KeyLoot();
         org.bukkit.configuration.ConfigurationSection keySection = getConfig().getConfigurationSection("portals.keys");
@@ -177,9 +172,6 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                     portals, getConfig().getInt("portals.frame-radius", 10), getLogger());
             getServer().getPluginManager().registerEvents(cities, this);
             cities.start();
-            getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.AncientCityBook(
-                    getConfig().getStringList("portals.ancient-city.book.tables"), getConfig().getDouble("portals.ancient-city.book.chance", 0.15),
-                    consoles.ancientCitySequence(), messages), this);
         }
         startMobs();
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
@@ -321,14 +313,37 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 + sites.cellChunks() + " chunks)");
     }
 
-    /** World key -> id of the key that wakes its portals (portals.keys). */
+    /**
+     * New settings of an update land in the existing config.yml (alpha.37: without merging into recipes the admin
+     * already has; values still at an old default are replaced). The merged file is read back, because sections that
+     * only exist in the defaults show up empty in memory until then.
+     */
+    private void updateConfig() {
+        org.bukkit.configuration.file.FileConfiguration config = getConfig();
+        java.io.InputStream migration = getResource("migrations/alpha37.yml");
+        if (migration != null && config.getDefaults() != null) {
+            org.bukkit.configuration.file.YamlConfiguration old = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
+                    new java.io.InputStreamReader(migration, java.nio.charset.StandardCharsets.UTF_8));
+            List<String> replaced = ConfigUpdate.dropOldDefaults(config, old);
+            if (!replaced.isEmpty()) {
+                getLogger().info("config.yml: old defaults replaced by the new ones (alpha.37): " + replaced);
+            }
+        }
+        if (config.getDefaults() != null) {
+            ConfigUpdate.addMissing(config, config.getDefaults());
+        }
+        saveConfig();
+        reloadConfig();
+    }
+
+    /** World key -> id of the key that opens its shrine portals (portals.keys; the Ancient City key is separate). */
     private java.util.Map<String, String> portalKeys() {
         java.util.Map<String, String> keys = new java.util.HashMap<>();
         org.bukkit.configuration.ConfigurationSection section = getConfig().getConfigurationSection("portals.keys");
         if (section != null) {
             for (String dimension : section.getKeys(false)) {
-                if (!section.isConfigurationSection(dimension)) {
-                    continue; // enabled
+                if (!section.isConfigurationSection(dimension) || dimension.equals("ancient-city")) {
+                    continue; // enabled, consume, the Ancient City key
                 }
                 String world = switch (dimension) {
                     case "overworld" -> "minecraft:overworld";

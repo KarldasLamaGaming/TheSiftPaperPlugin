@@ -85,34 +85,36 @@ Für eine Admin-Gruppe dauerhaft: `lp group admin permission set thesift.admin t
       Blöcke. Danach `/gamerule minecraft:fire_spread_radius_around_player 0`: Feuer breitet sich nicht mehr aus;
       zurück mit dem vorherigen Wert.
 
-### #20 Portal-Melodie 1-3-7-6-5-2-4-8 (Überlebensmodus)
+### #20 Portal mit dem Schlüssel öffnen (Überlebensmodus, seit alpha.37)
 
-Seit alpha.20 hat **jedes neue Schrein-Portal eine eigene, zufällige Melodie**. Die feste Melodie
-1-3-7-6-5-2-4-8 gilt nur für Portale, die schon vor alpha.20 geweckt waren, oder mit `portals.melody.per-portal: false`.
-Für diesen Test daher auf dem Testserver in der `config.yml` `portals.melody.per-portal: false` setzen und neu
-starten (danach wieder `true`).
+Seit alpha.37 gibt es keine Melodie mehr; der passende Schlüssel öffnet das Portal. Der Test ersetzt den früheren
+Melodie-Test von #20.
 
 In der Hauptwelt einen Rahmen bauen (7 breit × 8 hoch aus Verstärktem Tiefenschiefer, Öffnung 5 × 6) und davor
-8 Konsolen (Klingender Tiefenschiefer mit Notenblock darauf), siehe TESTING → Portale:
+8 Konsolen (Klingender Tiefenschiefer mit Notenblock darauf), siehe TESTING → Portale. Oder einen Schrein über
+`/sift portal locate` nehmen.
 ```
 /sift give @s sonorous_deepslate 8
 /give @s note_block 8
 /give @s reinforced_deepslate 26
 /sift portal create ~ ~ ~
 /sift portal list
-/sift portal unlock <id>
-/sift portal info <id>
+/give @s heavy_core
+/give @s echo_shard 4
+/give @s sculk_catalyst
+/sift give @s soul_ember_core
 ```
 - [ ] Zwei Konsolen nebeneinander behalten ihr Aussehen.
-- [ ] Vor dem Wecken: Rechtsklick und Schlagen geben nur den verzerrten Klang und einen Hinweis.
-- [ ] Nach `unlock`: Rechtsklick wählt reihum 8 Klänge mit farbigen Partikeln, Schlagen spielt den gewählten Klang.
-      `/sift portal info <id>` zeigt die Melodie 1-3-7-6-5-2-4-8 (Herkunft „fest“).
-- [ ] Melodie spielen: Farbstoß über den Notenblöcken, die Konsolen spielen nach mit Lichtsäulen, der Rahmen füllt
-      sich vom Rand zur Mitte, Klang und Nebelfläche erscheinen.
-- [ ] Falsche Töne dazwischen: nichts. Rückwärts gespielt: Hinweis „Dieses Portal bleibt offen“.
+- [ ] Schlafende Konsole: Rechtsklick und Schlagen geben nur den verzerrten Klang und einen Hinweis.
+- [ ] Falscher Schlüssel (Seelenglut-Kern): verzerrter Klang, „passt nicht“, Schlüssel bleibt.
+- [ ] Echo-Resonator herstellen (Rezeptbuch: Schwerer Kern, 4 Echo-Splitter, Sculk-Katalysator) und per Rechtsklick
+      auf eine Konsole: Die Konsolen erwachen nacheinander mit Farbstoß, Auslöse-Klang, die Konsolen spielen mit
+      Lichtsäulen nach, der Rahmen füllt sich vom Rand zur Mitte, Nebelfläche erscheint. Der Schlüssel ist weg.
+- [ ] Noch ein Rechtsklick mit Schlüssel: „schon offen“, nichts verbraucht.
+- [ ] `/sift portal lock <id>`: Fläche zu, Konsolen schlafen; wieder öffnen nur mit einem neuen Schlüssel.
 - [ ] Redstone am Notenblock einer geweckten Konsole: Sift-Klang statt Vanilla-Note.
-- [ ] Danach `per-portal: true`, Neustart: ein neuer Schrein (`/sift portal locate`) zeigt beim Wecken seine eigene
-      Melodie.
+- [ ] Ziegenhorn in der Nähe eines schlafenden Portals: Der Singer erscheint und singt, die Konsolen leuchten auf,
+      bleiben aber schlafend.
 
 ### #25 Blub (in der Sift, Überlebensmodus)
 
@@ -243,9 +245,10 @@ diff -u plugins/TheSift/config.yml /tmp/sift-config-default.yml | less
 | Schlüssel | Empfehlung für den Start | Warum |
 |---|---|---|
 | `access.mode` | `always`, oder `after-dragon` mit `delay-days`, oder `fixed-date` mit `date` | Zeitpunkt der Öffnung; `sift access status` prüft das Ergebnis |
-| `portals.ancient-city.melody` | **eigene** Folge, nicht die aus dem Repo | Die Standard-Melodie steht öffentlich im Repo |
-| `portals.melody.fixed` | ebenfalls ändern, falls `per-portal: false` | wie oben |
-| `portals.melody.per-portal` | `true` | jede Schrein-Melodie zufällig, nichts im Repo |
+| `portals.melody`, `portals.ancient-city.melody`, `portals.ancient-city.book` | **löschen** (seit alpha.37 ohne Wirkung; sonst Warnung beim Start) | Portale öffnen nur noch mit dem Schlüssel |
+| `portals.recipes.*` | Standard (gestaffelt Hauptwelt < Nether < End). Unveränderte alte Rezepte ersetzt das Plugin beim ersten Start mit alpha.37 selbst (Log „old defaults replaced“); selbst geänderte bleiben und müssen von Hand angepasst werden | Schlüssel-Staffelung |
+| `portals.keys.*.loot.chance` | Hauptwelt/Nether `0.03`, End `0.0`, Antike Stadt `0.01` | sonst umgeht die Truhe das schwere Rezept |
+| `portals.keys.consume` | `true` | ein Schlüssel öffnet ein Portal |
 | `worldgen.abandoned-portals.chance` | `1.0` | Häufigkeit wie im Original (#15, alte Configs haben `0.25`) |
 | `resource-pack.required` | `true`, wenn ohne Pack nicht gespielt werden soll (Sift-Blöcke sehen sonst wie Pilzblöcke aus) | `false` bietet das Pack nur an |
 | `resource-pack.url` / `sha1` | URL des veröffentlichten Releases; `sha1` leer lassen (wird beim Start berechnet) | |
@@ -267,7 +270,20 @@ sift access status
 sift pack reload
 sift debug selftest
 ```
-Erwartet: Modus und offen/zu wie gewollt; Pack-URL erreichbar, SHA-1 berechnet; Selbsttest ohne Fehler.
+Erwartet: Modus und offen/zu wie gewollt; Pack-URL erreichbar, SHA-1 berechnet; Selbsttest ohne Fehler (u. a.
+„ancient_resonator: Item ohne Rezept“). Im Log keine Zeile „recipe … in config.yml“ (sonst ist ein Rezept ungültig
+und das eingebaute wird benutzt) und keine Warnung „no longer used“.
+
+**Portale aus den Spieltests (seit alpha.37):** Hauptwelt, Nether und End werden nicht zurückgesetzt; dort geweckte
+oder geöffnete Portale bleiben so. Zum Go-live alle prüfen und die aus den Spieltests wieder schlafen legen:
+```
+execute in minecraft:overworld run sift portal list
+execute in minecraft:overworld run sift portal lock <id>
+execute in minecraft:the_nether run sift portal lock <id>
+execute in minecraft:the_end run sift portal lock <id>
+```
+`list` zeigt alle Welten mit Zustand. Alles außer `sift-main` sollte danach LOCKED sein (oder bewusst offen
+bleiben). Ein UNLOCKED-Portal (Konsolen wach) öffnet der Schlüssel ohne Verbrauch; deshalb auch diese sperren.
 
 Kompatibilität der übrigen Plugins (WorldEdit, WorldGuard, LibertyBans, AxiomPaper, TabTPS, Vulcan, TAB,
 PlaceholderAPI, packetevents, InvSee++, CoreProtect) auf dem Produktivserver mit 26.3 beim Start prüfen: keine

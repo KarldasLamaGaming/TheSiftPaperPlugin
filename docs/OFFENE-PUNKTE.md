@@ -18,7 +18,7 @@ Stand: 31.10.2026 (nach alpha.10)
 |---|---|---|
 | [#12](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/12) | Rechte-Test `thesift.admin.items` ohne OP | offen |
 | [#13](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/13) | Spielertests: Amboss, Schleifstein, Händler, Schallplatten, Entrinden mit Axt, Ichorglas „Schnell“, Feuer-Ausbreitung | offen |
-| [#20](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/20) | Spieltest Portal-Melodie an Konsolen (nach dem Platzier-Fix in 7b) | wartet auf Test |
+| [#20](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/20) | Spieltest Portal-Öffnen an Konsolen; seit alpha.37 mit dem Schlüssel statt der Melodie (GOLIVE.md #20) | wartet auf Test |
 | [#25](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/25) | Spieltest Blub: Zähmen, Sitzen, Verteidigung, Rudelzorn, Basis-Wolf | offen |
 | [#18](https://github.com/KarldasLamaGaming/TheSiftPaperPlugin/issues/18) | Produktionsstart: Plugin-Kompatibilität mit 26.3 (WorldEdit, WorldGuard, LibertyBans, AxiomPaper, TabTPS, Vulcan, TAB, PlaceholderAPI, packetevents, InvSee++, CoreProtect) | offen |
 
@@ -65,6 +65,12 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
   Chunk-Entladen) nach den Hotfixes prüfen und schließen, Plugin-Kompatibilität (#18) auf dem Produktivserver
   prüfen, die Sift einmal zurücksetzen (#16, TESTING → „Sift-Welt zurücksetzen“), bestehende `config.yml` mit den
   neuen Standardwerten abgleichen (u. a. `abandoned-portals.chance: 1.0`), #17 schließen.
+- Vor dem Go-live (Reihenfolge): alpha.36 Ichor A (gemergt) → alpha.37 Portale nur mit dem Schlüssel (Melodie und
+  Weck-Funktion des Singers entfallen, gestaffelte Schlüssel-Rezepte, Antiker Resonator für die Antike Stadt,
+  `/sift portal lock`) → Welt- und Spieler-Reset → Go-live. Danach alpha.38: Ichor B (nur Ausnahmen markieren:
+  Wasser aus der Oberwelt bleibt in der Sift Wasser, Ichor bleibt in der Oberwelt Ichor).
+- Boss-Items aus Phase 4 (Herz des Wächters, Drachenschuppe, Kern des Withers) lassen sich später ohne neuen PR als
+  Zutaten in `portals.recipes` eintragen (`the_sift:<id>`); ein ungültiges Rezept fällt auf das eingebaute zurück.
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
 - Schritt 6b: Echo Golem (alpha.19, im PR), Spieltest siehe `docs/TESTING.md` → Mobs: Echo Golem. Danach ist
   Phase 2 vollständig.

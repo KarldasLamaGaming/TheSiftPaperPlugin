@@ -16,41 +16,6 @@ import org.junit.jupiter.api.Test;
 
 class PortalLogicTest {
 
-    // ---- melody -----------------------------------------------------------------------------------
-
-    private static PortalMelody.Match playAll(PortalMelody melody, int... notes) {
-        PortalMelody.Match last = PortalMelody.Match.NONE;
-        for (int note : notes) {
-            last = melody.play(note);
-        }
-        return last;
-    }
-
-    @Test
-    void theOriginalTuneOpensAndItsReverseCloses() {
-        PortalMelody melody = new PortalMelody(PortalMelody.DEFAULT_SEQUENCE);
-        assertEquals(PortalMelody.Match.OPENING, playAll(melody, 1, 3, 7, 6, 5, 2, 4, 8));
-        assertEquals(PortalMelody.Match.CLOSING, playAll(melody, 8, 4, 2, 5, 6, 7, 3, 1));
-    }
-
-    @Test
-    void wrongNotesBeforeTheTuneDoNotMatterButInsideTheyDo() {
-        PortalMelody melody = new PortalMelody(PortalMelody.DEFAULT_SEQUENCE);
-        assertEquals(PortalMelody.Match.OPENING, playAll(melody, 2, 2, 8, 1, 3, 7, 6, 5, 2, 4, 8)); // only the last 8 count
-        assertEquals(PortalMelody.Match.NONE, playAll(melody, 1, 3, 7, 6, 5, 2, 4, 7));
-        assertEquals(PortalMelody.Match.NONE, playAll(melody, 1, 3, 7, 6, 4, 5, 2, 8));
-        assertEquals(PortalMelody.Match.NONE, playAll(melody, 3, 7, 6, 5, 2, 4, 8)); // one note short
-    }
-
-    @Test
-    void aMatchStartsTheNextTuneFromScratch() {
-        PortalMelody melody = new PortalMelody(PortalMelody.DEFAULT_SEQUENCE);
-        assertEquals(PortalMelody.Match.OPENING, playAll(melody, 1, 3, 7, 6, 5, 2, 4, 8));
-        assertEquals(PortalMelody.Match.NONE, melody.play(8)); // must not reuse the notes of the last tune
-        assertThrows(IllegalArgumentException.class, () -> new PortalMelody(new int[] {1, 9}));
-        assertThrows(IllegalArgumentException.class, () -> new PortalMelody(new int[0]));
-    }
-
     // ---- frame -----------------------------------------------------------------------------------
 
     /** A frame of {@code width × height} along x at y 64, plus a few stray frame blocks. */
@@ -128,13 +93,11 @@ class PortalLogicTest {
     // ---- state, transit, return point ------------------------------------------------------------
 
     @Test
-    void portalsOpenOnlyWhenUnlockedAndStayOpen() {
-        assertEquals(PortalState.LOCKED, PortalState.LOCKED.onTune(PortalMelody.Match.OPENING));
+    void portalsWakeOpenAndLockAgain() {
         assertEquals(PortalState.UNLOCKED, PortalState.LOCKED.unlock());
-        assertEquals(PortalState.OPEN, PortalState.UNLOCKED.onTune(PortalMelody.Match.OPENING));
-        assertEquals(PortalState.UNLOCKED, PortalState.UNLOCKED.onTune(PortalMelody.Match.CLOSING));
-        assertEquals(PortalState.OPEN, PortalState.OPEN.onTune(PortalMelody.Match.CLOSING)); // permanently open
         assertEquals(PortalState.OPEN, PortalState.OPEN.unlock());
+        assertEquals(PortalState.LOCKED, PortalState.OPEN.lock());
+        assertEquals(PortalState.LOCKED, PortalState.UNLOCKED.lock());
         assertEquals(PortalState.UNLOCKED, PortalState.OPEN.deactivate());
         assertEquals(PortalState.OPEN, PortalState.LOCKED.activate());
     }

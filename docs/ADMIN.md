@@ -441,50 +441,61 @@ auch nach einem Neustart oder Relog.
   - Im Horn-Modus schlafen die Konsolen; ein Notenblock darauf klingt nur verzerrt.
   - Im Noten-Modus hat ein Notenblock darauf die 8 Klänge der Sift statt der Vanilla-Töne:
     Rechtsklick schaltet den Klang weiter (1 → 2 → … → 8 → 1), Schlagen spielt ihn; die Actionbar zeigt „Klang N von 8“.
-- **Öffnen:** Die Melodie des Portals auf den Konsolen eines geweckten Portals spielen (ab alpha.20 hat
-  jeder Schrein seine eigene, siehe „Melodie je Portal“; ältere geweckte Portale und `per-portal: false`
-  nutzen `portals.melody.fixed`, Original 1-3-7-6-5-2-4-8). Danach folgen ein Farbstoß, die Konsolen spielen die Melodie mit Lichtstrahlen nach,
-  und die Fläche füllt sich vom Rand zur Mitte.
-- **Offen** bleibt das Portal dauerhaft. Die rückwärts gespielte Melodie schließt es hier nicht, nur
-  `/sift portal deactivate`.
-- **Wecken:** Rechtsklick mit dem Schlüssel der Dimension auf eine schlafende Konsole (oder ihren
-  Notenblock) weckt alle Konsolen des Portals; der Schlüssel wird verbraucht. Admins: `/sift portal unlock`.
+- **Öffnen (seit alpha.37 nur mit dem Schlüssel):** Rechtsklick mit dem passenden Schlüssel auf eine Konsole
+  (oder ihren Notenblock). Die Konsolen erwachen nacheinander mit Farbstoß, der Auslöse-Klang ertönt, dann
+  spielen die Konsolen ihre Klänge mit Lichtstrahlen nach und die Fläche füllt sich vom Rand zur Mitte
+  (zusammen etwa 15 s). Eine Melodie gibt es nicht mehr; Admins: `/sift portal activate` (derselbe Ablauf).
+- **Offen** bleibt das Portal dauerhaft, nur `/sift portal deactivate` oder `lock` schließt es.
 - Die Fläche besteht aus unsichtbaren Lichtblöcken (Stufe `portals.light-level`, 12) und einer
   Nebelfläche (Item-Display).
 
 Portale gibt es nur dort, wo sie registriert sind: in den Portal-Schreinen (unten) oder per Befehl. Pro
 Welt stehen sie im Weltspeicher (`the_sift:portals`).
 
-### Melodie je Portal (ab alpha.20)
+### Schlüssel öffnen die Portale (ab alpha.37)
 
-Im Original öffnet eine Melodie alle Portale. Hier bekommt jeder Schrein seine eigene, die man beim Wecken
-erfährt:
+Bis alpha.36 weckte der Schlüssel (oder der Singer) die Konsolen, und eine Melodie öffnete das Portal. Seit
+alpha.37 öffnet allein der passende Schlüssel, mit demselben Ablauf (Wecken, Auslöse-Klang, Nachspielen,
+Fläche). Gründe stehen in ABWEICHUNGEN.md.
 
 ```yaml
 portals:
-  melody:
-    per-portal: true        # false = alle Schreine nutzen wieder fixed
-    length: 8               # Länge neuer Melodien (1–32); die ersten 8 Töne nutzen jeden Klang einmal
-    recall-enabled: true    # Schleichen + Rechtsklick mit leerer Hand auf eine Konsole zeigt die Melodie erneut
-    fixed: [1, 3, 7, 6, 5, 2, 4, 8]
+  keys:
+    enabled: true     # false = nur Admins öffnen Portale (/sift portal activate)
+    consume: true     # Schlüssel beim Öffnen verbraucht (nie im Kreativmodus)
+    overworld:    {item: echo_resonator,    loot: {tables: [...], chance: 0.03}}
+    nether:       {item: soul_ember_core,   loot: {tables: [...], chance: 0.03}}
+    end:          {item: void_resonator,    loot: {tables: [...], chance: 0.0}}
+    ancient-city: {item: ancient_resonator, loot: {tables: ["minecraft:chests/ancient_city"], chance: 0.01}}
 ```
 
-- **Woher die Melodie kommt:** Sie wird beim Registrieren des Portals **einmal zufällig gewürfelt**
-  (`SecureRandom`) und steht **nur im Portal-Register der Welt** (`the_sift:portals`, Segment `| tune …`).
-  Seed, Koordinaten oder ein Salz fließen nicht ein; aus dem öffentlichen Code und dem Seed lässt sie sich
-  nicht berechnen. Es gibt kein Geheimnis, das verwaltet werden müsste.
-- **Welche Portale:** neue Schreine (Weltgenerierung, `/sift portal create`) und beim ersten Start mit
-  alpha.20 alle noch **schlafenden** Schreine. Schon **geweckte** und **offene** Portale behalten die feste
-  Melodie, damit niemand umlernen muss. Die Antike Stadt behält `portals.ancient-city.melody` (nur im Buch).
-- **Anzeige:** beim Wecken an Spieler in der Nähe (Schlüssel oder Singer), beim Rückruf (nur an diesen
-  Spieler) und für Admins in `/sift portal info`. Nie im Log.
-- **Welt kopieren:** Das Register gehört zur Welt; eine Kopie nimmt die Melodien mit. Ein neues Register
-  (neue Welt) ergibt neue Melodien für schlafende Schreine. Neu würfeln per Befehl gibt es nicht.
-- Die alte Form `portals.melody: [1, 3, …]` wird weiter gelesen (gilt als `fixed`).
+- **Welcher Schlüssel:** einer je Portaltyp. Schreine nehmen den Schlüssel ihrer Dimension, das Portal im
+  Zentrum der Antiken Stadt den **Antiken Resonator**. Den gibt es nur als seltenen Fund in den Truhen der
+  Antiken Stadt (ohne Rezept); er ersetzt die geheime Melodie und das Buch.
+- **Verbrauch:** Der Schlüssel wird verbraucht, wenn er ein schlafendes Portal öffnet. Ein Portal, dessen
+  Konsolen schon wach sind (vor alpha.37 geweckt, oder die Zündung wurde unterbrochen, z. B. weil ein
+  Notenblock fehlte), öffnet derselbe Schlüssel ohne Verbrauch.
+- **Falscher Schlüssel:** verzerrter Klang und Hinweis, nichts wird verbraucht.
+- **Singer:** Das Ziegenhorn ruft ihn weiter zu einem schlafenden Portal, und er singt. Seine Schallwellen
+  lassen die Konsolen nur noch aufleuchten; sie wecken sie nicht mehr. Ausschalten:
+  `mobs.singer.summon.enabled: false`.
+- **Nicht mehr benutzt:** `portals.melody.*`, `portals.ancient-city.melody`, `portals.ancient-city.book`. Stehen
+  sie noch in der `config.yml`, meldet das Plugin beim Start eine Warnung; die Einträge können gelöscht werden.
+  Alte Melodie-Bücher bleiben gewöhnliche Bücher. Die Melodien im Portal-Register bleiben gespeichert, werden
+  aber nicht mehr verwendet.
+- **Portale aus Spieltests:** `/sift portal lock <id>` legt ein Portal wieder schlafen (Konsolen im Horn-Modus,
+  Fläche zu); danach braucht es wieder einen Schlüssel. Siehe GOLIVE.md.
 
-**Öffentliches Repo:** `config.yml` mit `portals.melody.fixed` und `portals.ancient-city.melody` steht im
-öffentlichen Repository. Auf dem Live-Server die Melodie der Antiken Stadt (und bei Bedarf `fixed`) in der
-eigenen `config.yml` ändern, sonst kann sie jeder nachlesen. Die Melodien je Portal stehen nirgends im Repo.
+**Rezepte (`portals.recipes`), gestaffelt Hauptwelt < Nether < End:**
+- Zutaten: Vanilla-Items (`minecraft:x`), Tags (`#minecraft:x`) und Sift-Items (`the_sift:x`, z. B. spätere
+  Boss-Items aus Phase 4). Ein Item je Feld des 3 × 3-Rasters.
+- Ein zweites Rezept für denselben Schlüssel: neuer Name unter `portals.recipes`, gleiches `result`.
+- **Ungültiges Rezept** (Tippfehler, Item gibt es nicht oder noch nicht): Das Plugin meldet es beim Start im Log
+  und nimmt stattdessen das eingebaute Rezept gleichen Namens; ohne eingebautes Rezept wird es weggelassen.
+- **Update der config.yml (seit alpha.37):** Neue Einstellungen kommen beim Start dazu, aber nie in ein Rezept,
+  das schon in der Datei steht (bis alpha.36 wurden dabei Zutaten alter und neuer Rezepte vermischt). Rezepte
+  und Beute-Chancen, die noch genau den Standardwerten von alpha.36 entsprechen, ersetzt das Plugin einmalig
+  durch die neuen und schreibt das ins Log („old defaults replaced“). Selbst geänderte Werte bleiben.
 
 ### Portal-Schreine (Schritt 7b)
 
@@ -518,14 +529,19 @@ In Hauptwelt, Nether und End baut das Plugin beim Generieren neuer Chunks je ein
 
 ### Schlüssel und Sift-Kompass
 
-| Item | Weckt | Rezept (Standard, `portals.recipes`) | Beute (`portals.keys.*.loot`) |
+| Item | Öffnet | Rezept (Standard, `portals.recipes`) | Beute (`portals.keys.*.loot`) |
 |---|---|---|---|
-| Echo-Resonator | Hauptwelt | 3 Echo-Splitter, Ziegenhorn, Sculk-Katalysator | Antike Stadt, 8 % |
-| Seelenglut-Kern | Nether | Lohenrute, 2 Ghast-Tränen, Antiker Schrott, Seelensand | Bastionen, 8 % |
-| Leere-Resonator | End | 3 Geplatzte Chorusfrüchte, Shulkerschale, Drachenatem | Endsiedlung (Schatz), 8 % |
+| Echo-Resonator | Schreine der Hauptwelt | Schwerer Kern, 4 Echo-Splitter, Sculk-Katalysator | Antike Stadt, 3 % |
+| Seelenglut-Kern | Schreine im Nether | 3 Wither-Skelett-Schädel, Netherit-Barren, 2 Ghast-Tränen, Lohenrute | Bastionen, 3 % |
+| Leere-Resonator | Schreine im End | Drachenkopf, Elytren, 2 Shulkerschalen, Geplatzte Chorusfrucht | – |
+| Antiker Resonator | Portal der Antiken Stadt | – | Antike Stadt, 1 % |
 | Sift-Kompass | – | Kompass, 4 Echo-Splitter, 4 Amethystsplitter | – |
 
-- **Schlüssel:** Der falsche Schlüssel und schon geweckte Konsolen geben einen Hinweis.
+- **Erreichbarkeit:** Den Schweren Kern gibt es nur aus Ominous-Tresoren der Prüfungskammern. Drachenkopf und
+  Elytren liegen auf Endschiffen, also auch nach dem ersten Drachenkill. Drachenatem (nur bei lebendem Drachen)
+  ist deshalb nicht mehr im Rezept.
+- **Einstieg:** Offene Portale bleiben offen und gelten für alle; ein geöffneter Schrein reicht für den ganzen
+  Server. Ein zweiter Weg hinein ist das Portal der Antiken Stadt mit dem gefundenen Antiken Resonator.
 - **Sift-Kompass:** Solange man ihn hält, zeigt die Nadel auf den nächsten Schrein der Dimension, in
   der Sift auf das Haupt-Portal. Die Actionbar zeigt die Entfernung; aufgefrischt wird alle
   `portals.compass.update-ticks` (40).
@@ -537,7 +553,7 @@ In Hauptwelt, Nether und End baut das Plugin beim Generieren neuer Chunks je ein
 `scripts/gen_portal_item_textures.py` gezeichnet. Eigene PNGs (16 × 16) unter denselben Namen ersetzen
 sie, danach das Resource Pack neu bauen bzw. veröffentlichen:
 - `pack-src/resourcepack-overlay/assets/the_sift/textures/item/echo_resonator.png`, `soul_ember_core.png`,
-  `void_resonator.png`
+  `void_resonator.png`, `ancient_resonator.png` (seit alpha.37)
 - `…/textures/item/sift_compass_00.png` … `sift_compass_31.png`: eine Nadelstellung je Bild, wie beim
   Vanilla-Kompass.
   - `16` zeigt geradeaus (nach oben), jedes weitere Bild 11,25° im Uhrzeigersinn weiter: `20` schräg
@@ -547,11 +563,11 @@ sie, danach das Resource Pack neu bauen bzw. veröffentlichen:
 | Befehl | Wirkung |
 |---|---|
 | `/sift portal create <x y z>` | Rahmen aus Verstärktem Tiefenschiefer an dieser Stelle als Portal anlegen; Konsolen im Umkreis gehören dazu. Nicht in der Sift. |
-| `/sift portal unlock [id]` | Konsolen wecken (Noten-Modus); danach öffnet die Melodie das Portal |
-| `/sift portal activate [id]` | Sofort öffnen (bei offenem Portal: Fläche erneuern) |
+| `/sift portal lock [id]` | Wieder schlafen legen (Konsolen im Horn-Modus, Fläche zu); danach braucht es wieder einen Schlüssel. Für Portale aus Spieltests (seit alpha.37). |
+| `/sift portal activate [id]` | Öffnen wie mit dem Schlüssel (Konsolen erwachen, Zündung, etwa 15 s); bei offenem Portal: Fläche erneuern |
 | `/sift portal deactivate [id]` | Schließen; Konsolen bleiben wach. Das Haupt-Portal der Sift bleibt immer offen. |
 | `/sift portal remove <id>` | Abmelden (Blöcke bleiben stehen) |
-| `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen mit ihrer Klangnummer 1–8, Melodie mit Herkunft (eigene / feste / Antike Stadt); Liste aller Portale mit Teleport |
+| `/sift portal info [id]`, `list` | Zustand, Rahmen, Konsolen mit ihrer Klangnummer 1–8, passender Schlüssel; Liste aller Portale mit Teleport |
 | `/sift portal locate` | Nächster Portal-Schrein der Welt (berechnet, auch ungeneriert) mit Teleport-Klick |
 
 Ohne `id` wirkt der Befehl auf das nächste Portal im Umkreis von 64 Blöcken. Von der Konsole aus:
@@ -617,13 +633,14 @@ Spawnt nach den Profilen des Originals in der ganzen Sift (`mobs.sifter.spawn`),
 ### Singer
 
 Basis Fahrender Händler (Größe 2,05). **Gerufen:** Ein Ziegenhorn in 40 Blöcken um ein schlafendes Portal
-ruft ihn nach 3 s; er singt und weckt die Konsolen nacheinander (dieselben Methoden wie der Schlüssel), dann
-taucht er ab. `/sift debug singer` ruft ihn ohne Horn. **Bleibend:** `/sift spawn singer` bzw.
+ruft ihn nach 3 s; er singt, seine Schallwellen lassen die Konsolen nacheinander aufleuchten, dann taucht er
+ab. Seit alpha.37 weckt er die Konsolen nicht mehr (nur der Schlüssel öffnet ein Portal);
+`mobs.singer.summon.enabled: false` schaltet den Ruf ab. `/sift debug singer` ruft ihn ohne Horn. **Bleibend:** `/sift spawn singer` bzw.
 `singer_spawn_egg`: läuft im Umkreis `mobs.singer.leash-radius` umher und tauscht Seelenblöcke gegen
 Belohnungen aus `mobs.singer.barter.table` (Gewicht von 200, Anzahl).
 
-Schlüssel abschalten: `portals.keys.enabled: false` (Neustart). Dann weckt nur noch der Singer; schon wache und
-offene Portale bleiben, wie sie sind, und die Schlüssel liegen nicht mehr in Truhen.
+Schlüssel abschalten: `portals.keys.enabled: false` (Neustart). Dann öffnen nur noch Admins Portale
+(`/sift portal activate`); offene Portale bleiben offen, und die Schlüssel liegen nicht mehr in Truhen.
 
 ### Dunkler Schnüffler
 
@@ -686,11 +703,9 @@ Golems), alle wie im Original. Der Seelen-Singer steht unter `mobs.singer.soul-e
 
 `portals.ancient-city` (Standard an, `[Start]`, nur neue Chunks): Das Zentrum jeder neuen Antiken Stadt wird
 das Portal des Originals. Es wird beim Generieren registriert (`city-…` in `/sift portal list`, Log-Zeile
-„Ancient City portal … registered“). Geweckt wird es mit dem Echo-Resonator oder vom Singer; öffnen lässt es
-sich nur mit `portals.ancient-city.melody` (Standard 12 Töne). Die Melodie steht nicht im Hinweis, sondern im
-Buch „Lied der Tiefe“, das mit `portals.ancient-city.book.chance` in den Truhen liegt (Texte in
-`messages.yml` unter `portals.ancient-city-book`). Admins sehen sie bei `/sift portal unlock`.
-Wird die Melodie geändert, gilt die neue sofort für alle Städte; schon verteilte Bücher zeigen die alte.
+„Ancient City portal … registered“). Seit alpha.37 öffnet es nur der **Antike Resonator**
+(`portals.keys.ancient-city`), der mit 1 % in den Truhen der Antiken Stadt liegt und kein Rezept hat. Die
+frühere Melodie und das Buch „Lied der Tiefe“ gibt es nicht mehr.
 Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben registriert.
 
 ## Drops und Erze
@@ -806,7 +821,7 @@ Alles steht unter `rifts.*`; `rifts.enabled: false` schaltet Risse ganz ab.
 ## Zugang zur Sift (ab alpha.20)
 
 Die Sift lässt sich zeitlich sperren, z. B. bis eine Woche nach dem ersten Drachenkill. Gesperrt ist nur der
-Weg **hinein**: Wecken, Melodie spielen und Öffnen der Portale gehen weiter, und hinaus (durch das
+Weg **hinein**: Öffnen der Portale mit dem Schlüssel geht weiter, und hinaus (durch das
 Haupt-Portal) geht es immer.
 
 ```yaml
@@ -873,7 +888,7 @@ Texte stehen in `messages.yml` unter `access.*`.
 | `/sift access …`, `/sift open`, `/sift close` | Zugang zur Sift (siehe „Zugang zur Sift“) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
-| `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung) |
+| `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung); er singt, weckt aber nicht (seit alpha.37) |
 | `/sift debug golems` | Echo Golems: Erscheinen, Zähler der Seelenblöcke, Lichtblöcke in 48 Blöcken, Zustand jedes Golems |
 | `/sift debug infect` | Nächsten normalen Schnüffler in 16 Blöcken sofort infizieren (verwandelt sich nach `infection.conversion-ticks`, nur in der Sift) |
 | `/sift debug mobs walk <x> <y> <z>` | Nächsten Sift-Mob zu einem Block laufen lassen (Test der Wegfindung) |

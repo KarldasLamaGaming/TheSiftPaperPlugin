@@ -54,10 +54,13 @@ public final class SiftRecipes {
     private final Logger logger;
     private final List<NamespacedKey> registered = new ArrayList<>();
     private final org.bukkit.configuration.ConfigurationSection configRecipes;
+    private final org.bukkit.configuration.ConfigurationSection defaultRecipes;
 
-    public SiftRecipes(SiftItems items, org.bukkit.configuration.ConfigurationSection configRecipes, Logger logger) {
+    public SiftRecipes(SiftItems items, org.bukkit.configuration.ConfigurationSection configRecipes,
+                       org.bukkit.configuration.ConfigurationSection defaultRecipes, Logger logger) {
         this.items = items;
         this.configRecipes = configRecipes;
+        this.defaultRecipes = defaultRecipes;
         this.logger = logger;
     }
 
@@ -73,17 +76,45 @@ public final class SiftRecipes {
 
     /** The bundled recipes plus the ones in config.yml (portals.recipes: portal keys and compass). */
     public static List<RecipeSpec> all(ItemRegistry registry, org.bukkit.configuration.ConfigurationSection configRecipes) {
+        return all(registry, configRecipes, null, id -> true, warning -> { });
+    }
+
+    /**
+     * The bundled recipes plus the ones in config.yml; a broken config recipe falls back to the built-in one of the same
+     * name (defaultRecipes, the config.yml in the jar) with a warning (alpha.37).
+     */
+    public static List<RecipeSpec> all(ItemRegistry registry, org.bukkit.configuration.ConfigurationSection configRecipes,
+                                       org.bukkit.configuration.ConfigurationSection defaultRecipes,
+                                       java.util.function.Predicate<String> knownVanilla, java.util.function.Consumer<String> warnings) {
         List<RecipeSpec> specs = new ArrayList<>(bundled(registry));
         if (configRecipes != null) {
             RecipeSpec.Items resolver = resolver(registry);
             for (String name : configRecipes.getKeys(false)) {
                 Object json = toJson(configRecipes.get(name));
-                if (json instanceof JsonObject object) {
-                    specs.add(RecipeSpec.parse(name, object, resolver));
+                Object fallback = defaultRecipes == null || defaultRecipes == configRecipes || !defaultRecipes.isConfigurationSection(name)
+                        ? null : toJson(defaultRecipes.get(name));
+                if (!(json instanceof JsonObject object)) {
+                    warnings.accept("recipe " + name + " in config.yml is not a section; left out");
+                    continue;
                 }
+                RecipeSpec.Checked checked = RecipeSpec.checked(name, object, fallback instanceof JsonObject f ? f : null, resolver, knownVanilla);
+                if (checked.warning() != null) {
+                    warnings.accept(checked.warning());
+                }
+                specs.add(checked.spec());
             }
         }
         return specs;
+    }
+
+    /** Whether a vanilla item ("minecraft:x") or item tag ("#minecraft:x") exists on this server. */
+    private static boolean knownVanilla(String id) {
+        if (id.startsWith("#")) {
+            NamespacedKey key = NamespacedKey.fromString(id.substring(1));
+            return key != null && Bukkit.getTag(Tag.REGISTRY_ITEMS, key, Material.class) != null;
+        }
+        Material material = Material.matchMaterial(id);
+        return material != null && material.isItem();
     }
 
     /** A config section (nested maps and lists of strings and numbers) as JSON, like a recipe file. */
@@ -93,6 +124,11 @@ public final class SiftRecipes {
             for (String key : section.getKeys(false)) {
                 object.add(key, (com.google.gson.JsonElement) toJson(section.get(key)));
             }
+            return object;
+        }
+        if (value instanceof Map<?, ?> map) {
+            JsonObject object = new JsonObject();
+            map.forEach((key, v) -> object.add(String.valueOf(key), (com.google.gson.JsonElement) toJson(v)));
             return object;
         }
         if (value instanceof List<?> list) {
@@ -123,7 +159,7 @@ public final class SiftRecipes {
         int skipped = 0;
         List<Recipe> recipes = new ArrayList<>();
         List<NamespacedKey> keys = new ArrayList<>();
-        for (RecipeSpec spec : all(items.registry(), configRecipes)) {
+        for (RecipeSpec spec : all(items.registry(), configRecipes, defaultRecipes, SiftRecipes::knownVanilla, logger::warning)) {
             if (spec.skipped()) {
                 skipped++;
                 logger.fine("Recipe " + spec.name() + " skipped: " + spec.skipReason());
@@ -144,7 +180,8 @@ public final class SiftRecipes {
 
     /** How many recipes should be registered (bundled and config, without the skipped ones). */
     public int expected() {
-        return (int) all(items.registry(), configRecipes).stream().filter(r -> !r.skipped()).count();
+        return (int) all(items.registry(), configRecipes, defaultRecipes, SiftRecipes::knownVanilla, w -> { }).stream()
+                .filter(r -> !r.skipped()).count();
     }
 
     public List<NamespacedKey> keys() {

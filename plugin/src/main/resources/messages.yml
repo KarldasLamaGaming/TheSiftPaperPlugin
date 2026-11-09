@@ -18,14 +18,6 @@ mobs:
     # Übergabe des Seelenblocks bei vollem Inventar
     inventory-full: "<yellow>Inventar voll: Der Echo Golem legt dir den Seelenblock vor die Füße."
 
-portals:
-  # Buch mit der Melodie der Portale in Antiken Städten (liegt mit einer Chance in deren Truhen)
-  ancient-city-book:
-    title: "Lied der Tiefe"
-    author: "Ein Wächter"
-    page-1: "<dark_gray>Im Herzen der Stadt schläft ein Tor. Der Singer weckt es, oder das Echo eines Resonators.\n\nDoch öffnen lässt es sich nur mit dem alten Lied, Ton für Ton auf den Konsolen gespielt."
-    page-2: "<dark_gray>Das Lied der Tiefe:\n\n<black><bold><melody></bold>\n\n<dark_gray>Rechtsklick wechselt den Klang, ein Schlag spielt ihn."
-
 # Zeitsperre der Sift (config access.*)
 access:
   # Ankündigung an alle, wenn die Sift öffnet
