@@ -391,7 +391,8 @@ Neue Schluchten entstehen nur in **neu generierten** Chunks. Für schon generier
 ## Portale (ab Schritt 7a, Schreine und Schlüssel ab 7b)
 
 Für Schritt 7b eine frische Welt (Hauptwelt, Nether, End) nehmen; Schreine entstehen nur in neuen Chunks.
-Melodie und Konsolen im Überlebensmodus spielen: Im Kreativmodus zerbricht ein Schlag den Notenblock.
+Konsolen im Überlebensmodus testen: Im Kreativmodus zerbricht ein Schlag den Notenblock, und der Schlüssel wird
+nicht verbraucht.
 
 **Schreine finden**
 - [ ] `/sift portal locate` in Hauptwelt, Nether und End (im End weit draußen): Klick teleportiert hin. Der
@@ -405,38 +406,43 @@ Melodie und Konsolen im Überlebensmodus spielen: Im Kreativmodus zerbricht ein 
       Actionbar nennt die Entfernung, die beim Hingehen sinkt. In der Sift zeigt er auf das Haupt-Portal,
       in einer Welt ohne Schreine dreht sich die Nadel.
 
-**Schlüssel und Melodie** (Issue #20)
-- [ ] Schlafende Konsole: Rechtsklick und Schlagen am Notenblock geben nur den verzerrten Klang und einen
-      Hinweis.
-- [ ] Falscher Schlüssel (z. B. Seelenglut-Kern an der Ruine der Hauptwelt): Hinweis, Schlüssel bleibt.
-- [ ] Richtiger Schlüssel per Rechtsklick auf eine Konsole:
-  - Alle 8 Konsolen wechseln in den Noten-Modus, mit Partikeln und Klang.
-  - Im Chat steht der Hinweis mit der Melodie **1-3-7-6-5-2-4-8** und der Bedienung (Rechtsklick wechselt,
-    Linksklick spielt). Dasselbe erhält ein Admin bei `/sift portal unlock`.
-  - Der Schlüssel ist weg (im Kreativmodus bleibt er).
-  - Ein zweiter Rechtsklick ergibt den Hinweis „schon wach“.
-- [ ] Klangnummern:
-  - Rechtsklick auf einen Notenblock schaltet den Klang weiter, immer in der Reihenfolge
-    **1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 1**.
-  - Die Actionbar zeigt danach „Klang N von 8“ mit der neuen Nummer. Schlagen (Linksklick) spielt den
-    Klang und zeigt ebenfalls „Klang N von 8“.
-  - Redstone am Notenblock spielt den Sift-Klang ohne Anzeige.
-  - Ein Notenblock genügt: einstellen, schlagen, weiterschalten, schlagen …; es zählen nur die
-    Schläge. Mehrere Notenblöcke mit fest eingestellten Klängen gehen genauso.
-- [ ] `/sift portal info` (Admin) listet die 8 Konsolen mit Position und aktueller Klangnummer; nach dem
-      Umstellen eines Notenblocks steht dort die neue Nummer.
-- [ ] Melodie 1-3-7-6-5-2-4-8 durch Schlagen spielen:
-  - Farbstoß über den Notenblöcken.
-  - Die Konsolen spielen die Melodie mit Lichtsäulen nach.
-  - Dann füllt sich der Rahmen vom Rand zur Mitte (Partikel, Klang), die Nebelfläche erscheint, die
-    Öffnung leuchtet.
-- [ ] Falsche Töne in der Melodie: nichts passiert. Rückwärts gespielt: Hinweis „Dieses Portal bleibt offen“.
+**Schlüssel öffnen das Portal** (Issue #20, seit alpha.37 statt der Melodie)
+```
+/give @s heavy_core
+/give @s echo_shard 4
+/give @s sculk_catalyst
+/sift give @s soul_ember_core
+/sift give @s void_resonator
+/sift give @s ancient_resonator
+```
+- [ ] Schlafende Konsole: Rechtsklick und Schlagen am Notenblock geben nur den verzerrten Klang und den Hinweis
+      „Der passende Schlüssel öffnet das Portal“.
+- [ ] Falscher Schlüssel (z. B. Seelenglut-Kern an der Ruine der Hauptwelt, Echo-Resonator an der Antiken
+      Stadt): verzerrter Klang, Hinweis „passt nicht“, Schlüssel bleibt.
+- [ ] Echo-Resonator herstellen (Schwerer Kern in der Mitte, 4 Echo-Splitter, Sculk-Katalysator unten) und per
+      Rechtsklick auf eine Konsole der Ruine:
+  - Die Konsolen erwachen nacheinander, von der angeklickten aus, mit Farbstoß.
+  - Der Auslöse-Klang ertönt, dann spielen die Konsolen ihre Klänge mit Lichtsäulen nach.
+  - Der Rahmen füllt sich vom Rand zur Mitte, die Nebelfläche erscheint, die Öffnung leuchtet (zusammen etwa
+    15 s).
+  - Der Schlüssel ist weg (Überlebensmodus); im Kreativmodus bleibt er.
+  - Ein weiterer Rechtsklick mit Schlüssel: „Dieses Portal ist schon offen“, nichts wird verbraucht.
+- [ ] Während des Öffnens noch einmal klicken: nichts passiert, kein zweiter Schlüssel weg.
 - [ ] Dasselbe im Nether (Seelenglut-Kern) und im End (Leere-Resonator).
+- [ ] Antike Stadt: nur der Antike Resonator öffnet sie.
+- [ ] `portals.keys.consume: false` (Neustart): Schlüssel bleibt nach dem Öffnen im Inventar.
+- [ ] Klangnummern (Konsolen im Noten-Modus, z. B. nach dem Öffnen oder an eigenen Konsolen):
+  - Rechtsklick auf einen Notenblock schaltet den Klang weiter, immer in der Reihenfolge
+    **1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 1**; die Actionbar zeigt „Klang N von 8“. Schlagen spielt ihn.
+  - Redstone am Notenblock spielt den Sift-Klang ohne Anzeige.
+- [ ] `/sift portal info` (Admin) listet die 8 Konsolen mit Klangnummer und den passenden Schlüssel.
+- [ ] `/sift portal lock <id>` an einem offenen Portal: Fläche schließt, Konsolen schlafen wieder; der Schlüssel
+      öffnet es erneut (und wird verbraucht).
 
 **Eigene Konsolen außerhalb der Sift**
 - [ ] Klingenden Tiefenschiefer aus `/sift items` in der Hauptwelt setzen (früher gesperrt), zwei direkt
       nebeneinander: Beide behalten ihr Aussehen. Andere Sift-Blöcke bleiben außerhalb der Sift gesperrt.
-- [ ] Eigener Rahmen mit Konsolen: `/sift portal create ~ ~ ~`, `unlock`, Melodie wie oben.
+- [ ] Eigener Rahmen mit Konsolen: `/sift portal create ~ ~ ~`, dann mit dem Echo-Resonator öffnen wie oben.
 
 **Durchgang**
 - [ ] Hineingehen:
@@ -450,27 +456,18 @@ Melodie und Konsolen im Überlebensmodus spielen: Im Kreativmodus zerbricht ein 
 - [ ] Nebelfläche aus der Nähe und von der Seite, in Grafik „Schnell“ und „Schön“ (Screenshot).
 
 **Rezepte und Beute**
-- [ ] Rezepte im Rezeptbuch: Echo-Resonator, Seelenglut-Kern, Leere-Resonator, Sift-Kompass. Mit
-      Vanilla-Zutaten herstellbar; die Items glänzen und haben eigene Texturen. Die Kompassnadel dreht
-      sich sauber.
-- [ ] Mehrere Truhen in Antiker Stadt, Bastion und Endsiedlung öffnen: Gelegentlich (8 %) liegt der
-      passende Schlüssel darin, der normale Inhalt bleibt.
+- [ ] Rezepte im Rezeptbuch (seit alpha.37 gestaffelt):
+  - Echo-Resonator: Schwerer Kern, 4 Echo-Splitter, Sculk-Katalysator.
+  - Seelenglut-Kern: 3 Wither-Skelett-Schädel, Netherit-Barren, 2 Ghast-Tränen, Lohenrute.
+  - Leere-Resonator: Drachenkopf, Elytren, 2 Shulkerschalen, Geplatzte Chorusfrucht.
+  - Sift-Kompass. Die Items glänzen und haben eigene Texturen. Die Kompassnadel dreht sich sauber.
+- [ ] Antiker Resonator: kein Rezept im Rezeptbuch; eigene Textur (Auge in Tiefenschiefer-Tafel).
+- [ ] Truhen in Antiker Stadt und Bastion: selten (3 %) der Schlüssel der Dimension; in der Antiken Stadt sehr
+      selten (1 %) der Antike Resonator. In Endsiedlungen liegt kein Schlüssel mehr. Der normale Inhalt bleibt.
 
-## Melodie je Portal (ab alpha.20)
+## Melodie je Portal (alpha.20 bis alpha.36)
 
-- [ ] Zwei neu generierte Schreine (oder `/sift portal create` an zwei Rahmen) wecken: Jeder zeigt beim
-      Wecken eine andere Melodie (Chat und Actionbar an Spieler in der Nähe). Mit dem Schlüssel und mit dem
-      Singer (Ziegenhorn) prüfen.
-- [ ] Die gezeigte Melodie öffnet genau diesen Schrein; die feste Melodie 1-3-7-6-5-2-4-8 öffnet ihn nicht.
-- [ ] Rückruf: Schleichen + Rechtsklick mit leerer Hand auf einen Notenblock eines geweckten Schreins zeigt
-      die Melodie nur dir; der Klang des Notenblocks schaltet dabei nicht weiter. An einem schlafenden oder
-      offenen Portal und an der Antiken Stadt passiert nichts Besonderes. `recall-enabled: false` schaltet
-      den Rückruf ab.
-- [ ] Neustart: `/sift portal info` zeigt dieselben Melodien wie vorher.
-- [ ] Ein schon vor alpha.20 geweckter Schrein behält 1-3-7-6-5-2-4-8 (`info`: „feste Melodie“).
-- [ ] `portals.melody.per-portal: false` + Neustart: alle Schreine öffnen wieder mit `fixed`.
-- [ ] Antike Stadt: weiter nur die lange Melodie aus dem Buch, kein Hinweis beim Wecken.
-- [ ] Konsole (`logs/latest.log`): keine Melodie im Log.
+Entfällt seit alpha.37: Portale öffnen nur noch mit dem Schlüssel (oben).
 
 ## Zugang zur Sift (ab alpha.20)
 
@@ -483,7 +480,7 @@ thesift.access.bypass false`, danach wieder entfernen).
 - [ ] `/sift close`, dann vor Ablauf `/sift open`: Countdown bricht ab, niemand wird zurückgeschickt.
 - [ ] Geschlossen durch ein offenes Portal gehen: Actionbar „Die Sift ist geschlossen“ (bei after-dragon /
       fixed-date mit Restzeit), man bleibt draußen. Tier hineinführen / Item hineinwerfen: bleibt draußen.
-- [ ] Geschlossen: Schrein wecken und Melodie spielen geht weiter, das Portal öffnet sich.
+- [ ] Geschlossen: Schrein mit dem Schlüssel öffnen geht weiter, das Portal öffnet sich.
 - [ ] Geschlossen: `/tp <Spieler>` zu jemandem in der Sift bzw. `/execute in the_sift:the_sift run tp …`
       wird abgebrochen (mit Meldung).
 - [ ] In der Sift ausloggen, `/sift close` abwarten, einloggen: man wird zurückgeschickt.
@@ -709,21 +706,22 @@ Test in der Sift, Schwierigkeit mindestens Leicht, Überlebensmodus. Werte unter
 ## Mobs: Singer und Antike Stadt (ab Phase 2, Schritt 3)
 
 Für die Antike Stadt eine **frische Welt** nehmen (nur neue Chunks bekommen das Portal). Werte unter
-`mobs.singer` und `portals.ancient-city`. Melodie und Konsolen im Überlebensmodus spielen.
+`mobs.singer` und `portals.ancient-city`. Konsolen im Überlebensmodus testen.
 
 **Singer rufen (Schrein)**
 - [ ] Ziegenhorn in bis zu 40 Blöcken von einem schlafenden Schrein blasen: Nach etwa 3 Sekunden steigt der
       Singer im Portal aus dem Boden (Partikel, Klang), zur nächsten Konsole gedreht.
 - [ ] Er singt, im weiten Umkreis zu hören. Acht Schallwellen (türkise Partikel) laufen nacheinander zu den
-      Konsolen; jede Konsole wacht auf, wenn ihre Welle ankommt (Farbstoß).
-- [ ] Danach versinkt er wieder im Boden und ist weg. Spieler in der Nähe bekommen den Hinweis mit der Melodie;
-      `/sift portal info` zeigt „8/8 wach“, Zustand UNLOCKED.
+      Konsolen; jede leuchtet auf, wenn ihre Welle ankommt (Farbstoß), **wacht aber nicht auf** (seit alpha.37).
+- [ ] Danach versinkt er wieder im Boden und ist weg. Spieler in der Nähe lesen „Die Konsolen hallen nach und
+      schlafen weiter. Nur der passende Schlüssel öffnet dieses Portal.“; `/sift portal info` zeigt „0/8 wach“,
+      Zustand LOCKED.
+- [ ] `mobs.singer.summon.enabled: false` (Neustart): Das Ziegenhorn ruft keinen Singer mehr.
 - [ ] Ein zweites Horn während des Gesangs ruft keinen zweiten Singer. An einem wachen oder offenen Portal
       erscheint keiner.
 - [ ] Während des Auftritts ist er nicht zu verletzen und nicht wegzuschieben.
-- [ ] Der Schlüssel geht weiterhin. Mit `portals.keys.enabled: false` (Neustart) weist die Konsole den
-      Schlüssel ab („Schlüssel sind abgeschaltet …“), der Singer weckt weiter; die Schlüssel liegen dann
-      nicht mehr in Truhen.
+- [ ] Mit `portals.keys.enabled: false` (Neustart) weist die Konsole den Schlüssel ab („Schlüssel sind
+      abgeschaltet …“), nur `/sift portal activate` öffnet; die Schlüssel liegen dann nicht mehr in Truhen.
 
 **Bleibender Singer und Tausch**
 - [ ] `/sift spawn singer` oder Singer-Spawn-Ei: Er steigt aus dem Boden und bleibt. Er läuft gemächlich in
@@ -746,14 +744,10 @@ Für die Antike Stadt eine **frische Welt** nehmen (nur neue Chunks bekommen das
       Vanilla-Rahmens das Portal des Originals mit 8 Konsolen; auf den Konsolen Notenblöcke (wo Kerzen
       standen, sind sie ersetzt). Log: „Ancient City portal city-… registered“. `/sift portal list` zeigt
       `city-…` LOCKED.
-- [ ] Echo-Resonator oder Singer (Ziegenhorn) weckt es. Der Hinweis nennt **keine** Melodie, nur dass es ein
-      eigenes Lied gibt.
-- [ ] Die Schreinmelodie 1-3-7-6-5-2-4-8 öffnet es nicht. Die lange Melodie aus der config
-      (`portals.ancient-city.melody`, Standard 6-2-8-4-1-7-3-5-8-2-6-1) öffnet es; Durchgang führt in die Sift
+- [ ] Seit alpha.37: Der Echo-Resonator passt nicht („passt nicht“, bleibt im Inventar). Der Antike
+      Resonator (`/sift give @s ancient_resonator`) öffnet es mit dem ganzen Ablauf; Durchgang führt in die Sift
       und zurück.
-- [ ] Truhen der Antiken Stadt: Gelegentlich (15 %) liegt das Buch „Lied der Tiefe“ darin, auf Seite 2
-      steht die Melodie.
-- [ ] `/sift portal unlock city-…` (Admin) zeigt die Melodie zusätzlich als Admin-Hinweis.
+- [ ] Truhen der Antiken Stadt: sehr selten (1 %) der Antike Resonator; kein Buch „Lied der Tiefe“ mehr.
 - [ ] `portals.ancient-city.enabled: false` und Neustart: neue Antike Städte haben wieder das Vanilla-Zentrum.
 
 ## Mobs: Dunkler Schnüffler (ab Phase 2, Schritt 4)

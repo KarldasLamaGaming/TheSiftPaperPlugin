@@ -198,19 +198,32 @@ Die Mechanik folgt dem Original 1.1.1:
 - Rahmen aus Verstärktem Tiefenschiefer (3–23 Blöcke).
 - Konsolen aus Klingendem Tiefenschiefer mit Notenblöcken; Rechtsklick wählt einen der 8 Klänge, Schlagen
   spielt ihn.
-- Die Melodie 1-3-7-6-5-2-4-8 öffnet das Portal; danach Farbstoß, Nachspielen und eine Fläche, die sich vom
-  Rand zur Mitte füllt.
+- Beim Öffnen Farbstoß, Nachspielen und eine Fläche, die sich vom Rand zur Mitte füllt (im Original nach der
+  Melodie 1-3-7-6-5-2-4-8, hier seit alpha.37 nach dem Schlüssel, siehe unten).
 - Durchgang zum Haupt-Portal der Sift und zurück zum Rückkehrpunkt; Transit-Schutz nach jeder Reise.
 
 Unterschiede:
-- **Wecken:** Im Original schaltet nur der Singer (Ziegenhorn in der Antiken Stadt) die Konsolen vom
-  Horn- in den Noten-Modus. Hier gehen der Singer (seit Phase 2) und zusätzlich der Schlüssel der Dimension
-  (Schritt 7b, abschaltbar mit `portals.keys.enabled`) bzw. `/sift portal unlock`.
+- **Öffnen nur mit dem Schlüssel (seit alpha.37, bewusste Abweichung, Entscheidung von Karl vor dem Go-live):**
+  - **Original:** Ein Ziegenhorn ruft den Singer, dessen Gesang die Konsolen vom Horn- in den Noten-Modus
+    schaltet; danach öffnet eine für alle Portale gleiche Melodie (1-3-7-6-5-2-4-8) das Portal.
+  - **Hier:** Rechtsklick mit dem passenden Schlüssel auf eine Konsole. Die Konsolen erwachen nacheinander,
+    der Auslöse-Klang ertönt, die Konsolen spielen ihre Klänge mit Lichtstrahlen nach und die Fläche wächst.
+    Ablauf, Klang und Bild bleiben, nur der Auslöser ist ein anderer. Der Schlüssel wird verbraucht
+    (`portals.keys.consume`).
+  - **Gründe:** Eine Melodie lässt sich ohne Client-Mod kaum vermitteln (das Original hat dafür eigene Hinweise
+    und Partikel). Ein Geheimnis im öffentlichen Repo schützt nicht (die Melodie der Antiken Stadt stand in der
+    `config.yml`). Die Schlüssel geben eine klare Staffelung je Dimension: Hauptwelt (Schwerer Kern) < Nether
+    (Wither-Schädel, Netherit) < End (Drachenkopf, Elytren). Schreine in allen Dimensionen, Schlüssel und eigene
+    Melodien je Portal waren schon vorher Abweichungen.
+  - **Singer:** Das Ziegenhorn ruft ihn weiter, und er singt wie im Original. Seine Schallwellen lassen die
+    Konsolen nur noch aufleuchten, statt sie zu wecken.
+  - **Antike Stadt:** eigener Schlüssel (Antiker Resonator, nur 1 % in den Truhen der Stadt, kein Rezept) statt
+    der geheimen langen Melodie aus dem Buch.
 - **Nur registrierte Portale:** Im Original zündet die Melodie jeden passenden Rahmen im Umkreis von
   10 Blöcken. Hier nur Portale aus Strukturen oder per `/sift portal create`. Die Konsolen eines Portals
   stehen in seinem Eintrag; eine Konsolengruppe über 16 Blöcke wie im Original wird nicht gesucht.
-- **Schließen:** Die rückwärts gespielte Melodie schließt das Portal nicht (dauerhaft offen, Entscheidung
-  vom 30.10.).
+- **Schließen:** Im Original schließt die rückwärts gespielte Melodie das Portal. Hier bleibt es dauerhaft offen
+  (Entscheidung vom 30.10.), nur Admins schließen es.
 - **Aussehen:**
   - Die Portalfläche des Originals rendert ein Client-Shader. Hier ist sie eine halbtransparente
     Nebelfläche aus der Original-Textur (ein Item-Display) über unsichtbaren Lichtblöcken (Stufe 12).
@@ -223,14 +236,10 @@ Unterschiede:
     nichts.
   - Hier gibt es eigene Schreine in Hauptwelt, Nether und End. Sie sind Ersatz für das Zentrum der
     Antiken Stadt, bis Phase 2 die Melodie dort als Option bringt.
-  - Der Sift-Kompass zeigt den Weg. Die Schlüssel ersetzen den Singer.
+  - Der Sift-Kompass zeigt den Weg. Die Schlüssel ersetzen Singer und Melodie.
   - Schreine, Schlüssel und Kompass gibt es im Original nicht; ihre Texturen sind eigene.
-- **Melodie je Portal (seit alpha.20):** Im Original öffnet eine Melodie (1-3-7-6-5-2-4-8) jedes Portal.
-  Hier bekommt jeder neue oder noch schlafende Schrein eine eigene, zufällig gewürfelte Melodie, die nur im
-  Portal-Register der Welt steht (kein Seed, keine Koordinaten, kein Salz). Sie erscheint beim Wecken, und
-  Schleichen + Rechtsklick mit leerer Hand auf eine Konsole eines geweckten Portals zeigt sie erneut. Schon
-  geweckte und offene Portale behalten die feste Melodie; `portals.melody.per-portal: false` stellt das
-  Original wieder her. Die Antike Stadt behält ihre lange Melodie aus dem Buch.
+- **Melodie je Portal (alpha.20 bis alpha.36):** Jeder Schrein hatte eine eigene, zufällige Melodie. Seit
+  alpha.37 entfällt die Melodie ganz (siehe „Öffnen nur mit dem Schlüssel“).
 
 ## Ichor (seit alpha.21)
 
@@ -387,11 +396,12 @@ Singer:
   Plünderer greifen ihn nicht an.
 - **Gerufen:** wie das Original: 3 s nach dem Ziegenhorn, nächster Rahmen in 40 Blöcken, Erscheinen, Gesang
   mit 8 Schallwellen, Abtauchen. Unterschiede:
+  - Seit alpha.37 wecken die Schallwellen die Konsolen nicht mehr, sie leuchten nur auf; das Portal öffnet
+    allein der Schlüssel (siehe Portale).
   - Er kommt nur zu **schlafenden** registrierten Portalen (Schrein, Antike Stadt, eigene per Befehl).
   - Die Schallwellen sind Staubpartikel statt des eigenen Partikels; die Lichtsäule am Kopf (Client-Licht)
     fehlt.
-  - Wird der Chunk während des Auftritts entladen oder der Server neu gestartet, gilt das Portal als geweckt,
-    sobald der Gesang begonnen hatte; der Singer ist danach weg.
+  - Wird der Chunk während des Auftritts entladen oder der Server neu gestartet, ist der Singer danach weg.
 - **Bleibend (Spawn-Ei, Befehl):** Im Original läuft er unbegrenzt umher. Hier bleibt er im Umkreis von
   8 Blöcken um seinen Erscheinungsort, nimmt keine Wege mit weniger als 4 Blöcken Höhe und taucht ab, wenn
   er 10 s festsitzt (Entscheidung Phase 2).
@@ -409,10 +419,9 @@ Antike Stadt:
 - **Notenblöcke:** Im Original stehen auf den Konsolen keine Notenblöcke (die Spieler bringen sie mit). Hier
   setzt das Plugin wie bei den Schreinen Notenblöcke mit zufälligen Klängen; Kerzen und andere nicht feste
   Deko darüber weichen.
-- **Melodie:** Im Original öffnet dieselbe Melodie wie überall. Hier hat die Antike Stadt eine eigene, längere
-  (`portals.ancient-city.melody`, 12 Töne), die nicht im Hinweis steht, sondern in einem Buch in den Truhen der
-  Stadt (Entscheidung Phase 2). Das Buch ist neu.
-- **Wecken:** zusätzlich zum Singer auch mit dem Echo-Resonator der Hauptwelt.
+- **Öffnen:** Im Original öffnet dieselbe Melodie wie überall. Hier öffnet seit alpha.37 nur der Antike
+  Resonator (seltener Fund in den Truhen der Stadt). Die lange Melodie mit dem Buch (aus Phase 2, bis alpha.36)
+  gibt es nicht mehr.
 
 Echo Golem (seit alpha.19):
 - **Basis:** unsichtbares Schaf, Größe 1,28 (Hitbox 1,15 × 1,66 statt 1,15 × 1,65), Stufenhöhe 1,5 wie im Original.
