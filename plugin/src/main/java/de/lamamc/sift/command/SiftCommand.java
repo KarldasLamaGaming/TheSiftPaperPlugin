@@ -155,7 +155,10 @@ public final class SiftCommand {
                         .then(Commands.literal("menu").executes(this::debugMenu))
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
-                        .then(Commands.literal("ichor").executes(this::debugIchor))
+                        .then(Commands.literal("ichor").executes(this::debugIchor)
+                                .then(Commands.literal("scan").executes(ctx -> debugIchorScan(ctx, 4))
+                                        .then(Commands.argument("chunks", IntegerArgumentType.integer(0, 8))
+                                                .executes(ctx -> debugIchorScan(ctx, IntegerArgumentType.getInteger(ctx, "chunks"))))))
                         .then(Commands.literal("allays").executes(this::debugAllays))
                         .then(Commands.literal("weather").executes(this::debugWeather))
                         .then(Commands.literal("intro").executes(ctx -> debugIntro(ctx, null))
@@ -617,6 +620,65 @@ public final class SiftCommand {
                 sender.sendRichMessage("<gray>" + (lakes ? "See" : "Quelle") + " bei <white>" + p.x() + " " + p.y() + " " + p.z()
                         + "</white> (" + distance + " Blöcke) <click:run_command:'" + tp + "'><aqua>[Teleport]</aqua></click>");
             }
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * /sift debug ichor scan [chunks]: counts in the loaded chunks around the sender the waterlogged light blocks
+     * (hidden ichor sources, generated before alpha.36) and the dry glow lights above the ichor (alpha.36).
+     */
+    private int debugIchorScan(CommandContext<CommandSourceStack> ctx, int radius) {
+        var sender = ctx.getSource().getSender();
+        var at = ctx.getSource().getLocation();
+        if (!SiftWorlds.isSift(at.getWorld())) {
+            sender.sendRichMessage("<red>Nur in der Sift.");
+            return 0;
+        }
+        var world = at.getWorld();
+        int cx = at.getBlockX() >> 4;
+        int cz = at.getBlockZ() >> 4;
+        int chunks = 0;
+        int hidden = 0;
+        int glow = 0;
+        int[] first = null;
+        long start = System.nanoTime();
+        for (int x = cx - radius; x <= cx + radius; x++) {
+            for (int z = cz - radius; z <= cz + radius; z++) {
+                if (!world.isChunkLoaded(x, z)) {
+                    continue;
+                }
+                chunks++;
+                var snapshot = world.getChunkAt(x, z).getChunkSnapshot(false, false, false);
+                for (int y = world.getMinHeight(); y < world.getMaxHeight(); y++) {
+                    for (int bx = 0; bx < 16; bx++) {
+                        for (int bz = 0; bz < 16; bz++) {
+                            if (snapshot.getBlockType(bx, y, bz) != org.bukkit.Material.LIGHT) {
+                                continue;
+                            }
+                            var light = (org.bukkit.block.data.type.Light) snapshot.getBlockData(bx, y, bz);
+                            if (light.isWaterlogged()) {
+                                hidden++;
+                                if (first == null) {
+                                    first = new int[] {(x << 4) + bx, y, (z << 4) + bz};
+                                }
+                            } else if (light.getLevel() == de.lamamc.sift.world.gen.IchorWaters.LIGHT_LEVEL) {
+                                glow++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        double ms = (System.nanoTime() - start) / 1e6;
+        sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                "<gold>Ichor-Scan</gold> <gray>(%d geladene Chunks, Radius %d, %.0f ms):</gray> <white>%d</white> <gray>wassergeloggte "
+                        + "Lichtblöcke (versteckte Quellen, vor alpha.36 generiert),</gray> <white>%d</white> <gray>Leuchtlichter über dem Ichor.",
+                chunks, radius, ms, hidden, glow));
+        if (first != null) {
+            sender.sendRichMessage("<gray>Erste versteckte Quelle: <click:run_command:'/execute in the_sift:the_sift run tp @s "
+                    + first[0] + " " + (first[1] + 1) + " " + first[2] + "'><aqua>[" + first[0] + " " + first[1] + " " + first[2]
+                    + "]</aqua></click>");
         }
         return Command.SINGLE_SUCCESS;
     }

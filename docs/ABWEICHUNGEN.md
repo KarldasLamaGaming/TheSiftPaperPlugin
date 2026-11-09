@@ -122,7 +122,8 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   mit denselben Zellen (überwuchert 16 Chunks mit 4 Kandidaten, Ödland 28 mit 3), Formen, Blöcken, Pflanzen,
   Nest und Familie (2 Erwachsene, zu 33 % ein Junges; das Plugin erzeugt sie wie das Original erst, wenn die
   Chunks geladen sind). Dazu der Schnüffler-Pflanzenfleck (1/14). Unterschiede:
-  - Das Ichor-Becken leuchtet über Lichtblöcke wie die Seen (Schalter `ichor-light`).
+  - Das Ichor-Becken leuchtet über Lichtblöcke wie die Seen (Schalter `ichor-light`; seit alpha.36 über dem Ichor,
+    nicht darin).
   - Der Zufall ist der des Plugin-Populators; die Kandidaten-Chunks sind dieselben wie im Original, ob dort
     gebaut wird, kann abweichen.
   - Viele Kandidaten scheitern an Erz, Siftschiefer-Bruchstein oder Geröll im Höhlenbereich
@@ -162,9 +163,21 @@ Weidenbäume, Blumen- und Pflanzenflecken, Oberflächen-Sculk, verlassene Portal
   - Größen: Auch im Original sind große Seen selten. In 12 Regionen (~1700 Chunks) des Originals gibt es 10 flache
     Seen: 8 SMALL, 2 MEDIUM, kein LARGE oder MEGA. Die Geländeschwellen sind dieselben.
   - Die Form kleiner Seen (Radius 4–7) wirkt eckig; das Original nutzt dieselbe Formel und sieht genauso aus.
-  - Ichor ist Wasser; das Leuchten (Stufe 12) kommt von wassergeloggten Lichtblöcken an der Oberfläche
-    (jeder dritte Block) und in jeder Quelle. Wird ihr Ichor mit Eimer oder Schwamm entfernt, verschwindet
-    auch das Licht.
+  - Ichor ist Wasser; das Leuchten (Stufe 12) kommt von Lichtblöcken. Bis alpha.35 waren sie wassergeloggt und
+    saßen im Ichor (jeder dritte Block der Oberfläche und jede Quelle). Ein wassergeloggter Lichtblock ist aber
+    eine unsichtbare Wasserquelle: Er fließt dauerhaft weiter, auch wenn die sichtbare Quelle daneben weg ist,
+    und sah im Spieltest (alpha.33) aus wie „neu entstehende Quellen“.
+  - **Seit alpha.36** sitzt das Licht in der Luft **über** dem Ichor: bei Seen und Sniffer-Becken direkt über
+    jedem dritten Block der Oberfläche, bei Quellen über der Öffnung in der Felswand. Die Quelle selbst ist
+    normales Ichor (Quellblock). So gibt es keine versteckten Quellen mehr; nimmt man eine Quelle weg, läuft
+    das fließende Ichor vollständig ab (Smoke-Test).
+  - Unterschied zum Original: Dort leuchtet das Ichor selbst (eigene Flüssigkeit mit Licht 12). Hier hängt das
+    Licht einen Block höher; die Helligkeit an der Oberfläche ist fast gleich, unter der Oberfläche ist es eine
+    Stufe dunkler. Wird ein See abgepumpt, bleiben die Lichtblöcke über der leeren Stelle (unsichtbar, nur
+    Licht). Wer mit einem Eimer Ichor genau in einen solchen Lichtblock gießt, macht daraus eine sichtbare,
+    mit dem Eimer wieder aufnehmbare Quelle; dann geht das Licht beim Aufnehmen mit.
+  - Chunks, die vor alpha.36 generiert wurden, behalten ihre wassergeloggten Lichtblöcke (Welt-Reset vor dem
+    Go-live, siehe GOLIVE.md). `/sift debug ichor scan` zählt sie.
   - Vergleich, gleicher Seed und dieselben 166 Chunks: Original 1 See (69 Spalten), Plugin 1 See (125 Spalten).
     Größe und Form unterscheiden sich, weil der Zufall nicht derselbe ist.
 - **Seelenschluchten (seit alpha.18)** baut das Plugin beim Generieren statt des Datapack-Features (Form,

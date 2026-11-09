@@ -172,15 +172,15 @@ public final class SnifferCaves {
         }
     }
 
-    /** The ichor of the basin glows like the lakes: waterlogged light blocks, one every few blocks at the top. */
+    /** The ichor of the basin glows like the lakes: a light block in the air above every few surface blocks (alpha.36). */
     private void lights(GenRegion region, SnifferCavePlan.Result r) {
         if (!settings.ichorLight() || lightSpacing <= 0) {
             return;
         }
         for (int[] c : r.ichor()) {
-            if (Math.floorMod(c[0], lightSpacing) == 0 && Math.floorMod(c[2], lightSpacing) == 0 && region.writable(c[0], c[1], c[2])
-                    && region.type(c[0], c[1] + 1, c[2]).isAir()) {
-                region.set(c[0], c[1], c[2], IchorWaters.light());
+            if (Math.floorMod(c[0], lightSpacing) == 0 && Math.floorMod(c[2], lightSpacing) == 0 && region.writable(c[0], c[1] + 1, c[2])
+                    && region.type(c[0], c[1], c[2]) == Material.WATER && region.type(c[0], c[1] + 1, c[2]).isAir()) {
+                region.set(c[0], c[1] + 1, c[2], IchorWaters.light());
             }
         }
     }

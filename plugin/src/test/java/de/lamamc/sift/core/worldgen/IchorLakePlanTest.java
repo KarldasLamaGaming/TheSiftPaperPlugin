@@ -1,5 +1,7 @@
 package de.lamamc.sift.core.worldgen;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -155,5 +157,10 @@ class IchorLakePlanTest {
         assertFalse(IchorLakePlan.spring(w, 0, 50, 0), "two openings");
         air.remove("0,49,0");
         assertFalse(IchorLakePlan.spring(w, 0, 99, 0), "opening right under the surface");
+
+        // alpha.36: the glow sits above the opening, never in the spring block or in the outflow
+        assertNull(IchorLakePlan.springGlow(w, 0, 50, 0), "rock above the opening: no light");
+        air.add("1,51,0");
+        assertArrayEquals(new int[] {1, 51, 0}, IchorLakePlan.springGlow(w, 0, 50, 0));
     }
 }
