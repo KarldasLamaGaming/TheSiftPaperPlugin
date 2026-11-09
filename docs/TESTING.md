@@ -42,6 +42,20 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 
 ## Blöcke
 
+**Abbauzeit mit Äxten (Fix alpha.35).** Vorher bauten Eisen-, Diamant-, Netherit- und Goldäxte jeden Sift-Block auf
+einem Pilzblock-Ersatz sofort ab (Siftschiefer, Erze, Sculk, Weidenholz …). In der Sift, Überlebensmodus:
+```
+/give @s iron_axe
+/give @s diamond_axe
+/give @s diamond_pickaxe
+```
+- [ ] Siftschiefer mit Diamantaxt: etwa 15 s wie Tiefenschiefer mit der Axt (falsches Werkzeug), kein Sofortabbau;
+      mit Diamantspitzhacke etwa 0,6 s; von Hand etwa 15 s.
+- [ ] Weidenstamm mit Diamantaxt: kurz (wie Eichenstamm), nicht sofort; Weidenlaub wie in #11.
+- [ ] Gegenprobe ohne Client: `/sift debug break <x> <y> <z> diamond_axe` → dieselben Ticks wie gefühlt.
+- [ ] Den Block nach dem Abbau nicht wieder auftauchen sehen (kein „Geisterblock“) und Zielwechsel zwischen Sift- und
+      Vanilla-Blöcken: Vanilla-Blöcke bauen sich normal ab.
+
 - [ ] `/sift tp`: Gelände in Rot-/Lilatönen wie im Original, orange Flecken = trockener gesunder Sculk.
 - [ ] `/sift items` → Blöcke/Erze/Pflanzen: jeder Block hat die Original-Textur (keine lila-schwarzen
       Würfel, keine Pilzblock-Optik).

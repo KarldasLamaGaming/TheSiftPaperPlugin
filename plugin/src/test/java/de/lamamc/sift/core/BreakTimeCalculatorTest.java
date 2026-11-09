@@ -1,6 +1,7 @@
 package de.lamamc.sift.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -60,5 +61,25 @@ class BreakTimeCalculatorTest {
                 DropSpec.of(DropSpec.Kind.NONE), 0, 0);
         assertEquals(0.0, BreakTimeCalculator.speedFactor(reinforced, HeldTool.of(ToolType.PICKAXE, ToolTier.NETHERITE),
                 0, ToolType.AXE, BreakTimeCalculator.MUSHROOM_BLOCK_HARDNESS));
+    }
+
+    /**
+     * alpha.35: the stand-in alone (mushroom stem, hardness 0.2) breaks instantly with an iron or better axe; only
+     * with the factor applied before digging starts does siftslate take its real time with an axe.
+     */
+    @Test
+    void axeInstantlyMinesTheStandInWithoutTheFactor() {
+        for (ToolTier tier : new ToolTier[] {ToolTier.IRON, ToolTier.DIAMOND, ToolTier.NETHERITE, ToolTier.GOLD}) {
+            HeldTool axe = HeldTool.of(ToolType.AXE, tier);
+            double standIn = BreakTimeCalculator.progress(BreakTimeCalculator.toolSpeed(axe, ToolType.AXE, 0),
+                    BreakTimeCalculator.MUSHROOM_BLOCK_HARDNESS, true);
+            assertEquals(0, BreakTimeCalculator.ticks(standIn), tier + " axe: vanilla insta-mines the mushroom stem");
+            double factor = BreakTimeCalculator.speedFactor(DEEPSLATE_LIKE, axe, 0, ToolType.AXE,
+                    BreakTimeCalculator.MUSHROOM_BLOCK_HARDNESS);
+            assertEquals(300, BreakTimeCalculator.ticks(standIn * factor), tier + " axe on siftslate: like the hand (wrong tool)");
+        }
+        HeldTool stoneAxe = HeldTool.of(ToolType.AXE, ToolTier.STONE);
+        assertTrue(BreakTimeCalculator.ticks(BreakTimeCalculator.progress(BreakTimeCalculator.toolSpeed(stoneAxe, ToolType.AXE, 0),
+                BreakTimeCalculator.MUSHROOM_BLOCK_HARDNESS, true)) > 0, "stone axe: not instant, the late factor still caught it");
     }
 }
