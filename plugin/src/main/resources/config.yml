@@ -11,6 +11,10 @@ custom-blocks:
   # Ausnahmen von place-only-in-sift: diese Blöcke dürfen auch in anderen Welten stehen
   # (Konsolen der Portale in Overworld, Nether und End)
   placeable-outside-sift: [sonorous_deepslate]
+  # Abbauzeit: alle N Ticks wird für den Block im Fadenkreuz die Abbaugeschwindigkeit gesetzt, damit Client und
+  # Server sie schon vor dem ersten Schlag kennen (sonst bauen Eisen-, Diamant-, Netherit- und Goldäxte alle Sift-Blöcke
+  # auf Pilzblöcken sofort ab). 0 = nur beim Klick (nicht empfohlen).
+  break-speed-target-ticks: 2
 
 # Verhalten der eigenen Blöcke (Werte nach Mielon's The Sift 1.1.1).
 #   hardness       Abbauhärte wie Vanilla (Tiefenschiefer 3.0); unbreakable: true = unzerstörbar

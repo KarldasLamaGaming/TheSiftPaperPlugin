@@ -558,6 +558,13 @@ Weidenstamm, -holz, -bretter, -laub und -setzling brennen wie im Original und ta
 (`blocks.<id>.fire`, `blocks.<id>.fuel`; Einzelheiten in `docs/ABWEICHUNGEN.md`). Die Gamerule
 `fire_spread_radius_around_player` gilt auch dafür.
 
+## Abbauzeit der Sift-Blöcke
+
+Die Sift-Blöcke stehen auf Vanilla-Ersatzblöcken (Pilzblöcke, Stolperdraht, Chorus). Ein vorübergehender Modifikator auf
+`player.block_break_speed` gleicht die Abbauzeit an den Sift-Block an. Seit alpha.35 wird er schon für den Block im
+Fadenkreuz gesetzt (`custom-blocks.break-speed-target-ticks`, Standard 2) und beim Linksklick, weil Paper einen
+Sofortabbau vor dem Schlag-Event entscheidet. `/sift debug break <x> <y> <z> <werkzeug>` zeigt die erwarteten Ticks.
+
 ## Mobs (Phase 2)
 
 ### Allays (ab alpha.31)

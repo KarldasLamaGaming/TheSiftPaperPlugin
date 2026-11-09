@@ -91,7 +91,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 ItemSettings.load(getConfig().getConfigurationSection("items")));
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new CustomBlockListener(this, blocks, blockSettings, items), this);
-        getServer().getPluginManager().registerEvents(new BreakSpeedListener(blocks, blockSettings), this);
+        BreakSpeedListener breakSpeed = new BreakSpeedListener(blocks, blockSettings);
+        getServer().getPluginManager().registerEvents(breakSpeed, this);
+        breakSpeed.start(this, Math.max(0, getConfig().getInt("custom-blocks.break-speed-target-ticks", 2)));
         getServer().getPluginManager().registerEvents(
                 new PhysicsGuard(this, blocks, blockSettings.placeOnlyInSift()), this);
         getServer().getPluginManager().registerEvents(new ItemMenuListener(items, SiftCommand.ITEMS_PERMISSION), this);
@@ -432,7 +434,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             siftPopulator.snifferCaves().save(sift);
         }
         if (blocks != null) {
-            getServer().getOnlinePlayers().forEach(BreakSpeedListener::clear);
+            getServer().getOnlinePlayers().forEach(BreakSpeedListener::clearAll);
         }
         if (rifts != null) {
             rifts.removeAll();
