@@ -24,6 +24,6 @@ class ConsoleSoundsTest {
         }
         assertEquals(1, ConsoleSounds.soundOf(8)); // vanilla notes above 7 (tuned elsewhere) wrap like in the original
         assertEquals(3, ConsoleSounds.soundOf(18));
-        assertEquals("1-3-7-6-5-2-4-8", ConsoleSounds.text(PortalMelody.DEFAULT_SEQUENCE));
+        assertEquals("1-3-7-6-5-2-4-8", ConsoleSounds.text(new int[] {1, 3, 7, 6, 5, 2, 4, 8}));
     }
 }

@@ -20,7 +20,8 @@ import org.bukkit.plugin.Plugin;
 
 /**
  * SingerSummoner of the original: when a goat horn has been blown, three seconds later the Singer rises in
- * the nearest sleeping portal within 40 blocks (only one per portal), facing its nearest console.
+ * the nearest sleeping portal within 40 blocks (only one per portal), facing its nearest console. Since alpha.37
+ * his song no longer wakes the consoles (only the key opens a portal); mobs.singer.summon.enabled switches the call off.
  */
 public final class SingerSummoner implements Listener {
 
@@ -37,15 +38,15 @@ public final class SingerSummoner implements Listener {
     /** The horn's cooldown starts when it is blown. */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHorn(PlayerItemCooldownEvent event) {
-        if (event.getType() != Material.GOAT_HORN || !kind.enabled()) {
+        if (event.getType() != Material.GOAT_HORN || !kind.enabled() || !kind.config().getBoolean("summon.enabled", true)) {
             return;
         }
         Location origin = event.getPlayer().getLocation();
         Bukkit.getScheduler().runTaskLater(plugin, () -> summon(origin), kind.config().getInt("summon.delay-ticks", 60));
     }
 
-    /** Calls the Singer to the nearest sleeping portal; returns it or null. */
-    public SiftMob summon(Location origin) {
+    /** Calls the Singer to the nearest sleeping portal; returns its base mob (attached a tick later) or null. */
+    public org.bukkit.entity.Mob summon(Location origin) {
         World world = origin.getWorld();
         double radius = kind.config().getDouble("summon.radius", 40);
         SiftPortal best = null;
@@ -83,7 +84,7 @@ public final class SingerSummoner implements Listener {
             mob.getPersistentDataContainer().set(Singer.MODE, PersistentDataType.STRING, "summoned");
             mob.getPersistentDataContainer().set(Singer.PORTAL, PersistentDataType.STRING, portalId);
         });
-        return base == null ? null : mobs.mob(base);
+        return base;
     }
 
     private boolean hasSinger(World world, SiftPortal portal) {

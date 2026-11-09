@@ -2,10 +2,9 @@ package de.lamamc.sift.world.portal;
 
 import de.lamamc.sift.block.CustomBlock;
 import de.lamamc.sift.block.CustomBlockRegistry;
-import de.lamamc.sift.core.portal.PortalMelody;
+import de.lamamc.sift.core.portal.KeyActivation;
 import de.lamamc.sift.core.portal.PortalState;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +33,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * Consoles of sonorous deepslate (SonorousConsoles, NoteBlockMixin, SonorousIgnition of the original): a
- * note block on sonorous deepslate in note mode has 8 sounds instead of the vanilla notes. Right-click
- * picks the next sound, hitting it plays it. Playing the tune on the consoles of a registered portal wakes
- * them: colour burst, the consoles play the tune back, and the portal opens. In horn mode they only glitch.
+ * note block on sonorous deepslate in note mode has 8 sounds instead of the vanilla notes; right-click picks the
+ * next sound, hitting it plays it. Since alpha.37 the matching portal key opens a portal in one go: right-click
+ * on one of its consoles wakes them one after another (colour bursts), the trigger sounds, the consoles play their
+ * sounds back with light beams and the portal opens. There is no tune to play any more; consoles in horn mode
+ * only glitch.
  */
 public final class SonorousConsoles implements Listener {
 
@@ -44,64 +45,42 @@ public final class SonorousConsoles implements Listener {
     /** Colours of the 8 sounds (SonorousColors of the original). */
     private static final int[] COLORS = {11546150, 3949738, 16351261, 8991416, 1481884, 8439583, 16701501, 15961002};
     private static final Key GLITCH = Key.key("the_sift", "sonorous_autoplay_glitch");
+    /** Ticks between two consoles waking up after the key (like the waves of the Singer). */
+    private static final int WAKE_STEP = 6;
 
     private final Plugin plugin;
     private final CustomBlockRegistry blocks;
     private final PortalService portals;
-    private final int[] sequence;
-    private final Map<String, PortalMelody> melodies = new HashMap<>();
-    /** World key -> Sift id of the key that wakes the portals there. */
+    /** World key -> Sift id of the key that opens the shrine portals there. */
     private final Map<String, String> keys;
+    /** Sift id of the key of the Ancient City portals. */
+    private final String ancientCityKey;
     private boolean keysEnabled = true;
+    private boolean consume = true;
     private final Set<String> igniting = new HashSet<>();
 
-    public SonorousConsoles(Plugin plugin, CustomBlockRegistry blocks, PortalService portals, int[] sequence,
-                            Map<String, String> keys) {
+    public SonorousConsoles(Plugin plugin, CustomBlockRegistry blocks, PortalService portals, Map<String, String> keys,
+                            String ancientCityKey) {
         this.keys = Map.copyOf(keys);
+        this.ancientCityKey = ancientCityKey;
         this.plugin = plugin;
         this.blocks = blocks;
         this.portals = portals;
-        this.sequence = sequence;
     }
 
-    private int[] ancientCitySequence = de.lamamc.sift.core.portal.PortalMelody.DEFAULT_SEQUENCE;
-
-    /** Tune of the Ancient City portals (portals.ancient-city.melody). */
-    public void setAncientCitySequence(int[] sequence) {
-        if (sequence.length > 0) {
-            this.ancientCitySequence = sequence.clone();
-        }
+    /** The key this portal takes (null: none configured). */
+    public String keyFor(World world, SiftPortal portal) {
+        return portal.kind() == SiftPortal.Kind.ANCIENT_CITY ? ancientCityKey : keys.get(world.getKey().toString());
     }
 
-    public int[] ancientCitySequence() {
-        return ancientCitySequence.clone();
-    }
-
-    /** The tune that opens this portal. */
-    public int[] sequenceFor(SiftPortal portal) {
-        if (portal.kind() == SiftPortal.Kind.ANCIENT_CITY) {
-            return ancientCitySequence;
-        }
-        return perPortal && portal.tune() != null ? portal.tune() : sequence;
-    }
-
-    /** Where the tune of a portal comes from (for /sift portal info). */
-    public String tuneSource(SiftPortal portal) {
-        return portal.kind() == SiftPortal.Kind.ANCIENT_CITY ? "Antike Stadt (portals.ancient-city.melody)"
-                : perPortal && portal.tune() != null ? "eigene Melodie dieses Portals" : "feste Melodie (portals.melody.fixed)";
-    }
-
-    private boolean perPortal = true;
-    private boolean recall = true;
-
-    /** portals.melody.per-portal (false: every shrine uses the fixed tune again) and recall-enabled. */
-    public void setTunes(boolean perPortal, boolean recall) {
-        this.perPortal = perPortal;
-        this.recall = recall;
-    }
-
-    public void setKeysEnabled(boolean enabled) {
+    /** portals.keys.enabled and portals.keys.consume. */
+    public void setKeys(boolean enabled, boolean consume) {
         this.keysEnabled = enabled;
+        this.consume = consume;
+    }
+
+    private boolean isKey(String id) {
+        return id != null && (keys.containsValue(id) || id.equals(ancientCityKey));
     }
 
     public enum Mode { HORN, NOTE, NONE }
@@ -137,30 +116,6 @@ public final class SonorousConsoles implements Listener {
                 "<gray>Klang <white><bold>" + sound + "</bold></white> von " + de.lamamc.sift.core.portal.ConsoleSounds.COUNT));
     }
 
-    /** The hint for this portal (the Ancient City's tune is not told, it is in a book in the city's chests). */
-    public void sendHint(org.bukkit.command.CommandSender player, SiftPortal portal) {
-        if (portal.kind() != SiftPortal.Kind.ANCIENT_CITY) {
-            sendHint(player, sequenceFor(portal));
-            return;
-        }
-        player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Dieses Portal öffnet ein eigenes, "
-                + "längeres Lied. Es ist nicht überliefert – vielleicht findest du es irgendwo in dieser Stadt.");
-        player.sendRichMessage("<gray>Rechtsklick auf einen Notenblock schaltet seinen Klang weiter (1 → 2 → … → 8 → 1), "
-                + "Linksklick spielt ihn. Die Actionbar zeigt die Nummer des Klangs.");
-    }
-
-    /** Tells a player how to open the portal: the tune and the controls. */
-    public void sendHint(org.bukkit.command.CommandSender player) {
-        sendHint(player, sequence);
-    }
-
-    private void sendHint(org.bukkit.command.CommandSender player, int[] tune) {
-        player.sendRichMessage("<light_purple>Die Konsolen sind wach.</light_purple> <gray>Spiel diese Melodie, um das Portal zu öffnen:");
-        player.sendRichMessage("  <white><bold>" + de.lamamc.sift.core.portal.ConsoleSounds.text(tune) + "</bold></white>");
-        player.sendRichMessage("<gray>Rechtsklick auf einen Notenblock schaltet seinen Klang weiter (1 → 2 → … → 8 → 1), "
-                + "Linksklick spielt ihn. Die Actionbar zeigt die Nummer des Klangs.");
-    }
-
     /** Every way a note block sounds (hit, redstone): the sonorous sound or the glitch instead of the note. */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onNote(NotePlayEvent event) {
@@ -177,16 +132,7 @@ public final class SonorousConsoles implements Listener {
         }
     }
 
-    /** Wakes all consoles of a portal (key or /sift portal unlock); returns how many there are. */
-    public int unlock(World world, SiftPortal portal) {
-        for (int[] c : portal.consoles()) {
-            wakeConsole(world.getBlockAt(c[0], c[1], c[2]));
-        }
-        markUnlocked(world, portal);
-        return portal.consoles().size();
-    }
-
-    /** One console to note mode with its burst (the key wakes all at once, the Singer one after another). */
+    /** One console to note mode with its burst. */
     public void wakeConsole(Block console) {
         if (mode(console) == Mode.NONE) {
             return;
@@ -196,24 +142,33 @@ public final class SonorousConsoles implements Listener {
         burst(note, note.getType() == Material.NOTE_BLOCK ? sound(note) : 1);
     }
 
-    /** The portal counts as awake: state UNLOCKED and the trigger sound. Consoles still asleep are woken. */
-    public void markUnlocked(World world, SiftPortal portal) {
-        for (int[] c : portal.consoles()) {
-            Block console = world.getBlockAt(c[0], c[1], c[2]);
-            if (mode(console) == Mode.HORN) {
-                setMode(console, Mode.NOTE);
-            }
+    /** A sound wave of the Singer reaches a console: it lights up but stays asleep (only a key wakes it). */
+    public void echo(Block console) {
+        if (mode(console) == Mode.NONE) {
+            return;
         }
-        portals.registry().put(world, portal.withState(portal.state().unlock()));
-        PortalSurface.play(world, portal.frame(), PortalSurface.TRIGGER_SOUND, 1.0f);
+        Block note = console.getRelative(BlockFace.UP);
+        burst(note, note.getType() == Material.NOTE_BLOCK ? sound(note) : 1);
     }
 
-    /** Whether the keys may wake portals (portals.keys.enabled); the Singer always can. */
+    /** /sift portal lock: all consoles back to horn mode, the portal asleep (a key is needed again). */
+    public void lock(World world, SiftPortal portal) {
+        for (int[] c : portal.consoles()) {
+            Block console = world.getBlockAt(c[0], c[1], c[2]);
+            if (mode(console) == Mode.NOTE) {
+                setMode(console, Mode.HORN);
+            }
+        }
+        igniting.remove(portal.id());
+        portals.registry().put(world, portal.withState(portal.state().lock()));
+    }
+
+    /** Whether the keys may open portals (portals.keys.enabled). */
     public boolean keysEnabled() {
         return keysEnabled;
     }
 
-    /** Right-click with the key of the dimension on a sleeping console (or its note block) wakes the portal. */
+    /** Right-click with a portal key on a console (or its note block): the matching key opens the portal. */
     @EventHandler(priority = EventPriority.HIGH)
     public void onKey(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
@@ -222,12 +177,7 @@ public final class SonorousConsoles implements Listener {
         }
         org.bukkit.inventory.ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
         String key = de.lamamc.sift.item.SiftItems.idOf(held);
-        if (key == null || !keys.containsValue(key)) {
-            return;
-        }
-        if (!keysEnabled) {
-            event.setCancelled(true);
-            event.getPlayer().sendActionBar(Component.text("Schlüssel sind abgeschaltet. Ruf den Singer mit einem Ziegenhorn."));
+        if (!isKey(key)) {
             return;
         }
         Block console = block.getType() == Material.NOTE_BLOCK ? block.getRelative(BlockFace.DOWN) : block;
@@ -238,29 +188,69 @@ public final class SonorousConsoles implements Listener {
         Player player = event.getPlayer();
         World world = block.getWorld();
         Optional<SiftPortal> portal = portals.registry().withConsole(world, console.getX(), console.getY(), console.getZ());
-        if (portal.isEmpty()) {
-            player.sendActionBar(Component.text("Diese Konsole gehört zu keinem Portal."));
-            return;
+        if (portal.isPresent() && igniting.contains(portal.get().id())) {
+            return; // already opening
         }
-        if (portal.get().state() != PortalState.LOCKED) {
-            player.sendActionBar(Component.text("Die Konsolen dieses Portals sind schon wach."));
-            return;
+        KeyActivation.Result result = KeyActivation.decide(keysEnabled, portal.isPresent(),
+                portal.map(SiftPortal::state).orElse(null), key, portal.map(p -> keyFor(world, p)).orElse(null));
+        switch (result) {
+            case DISABLED -> player.sendActionBar(Component.text("Schlüssel sind abgeschaltet; nur ein Admin öffnet Portale."));
+            case NO_PORTAL -> player.sendActionBar(Component.text("Diese Konsole gehört zu keinem Portal."));
+            case ALREADY_OPEN -> player.sendActionBar(Component.text("Dieses Portal ist schon offen."));
+            case WRONG_KEY -> {
+                glitch(console);
+                player.sendActionBar(Component.text("Dieser Schlüssel passt nicht zu diesem Portal."));
+            }
+            case OPEN -> {
+                if (KeyActivation.consumes(consume, player.getGameMode() == org.bukkit.GameMode.CREATIVE, portal.get().state())) {
+                    held.subtract();
+                }
+                activate(world, portal.get(), console);
+                player.sendActionBar(Component.text("Die Konsolen erwachen."));
+            }
         }
-        String needed = keys.get(world.getKey().toString());
-        if (!key.equals(needed)) {
-            glitch(console);
-            player.sendActionBar(Component.text("Dieser Schlüssel passt nicht zu diesem Portal."));
-            return;
-        }
-        if (player.getGameMode() != org.bukkit.GameMode.CREATIVE) {
-            held.subtract();
-        }
-        unlock(world, portal.get());
-        player.sendActionBar(Component.text("Die Konsolen erwachen. Spiel die Melodie."));
-        sendHint(player, portal.get());
     }
 
-    /** Right-click picks the next of the 8 sounds; hitting plays it and counts for the tune. */
+    /**
+     * Opens a portal with the full ceremony (key or /sift portal activate): the consoles wake one after another from
+     * the one touched, the trigger sounds, then the ignition plays and the surface opens.
+     */
+    public void activate(World world, SiftPortal portal, Block from) {
+        if (portal.consoles().isEmpty()) {
+            portals.open(world, portal);
+            return;
+        }
+        String id = portal.id();
+        igniting.add(id);
+        List<Block> group = new ArrayList<>(portal.consoles().stream().map(c -> world.getBlockAt(c[0], c[1], c[2])).toList());
+        List<Block> order = new ArrayList<>(group);
+        if (from != null) {
+            order.sort(java.util.Comparator.comparingDouble(b -> b.getLocation().distanceSquared(from.getLocation())));
+        }
+        new BukkitRunnable() {
+            private int step;
+
+            @Override
+            public void run() {
+                if (!igniting.contains(id)) {
+                    cancel(); // locked meanwhile
+                    return;
+                }
+                if (step < order.size()) {
+                    wakeConsole(order.get(step++));
+                    return;
+                }
+                cancel();
+                portals.registry().get(world, id).ifPresentOrElse(p -> {
+                    portals.registry().put(world, p.withState(p.state().unlock()));
+                    PortalSurface.play(world, p.frame(), PortalSurface.TRIGGER_SOUND, 1.0f);
+                    ignite(world, p, group);
+                }, () -> igniting.remove(id));
+            }
+        }.runTaskTimer(plugin, 1L, WAKE_STEP);
+    }
+
+    /** Right-click picks the next of the 8 sounds; hitting plays it. */
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
@@ -268,7 +258,7 @@ public final class SonorousConsoles implements Listener {
             return;
         }
         String held = de.lamamc.sift.item.SiftItems.idOf(event.getPlayer().getInventory().getItemInMainHand());
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && held != null && keys.containsValue(held)) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && isKey(held)) {
             return; // handled by onKey
         }
         Mode mode = modeBelow(block);
@@ -280,14 +270,10 @@ public final class SonorousConsoles implements Listener {
             if (player.isSneaking() && !player.getInventory().getItemInMainHand().isEmpty()) {
                 return; // placing a block on the console
             }
-            if (player.isSneaking() && recall && recallTune(player, block)) {
-                event.setCancelled(true);
-                return;
-            }
             event.setCancelled(true);
             if (mode == Mode.HORN) {
                 glitch(block);
-                player.sendActionBar(Component.text("Die Konsole schläft noch. Ein Schlüssel weckt sie."));
+                player.sendActionBar(Component.text("Die Konsole schläft. Der passende Schlüssel öffnet das Portal."));
                 return;
             }
             NoteBlock data = (NoteBlock) block.getBlockData();
@@ -298,64 +284,15 @@ public final class SonorousConsoles implements Listener {
             showSound(player, next);
         } else if (event.getAction() == Action.LEFT_CLICK_BLOCK && mode == Mode.NOTE) {
             showSound(player, sound(block));
-            heard(player, block, sound(block));
         }
     }
 
-    /**
-     * Sneaking + right-click with an empty hand on a note block of an awake (not yet open) portal shows its tune
-     * again, to this player only (chat and action bar). Not for the Ancient City, whose tune is in its book.
-     */
-    private boolean recallTune(Player player, Block noteBlock) {
-        Block console = noteBlock.getRelative(BlockFace.DOWN);
-        Optional<SiftPortal> portal = portals.registry().withConsole(noteBlock.getWorld(), console.getX(), console.getY(), console.getZ());
-        if (portal.isEmpty() || portal.get().state() != PortalState.UNLOCKED || portal.get().kind() == SiftPortal.Kind.ANCIENT_CITY) {
-            return false;
-        }
-        String tune = de.lamamc.sift.core.portal.ConsoleSounds.text(sequenceFor(portal.get()));
-        player.sendRichMessage("<light_purple>Die Melodie dieses Portals:</light_purple> <white><bold>" + tune + "</bold></white>");
-        player.sendActionBar(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(
-                "<light_purple>Melodie: <white><bold>" + tune));
-        return true;
-    }
-
-    private void heard(Player player, Block noteBlock, int note) {
-        World world = noteBlock.getWorld();
-        Block console = noteBlock.getRelative(BlockFace.DOWN);
-        Optional<SiftPortal> portal = portals.registry().withConsole(world, console.getX(), console.getY(), console.getZ());
-        if (portal.isEmpty() || igniting.contains(portal.get().id())) {
-            return; // a console that belongs to no portal only makes music
-        }
-        String key = world.getKey() + " " + portal.get().id();
-        int[] tune = sequenceFor(portal.get());
-        PortalMelody melody = melodies.computeIfAbsent(key, k -> new PortalMelody(tune));
-        PortalMelody.Match match = melody.play(note);
-        if (match == PortalMelody.Match.NONE) {
-            return;
-        }
-        if (match == PortalMelody.Match.CLOSING || portal.get().state() == PortalState.OPEN) {
-            player.sendActionBar(Component.text("Dieses Portal bleibt offen."));
-            return;
-        }
-        if (portal.get().state() == PortalState.LOCKED) {
-            glitch(noteBlock);
-            player.sendActionBar(Component.text("Die Konsolen dieses Portals schlafen noch."));
-            return;
-        }
-        List<Block> group = portal.get().consoles().stream().map(c -> world.getBlockAt(c[0], c[1], c[2])).toList();
-        ignite(world, portal.get(), group);
-    }
-
-    /** Burst, play-back of the tune on the console, then the portal opens (SonorousIgnition, autoplay). */
+    /** Burst, play-back of the consoles' sounds with light beams, then the portal opens (SonorousIgnition, autoplay). */
     private void ignite(World world, SiftPortal portal, List<Block> group) {
         String key = portal.id();
         igniting.add(key);
-        List<Block> notes = new ArrayList<>();
-        // play the tune back on the note blocks that carry each sound
-        for (int note : sequenceFor(portal)) {
-            group.stream().map(b -> b.getRelative(BlockFace.UP)).filter(b -> b.getType() == Material.NOTE_BLOCK && sound(b) == note)
-                    .findFirst().ifPresent(notes::add);
-        }
+        // every console plays its sound once, in the stored order (since alpha.37 there is no tune)
+        List<Block> notes = group.stream().map(b -> b.getRelative(BlockFace.UP)).filter(b -> b.getType() == Material.NOTE_BLOCK).toList();
         new BukkitRunnable() {
             private int tick;
             private int played;

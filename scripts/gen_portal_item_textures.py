@@ -20,7 +20,7 @@ from PIL import Image
 PACK = Path("pack-src/resourcepack/assets/the_sift/textures/block")
 ASSETS = Path("pack-src/resourcepack-overlay/assets/the_sift")
 OUT = ASSETS / "textures/item"
-KEYS = ("echo_resonator", "soul_ember_core", "void_resonator")
+KEYS = ("echo_resonator", "soul_ember_core", "void_resonator", "ancient_resonator")
 
 
 def rgb(value):
@@ -95,6 +95,25 @@ def void_resonator():
     return im
 
 
+def ancient_resonator():
+    """Key of the Ancient City portal (alpha.37): sculk-teal eye in a deepslate frame with soul-blue corners."""
+    dark, mid, light = SCULK_TEAL
+    shade, body, rim = DEEPSLATE
+    im = blank()
+    for y in range(2, 14):  # deepslate tablet
+        for x in range(3, 13):
+            im.putpixel((x, y), rim if x in (3, 12) or y in (2, 13) else body)
+    disc(im, 8, 8, 3.5, dark)
+    disc(im, 8, 8, 2.5, mid)
+    disc(im, 8, 8, 1.2, light)
+    for x, y in ((4, 3), (11, 3), (4, 12), (11, 12)):
+        im.putpixel((x, y), SOUL_BLUE[2])
+    for x in range(5, 11):  # carved lines like the ancient city's
+        im.putpixel((x, 4), shade)
+        im.putpixel((x, 11), shade)
+    return im
+
+
 def compass_frames():
     shade, body, rim = DEEPSLATE
     violet_dark, violet, violet_light = ICHOR_VIOLET
@@ -142,6 +161,7 @@ def main():
     echo_resonator().save(OUT / "echo_resonator.png")
     soul_ember_core().save(OUT / "soul_ember_core.png")
     void_resonator().save(OUT / "void_resonator.png")
+    ancient_resonator().save(OUT / "ancient_resonator.png")
     for i, im in enumerate(compass_frames()):
         im.save(OUT / f"sift_compass_{i:02d}.png")
         write_json(ASSETS / f"models/item/sift_compass_{i:02d}.json", generated(f"sift_compass_{i:02d}"))

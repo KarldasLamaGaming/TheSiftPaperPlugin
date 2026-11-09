@@ -1,24 +1,20 @@
 package de.lamamc.sift.core.portal;
 
 /**
- * Life of a structure portal (hybrid of the plan and the original): the key wakes the consoles, the tune
- * opens the frame, and it stays open (only an admin closes it).
+ * Life of a structure portal: the matching key wakes the consoles and opens the portal in one go (alpha.37), and it
+ * stays open (only an admin closes or locks it). UNLOCKED remains for portals woken before alpha.37 (the tune used to
+ * open them) and for an ignition that was cut short: the key opens them without being used up.
  */
 public enum PortalState {
-    /** Consoles in horn mode: notes only glitch. */
+    /** Consoles in horn mode, asleep. */
     LOCKED,
-    /** Consoles in note mode: the tune opens the portal. */
+    /** Consoles awake (note mode), surface still closed. */
     UNLOCKED,
     /** Surface open, entities travel. */
     OPEN;
 
     public PortalState unlock() {
         return this == LOCKED ? UNLOCKED : this;
-    }
-
-    /** The tune opens an unlocked portal; a locked console cannot play it, an open portal stays open. */
-    public PortalState onTune(PortalMelody.Match match) {
-        return this == UNLOCKED && match == PortalMelody.Match.OPENING ? OPEN : this;
     }
 
     /** Admin command: open at once. */
@@ -29,5 +25,10 @@ public enum PortalState {
     /** Admin command: close, consoles stay awake. */
     public PortalState deactivate() {
         return this == OPEN ? UNLOCKED : this;
+    }
+
+    /** Admin command /sift portal lock: back to sleep (a key is needed again). */
+    public PortalState lock() {
+        return LOCKED;
     }
 }

@@ -53,7 +53,7 @@ final class PortalCommand {
         return Commands.literal("portal")
                 .then(Commands.literal("create")
                         .then(Commands.argument("pos", ArgumentTypes.blockPosition()).executes(this::create)))
-                .then(byId("unlock", this::unlock))
+                .then(byId("lock", this::lock))
                 .then(byId("activate", this::activate))
                 .then(byId("deactivate", this::deactivate))
                 .then(byId("info", this::info))
@@ -187,15 +187,19 @@ final class PortalCommand {
         return found;
     }
 
-    private int unlock(CommandSender sender, Target target) {
-        int count = consoles.unlock(target.world(), target.portal());
-        sender.sendRichMessage("<green>Konsolen von <white>" + target.portal().id() + "</white> geweckt (" + count
-                + "). Die Melodie öffnet das Portal jetzt.");
-        consoles.sendHint(sender, target.portal());
-        if (target.portal().kind() == SiftPortal.Kind.ANCIENT_CITY) {
-            sender.sendRichMessage("<gray>(nur für Admins) Melodie: <white>"
-                    + de.lamamc.sift.core.portal.ConsoleSounds.text(consoles.sequenceFor(target.portal())));
+    /** Back to sleep (consoles in horn mode, surface closed): for portals woken or opened in play tests. */
+    private int lock(CommandSender sender, Target target) {
+        if (target.portal().kind() == SiftPortal.Kind.SIFT_EXIT) {
+            sender.sendRichMessage("<red>Das Haupt-Portal der Sift bleibt immer offen (sonst kommt niemand zurück).");
+            return 0;
         }
+        PortalState before = target.portal().state();
+        if (before == PortalState.OPEN) {
+            portals.surface().close(target.world(), target.portal());
+        }
+        consoles.lock(target.world(), target.portal());
+        sender.sendRichMessage("<green>Portal <white>" + target.portal().id() + "</white> schläft wieder (vorher " + before
+                + "). Der passende Schlüssel öffnet es.");
         return Command.SINGLE_SUCCESS;
     }
 
@@ -205,8 +209,8 @@ final class PortalCommand {
             sender.sendRichMessage("<gray>Portal <white>" + target.portal().id() + "</white> war schon offen; Fläche erneuert.");
             return Command.SINGLE_SUCCESS;
         }
-        portals.open(target.world(), target.portal());
-        sender.sendRichMessage("<green>Portal <white>" + target.portal().id() + "</white> geöffnet.");
+        consoles.activate(target.world(), target.portal(), null);
+        sender.sendRichMessage("<green>Portal <white>" + target.portal().id() + "</white> öffnet sich (wie mit dem Schlüssel).");
         return Command.SINGLE_SUCCESS;
     }
 
@@ -255,8 +259,8 @@ final class PortalCommand {
             sender.sendRichMessage("<gray>Klänge der Konsolen: " + sounds);
         }
         if (p.kind() != SiftPortal.Kind.SIFT_EXIT) {
-            sender.sendRichMessage("<gray>Melodie: <white>" + de.lamamc.sift.core.portal.ConsoleSounds.text(consoles.sequenceFor(p))
-                    + "</white> (" + consoles.tuneSource(p) + ")");
+            String key = consoles.keyFor(target.world(), p);
+            sender.sendRichMessage("<gray>Schlüssel: <white>" + (key == null ? "keiner eingestellt" : key) + "</white>");
         }
         return Command.SINGLE_SUCCESS;
     }

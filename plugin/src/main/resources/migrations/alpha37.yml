@@ -1,0 +1,29 @@
+# Defaults of alpha.36 that alpha.37 replaces when a server still has them unchanged (ConfigUpdate).
+# Only values that are exactly these old defaults are replaced; anything an admin changed stays.
+portals:
+  keys:
+    overworld:
+      loot: {chance: 0.08}
+    nether:
+      loot: {chance: 0.08}
+    end:
+      loot: {chance: 0.08}
+  recipes:
+    echo_resonator:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: [" E ", "EGE", " C "]
+      key: {E: "minecraft:echo_shard", G: "minecraft:goat_horn", C: "minecraft:sculk_catalyst"}
+      result: {id: "the_sift:echo_resonator"}
+    soul_ember_core:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: [" B ", "GAG", " S "]
+      key: {B: "minecraft:blaze_rod", G: "minecraft:ghast_tear", A: "minecraft:ancient_debris", S: "minecraft:soul_sand"}
+      result: {id: "the_sift:soul_ember_core"}
+    void_resonator:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: [" P ", "PSP", " D "]
+      key: {P: "minecraft:popped_chorus_fruit", S: "minecraft:shulker_shell", D: "minecraft:dragon_breath"}
+      result: {id: "the_sift:void_resonator"}

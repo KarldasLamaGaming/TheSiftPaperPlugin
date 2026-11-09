@@ -15,43 +15,8 @@ public final class PortalRegistry {
     public static final NamespacedKey KEY = new NamespacedKey("the_sift", "portals");
 
     private final Map<String, Map<String, SiftPortal>> byWorld = new ConcurrentHashMap<>();
-    private final java.security.SecureRandom random = new java.security.SecureRandom();
-    private boolean perPortalTunes;
-    private int tuneLength = 8;
-
-    /**
-     * Own tune per portal (portals.melody.per-portal, length): sleeping shrine portals get a random one when they are
-     * registered or first loaded without one; awake ones keep the fixed tune their players may know.
-     */
-    public void tunes(boolean perPortal, int length) {
-        this.perPortalTunes = perPortal;
-        this.tuneLength = Math.max(1, length);
-    }
-
-    private SiftPortal withOwnTune(SiftPortal portal) {
-        if (perPortalTunes && portal.tune() == null && portal.kind() == SiftPortal.Kind.ENTRANCE
-                && portal.state() == de.lamamc.sift.core.portal.PortalState.LOCKED) {
-            return portal.withTune(de.lamamc.sift.core.portal.PortalTunes.tune(random, tuneLength));
-        }
-        return portal;
-    }
-
     private Map<String, SiftPortal> portals(World world) {
-        return byWorld.computeIfAbsent(world.getKey().toString(), key -> {
-            Map<String, SiftPortal> loaded = load(world);
-            boolean changed = false;
-            for (var entry : loaded.entrySet()) {
-                SiftPortal tuned = withOwnTune(entry.getValue());
-                if (tuned != entry.getValue()) {
-                    entry.setValue(tuned);
-                    changed = true;
-                }
-            }
-            if (changed) {
-                save(world, loaded);
-            }
-            return loaded;
-        });
+        return byWorld.computeIfAbsent(world.getKey().toString(), key -> load(world));
     }
 
     private static Map<String, SiftPortal> load(World world) {
@@ -90,11 +55,12 @@ public final class PortalRegistry {
     }
 
     public void put(World world, SiftPortal portal) {
+        // tunes of portals registered before alpha.37 are kept in the record but no longer used
         SiftPortal known = portals(world).get(portal.id());
         if (portal.tune() == null && known != null && known.tune() != null) {
-            portal = portal.withTune(known.tune()); // a state change keeps the tune
+            portal = portal.withTune(known.tune());
         }
-        portals(world).put(portal.id(), withOwnTune(portal));
+        portals(world).put(portal.id(), portal);
         save(world);
     }
 

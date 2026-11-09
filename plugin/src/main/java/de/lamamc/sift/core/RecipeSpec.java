@@ -59,6 +59,68 @@ public record RecipeSpec(String name, Type type, String group, String category,
         }
     }
 
+    /** A recipe from config.yml with what was wrong with it (null: nothing). */
+    public record Checked(RecipeSpec spec, String warning) {
+    }
+
+    /**
+     * A recipe from config.yml (portals.recipes): taken if valid, otherwise the built-in recipe of the same name with a
+     * warning, so a typo or an item that does not exist yet (e.g. a later boss item) never breaks the key (alpha.37).
+     *
+     * @param fallback     the built-in recipe of that name, or null
+     * @param knownVanilla whether a vanilla item id ("minecraft:x") or item tag ("#minecraft:x") exists
+     */
+    public static Checked checked(String name, JsonObject config, JsonObject fallback, Items items,
+                                  java.util.function.Predicate<String> knownVanilla) {
+        String problem = problem(name, config, items, knownVanilla);
+        if (problem == null) {
+            return new Checked(parse(name, config, items), null);
+        }
+        if (fallback != null && problem(name, fallback, items, knownVanilla) == null) {
+            return new Checked(parse(name, fallback, items), "recipe " + name + " in config.yml: " + problem + "; using the built-in recipe");
+        }
+        return new Checked(new RecipeSpec(name, null, null, null, List.of(), Map.of(), List.of(), null, null, null, null, 0, 0, problem),
+                "recipe " + name + " in config.yml: " + problem + "; left out");
+    }
+
+    private static String problem(String name, JsonObject json, Items items, java.util.function.Predicate<String> knownVanilla) {
+        RecipeSpec spec;
+        try {
+            spec = parse(name, json, items);
+        } catch (RuntimeException e) {
+            return "malformed (" + e.getMessage() + ")";
+        }
+        if (spec.skipped()) {
+            return spec.skipReason();
+        }
+        List<Choice> choices = new ArrayList<>(spec.key().values());
+        choices.addAll(spec.ingredients());
+        for (Choice c : new Choice[] {spec.template(), spec.base(), spec.addition()}) {
+            if (c != null) {
+                choices.add(c);
+            }
+        }
+        for (Choice c : choices) {
+            if (c.siftItems().isEmpty() && c.vanillaItems().isEmpty() && c.vanillaTags().isEmpty()) {
+                return "empty ingredient";
+            }
+            for (String id : c.vanillaItems()) {
+                if (!knownVanilla.test(id)) {
+                    return "unknown item " + id;
+                }
+            }
+            for (String tag : c.vanillaTags()) {
+                if (!knownVanilla.test("#" + tag)) {
+                    return "unknown item tag #" + tag;
+                }
+            }
+        }
+        if (!spec.result().sift() && !knownVanilla.test(spec.result().item())) {
+            return "unknown result " + spec.result().item();
+        }
+        return null;
+    }
+
     private static final class Skip extends RuntimeException {
         Skip(String message) {
             super(message, null, false, false);
@@ -140,6 +202,8 @@ public record RecipeSpec(String name, Type type, String group, String category,
                 String id = ref.substring(NS.length());
                 if (items.isSiftItem(id)) {
                     sift.add(id);
+                } else if (items.substitute(id) == null) {
+                    throw new Skip("unknown Sift item " + ref);
                 } else {
                     // a vanilla substitute as ingredient would make the recipe a copy of (or clash with)
                     // the vanilla recipe of that item

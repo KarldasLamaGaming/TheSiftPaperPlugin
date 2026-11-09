@@ -128,6 +128,9 @@ public final class ItemSelfTest {
                     && Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, id)) != null, id + ": Item und Rezept");
         }
         check(sift("sift_compass").getType() == Material.COMPASS, "Sift-Kompass ist ein Kompass (Nadel)");
+        ItemStack ancientKey = sift("ancient_resonator");
+        check(ancientKey != null && Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "ancient_resonator")) == null,
+                "ancient_resonator: Item ohne Rezept (nur Truhenfund, alpha.37)");
 
         Recipe upgrade = Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "siftite_sword_smithing"));
         if (upgrade instanceof SmithingTransformRecipe smithing) {
