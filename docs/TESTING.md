@@ -239,9 +239,20 @@ Nur in neu generierten Chunks. Zum Testen in ein unerkundetes Gebiet der Sift ge
   - Ichor-Farbe.
 - [ ] Nachts leuchtet der See (Lichtniveau mit F3 an der Oberfläche etwa 12). Im Ichor schwimmen gibt
       Regeneration (alpha.21).
-- [ ] Eimer an einem leuchtenden Block der Oberfläche (F3 zeigt `light` im Ziel): Danach ist dort Luft, kein
-      unsichtbarer Lichtblock mehr. Dasselbe mit einem Schwamm am Ufer.
-- [ ] Quelle über `/sift debug ichor` [Teleport] ansteuern: Ichor fließt aus einer Felswand, die Quelle leuchtet.
+- [ ] (bis alpha.35, nur alte Chunks) Eimer an einem leuchtenden Block der Oberfläche (F3 zeigt `light` im
+      Ziel): Danach ist dort Luft, kein unsichtbarer Lichtblock mehr. Dasselbe mit einem Schwamm am Ufer.
+- [ ] Quelle über `/sift debug ichor` [Teleport] ansteuern: Ichor fließt aus einer Felswand, über der Öffnung
+      ist es hell.
+
+**Regression alpha.36 (keine versteckten Quellen)** – nur in nach alpha.36 generierten Chunks
+- [ ] `/sift debug ichor scan 8` an mehreren Stellen: „0 wassergeloggte Lichtblöcke“, dazu einige Leuchtlichter.
+- [ ] See: Mit F3 auf die Oberfläche schauen: Der Zielblock ist Wasser (`minecraft:water`, `level=0`), kein
+      `light`. Über jedem dritten Block hängt ein unsichtbarer Lichtblock (mit einem Lichtblock-Item in der Hand
+      sichtbar), F3 zeigt dort Blocklicht 12.
+- [ ] Quelle: den Quellblock in der Felswand mit dem Eimer nehmen. Das fließende Ichor darunter läuft innerhalb
+      weniger Sekunden vollständig ab; es entsteht keine neue Quelle. Den Eimer wieder ausgießen: Es fließt wieder.
+- [ ] Eimer Ichor in die Luft über dem See gießen (genau dort, wo ein Lichtblock hängt): Es entsteht eine
+      sichtbare Ichor-Quelle; mit dem Eimer wieder aufnehmen, danach ist das Licht dort weg.
 - [ ] `/sift debug worldgen`: Zeile „Ichor-Seen … Zeit je Kandidat“ (im Mittel wenige Millisekunden).
 - [ ] Ab alpha.25.1: `/sift debug worldgen` zeigt nicht gebaute Seen je Variante (z. B. „SMALL zu uneben“,
       „CASCADE Kaskade: unten zu uneben“) und „Weideninseln“.

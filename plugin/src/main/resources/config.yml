@@ -127,7 +127,8 @@ worldgen:
     biomes: [ichor_snowy_peaks, overgrown_forest, overgrown_forest_slopes, overgrown_peaks, sift_wastes, siftslate_peaks, siftslate_slopes]
     clearing-rarity: 2
     clearing-biomes: [overgrown_clearing, overgrown_slopes]
-    # Leuchten wie im Original: wassergeloggte Lichtblöcke Stufe 12 an der Oberfläche, je N Blöcke einer (0 = aus)
+    # Leuchten wie im Original: Lichtblöcke Stufe 12 in der Luft direkt über der Oberfläche, je N Blöcke einer (0 = aus).
+    # Seit alpha.36 nie im Ichor selbst (ein wassergeloggter Lichtblock ist eine unsichtbare, dauerhafte Quelle)
     light-spacing: 3
     shore-plants: true
   # Ichor-Schnee (ab alpha.26, Original 1.1.1): in ichor_snowy_peaks 1–2 Schichten Schnee auf jedem natürlichen
@@ -195,7 +196,7 @@ worldgen:
     portal-clearance: 12
     # Schnüffler-Familie im Nest erzeugen
     family: true
-    # Ichor-Becken leuchten wie die Seen (Lichtblöcke Stufe 12, Abstand wie ichor-lakes.light-spacing)
+    # Ichor-Becken leuchten wie die Seen (Lichtblöcke Stufe 12 über dem Ichor, Abstand wie ichor-lakes.light-spacing)
     ichor-light: true
   # Schnüffler-Pflanzenflecken (Original: 1 von 14 Chunks): 5–9 Fackellilien oder Kannenpflanzen auf Sculk
   # oder Siftschiefer-Bewuchs um die Chunk-Mitte.
@@ -211,7 +212,7 @@ worldgen:
     min-y: 15
     max-y: 110
     below-surface: 12
-    # die Quelle wird ein wassergeloggter Lichtblock Stufe 12
+    # Lichtblock Stufe 12 in der Luft über der Öffnung der Quelle (die Quelle selbst ist normales Ichor, seit alpha.36)
     light: true
   soul-canyons:
     enabled: true

@@ -259,10 +259,15 @@ Wie im Original 1.1.1 (Werte in `worldgen.ichor-lakes.*` und `worldgen.ichor-spr
     **Weideninsel**.
 - **Quellen:** 16 Versuche je Chunk zwischen y 15 und 110, mindestens 12 Blöcke unter der Oberfläche, nur in
   einer Felswand mit genau einer Öffnung. Daraus fließt Ichor in Höhlen.
-- **Leuchten:** Wassergeloggte Lichtblöcke Stufe 12 (`light-spacing`, Standard jeder 3. Block der Oberfläche;
-  bei Quellen der Quellblock selbst).
-  - Nimmt ein Spieler das Ichor eines solchen Blocks mit dem Eimer oder saugt ein Schwamm es auf, wird der
-    Lichtblock zu Luft.
+- **Leuchten:** Lichtblöcke Stufe 12 (`light-spacing`, Standard jeder 3. Block der Oberfläche).
+  - Seit alpha.36 sitzen sie in der Luft direkt über dem Ichor, bei Quellen über der Öffnung in der Felswand
+    (`ichor-springs.light`); die Quelle selbst ist ein normaler Ichor-Quellblock.
+  - Bis alpha.35 waren sie wassergeloggt und saßen im Ichor. Das waren versteckte, dauerhafte Quellen (siehe
+    ABWEICHUNGEN). In alten Chunks gilt weiter: Nimmt ein Spieler das Ichor eines solchen Blocks mit dem Eimer
+    oder saugt ein Schwamm es auf, wird der Lichtblock zu Luft.
+  - `/sift debug ichor scan [chunks]` (Standard 4, höchstens 8 Chunks Radius, nur geladene Chunks, in der Sift)
+    zählt wassergeloggte Lichtblöcke (versteckte Quellen aus alten Chunks) und die Leuchtlichter über dem Ichor,
+    mit Teleport zur ersten versteckten Quelle. Nach dem Welt-Reset muss dort überall 0 stehen.
   - Andere Lichtblöcke (Risse Stufe 15, Golems Stufe 14, eigene) werden nicht angefasst.
 - **Finden:** `/sift debug ichor` zeigt die nächsten Seen und Quellen mit Koordinaten und Teleport-Klick (in
   der Sift: zu dir, sonst zu 0/0). `/sift debug worldgen` zeigt Zahlen, Gründe für nicht gebaute Seen und

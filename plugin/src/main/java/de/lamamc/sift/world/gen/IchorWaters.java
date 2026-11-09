@@ -31,8 +31,10 @@ import org.bukkit.plugin.Plugin;
 /**
  * Surface ichor lakes and cave springs of the original 1.1.1 (alpha.25, config worldgen.ichor-lakes.* and
  * worldgen.ichor-springs.*), built by the Sift populator with {@link IchorLakePlan}. Ichor is water in the
- * Sift; generated lakes and springs get waterlogged light blocks (level 12) for the glow of the original.
- * When the ichor of such a light is taken away (bucket, sponge) the light goes too.
+ * Sift; generated lakes and springs get light blocks (level 12) for the glow of the original. Since alpha.36 the
+ * lights sit in the air above the ichor: a waterlogged light is a water source that cannot be seen or taken
+ * apart, so ichor kept flowing after the visible source was gone. Lights of older chunks (waterlogged) still go
+ * when their ichor is taken away (bucket, sponge).
  */
 public final class IchorWaters implements Listener {
 
@@ -162,10 +164,12 @@ public final class IchorWaters implements Listener {
         int spacing = settings.lightSpacing();
         if (spacing > 0) {
             for (int[] cell : plan.waterCells()) {
-                if (Math.floorMod(cell[0], spacing) == 0 && Math.floorMod(cell[2], spacing) == 0 && region.writable(cell[0], cell[1], cell[2])
+                // the light goes into the air above a surface source, never into the ichor itself
+                if (Math.floorMod(cell[0], spacing) == 0 && Math.floorMod(cell[2], spacing) == 0
+                        && region.writable(cell[0], cell[1] + 1, cell[2])
                         && region.data(cell[0], cell[1], cell[2]) instanceof org.bukkit.block.data.Levelled level && level.getLevel() == 0
-                        && region.type(cell[0], cell[1], cell[2]) == Material.WATER) {
-                    region.set(cell[0], cell[1], cell[2], light());
+                        && region.type(cell[0], cell[1], cell[2]) == Material.WATER && region.type(cell[0], cell[1] + 1, cell[2]).isAir()) {
+                    region.set(cell[0], cell[1] + 1, cell[2], light());
                     stats.lights.incrementAndGet();
                 }
             }
@@ -300,8 +304,10 @@ public final class IchorWaters implements Listener {
                     || !IchorLakePlan.spring(w, x, y, z)) {
                 continue;
             }
-            region.set(x, y, z, settings.springLight() ? light() : Material.WATER.createBlockData());
-            if (settings.springLight()) {
+            region.set(x, y, z, Material.WATER.createBlockData());
+            int[] glow = settings.springLight() ? IchorLakePlan.springGlow(w, x, y, z) : null;
+            if (glow != null && region.writable(glow[0], glow[1], glow[2])) {
+                region.set(glow[0], glow[1], glow[2], light());
                 stats.lights.incrementAndGet();
             }
             stats.springs.incrementAndGet();
@@ -311,10 +317,11 @@ public final class IchorWaters implements Listener {
         stats.springNanos.addAndGet(System.nanoTime() - start);
     }
 
+    /** The glow of generated ichor: a dry light block of level 12 (never waterlogged, see the class comment). */
     static BlockData light() {
         Light light = (Light) Material.LIGHT.createBlockData();
         light.setLevel(LIGHT_LEVEL);
-        light.setWaterlogged(true);
+        light.setWaterlogged(false);
         return light;
     }
 

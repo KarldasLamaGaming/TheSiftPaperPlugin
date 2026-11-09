@@ -929,6 +929,20 @@ public final class IchorLakePlan {
         return rock == 4 && holes == 1;
     }
 
+    /**
+     * Where the glow of a spring goes (alpha.36): the air block above its opening, so the light never holds ichor
+     * (a waterlogged light is a hidden, permanent source) and never blocks the outflow, which runs sideways and
+     * down. Null if that block is not free.
+     */
+    public static int[] springGlow(SpringWorld w, int x, int y, int z) {
+        for (int[] d : OPENINGS) {
+            if (d[1] == 0 && w.empty(x + d[0], y, z + d[2])) {
+                return w.empty(x + d[0], y + 1, z + d[2]) ? new int[] {x + d[0], y + 1, z + d[2]} : null;
+            }
+        }
+        return null;
+    }
+
     // ---- helpers --------------------------------------------------------------------------------------------
 
     public static double hash01(int x, int y, int z, long salt) {
