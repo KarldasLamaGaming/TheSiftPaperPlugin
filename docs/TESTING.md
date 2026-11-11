@@ -102,6 +102,29 @@ einem Pilzblock-Ersatz sofort ab (Siftschiefer, Erze, Sculk, Weidenholz …). In
 - [ ] Sniffer-Ei an Ichor ausbrüten: Das Junge erscheint nicht, wenn es in oder über Ichor schlüpft.
 - [ ] `ichor.enabled: false` + Neustart: nichts davon passiert (Gamerule bleibt, wie sie zuletzt war).
 
+**Ichor bleibt Ichor, Wasser bleibt Wasser (ab alpha.38)**
+```
+/give @s water_bucket
+/give @s bucket 2
+/give @s glass_bottle 4
+/give @s cauldron
+/give @s dispenser
+/sift give @s ichor_bucket
+```
+- [ ] Oberwelt: Ichoreimer ausgießen. Darin schwimmen: Regeneration (wie in der Sift); ein Tier treibt langsamer.
+      `/sift debug ichor marks` an der Stelle: „Ichor (Ausnahme, markiert)“, auch im fließenden Teil.
+- [ ] Oberwelt: Eimer an diesem Ichor ergibt einen Ichoreimer, an normalem Wasser daneben einen Wassereimer.
+      Glasflasche am ausgegossenen Ichor: Ichorflasche.
+- [ ] Sift: Wassereimer ausgießen. Darin keine Regeneration; Eimer daran ergibt einen Wassereimer, Glasflasche
+      eine Wasserflasche. Daneben normales Ichor wirkt wie bisher.
+- [ ] Kessel: In der Oberwelt einen Ichoreimer hinein; mit Eimer wieder entnehmen ergibt einen Ichoreimer, eine
+      Glasflasche eine Ichorflasche. Eine Wasserflasche in den Ichor-Kessel: „Ichor und Wasser mischen sich nicht“.
+- [ ] Werfer mit Ichoreimer in der Oberwelt (Redstone): setzt Ichor. Werfer mit leerem Eimer davor: bekommt einen
+      Ichoreimer.
+- [ ] Schwamm an ausgegossenem Ichor: saugt es auf; danach dort Wasser aus einem Wassereimer ist wieder Wasser.
+- [ ] Neustart: ausgegossenes Ichor ist danach immer noch Ichor.
+- [ ] `ichor.identity.enabled: false` + Neustart: wie bis alpha.37 (Ichoreimer setzt in der Oberwelt Wasser).
+
 ## Abbau
 
 - [ ] Siftschiefer: Diamantspitzhacke ≈ 0,6 s, von Hand ≈ 15 s ohne Drop, Axt langsam wie von Hand.

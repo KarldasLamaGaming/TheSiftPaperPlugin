@@ -742,8 +742,33 @@ In der Sift ist alles Wasser Ichor; es ist Vanilla-Wasser mit der Biomfarbe `#9d
 | `mist` | Staubpartikel in Ichorfarben über Quellblöcken nahe Spielern (Takt, Radius, Anzahl) |
 
 Junge Sniffer, die in der Sift in oder direkt über Ichor erscheinen, werden verhindert (wie im Original).
-Außerhalb der Sift ist Ichor gewöhnliches Wasser: Ein Ichoreimer setzt dort Wasser, ein Kessel bleibt ein
-Wasserkessel.
+
+### Ichor bleibt Ichor (ab alpha.38)
+
+```yaml
+ichor:
+  identity:
+    enabled: true       # false = wie bis alpha.37: in der Sift ist alles Wasser Ichor, sonst alles Wasser
+    outside-sift: true  # Regeneration und Bremsung auch in ausgegossenem Ichor außerhalb der Sift
+```
+
+- **Standard:** In der Sift ist Wasser Ichor, sonst Wasser. Gespeichert werden nur **Ausnahmen**, je Block in den
+  Chunk-Daten (`the_sift:fluid_marks`): Wasser aus einem Wassereimer in der Sift, Ichor aus einem Ichoreimer
+  außerhalb. Alte Chunks brauchen nichts.
+- **Woher Markierungen kommen:** Eimer und Werfer beim Ausgießen (nicht in schon vorhandenes Wasser), Ichorflasche
+  bzw. Eimer in einen Kessel; fließendes Wasser erbt die Markierung seines Ursprungs.
+- **Wann sie gehen:** Eimer oder Werfer nimmt das Wasser auf, Schwamm, Kolben (der geschobene Block verliert sein
+  Wasser), Kessel geleert. Markierungen ohne Wasser werden beim Entladen des Chunks entfernt; Eis behält seine
+  (geschmolzen ist es wieder dieselbe Art).
+- **Wirkung:** Eimer, Werfer (leerer Eimer an Ichor ergibt einen Ichoreimer), Glasflasche, Kessel, Regeneration und
+  Bremsung richten sich nach der Art. Außerhalb der Sift laufen Regeneration und Bremsung nur in Welten, die
+  Markierungen haben.
+- **Nicht erfasst:** `/fill`, `/setblock`, WorldEdit und andere Plugins setzen Wasser ohne Markierung.
+- **Last:** Jedes Fließen ruft das Plugin auf; in einer Welt ohne Markierungen kehrt es sofort zurück. Gemessen im
+  Smoke-Test: etwa 8 µs je Fließen im Mittel.
+- `/sift debug ichor marks`: Markierungen je Welt (geladene Chunks), Zahlen und Zeit des Fließ-Handlers (Mittel,
+  höchstens), und welche Art das Wasser an der eigenen Position hat. Von der Konsole:
+  `/execute in minecraft:overworld positioned <x y z> run sift debug ichor marks`.
 
 ## Siftit-Erhalt beim Tod (ab alpha.23)
 

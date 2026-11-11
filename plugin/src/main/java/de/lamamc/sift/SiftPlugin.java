@@ -65,6 +65,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.mob.MobManager mobs;
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
+    private de.lamamc.sift.world.ichor.FluidMarks fluidMarks;
+    private de.lamamc.sift.world.ichor.FluidIdentityListener fluidIdentity;
     private de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns;
     private de.lamamc.sift.mob.echogolem.GolemLight golemLight;
     private de.lamamc.sift.mob.echogolem.EchoGolemSpawner golemSpawner;
@@ -143,8 +145,15 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         portals.setGate(gate);
         gate.start();
         if (getConfig().getBoolean("ichor.enabled", true)) {
+            if (getConfig().getBoolean("ichor.identity.enabled", true)) {
+                fluidMarks = new de.lamamc.sift.world.ichor.FluidMarks();
+                getServer().getPluginManager().registerEvents(fluidMarks, this);
+                fluidMarks.start();
+                fluidIdentity = new de.lamamc.sift.world.ichor.FluidIdentityListener(this, fluidMarks, items);
+                getServer().getPluginManager().registerEvents(fluidIdentity, this);
+            }
             de.lamamc.sift.world.ichor.IchorListener ichor = new de.lamamc.sift.world.ichor.IchorListener(
-                    this, items, blocks, getConfig().getConfigurationSection("ichor"));
+                    this, items, blocks, fluidMarks, getConfig().getConfigurationSection("ichor"));
             getServer().getPluginManager().registerEvents(ichor, this);
             ichor.start();
         }
@@ -258,6 +267,15 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns() {
         return darkSnifferSpawns;
+    }
+
+    /** Ichor identity marks (alpha.38), null when ichor.identity.enabled is false. */
+    public de.lamamc.sift.world.ichor.FluidMarks fluidMarks() {
+        return fluidMarks;
+    }
+
+    public de.lamamc.sift.world.ichor.FluidIdentityListener fluidIdentity() {
+        return fluidIdentity;
     }
 
     public de.lamamc.sift.mob.singer.SingerSummoner singerSummoner() {
@@ -450,6 +468,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         if (blocks != null) {
             getServer().getOnlinePlayers().forEach(BreakSpeedListener::clearAll);
+        }
+        if (fluidMarks != null) {
+            fluidMarks.flushAll();
         }
         if (rifts != null) {
             rifts.removeAll();

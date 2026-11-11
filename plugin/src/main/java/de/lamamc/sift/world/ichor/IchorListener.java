@@ -41,9 +41,11 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 /**
- * Ichor behaviour (alpha.21, config ichor.*). In the Sift all water is ichor: regeneration for living
+ * Ichor behaviour (alpha.21, config ichor.*). In the Sift water is ichor: regeneration for living
  * beings in it, drag for mobs and items, no infinite sources, lava forms Sift stone, buckets and bottles
  * filled there become ichor bucket and ichor bottle, and a faint mist rises from sources near players.
+ * Since alpha.38 the identity of each water block decides ({@link FluidMarks}): plain water poured into the Sift
+ * stays water, ichor poured elsewhere stays ichor (regeneration, drag, buckets, bottles, cauldrons).
  */
 public final class IchorListener implements Listener {
 
@@ -52,6 +54,8 @@ public final class IchorListener implements Listener {
     private final Plugin plugin;
     private final SiftItems items;
     private final CustomBlockRegistry blocks;
+    private final FluidMarks marks;
+    private final boolean outsideSift;
     private final Random random = new Random();
     private final boolean regeneration;
     private final int regenAmplifier;
@@ -72,11 +76,13 @@ public final class IchorListener implements Listener {
     private final int mistSamples;
     private long ticks;
 
-    public IchorListener(Plugin plugin, SiftItems items, CustomBlockRegistry blocks, ConfigurationSection config) {
+    public IchorListener(Plugin plugin, SiftItems items, CustomBlockRegistry blocks, FluidMarks marks, ConfigurationSection config) {
         this.plugin = plugin;
         this.items = items;
         this.blocks = blocks;
+        this.marks = marks;
         ConfigurationSection c = config == null ? new org.bukkit.configuration.MemoryConfiguration() : config;
+        outsideSift = c.getBoolean("identity.outside-sift", true);
         regeneration = c.getBoolean("regeneration.enabled", true);
         regenAmplifier = Math.max(0, c.getInt("regeneration.amplifier", 0));
         regenInterval = Math.max(1, c.getInt("regeneration.interval-ticks", 10));
@@ -115,17 +121,49 @@ public final class IchorListener implements Listener {
         sift.setGameRule(GameRules.WATER_SOURCE_CONVERSION, sourceConversion);
     }
 
+    /** Whether the water a being is in is ichor (its feet, else its eyes). */
+    private boolean inIchor(Entity entity) {
+        if (marks == null) {
+            return SiftWorlds.isSift(entity.getWorld());
+        }
+        Block feet = entity.getLocation().getBlock();
+        if (FluidMarks.holdsWater(feet)) {
+            return marks.ichor(feet);
+        }
+        Block eyes = entity instanceof LivingEntity living ? living.getEyeLocation().getBlock() : feet;
+        return marks.ichor(eyes);
+    }
+
+    /** Whether the water of this block is ichor (without identity: all water in the Sift). */
+    private boolean ichor(Block block) {
+        return marks == null ? SiftWorlds.isSift(block.getWorld()) : marks.ichor(block);
+    }
+
     private void tick() {
         ticks++;
-        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
-        if (sift == null) {
-            return;
-        }
         boolean regen = regeneration && ticks % regenInterval == 0;
         boolean slow = drag && ticks % dragInterval == 0;
         if (regen || slow) {
-            for (Entity entity : sift.getEntities()) {
-                if (!entity.isInWater() || !entity.isValid()) {
+            for (World world : Bukkit.getWorlds()) {
+                // outside the Sift only where ichor has been poured (alpha.38)
+                if (!SiftWorlds.isSift(world) && (marks == null || !outsideSift || !marks.any(world))) {
+                    continue;
+                }
+                tickWorld(world, regen, slow);
+            }
+        }
+        World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
+        if (sift != null && mist && mistSamples > 0 && ticks % mistInterval == 0) {
+            for (Player player : sift.getPlayers()) {
+                mist(player);
+            }
+        }
+    }
+
+    private void tickWorld(World world, boolean regen, boolean slow) {
+        {
+            for (Entity entity : world.getEntities()) {
+                if (!entity.isInWater() || !entity.isValid() || !inIchor(entity)) {
                     continue;
                 }
                 if (regen && entity instanceof LivingEntity living) {
@@ -135,11 +173,6 @@ public final class IchorListener implements Listener {
                     Vector v = entity.getVelocity();
                     entity.setVelocity(new Vector(v.getX() * dragHorizontal, v.getY() * dragVertical, v.getZ() * dragHorizontal));
                 }
-            }
-        }
-        if (mist && mistSamples > 0 && ticks % mistInterval == 0) {
-            for (Player player : sift.getPlayers()) {
-                mist(player);
             }
         }
     }
@@ -158,7 +191,7 @@ public final class IchorListener implements Listener {
                 Block block = world.getBlockAt(x, y, z);
                 if (block.getType() == Material.WATER) {
                     if (block.getBlockData() instanceof Levelled level && level.getLevel() == 0
-                            && block.getRelative(0, 1, 0).getType().isAir()) {
+                            && block.getRelative(0, 1, 0).getType().isAir() && ichor(block)) {
                         player.spawnParticle(Particle.DUST, x + random.nextDouble(), y + 1.05, z + random.nextDouble(), 1,
                                 0.15, 0.05, 0.15, 0, new Particle.DustOptions(MIST[random.nextInt(MIST.length)], 0.8f));
                     }
@@ -185,10 +218,10 @@ public final class IchorListener implements Listener {
         }
     }
 
-    /** A bucket filled in the Sift holds ichor. */
+    /** A bucket filled at ichor holds ichor (in the Sift unless poured there as water; elsewhere where ichor was poured). */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBucketFill(PlayerBucketFillEvent event) {
-        if (!bucket || !SiftWorlds.isSift(event.getBlock().getWorld())) {
+        if (!bucket || !ichor(event.getBlock())) {
             return;
         }
         ItemStack result = event.getItemStack();
@@ -220,23 +253,36 @@ public final class IchorListener implements Listener {
                     : clicked.getType() == Material.WATER_CAULDRON && clicked.getBlockData() instanceof Levelled l ? l.getLevel() : -1;
             if (level >= 0 && level < 3) {
                 event.setCancelled(true);
+                if (marks != null && de.lamamc.sift.core.ichor.FluidIdentity.mixes(level, marks.ichor(clicked), true)) {
+                    player.sendActionBar(net.kyori.adventure.text.Component.text("Ichor und Wasser mischen sich nicht."));
+                    return;
+                }
                 Levelled water = (Levelled) Material.WATER_CAULDRON.createBlockData();
                 water.setLevel(level + 1);
                 clicked.setBlockData(water);
+                if (marks != null) {
+                    marks.set(clicked, de.lamamc.sift.core.ichor.FluidIdentity.markFor(SiftWorlds.isSift(clicked.getWorld()), true));
+                }
                 exchange(player, hand, held, ItemStack.of(Material.GLASS_BOTTLE));
                 sound(player, clicked.getLocation(), "the_sift:item.ichor_bottle.empty");
             }
             return;
         }
-        if (!inSift || id != null) {
+        if (id != null || !inSift && (marks == null || !marks.any(player.getWorld()))) {
             return;
         }
         if (bottles && held.getType() == Material.GLASS_BOTTLE) {
             if (clicked != null && clicked.getType() == Material.WATER_CAULDRON && event.getAction() == Action.RIGHT_CLICK_BLOCK
                     && clicked.getBlockData() instanceof Levelled l) {
+                if (!ichor(clicked)) {
+                    return; // plain water: vanilla water bottle
+                }
                 event.setCancelled(true);
                 if (l.getLevel() <= 1) {
                     clicked.setType(Material.CAULDRON);
+                    if (marks != null) {
+                        marks.set(clicked, false);
+                    }
                 } else {
                     l.setLevel(l.getLevel() - 1);
                     clicked.setBlockData(l);
@@ -246,7 +292,7 @@ public final class IchorListener implements Listener {
                 return;
             }
             Block source = sourceInView(player);
-            if (source != null && (clicked == null || clicked.getType() != Material.WATER_CAULDRON)) {
+            if (source != null && ichor(source) && (clicked == null || clicked.getType() != Material.WATER_CAULDRON)) {
                 event.setCancelled(true);
                 exchange(player, hand, held, items.create("ichor_bottle", 1));
                 sound(player, source.getLocation(), "the_sift:item.ichor_bottle.fill");
@@ -255,9 +301,12 @@ public final class IchorListener implements Listener {
         }
         if (bucket && held.getType() == Material.BUCKET && clicked != null && event.getAction() == Action.RIGHT_CLICK_BLOCK
                 && clicked.getType() == Material.WATER_CAULDRON && clicked.getBlockData() instanceof Levelled l
-                && l.getLevel() == l.getMaximumLevel()) {
+                && l.getLevel() == l.getMaximumLevel() && ichor(clicked)) {
             event.setCancelled(true);
             clicked.setType(Material.CAULDRON);
+            if (marks != null) {
+                marks.set(clicked, false);
+            }
             exchange(player, hand, held, items.create("ichor_bucket", 1));
             sound(player, clicked.getLocation(), "the_sift:item.ichor_bucket.fill");
         }
@@ -319,7 +368,7 @@ public final class IchorListener implements Listener {
     public void onSpawn(CreatureSpawnEvent event) {
         if (event.getEntity() instanceof Sniffer sniffer && !sniffer.isAdult() && SiftWorlds.isSift(sniffer.getWorld())) {
             Block at = sniffer.getLocation().getBlock();
-            if (at.getType() == Material.WATER || at.getRelative(0, -1, 0).getType() == Material.WATER) {
+            if (at.getType() == Material.WATER && ichor(at) || at.getRelative(0, -1, 0).getType() == Material.WATER && ichor(at.getRelative(0, -1, 0))) {
                 event.setCancelled(true);
             }
         }
