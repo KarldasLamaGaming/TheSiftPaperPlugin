@@ -18,13 +18,20 @@ import java.util.stream.Stream;
 public final class PackValidator {
 
     private final Path packRoot;
+    /** Hand-made assets merged into the pack at build time (own blocks and items); null = none. */
+    private final Path overlayRoot;
     private final Predicate<String> vanillaAsset;
     private final ImportReport report;
     private final Set<String> checkedModels = new HashSet<>();
 
     /** @param vanillaAsset whether the vanilla client has an asset path (e.g. assets/minecraft/models/block/stone.json) */
     public PackValidator(Path packRoot, Predicate<String> vanillaAsset, ImportReport report) {
+        this(packRoot, null, vanillaAsset, report);
+    }
+
+    public PackValidator(Path packRoot, Path overlayRoot, Predicate<String> vanillaAsset, ImportReport report) {
         this.packRoot = packRoot;
+        this.overlayRoot = overlayRoot;
         this.vanillaAsset = vanillaAsset;
         this.report = report;
     }
@@ -44,7 +51,9 @@ public final class PackValidator {
             return;
         }
         String path = asset(id, "models", ".json");
-        Path inPack = packRoot.resolve(path);
+        Path generated = packRoot.resolve(path);
+        Path inPack = !Files.isRegularFile(generated) && overlayRoot != null && Files.isRegularFile(overlayRoot.resolve(path))
+                ? overlayRoot.resolve(path) : generated;
         if (Files.isRegularFile(inPack)) {
             JsonObject model = read(inPack);
             if (model.has("parent")) {
@@ -69,7 +78,8 @@ public final class PackValidator {
             return;
         }
         String path = asset(id, "textures", ".png");
-        if (!Files.isRegularFile(packRoot.resolve(path)) && !(id.startsWith("minecraft:") && vanillaAsset.test(path))) {
+        boolean inOverlay = overlayRoot != null && Files.isRegularFile(overlayRoot.resolve(path));
+        if (!Files.isRegularFile(packRoot.resolve(path)) && !inOverlay && !(id.startsWith("minecraft:") && vanillaAsset.test(path))) {
             report.error("Missing texture " + id + " (used in " + packRoot.relativize(from) + ")");
         }
     }

@@ -36,7 +36,7 @@
       "model": "the_sift:block/vanilla/red_mushroom_block_den___"
     },
     "down=false,east=false,north=false,south=true,up=false,west=false": {
-      "model": "the_sift:block/vanilla/red_mushroom_block____s__"
+      "model": "the_sift:block/sculk_enchanter"
     },
     "down=true,east=false,north=false,south=true,up=false,west=false": {
       "model": "the_sift:block/vanilla/red_mushroom_block_d__s__"

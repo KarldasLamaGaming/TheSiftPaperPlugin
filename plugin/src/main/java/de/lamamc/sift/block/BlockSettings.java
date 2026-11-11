@@ -115,6 +115,11 @@ public final class BlockSettings {
         }
     }
 
+    /** Lets a custom block stand outside the Sift (in addition to custom-blocks.placeable-outside-sift). */
+    public void allowOutsideSift(String id) {
+        outsideSift.add(id);
+    }
+
     public boolean placeOnlyInSift() {
         return placeOnlyInSift;
     }

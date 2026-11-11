@@ -34,6 +34,7 @@
     "the_sift:overgrown_willow_foliage": "minecraft:brown_mushroom_block[down=false,east=true,north=true,south=true,up=false,west=false]",
     "the_sift:dry_healthy_sculk": "minecraft:red_mushroom_block[down=false,east=false,north=false,south=false,up=false,west=false]",
     "the_sift:dry_healthy_sculk_growth": "minecraft:red_mushroom_block[down=false,east=false,north=false,south=false,up=false,west=true]",
+    "the_sift:sculk_enchanter": "minecraft:red_mushroom_block[down=false,east=false,north=false,south=true,up=false,west=false]",
     "the_sift:siftslate_stalks": "minecraft:tripwire[attached=false,disarmed=true,east=false,north=false,powered=true,south=false,west=false]",
     "the_sift:healthy_sculk_sprouts": "minecraft:tripwire[attached=false,disarmed=true,east=false,north=false,powered=true,south=false,west=true]",
     "the_sift:dry_healthy_sculk_sprouts": "minecraft:tripwire[attached=false,disarmed=true,east=false,north=false,powered=true,south=true,west=false]",

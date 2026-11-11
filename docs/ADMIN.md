@@ -954,12 +954,28 @@ Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar m
      Drachenschuppe, Kern des Withers, Siftitbarren. Mehr als 5 Charoit passen nicht ins 3 × 3-Raster.
   2. Mit dem Kern in der Hand Rechtsklick auf einen Zaubertisch, bei mindestens `ritual-levels` (30) Leveln. Kern und
      Level werden verbraucht, der Tisch wird zum Sculk Enchanter (Partikel, Klang). Im Kreativmodus kostet es nichts.
-- **Aussehen:** wie ein Zaubertisch, darüber Sculk-Seelen. Welche Tische Enchanter sind, steht in den Chunk-Daten
-  (`the_sift:sculk_enchanters`). Ein eigener Block mit eigener Textur würde neue Blockzustände im Pack brauchen und ist
-  für später vorgemerkt (OFFENE-PUNKTE).
-- **Abbauen:** droppt das Item „Sculk Enchanter“ (eigene Textur), das wieder einen Enchanter setzt. Ein Enchanter, den
-  ein Befehl oder ein anderes Plugin entfernt, verliert seine Markierung, sobald ein Spieler in der Nähe ist; ein normaler
-  Zaubertisch an derselben Stelle ist nie ein Enchanter.
+- **Aussehen (ab alpha.40.1, `block-style: block`):**
+  - Eigener Block: oben ein violetter Charoit-Runenkreis auf Sculk, an den Seiten ein leuchtendes seelenblaues
+    Gravurband über Siftschiefer-Mauerwerk, darunter Sculk-Adern; unten schlicht.
+  - Darüber dreht sich langsam ein Charoit-Kristall (`floating-crystal`), dazu Sculk-Seelen.
+  - Das Item zeigt den Block als Würfel, in der Hand, im Inventar und im Rezeptbuch.
+  - Technik: ein freier Zustand des roten Pilzblocks. Der Kristall ist ein Item-Display, das nicht gespeichert wird: Er
+    entsteht beim Laden des Chunks neu und verschwindet beim Entladen und beim Stoppen.
+  - Texturen: `scripts/gen_sculk_enchanter_textures.py` zeichnet `textures/block/sculk_enchanter_{top,side,bottom}.png`
+    im Pack-Overlay. Eigene PNGs gleichen Namens ersetzen sie (danach neues Release).
+- **Rückfall `block-style: table`:** wie alpha.40, ein markierter Zaubertisch ohne Kristall. Das Item setzt dann einen
+  markierten Zaubertisch.
+- **Wo:** in jeder Welt, auch außerhalb der Sift (unabhängig von `custom-blocks.place-only-in-sift`).
+- **Welche Blöcke Enchanter sind,** steht zusätzlich in den Chunk-Daten (`the_sift:sculk_enchanters`), für Partikel
+  und Kristall.
+- **Abbauen:** mit der Spitzhacke (Härte 5, `blocks.sculk_enchanter`, explosionsfest). Droppt das Item „Sculk
+  Enchanter“, das wieder einen setzt. Wird ein Enchanter per Befehl oder von einem anderen Plugin entfernt, verliert er
+  seine Markierung, sobald ein Spieler in der Nähe ist.
+- **Bedrock (Geyser):** Bedrock-Spieler sehen einen roten Pilzblock (wie alle Sift-Blöcke); Ritual, Menü und Abbau
+  funktionieren trotzdem, weil alles auf dem Server läuft.
+- **Eigener Block ohne Original (packgen, alpha.40.1):** Der Blockzustand kommt aus `block-mapping.yml` (hinten
+  angehängt, alle anderen Zustände bleiben). Den Blockstate des Blocks liest packgen aus dem Pack-Overlay
+  (`assets/the_sift/blockstates/sculk_enchanter.json`), weil das Original-Jar ihn nicht hat.
 - **Bedienung:** Rechtsklick öffnet ein Menü.
   - Gegenstand links einlegen, Charoit rechts einlegen.
   - Unten steht je steigerbarer Verzauberung ein Knopf mit der nächsten Stufe und den Kosten.
@@ -979,8 +995,8 @@ Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar m
   sie auf das Maximum kürzen. Der Schleifstein entfernt Verzauberungen wie üblich.
 - **Hinweis zur Wirkung:** Schutz über IV bringt durch die Vanilla-Obergrenze für Rüstungsschutz kaum mehr. Schärfe,
   Effizienz, Haltbarkeit, Glück und Plünderung wirken mit jeder Stufe.
-- **Admin:** `/sift debug enchanter` macht den Zaubertisch an der eigenen Position zum Enchanter (ohne Ritual). Von der
-  Konsole aus: `/execute in <welt> positioned <x y z> run sift debug enchanter`.
+- **Admin:** `/sift debug enchanter` setzt an der eigenen Position einen Sculk Enchanter (ohne Ritual; ersetzt den Block
+  dort). Von der Konsole aus: `/execute in <welt> positioned <x y z> run sift debug enchanter`.
 
 ## Befehle (`thesift.admin`)
 

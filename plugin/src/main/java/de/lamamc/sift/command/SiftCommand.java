@@ -626,7 +626,7 @@ public final class SiftCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    /** /sift debug enchanter (alpha.40): the enchanting table at the position becomes a Sculk Enchanter (or says it is one). */
+    /** /sift debug enchanter (alpha.40): a Sculk Enchanter at the position (own block, or enchanting table in table style). */
     private int debugEnchanter(CommandContext<CommandSourceStack> ctx) {
         var sender = ctx.getSource().getSender();
         var enchanters = plugin.enchanters();
@@ -635,13 +635,9 @@ public final class SiftCommand {
             sender.sendRichMessage("<red>Der Sculk Enchanter ist aus (phase4.enchanter.enabled).");
             return 0;
         }
-        if (block.getType() != org.bukkit.Material.ENCHANTING_TABLE) {
-            sender.sendRichMessage("<red>Dort (" + block.getX() + " " + block.getY() + " " + block.getZ() + ") steht kein Zaubertisch.");
-            return 0;
-        }
-        boolean was = enchanters.isEnchanter(block);
-        enchanters.mark(block, true);
-        sender.sendRichMessage(was ? "<gray>Das ist schon ein Sculk Enchanter." : "<green>Der Zaubertisch ist jetzt ein Sculk Enchanter.");
+        boolean created = enchanters.create(block);
+        sender.sendRichMessage(created ? "<green>Sculk Enchanter gesetzt (" + block.getX() + " " + block.getY() + " " + block.getZ() + ", "
+                + (enchanters.blockStyle() ? "eigener Block" : "Zaubertisch") + ")." : "<gray>Das ist schon ein Sculk Enchanter.");
         return Command.SINGLE_SUCCESS;
     }
 

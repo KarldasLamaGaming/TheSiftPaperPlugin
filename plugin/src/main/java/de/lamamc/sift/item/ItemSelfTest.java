@@ -133,8 +133,8 @@ public final class ItemSelfTest {
             check(item != null && item.getData(DataComponentTypes.RARITY) == org.bukkit.inventory.ItemRarity.EPIC,
                     id + ": Boss-Item (episch, alpha.39)");
         }
-        check(sift("sculk_enchanter") != null && sift("sculk_enchanter").getType() == Material.ENCHANTING_TABLE,
-                "sculk_enchanter: setzbar wie ein Zaubertisch (alpha.40)");
+        check(sift("sculk_enchanter") != null && sift("sculk_enchanter").getType() == Material.RED_MUSHROOM_BLOCK,
+                "sculk_enchanter: eigener Block (alpha.40.1)");
         check(Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "charoite_core")) != null, "charoite_core: Rezept (alpha.40)");
         ItemStack ancientKey = sift("ancient_resonator");
         check(ancientKey != null && Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "ancient_resonator")) == null,

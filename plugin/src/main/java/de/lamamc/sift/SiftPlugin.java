@@ -85,6 +85,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
+        if (getConfig().getBoolean("phase4.enchanter.enabled", true)) {
+            blockSettings.allowOutsideSift(de.lamamc.sift.world.enchanter.SculkEnchanters.ID); // alpha.40.1, works in every world
+        }
         blocks.restrictWorlds(blockSettings::allowedIn);
         items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar(),
                 ItemSettings.load(getConfig().getConfigurationSection("items")));
@@ -161,7 +164,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             ichor.start();
         }
         if (getConfig().getBoolean("phase4.enchanter.enabled", true)) {
-            enchanters = new de.lamamc.sift.world.enchanter.SculkEnchanters(this, items,
+            enchanters = new de.lamamc.sift.world.enchanter.SculkEnchanters(this, items, blocks,
                     getConfig().getConfigurationSection("phase4.enchanter"));
             getServer().getPluginManager().registerEvents(enchanters, this);
             getServer().getPluginManager().registerEvents(de.lamamc.sift.world.enchanter.EnchanterMenu.listener(), this);
@@ -490,6 +493,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         if (fluidMarks != null) {
             fluidMarks.flushAll();
+        }
+        if (enchanters != null) {
+            enchanters.removeAll();
         }
         if (rifts != null) {
             rifts.removeAll();
