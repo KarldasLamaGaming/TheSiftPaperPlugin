@@ -282,7 +282,10 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
 - **3D-Item-Modelle** (alpha.40.2): Boss-Items, Charoit-Kern und der schwebende Kristall sind Element-Modelle
   (eigene Formen und Materialtexturen, keine Mojang-Dateien). Bedrock-Spieler (Geyser) sehen sie nicht, sie
   bekommen die Basis-Items (Papier).
-- Später: Tempel (alpha.41), Boss „Großer Echo-Golem“ (alpha.42).
+- **Tempel** (alpha.41a): genau 10 je Sift auf einem Ring um 0/0, im Plugin gebaut (keine Datapack-Struktur, damit
+  die Zahl fest ist und die Plätze vorab bekannt sind). Der Seelen-Altar schläft bis alpha.42, die Kammern für Wither
+  und Wächter bleiben bis zu ihren Prüfungen versiegelt. Tempel entstehen nur in neu generierten Chunks.
+- Später: Kompass und Hinweise zu den Tempeln (alpha.41b), Boss „Großer Echo-Golem“ (alpha.42).
 
 ## Siftit-Erhalt beim Tod (seit alpha.23)
 

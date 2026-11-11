@@ -923,7 +923,7 @@ Die Abschnitte der obersten Ebene, in der Reihenfolge der Datei (dieselbe Übers
 | `mobs` | Sift-Mobs | Mobs |
 | `recipes` | Rezeptbuch beim Join | Items, Rezepte, Siftit |
 | `resource-pack` | Resource Pack | Resource Pack |
-| `phase4` | Eigene Inhalte nach dem Original-Port: `boss-items` (ab alpha.39); später `enchanter`, `temples`, `bosses` | Boss-Items |
+| `phase4` | Eigene Inhalte nach dem Original-Port: `boss-items` (ab alpha.39), `enchanter` (ab alpha.40), `temples` (ab alpha.41a); später `bosses` | Boss-Items, Sculk Enchanter, Tempel |
 
 ## Boss-Items (Phase 4, ab alpha.39)
 
@@ -1007,6 +1007,42 @@ Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar m
 - **Admin:** `/sift debug enchanter` setzt an der eigenen Position einen Sculk Enchanter (ohne Ritual; ersetzt den Block
   dort). Von der Konsole aus: `/execute in <welt> positioned <x y z> run sift debug enchanter`.
 
+## Tempel (Phase 4, ab alpha.41a)
+
+Genau `count` (10) zerfallene Siftschiefer-Tempel je Sift (`phase4.temples`, abschaltbar mit `enabled: false`). Jeder
+Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** besiegbar ist.
+
+- **Lage:** fest aus dem Seed berechnet, auf einem Ring um 0/0: gleiche Winkelabstände plus Seed-Versatz
+  (`ring.angle-jitter`, ±15°), Abstand zwischen `ring.min-radius` (1500) und `ring.max-radius` (3000). Jeder Platz liegt
+  in der Mitte eines Chunks. Die Plätze stehen schon vor dem Erkunden fest (`/sift temple sites`).
+  - Gebaut wird nur in **neu generierten** Chunks. Liegt ein Platz in schon erkundetem Gebiet, fehlt dort der Tempel;
+    `/sift temple sites` meldet das rot. Deshalb kommt der Welt-Reset der Sift nach alpha.41a (GOLIVE.md).
+  - **Weltgrenze:** Ist die Weltgrenze der Sift kleiner als der Ring, zieht das Plugin den Ring auf die Grenze minus
+    200 Blöcke nach innen und warnt im Log. Die Zahl der Tempel bleibt gleich.
+  - Andere Strukturen (verlassene Portale, Schluchten, Monolithen, Bögen, Sniffer-Höhlen, Seen) halten
+    `clearance` (8) Blöcke Abstand zur Tempelfläche.
+- **Aufbau** (41 × 41 Blöcke, Boden auf der mittleren Geländehöhe, darunter ein Siftschiefer-Sockel bis 24 tief, darüber
+  12 Blöcke frei):
+  - Hof mit zerfallenen Außenmauern, vier Ecktürmen und offenem Eingang im Süden.
+  - Runde Arena (Radius 12) mit Seelenblock-Ring und acht zerbrochenen Säulen; in der Mitte der **Seelen-Altar**
+    (Seelenblock auf Sockel). Bis alpha.42 meldet ein Rechtsklick nur `altar-message`.
+  - Halle im Süden mit einem fest verbauten **Sculk Enchanter** und zwei Truhen (Beute `loot-table`, Datapack
+    `the_sift:chests/temple`: Charoit, Siftit-Nuggets, Ichor, Echo-Splitter, Erfahrung, verzauberte Bücher, Diamanten,
+    selten Antiker Schrott). Eigene Beute: Datei im Datapack überschreiben oder `loot-table` umstellen.
+  - Zwei **versiegelte Kammern** (Osten: Wither, Westen: Wächter), innen leer. Sie öffnen sich erst mit den späteren
+    Prüfungen (Option B nach dem Go-live).
+  - Jeder Tempel zerfällt etwas anders (aus Seed und Platz), ist aber bei jedem Generieren gleich.
+- **Register:** in den Weltdaten der Sift (`the_sift:temples`): Id (`temple-1` … `temple-10`), Mitte, Zustand
+  (`schläft`, `Kampf`, `besiegt`), Zeitpunkt des Sieges. Ein Welt-Reset der Sift leert es mit.
+- **Schutz** (`protect-until-defeated: true`): Solange der Wächter schläft, lassen sich Tempelblöcke und Truhen weder
+  abbauen noch sprengen oder mit Kolben verschieben. Nach dem Sieg ist der Tempel frei, außer Enchanter, Altar und den
+  Kammern (immer geschützt). Ausnahme: Recht `thesift.temple.bypass` (auch für OPs nur, wenn vergeben), z. B.
+  `lp user <spieler> permission set thesift.temple.bypass true`.
+- **Fest verbauter Enchanter:** wie ein hergestellter (Kristall, Menü), aber mit
+  `phase4.enchanter.temple-enchanter.requires-defeat: true` erst nach dem Sieg nutzbar; vorher meldet er das.
+- **Zeit beim Generieren:** gemessen je Tempel; `/sift temple sites` zeigt Mittel und Maximum seit dem Start
+  (Smoke-Test: 3,7 ms im Mittel, höchstens 5,6 ms).
+
 ## Befehle (`thesift.admin`)
 
 | Befehl | Wirkung |
@@ -1018,6 +1054,11 @@ Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar m
 | `/sift rift open\|close\|list` | Risse (siehe „Risse“) |
 | `/sift siftite list\|restore <Spieler>` | Siftit-Erhalt (siehe „Siftit-Erhalt beim Tod“) |
 | `/sift access …`, `/sift open`, `/sift close` | Zugang zur Sift (siehe „Zugang zur Sift“) |
+| `/sift temple list` | Gebaute Tempel mit Zustand und Teleport-Klick |
+| `/sift temple sites` | Alle berechneten Plätze: gebaut, noch nicht generiert oder (rot) ohne Tempel erkundet; Zeit je Tempel |
+| `/sift temple info <id>` | Zustand, Mitte, Altar und Enchanter eines Tempels |
+| `/sift temple reset <id>`, `reset-all [confirm]` | Tempel wieder auf „schläft“ (der Boss kann erneut besiegt werden) |
+| `/sift temple defeat <id>` | Tempel als besiegt markieren (Testhilfe bis zum Boss in alpha.42) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
 | `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung); er singt, weckt aber nicht (seit alpha.37) |
