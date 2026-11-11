@@ -257,7 +257,18 @@ wird nachgebildet:
   - die Blasen- und Spritz-Partikel (ersetzt durch Staub-Nebel über Quellen);
   - das Leuchten des Kessels;
   - Tropfstein füllt den Kessel nur wie bei Vanilla (nicht aus 13 Blöcken Höhe).
-- Außerhalb der Sift ist Ichor Wasser (Ichoreimer setzt Wasser).
+- **Ichor bleibt Ichor, Wasser bleibt Wasser (seit alpha.38, Entscheidung von Karl):** Im Original sind Ichor und
+  Wasser zwei Flüssigkeiten. Hier sind beide Vanilla-Wasser; welche Art ein Block hat, entscheidet
+  „in der Sift Ichor, sonst Wasser“, und nur Ausnahmen werden je Block in den Chunk-Daten markiert
+  (Wassereimer in der Sift, Ichoreimer außerhalb). Fließendes Wasser erbt die Art seines Ursprungs. Eimer,
+  Werfer, Flaschen, Kessel, Regeneration und Bremsung richten sich danach.
+  - **Aussehen:** Die Farbe kommt vom Biom und lässt sich nicht je Block ändern: Wasser in der Sift sieht lila
+    aus, Ichor in der Oberwelt blau.
+  - **Grenzen:** `/fill`, `/setblock`, WorldEdit und andere Plugins setzen Wasser ohne Markierung (es gilt dann
+    der Standard der Welt). Treffen zwei Ströme verschiedener Art zusammen, bestimmt der zuletzt fließende die
+    Art. Kolben verschieben kein Wasser; ein geschobener wassergeloggter Block verliert in 26.3 sein Wasser
+    (geprüft). Lava-Ergebnisse, Nebel und die Sniffer-Regel gelten nur in der Sift.
+  - Ichor und Wasser mischen sich im Kessel nicht: Eine Flasche der anderen Art wird abgewiesen.
 
 ## Siftit-Erhalt beim Tod (seit alpha.23)
 

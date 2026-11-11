@@ -301,6 +301,13 @@ ichor:
   # Glasflasche an einer Ichor-Quelle oder einem Kessel in der Sift ergibt eine Ichor-Flasche;
   # eine Ichor-Flasche füllt einen Kessel um eine Stufe
   bottles: true
+  # Identität (ab alpha.38): Standard ist „in der Sift Ichor, sonst Wasser“. Nur Ausnahmen werden je Block im Chunk
+  # gespeichert: Wasser aus einem Wassereimer in der Sift bleibt Wasser, Ichor aus einem Ichor-Eimer außerhalb bleibt
+  # Ichor (Regeneration, Bremsung, Eimer, Flasche, Kessel). Fließendes Wasser erbt die Art seines Ursprungs.
+  identity:
+    enabled: true
+    # Regeneration und Bremsung auch außerhalb der Sift in ausgegossenem Ichor (nur in Welten mit Markierungen)
+    outside-sift: true
   # Advancement „False Alarm“: ein geworfener Ichor-Schneeball trifft etwas in 16 Blöcken eines Wärters (ab alpha.26)
   false-alarm: true
   # Nebel-Partikel (Staub in Ichorfarben) über Ichor-Quellen nahe Spielern

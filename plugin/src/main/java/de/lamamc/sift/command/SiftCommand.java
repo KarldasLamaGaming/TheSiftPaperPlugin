@@ -156,6 +156,7 @@ public final class SiftCommand {
                         .then(Commands.literal("selftest").executes(this::debugSelfTest))
                         .then(Commands.literal("worldgen").executes(this::debugWorldgen))
                         .then(Commands.literal("ichor").executes(this::debugIchor)
+                                .then(Commands.literal("marks").executes(this::debugIchorMarks))
                                 .then(Commands.literal("scan").executes(ctx -> debugIchorScan(ctx, 4))
                                         .then(Commands.argument("chunks", IntegerArgumentType.integer(0, 8))
                                                 .executes(ctx -> debugIchorScan(ctx, IntegerArgumentType.getInteger(ctx, "chunks"))))))
@@ -621,6 +622,38 @@ public final class SiftCommand {
                         + "</white> (" + distance + " Blöcke) <click:run_command:'" + tp + "'><aqua>[Teleport]</aqua></click>");
             }
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * /sift debug ichor marks (alpha.38): the ichor identity marks per world, the timing of the flow handler and what
+     * the water at the sender's position is.
+     */
+    private int debugIchorMarks(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        var marks = plugin.fluidMarks();
+        if (marks == null) {
+            sender.sendRichMessage("<red>Ichor-Identität ist aus (ichor.identity.enabled).");
+            return 0;
+        }
+        for (var world : org.bukkit.Bukkit.getWorlds()) {
+            if (marks.count(world) > 0 || SiftWorlds.isSift(world)) {
+                sender.sendRichMessage("<gray>" + world.getKey() + ": <white>" + marks.count(world) + "</white> Markierungen in <white>"
+                        + marks.chunkCount(world) + "</white> geladenen Chunks");
+            }
+        }
+        var s = plugin.fluidIdentity().stats();
+        long flows = s.flows.get();
+        sender.sendRichMessage(String.format(java.util.Locale.ROOT,
+                "<gray>Fließen (BlockFromToEvent): <white>%d</white> Ereignisse, im Mittel <white>%.2f µs</white>, höchstens "
+                        + "<white>%.1f µs</white>; geerbt %d, entfernt %d; Eimer %d, Werfer %d, Kolben %d",
+                flows, flows == 0 ? 0 : s.flowNanos.get() / 1000.0 / flows, s.flowMaxNanos.get() / 1000.0,
+                s.inherited.get(), s.cleared.get(), s.buckets.get(), s.dispensers.get(), s.moved.get()));
+        var block = ctx.getSource().getLocation().getBlock();
+        sender.sendRichMessage("<gray>Hier (" + block.getX() + " " + block.getY() + " " + block.getZ() + ", " + block.getType().getKey().getKey()
+                + "): " + (de.lamamc.sift.world.ichor.FluidMarks.holdsWater(block)
+                ? (marks.ichor(block) ? "<light_purple>Ichor" : "<aqua>Wasser") + "<gray>" + (marks.marked(block) ? " (Ausnahme, markiert)" : " (Standard)")
+                : "kein Wasser" + (marks.marked(block) ? " (Markierung bleibt, z. B. Eis)" : "")));
         return Command.SINGLE_SUCCESS;
     }
 

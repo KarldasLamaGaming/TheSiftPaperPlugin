@@ -67,8 +67,8 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
   neuen Standardwerten abgleichen (u. a. `abandoned-portals.chance: 1.0`), #17 schließen.
 - Vor dem Go-live (Reihenfolge): alpha.36 Ichor A (gemergt) → alpha.37 Portale nur mit dem Schlüssel (Melodie und
   Weck-Funktion des Singers entfallen, gestaffelte Schlüssel-Rezepte, Antiker Resonator für die Antike Stadt,
-  `/sift portal lock`) → Welt- und Spieler-Reset → Go-live. Danach alpha.38: Ichor B (nur Ausnahmen markieren:
-  Wasser aus der Oberwelt bleibt in der Sift Wasser, Ichor bleibt in der Oberwelt Ichor).
+  `/sift portal lock`) → alpha.38 Ichor B (nur Ausnahmen markieren: Wasser aus der Oberwelt bleibt in der Sift
+  Wasser, Ichor bleibt in der Oberwelt Ichor; im PR) → Phase 4 (Plan folgt) → Welt- und Spieler-Reset → Go-live.
 - Boss-Items aus Phase 4 (Herz des Wächters, Drachenschuppe, Kern des Withers) lassen sich später ohne neuen PR als
   Zutaten in `portals.recipes` eintragen (`the_sift:<id>`); ein ungültiges Rezept fällt auf das eingebaute zurück.
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).
