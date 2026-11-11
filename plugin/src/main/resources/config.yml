@@ -1,6 +1,27 @@
 # The Sift – Konfiguration
 # Änderungen an Abschnitten, die beim Serverstart gelesen werden (markiert mit [Start]),
 # wirken erst nach einem Neustart.
+#
+# Inhalt (Abschnitte der obersten Ebene, in dieser Reihenfolge; Erklärungen in docs/ADMIN.md):
+#   custom-blocks   Platzieren, Abbau und Update-Schutz der Sift-Blöcke
+#   blocks          Härte, Werkzeug, Drops, Feuer je Sift-Block
+#   plant-support   Untergrund, auf dem Sift-Pflanzen stehen dürfen
+#   worldgen        Weltgenerierung der Sift (Bäume, Seen, Schluchten, Monolithen, Höhlen …) [Start]
+#   admin           Admin-Befehle mit Schutzschalter (Spieler-Reset)
+#   weather         Wetter und Ichor-Schneefall in der Sift
+#   atmosphere      Intro-Klang und Atmosphäre
+#   ichor           Ichor-Verhalten und Identität (Ichor bleibt Ichor, Wasser bleibt Wasser)
+#   rifts           Risse (Ein- und Ausgänge, Gegen-Risse)
+#   siftite         Siftit-Erhalt beim Tod
+#   access          Zeitsperre der Sift (Drachenkill, Datum, manuell)
+#   portals         Portale, Schreine, Schlüssel, Schlüssel-Rezepte, Kompass, Antike Stadt
+#   items           Werte der Sift-Items (Siftit-Ausrüstung, Essen, Getränke, Schallplatten)
+#   mobs            Sift-Mobs (Blub, Sifter, Singer, Dunkler Schnüffler, Echo Golem, Allays)
+#   recipes         Rezeptbuch beim Join
+#   resource-pack   Resource Pack (URL, Pflicht, Texte)
+#   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39); später Enchanter, Tempel, Bosse
+#
+# Neue Einstellungen eines Updates fügt das Plugin beim Start selbst hinzu; was schon in der Datei steht, bleibt.
 
 custom-blocks:
   # Eigene Blöcke nur in der Sift platzieren. Andere Welten brauchen dann die block-updates-Schalter nicht.
@@ -900,3 +921,33 @@ resource-pack:
   prompt: "<gold>The Sift</gold> <gray>braucht ein Resource Pack für Blöcke, Items und Texte.</gray>"
   kick-on-decline: "<red>Ohne das Resource Pack von The Sift kannst du hier nicht spielen.</red>\n<gray>Bitte nimm das Pack beim nächsten Verbinden an.</gray>"
   failed-message: "<red>Das Resource Pack von The Sift konnte nicht geladen werden.</red> <gray>Melde dich bitte bei einem Admin.</gray>"
+
+# Eigene Inhalte nach dem Original-Port (Phase 4, ab alpha.39). Gegliedert nach Thema: boss-items, später
+# enchanter, temples, bosses. Nichts davon gibt es im Original (siehe docs/ABWEICHUNGEN.md).
+phase4:
+  # Boss-Items aus den Vanilla-Bossen. Zutaten für den Sculk Enchanter (später) und als the_sift:<id> in
+  # portals.recipes nutzbar. Gegen Farmen: nur Spieler-Kills, Chance und Abklingzeit je Spieler.
+  boss-items:
+    enabled: true
+    # Herz des Wächters: jeder Wächter, den ein Spieler tötet
+    warden-heart:
+      enabled: true
+      item: warden_heart
+      chance: 1.0
+      amount: 1
+      # Stunden, bis derselbe Spieler wieder eins bekommt (0 = keine Abklingzeit)
+      cooldown-hours: 0
+    # Kern des Withers: jeder Wither, den ein Spieler tötet
+    wither-core:
+      enabled: true
+      item: wither_core
+      chance: 1.0
+      amount: 1
+      cooldown-hours: 0
+    # Drachenschuppe: jeder Spieler, der dem Enderdrachen Schaden gemacht hat (auch nach einer Wiederbelebung;
+    # die Endkristalle sind der Preis). min-damage-share: Mindestanteil am Schaden aller Spieler (0 = jeder Treffer)
+    dragon-scale:
+      enabled: true
+      item: dragon_scale
+      amount-per-player: 1
+      min-damage-share: 0.0

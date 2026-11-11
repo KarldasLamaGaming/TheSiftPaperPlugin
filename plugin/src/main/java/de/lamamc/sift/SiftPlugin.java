@@ -157,6 +157,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             getServer().getPluginManager().registerEvents(ichor, this);
             ichor.start();
         }
+        if (getConfig().getBoolean("phase4.boss-items.enabled", true)) {
+            getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.boss.BossDropListener(items,
+                    getConfig().getConfigurationSection("phase4.boss-items")), this);
+        }
         intro = new de.lamamc.sift.world.atmosphere.SiftIntro(getConfig().getConfigurationSection("atmosphere.intro-sound"));
         intro.start(this);
         allays = new de.lamamc.sift.mob.allay.AllaySpawner(getConfig().getConfigurationSection("mobs.allay"));

@@ -900,6 +900,51 @@ Wer OP ist, hat es automatisch; zum Testen ohne Bypass `lp user <Spieler> permis
 
 Texte stehen in `messages.yml` unter `access.*`.
 
+## Aufbau der config.yml (ab alpha.39)
+
+Die Abschnitte der obersten Ebene, in der Reihenfolge der Datei (dieselbe Übersicht steht als Kommentar am Anfang der
+`config.yml`). Umbenannt oder verschoben wird nichts; neue Einstellungen fügt das Plugin beim Start selbst hinzu.
+
+| Abschnitt | Inhalt | Hier beschrieben |
+|---|---|---|
+| `custom-blocks` | Platzieren, Abbau, Update-Schutz der Sift-Blöcke | Wie eigene Blöcke funktionieren |
+| `blocks` | Härte, Werkzeug, Drops, Feuer je Sift-Block | Drops und Erze |
+| `plant-support` | Untergrund für Sift-Pflanzen | Wie eigene Blöcke funktionieren |
+| `worldgen` | Weltgenerierung der Sift `[Start]` | Weltgenerierung |
+| `admin` | Admin-Befehle mit Schutzschalter (Spieler-Reset) | GOLIVE.md |
+| `weather` | Wetter und Ichor-Schneefall | Weltgenerierung → Wetter |
+| `atmosphere` | Intro-Klang | Weltgenerierung → Atmosphäre |
+| `ichor` | Ichor-Verhalten, Identität (ab alpha.38) | Ichor |
+| `rifts` | Risse | Risse |
+| `siftite` | Siftit-Erhalt beim Tod | Siftit-Erhalt beim Tod |
+| `access` | Zeitsperre der Sift | Zugang zur Sift |
+| `portals` | Portale, Schreine, Schlüssel und ihre Rezepte, Kompass, Antike Stadt | Portale |
+| `items` | Werte der Sift-Items | Items, Rezepte, Siftit |
+| `mobs` | Sift-Mobs | Mobs |
+| `recipes` | Rezeptbuch beim Join | Items, Rezepte, Siftit |
+| `resource-pack` | Resource Pack | Resource Pack |
+| `phase4` | Eigene Inhalte nach dem Original-Port: `boss-items` (ab alpha.39); später `enchanter`, `temples`, `bosses` | Boss-Items |
+
+## Boss-Items (Phase 4, ab alpha.39)
+
+Vier neue Items (episch, mit Glanz), Texturen aus `scripts/gen_boss_item_textures.py` (eigene PNGs gleichen Namens
+ersetzen sie):
+
+| Item | id | Woher (`phase4.boss-items`) |
+|---|---|---|
+| Herz des Wächters | `warden_heart` | jeder Wächter, den ein Spieler tötet (auch mit Pfeil) |
+| Kern des Withers | `wither_core` | jeder Wither, den ein Spieler tötet |
+| Drachenschuppe | `dragon_scale` | jeder Spieler, der dem Enderdrachen Schaden gemacht hat, bekommt eine ins Inventar (voll: vor die Füße) |
+| Golem-Trophäe (Arbeitstitel) | `golem_trophy` | später vom Boss „Großer Echo-Golem“ (alpha.42); bis dahin nur `/sift give` |
+
+- Je Item: `enabled`, `item`, `chance`, `amount` bzw. `amount-per-player`, `cooldown-hours` (Abklingzeit je Spieler,
+  0 = keine; gemerkt im Spieler unter `the_sift:boss_drop_<id>`), beim Drachen `min-damage-share`.
+- Gegen Farmen: kein Drop bei Tod durch Mobs, Lava, Befehle. Bei Wither-Farmen bei Bedarf `chance` senken oder
+  `cooldown-hours` setzen.
+- Der Drache zählt auch nach jeder Wiederbelebung mit Endkristallen.
+- Als Zutat in den Schlüssel-Rezepten: `the_sift:warden_heart` usw. in `portals.recipes` eintragen (Neustart).
+- Später Zutaten für den Sculk Enchanter (alpha.40).
+
 ## Befehle (`thesift.admin`)
 
 | Befehl | Wirkung |

@@ -94,7 +94,10 @@ class RecipeSpecTest {
         var config = new org.bukkit.configuration.file.YamlConfiguration();
         // a later boss item that does not exist yet, a vanilla typo, and a valid own recipe
         config.set("portals.recipes.echo_resonator", Map.of("type", "minecraft:crafting_shaped", "pattern", List.of("H"),
-                "key", Map.of("H", "the_sift:warden_heart"), "result", Map.of("id", "the_sift:echo_resonator")));
+                "key", Map.of("H", "the_sift:heart_of_a_future_boss"), "result", Map.of("id", "the_sift:echo_resonator")));
+        // a boss item (alpha.39) is a valid ingredient
+        config.set("portals.recipes.boss_key", Map.of("type", "minecraft:crafting_shaped", "pattern", List.of("H"),
+                "key", Map.of("H", "the_sift:warden_heart"), "result", Map.of("id", "the_sift:void_resonator")));
         config.set("portals.recipes.soul_ember_core", Map.of("type", "minecraft:crafting_shaped", "pattern", List.of("N"),
                 "key", Map.of("N", "minecraft:netherite_ingott"), "result", Map.of("id", "the_sift:soul_ember_core")));
         config.set("portals.recipes.void_resonator", Map.of("type", "minecraft:crafting_shapeless",
@@ -109,6 +112,8 @@ class RecipeSpecTest {
         assertTrue(vanilla(byName.get("soul_ember_core")).contains("minecraft:wither_skeleton_skull"), "typo: built-in recipe");
         assertEquals(RecipeSpec.Type.SHAPELESS, byName.get("void_resonator").type(), "a valid config recipe is taken");
         assertTrue(byName.get("my_key").skipped(), "no built-in recipe of that name: left out");
+        org.junit.jupiter.api.Assertions.assertFalse(byName.get("boss_key").skipped(), "boss items work as ingredients");
+        assertEquals(List.of("warden_heart"), byName.get("boss_key").key().get('H').siftItems());
         assertEquals(3, warnings.size(), warnings.toString());
     }
 

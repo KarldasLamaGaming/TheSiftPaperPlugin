@@ -896,6 +896,31 @@ Test in der Sift, Überlebensmodus. Werte unter `mobs.echo_golem`, Seelen-Singer
 - [ ] Kein Blöken, keine Schaf-Schritte; Schere (auch aus einem Werfer), Farbstoff, Weizen, Leine: nichts passiert.
 - [ ] Er frisst kein Gras und lässt keine Wolle fallen.
 
+## Boss-Items (ab alpha.39)
+
+Überlebensmodus, Schwierigkeit mindestens Leicht.
+```
+/sift give @s warden_heart
+/sift give @s dragon_scale
+/sift give @s wither_core
+/sift give @s golem_trophy
+/summon warden ~ ~ ~5
+/give @s netherite_sword
+/give @s soul_sand 4
+/give @s wither_skeleton_skull 3
+```
+- [ ] Die vier Items: eigene Textur, lila Name (episch), Glanz, stapelbar bis 16. Deutsche Namen „Herz des Wächters“,
+      „Drachenschuppe“, „Kern des Withers“, „Golem-Trophäe“.
+- [ ] Wächter selbst töten: Herz des Wächters liegt in den Drops.
+- [ ] Wächter per `/kill @e[type=warden]`: kein Herz.
+- [ ] Wither bauen (Seelensand + 3 Schädel) und töten: Kern des Withers in den Drops.
+- [ ] Enderdrache (mit zwei Spielern, beide treffen ihn): Jeder bekommt eine Drachenschuppe ins Inventar (Actionbar
+      „Du erhältst: Drachenschuppe“). Ein Spieler ohne Treffer bekommt keine. Drache mit 4 Endkristallen wiederbeleben
+      und erneut töten: wieder je eine.
+- [ ] `phase4.boss-items.wither-core.cooldown-hours: 24` (Neustart): zweiter Wither am selben Tag gibt keinen Kern.
+- [ ] Als Zutat: in `portals.recipes` z. B. beim Leere-Resonator `E: "the_sift:warden_heart"` eintragen, Neustart:
+      Rezeptbuch zeigt das Herz; keine Warnung „recipe … in config.yml“ im Log.
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.
