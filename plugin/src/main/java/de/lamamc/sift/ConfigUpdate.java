@@ -18,6 +18,8 @@ import org.bukkit.configuration.ConfigurationSection;
 public final class ConfigUpdate {
 
     private static final String RECIPES = "portals.recipes";
+    /** Sections whose recipes are never merged with a default (alpha.40: phase4.recipes). */
+    private static final List<String> RECIPE_ROOTS = List.of(RECIPES, "phase4.recipes");
 
     private ConfigUpdate() {
     }
@@ -52,8 +54,12 @@ public final class ConfigUpdate {
     /** Adds every default that is missing (with its comments), but nothing inside a recipe the config already has. */
     public static int addMissing(ConfigurationSection config, ConfigurationSection defaults) {
         int added = 0;
-        java.util.Set<String> ownRecipes = config.get(RECIPES, null) instanceof ConfigurationSection recipes
-                ? recipes.getKeys(false) : java.util.Set.of();
+        java.util.Set<String> ownRecipes = new java.util.HashSet<>();
+        for (String root : RECIPE_ROOTS) {
+            if (config.get(root, null) instanceof ConfigurationSection recipes) {
+                recipes.getKeys(false).forEach(name -> ownRecipes.add(root + "." + name));
+            }
+        }
         for (String path : defaults.getKeys(true)) {
             if (config.get(path, null) != null || insideOwnRecipe(ownRecipes, path)) {
                 continue;
@@ -75,12 +81,14 @@ public final class ConfigUpdate {
 
     /** Whether the path lies inside a recipe the config had before (those are never merged with a default). */
     private static boolean insideOwnRecipe(java.util.Set<String> ownRecipes, String path) {
-        if (!path.startsWith(RECIPES + ".")) {
-            return false;
+        for (String root : RECIPE_ROOTS) {
+            if (path.startsWith(root + ".")) {
+                String rest = path.substring(root.length() + 1);
+                int dot = rest.indexOf('.');
+                return dot >= 0 && ownRecipes.contains(root + "." + rest.substring(0, dot));
+            }
         }
-        String rest = path.substring(RECIPES.length() + 1);
-        int dot = rest.indexOf('.');
-        return dot >= 0 && ownRecipes.contains(rest.substring(0, dot));
+        return false;
     }
 
     private static Map<String, Object> leaves(ConfigurationSection section) {

@@ -943,7 +943,44 @@ ersetzen sie):
   `cooldown-hours` setzen.
 - Der Drache zählt auch nach jeder Wiederbelebung mit Endkristallen.
 - Als Zutat in den Schlüssel-Rezepten: `the_sift:warden_heart` usw. in `portals.recipes` eintragen (Neustart).
-- Später Zutaten für den Sculk Enchanter (alpha.40).
+- Zutaten für den Charoit-Kern und damit den Sculk Enchanter (alpha.40).
+
+## Sculk Enchanter (Phase 4, ab alpha.40)
+
+Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar mit `enabled: false`).
+
+- **Herstellen:**
+  1. Charoit-Kern (Arbeitstitel) herstellen. Rezept unter `phase4.recipes.charoite_core`: 5 Charoit, Herz des Wächters,
+     Drachenschuppe, Kern des Withers, Siftitbarren. Mehr als 5 Charoit passen nicht ins 3 × 3-Raster.
+  2. Mit dem Kern in der Hand Rechtsklick auf einen Zaubertisch, bei mindestens `ritual-levels` (30) Leveln. Kern und
+     Level werden verbraucht, der Tisch wird zum Sculk Enchanter (Partikel, Klang). Im Kreativmodus kostet es nichts.
+- **Aussehen:** wie ein Zaubertisch, darüber Sculk-Seelen. Welche Tische Enchanter sind, steht in den Chunk-Daten
+  (`the_sift:sculk_enchanters`). Ein eigener Block mit eigener Textur würde neue Blockzustände im Pack brauchen und ist
+  für später vorgemerkt (OFFENE-PUNKTE).
+- **Abbauen:** droppt das Item „Sculk Enchanter“ (eigene Textur), das wieder einen Enchanter setzt. Ein Enchanter, den
+  ein Befehl oder ein anderes Plugin entfernt, verliert seine Markierung, sobald ein Spieler in der Nähe ist; ein normaler
+  Zaubertisch an derselben Stelle ist nie ein Enchanter.
+- **Bedienung:** Rechtsklick öffnet ein Menü.
+  - Gegenstand links einlegen, Charoit rechts einlegen.
+  - Unten steht je steigerbarer Verzauberung ein Knopf mit der nächsten Stufe und den Kosten.
+  - Klicken steigert um eine Stufe.
+  - Beim Schließen kommt alles zurück ins Inventar.
+- **Regeln:**
+  - Gesteigert wird nur eine Verzauberung, die schon auf dem Vanilla-Maximum steht. Pro Schritt geht es eine Stufe
+    höher, höchstens bis Maximum + `max-bonus` (2).
+  - Höchstens `max-boosted-per-item` (2) Verzauberungen je Gegenstand liegen über dem Maximum.
+  - `single-level` werden nie gesteigert: Reparatur, Behutsamkeit, Unendlichkeit, Wasseraffinität, Entladung, Flamme,
+    Mehrfachschuss, beide Flüche.
+  - `whitelist` (leer = alle mehrstufigen).
+  - `max-bonus-per-enchantment`: Glück und Plünderung nur +1. Für PvP z. B. `sharpness: 1`, `protection: 0`, `power: 1`.
+  - Verzauberte Bücher nimmt das Menü nicht.
+- **Kosten:** `costs.plus-1` (8 Charoit, 15 Level) und `costs.plus-2` (16 Charoit, 30 Level).
+- **Amboss:** Mit `anvil-keeps-boost: true` behält ein gesteigerter Gegenstand seine Stufe beim Kombinieren; Vanilla würde
+  sie auf das Maximum kürzen. Der Schleifstein entfernt Verzauberungen wie üblich.
+- **Hinweis zur Wirkung:** Schutz über IV bringt durch die Vanilla-Obergrenze für Rüstungsschutz kaum mehr. Schärfe,
+  Effizienz, Haltbarkeit, Glück und Plünderung wirken mit jeder Stufe.
+- **Admin:** `/sift debug enchanter` macht den Zaubertisch an der eigenen Position zum Enchanter (ohne Ritual). Von der
+  Konsole aus: `/execute in <welt> positioned <x y z> run sift debug enchanter`.
 
 ## Befehle (`thesift.admin`)
 

@@ -921,6 +921,42 @@ Test in der Sift, Überlebensmodus. Werte unter `mobs.echo_golem`, Seelen-Singer
 - [ ] Als Zutat: in `portals.recipes` z. B. beim Leere-Resonator `E: "the_sift:warden_heart"` eintragen, Neustart:
       Rezeptbuch zeigt das Herz; keine Warnung „recipe … in config.yml“ im Log.
 
+## Sculk Enchanter (ab alpha.40)
+
+Überlebensmodus.
+```
+/sift give @s charoite 64
+/sift give @s warden_heart
+/sift give @s dragon_scale
+/sift give @s wither_core
+/sift give @s siftite_ingot
+/give @s enchanting_table
+/xp add @s 100 levels
+/give @s diamond_sword[enchantments={sharpness:5,unbreaking:3,mending:1}]
+/give @s diamond_pickaxe[enchantments={fortune:3,efficiency:5}]
+```
+- [ ] **Charoit-Kern:** Im Rezeptbuch steht er (5 Charoit, Herz, Schuppe, Kern, Siftitbarren); herstellen: eigene
+      Textur, lila Name.
+- [ ] **Ritual:**
+  - Zaubertisch setzen. Mit dem Kern in der Hand und unter 30 Leveln Rechtsklick: Hinweis „braucht 30 Erfahrungslevel“.
+  - Mit genug Leveln: Partikel und Klang, Kern weg, 30 Level weg. Über dem Tisch steigen Sculk-Seelen auf.
+- [ ] **Menü:**
+  - Rechtsklick öffnet „Sculk Enchanter“.
+  - Das Schwert einlegen: Knöpfe „Schärfe VI“ und „Haltbarkeit IV“ (kein Knopf für Reparatur).
+  - 8 Charoit rechts, Klick auf Schärfe VI: Schwert hat Schärfe VI, 8 Charoit und 15 Level weg.
+  - Nochmals: Schärfe VII kostet 16 Charoit, 30 Level.
+  - Danach kein Knopf mehr für Schärfe.
+- [ ] **Grenzen:**
+  - Schwert mit Schärfe VII und Haltbarkeit IV: keine dritte Verzauberung über dem Maximum.
+  - Spitzhacke: Glück nur bis IV, Effizienz bis VII.
+  - Nicht genug Charoit oder Level: Knopf rot, Klick tut nichts.
+- [ ] **Schließen:** Menü mit Gegenstand und Charoit darin schließen, beides ist wieder im Inventar.
+- [ ] **Abbau:** Enchanter abbauen, droppt „Sculk Enchanter“ (eigene Textur). Neu setzen: wieder Enchanter (Menü,
+      Partikel). Ein normaler Zaubertisch öffnet weiter das Vanilla-Menü.
+- [ ] **Amboss:** Schwert mit Schärfe VII + Buch Schärfe V: Ergebnis behält Schärfe VII.
+- [ ] **Neustart:** Der Enchanter bleibt einer.
+- [ ] **Abschalten:** `phase4.enchanter.enabled: false` + Neustart, danach ist der Tisch ein normaler Zaubertisch (Vanilla-Menü).
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.
