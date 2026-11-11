@@ -990,10 +990,12 @@ phase4:
     # Der fest verbaute Enchanter im Tempel (ab alpha.41a): erst nutzbar, wenn der Wächter des Tempels besiegt ist
     temple-enchanter:
       requires-defeat: true
-  # Tempel (ab alpha.41a) [Start]: genau count Tempel je Sift, auf einem Ring um 0/0, aus dem Seed berechnet (nur neue
-  # Chunks). Ein zerfallener Siftschiefer-Tempel (41 × 41) mit runder Arena und Seelen-Altar (Boss ab alpha.42), einer
-  # Halle mit festem Sculk Enchanter und zwei Truhen, sowie zwei versiegelten Kammern (Wither, Wächter) für spätere
-  # Prüfungen. Jeder Wächter lässt sich einmal besiegen (je Tempel). Andere Strukturen halten Abstand.
+  # Tempel (ab alpha.41a, Bastion ab alpha.41.1) [Start]: genau count Tempel je Sift, auf einem Ring um 0/0, aus dem Seed
+  # berechnet (nur neue Chunks). Eine zerfallene Bastion (Standard 81 × 81): Ringmauer mit Wehrgang, Rundtürme, Torhaus im
+  # Süden, Spalte mit Brücken zum erhöhten Kern; in der Mitte ein offener Schacht hinab zur Arena mit dem Seelen-Altar
+  # (Boss ab alpha.42). Darunter die Prüfungsebene: Ringgang mit Speichen, Kammern, die Schatzhalle mit festem Sculk
+  # Enchanter und zwei Truhen, sowie zwei versiegelte Prüfungsräume (Wither, Wächter). Jeder Wächter lässt sich einmal
+  # besiegen (je Tempel). Andere Strukturen halten Abstand.
   temples:
     enabled: true
     count: 10
@@ -1003,11 +1005,21 @@ phase4:
       max-radius: 3000
       # zufällige Abweichung vom gleichmäßigen Winkel, in Grad
       angle-jitter: 15
+    # Größe (ab alpha.41.1, nur für neu generierte Tempel): radius = halbe Seitenlänge des Hofs (40 bis 64, 40 = 81 × 81),
+    # Höhe der Mauern und der Ecktürme über dem Hof, Tiefe der Prüfungsebene unter dem Hof (16 bis 24)
+    size:
+      radius: 40
+      wall-height: 14
+      tower-height: 26
+      depth: 16
     # Zusätzlicher Abstand anderer Strukturen zur Tempelfläche, in Blöcken
     clearance: 8
+    # Teile eines Tempels, deren Chunk vor der Tempelmitte generiert wurde, baut das Plugin danach auf dem Main-Thread
+    # nach, sobald der Chunk geladen ist: so viele Chunks je Tick (ab alpha.41.1)
+    deferred-per-tick: 2
     # Tempelblöcke lassen sich bis zum Sieg nicht abbauen oder sprengen (Enchanter, Altar und Kammern immer)
     protect-until-defeated: true
-    # Beute der zwei Truhen (Datapack); Hinweise auf andere Tempel kommen später über diese Tabelle (alpha.41b)
+    # Beute der zwei Truhen in der Schatzhalle (Datapack)
     loot-table: "the_sift:chests/temple"
     # Text beim Rechtsklick auf den Seelen-Altar, solange es den Boss noch nicht gibt (alpha.42)
     altar-message: "Der Seelen-Altar schweigt noch."
