@@ -20,7 +20,7 @@
 #   recipes         Rezeptbuch beim Join
 #   resource-pack   Resource Pack (URL, Pflicht, Texte)
 #   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39), Sculk Enchanter (ab alpha.40),
-#                   Tempel (ab alpha.41a); später Bosse
+#                   Tempel (ab alpha.41a), Tempel-Kompass und Gerüchte-Zettel (ab alpha.41b); später Bosse
 #
 # Neue Einstellungen eines Updates fügt das Plugin beim Start selbst hinzu; was schon in der Datei steht, bleibt.
 
@@ -1009,6 +1009,30 @@ phase4:
     loot-table: "the_sift:chests/temple"
     # Text beim Rechtsklick auf den Seelen-Altar, solange es den Boss noch nicht gibt (alpha.42)
     altar-message: "Der Seelen-Altar schweigt noch."
+    # Sift-Kompass (ab alpha.41b): in der Sift wechselt Schleichen + Rechtsklick zwischen Hauptportal und dem nächsten
+    # Tempel, dessen Wächter noch schläft (auch noch nicht generierte). Besiegte Tempel zeigt er nicht.
+    compass:
+      enabled: true
+    # Gerüchte-Zettel (ab alpha.41b): Item "temple_rumor" mit Himmelsrichtung und gerundeter Entfernung vom Fundort zum
+    # nächsten schlafenden Tempel (nie zum eigenen). Nur in der Sift; außerhalb und bei ausgeschalteten Tempeln wird
+    # er aus der Beute genommen.
+    hints:
+      enabled: true
+      # Loot-Tabelle -> Chance auf einen Zettel je Truhe (0 bis 1). Eine eigene Loot-Tabelle im Datapack kann den
+      # Zettel auch selbst enthalten (Papier mit custom_data the_sift:id = temple_rumor).
+      chests:
+        "the_sift:chests/abandoned_portal": 0.35
+        "the_sift:chests/temple": 0.6
+      # Entfernung auf ein Vielfaches davon gerundet, in Blöcken
+      distance-step: 100
+      # Zeilen des Zettels (MiniMessage), <direction> = Himmelsrichtung, <distance> = Entfernung
+      text:
+        - "<gray>Ein Gerücht aus der Sift:"
+        - "<dark_aqua>Ein schlafender Tempel liegt etwa <white><distance></white> Blöcke im <white><direction></white>."
+      # Zeilen, wenn alle Tempel besiegt sind
+      all-defeated:
+        - "<gray>Ein Gerücht aus der Sift:"
+        - "<dark_aqua>Alle Tempel sind verstummt."
   # Rezepte der Phase-4-Items (Format wie portals.recipes, Rückfall auf das eingebaute Rezept bei Fehlern)
   recipes:
     # Charoit-Kern (Arbeitstitel): 5 Charoit, Herz des Wächters, Drachenschuppe, Kern des Withers, Siftitbarren
