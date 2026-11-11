@@ -69,6 +69,8 @@ blocks:
   ichor_snow_block: {hardness: 0.2, tool: shovel, requires-tool: true, drops: {type: silk-or, item: "the_sift:ichor_snowball", min: 4, max: 4}, fallback: "minecraft:snow_block"}
   soul_block: {hardness: 0.35, tool: shovel, drops: {type: none}, fallback: "minecraft:soul_soil"}
   # Sculk Enchanter (Phase 4, ab alpha.40.1): eigener Block, abbaubar mit der Spitzhacke, droppt sich selbst
+  siftite_block: {hardness: 5.0, tool: pickaxe, requires-tool: true, drops: {type: self}, fallback: "minecraft:iron_block"}
+  charoite_block: {hardness: 4.0, tool: pickaxe, requires-tool: true, drops: {type: self}, fallback: "minecraft:amethyst_block"}
   sculk_enchanter: {hardness: 5.0, tool: pickaxe, requires-tool: true, explosion-proof: true, drops: {type: self}, fallback: "minecraft:enchanting_table"}
   healthy_sculk: {hardness: 0.2, tool: hoe, drops: {type: self}, fallback: "minecraft:sculk"}
   dry_healthy_sculk: {hardness: 0.2, tool: hoe, drops: {type: self}, fallback: "minecraft:sculk"}

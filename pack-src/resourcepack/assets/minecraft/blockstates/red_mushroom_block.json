@@ -18,7 +18,7 @@
       "model": "the_sift:block/vanilla/red_mushroom_block_d_____"
     },
     "down=false,east=true,north=false,south=false,up=false,west=false": {
-      "model": "the_sift:block/vanilla/red_mushroom_block__e____"
+      "model": "the_sift:block/charoite_block"
     },
     "down=true,east=true,north=false,south=false,up=false,west=false": {
       "model": "the_sift:block/vanilla/red_mushroom_block_de____"
@@ -146,7 +146,7 @@
       "model": "the_sift:block/vanilla/red_mushroom_block_den__w"
     },
     "down=false,east=false,north=false,south=true,up=false,west=true": {
-      "model": "the_sift:block/vanilla/red_mushroom_block____s_w"
+      "model": "the_sift:block/siftite_block"
     },
     "down=true,east=false,north=false,south=true,up=false,west=true": {
       "model": "the_sift:block/vanilla/red_mushroom_block_d__s_w"

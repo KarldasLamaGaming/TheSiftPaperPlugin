@@ -283,5 +283,9 @@
   "item.the_sift.golem_trophy": "Golem-Trophäe",
   "item.the_sift.charoite_core": "Charoit-Kern",
   "item.the_sift.sculk_enchanter": "Sculk Enchanter",
-  "item.the_sift.temple_rumor": "Gerücht vom Tempel"
+  "item.the_sift.temple_rumor": "Gerücht vom Tempel",
+  "block.the_sift.siftite_block": "Siftit-Block",
+  "item.the_sift.siftite_block": "Siftit-Block",
+  "block.the_sift.charoite_block": "Charoit-Block",
+  "item.the_sift.charoite_block": "Charoit-Block"
 }
