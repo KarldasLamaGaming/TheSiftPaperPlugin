@@ -1040,6 +1040,21 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
   `lp user <spieler> permission set thesift.temple.bypass true`.
 - **Fest verbauter Enchanter:** wie ein hergestellter (Kristall, Menü), aber mit
   `phase4.enchanter.temple-enchanter.requires-defeat: true` erst nach dem Sieg nutzbar; vorher meldet er das.
+- **Sift-Kompass zu den Tempeln (ab alpha.41b, `compass.enabled`):** In der Sift wechselt Schleichen + Rechtsklick mit
+  dem Kompass zwischen „Hauptportal“ und „nächster Tempel, dessen Wächter noch schläft“; auch noch nicht generierte Plätze
+  zählen. Die Actionbar zeigt „Tempel: N Blöcke“, sonst nichts; sind alle besiegt, „Alle Tempel sind verstummt“ und die
+  Nadel dreht sich. Der Modus bleibt am Kompass gespeichert; außerhalb der Sift zeigt er wie bisher auf Portale.
+- **Gerüchte-Zettel (ab alpha.41b, `hints`):** Item „Gerücht vom Tempel“ (`temple_rumor`). Beim Erzeugen der Beute
+  schreibt das Plugin Himmelsrichtung und Entfernung (auf `distance-step` = 100 gerundet) vom Fundort zum nächsten
+  schlafenden Tempel hinein, nie zum Tempel, in dem die Truhe steht. Der Text ist zum Zeitpunkt des Fundes richtig und
+  ändert sich danach nicht.
+  - Wo: `hints.chests` (Loot-Tabelle → Chance je Truhe), Standard verlassene Portale 35 %, Tempeltruhen 60 %. Weitere
+    Tabellen einfach dazuschreiben. Eine eigene Datapack-Tabelle kann den Zettel auch selbst enthalten (Papier mit
+    `custom_data` `the_sift:id = temple_rumor`, wie die anderen Sift-Items).
+  - Text: `hints.text` und `hints.all-defeated` (MiniMessage, `<direction>`, `<distance>`).
+  - Nur in der Sift; außerhalb und bei ausgeschalteten Tempeln nimmt das Plugin den Zettel aus der Beute.
+  - Textur: `scripts/gen_temple_rumor_texture.py` (Zettel mit Tempelbogen und Charoit-Siegel); eigene PNG gleichen
+    Namens unter `textures/item/temple_rumor.png` ersetzt sie (danach neues Release).
 - **Zeit beim Generieren:** gemessen je Tempel; `/sift temple sites` zeigt Mittel und Maximum seit dem Start
   (Smoke-Test: 3,7 ms im Mittel, höchstens 5,6 ms).
 
