@@ -927,8 +927,15 @@ Die Abschnitte der obersten Ebene, in der Reihenfolge der Datei (dieselbe Übers
 
 ## Boss-Items (Phase 4, ab alpha.39)
 
-Vier neue Items (episch, mit Glanz), Texturen aus `scripts/gen_boss_item_textures.py` (eigene PNGs gleichen Namens
-ersetzen sie):
+Vier neue Items (episch, mit Glanz). Seit alpha.40.2 sind sie, wie der Charoit-Kern, **3D-Modelle** aus Blöcken.
+Das gilt im Inventar, in der Hand, am Boden und im Item-Rahmen:
+- Wächter, Wither, Drache: massiv, wie rohe Boss-Drops.
+- Golem-Trophäe und Charoit-Kern: veredelt, in Siftit gefasst.
+- Erzeugt von `scripts/gen_item_models_3d.py`: Modelle, Item-Definitionen und Materialtexturen unter
+  `textures/item/m3d/`.
+- Die flachen Bilder aus `scripts/gen_boss_item_textures.py` dienen nur noch als Partikeltextur.
+- Eigene PNGs gleichen Namens ersetzen Material oder Partikel; für neue Formen das Skript ändern oder eigene
+  Blockbench-Modelle unter `models/item/<id>.json` ablegen. Danach neues Release.
 
 | Item | id | Woher (`phase4.boss-items`) |
 |---|---|---|
@@ -957,7 +964,9 @@ Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar m
 - **Aussehen (ab alpha.40.1, `block-style: block`):**
   - Eigener Block: oben ein violetter Charoit-Runenkreis auf Sculk, an den Seiten ein leuchtendes seelenblaues
     Gravurband über Siftschiefer-Mauerwerk, darunter Sculk-Adern; unten schlicht.
-  - Darüber dreht sich langsam ein Charoit-Kristall (`floating-crystal`), dazu Sculk-Seelen.
+  - Darüber dreht sich langsam ein Charoit-Kristall (`floating-crystal`), dazu Sculk-Seelen. Seit alpha.40.2 ein
+    facettiertes Kristallbündel (3D, Modell `models/item/enchanter_crystal.json`). Es ist das Charoit-Kern-Item im
+    Anzeigemodus von Item-Displays; die Item-Definition des Kerns wählt dafür das Kristallmodell.
   - Das Item zeigt den Block als Würfel, in der Hand, im Inventar und im Rezeptbuch.
   - Technik: ein freier Zustand des roten Pilzblocks. Der Kristall ist ein Item-Display, das nicht gespeichert wird: Er
     entsteht beim Laden des Chunks neu und verschwindet beim Entladen und beim Stoppen.
