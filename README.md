@@ -12,7 +12,7 @@ Dieses Projekt ist keine Portierung, sondern eine Neuumsetzung für Paper
 (ohne Client-Mod, mit Resource Pack). Texturen, Modelle, Sounds und Daten der
 Original-Mod werden unter der MIT-Lizenz mit Namensnennung wiederverwendet.
 
-Status: Phase 1 in Arbeit (Dimension, eigene Blöcke und Resource Pack laufen).
+Status: Phase 4 (Hinzufügen von Custom-Features und neuen Inhalten).
 
 ## Aufbau
 
