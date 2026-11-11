@@ -127,6 +127,7 @@ public final class SiftCommand {
                 .then(mobCommand().spawnNode().requires(SiftCommand::admin))
                 .then(accessCommand().node().requires(SiftCommand::admin))
                 .then(new RiftCommand(plugin.rifts()).node().requires(source -> admin(source) && plugin.rifts() != null))
+                .then(new TempleCommand(plugin).node().requires(SiftCommand::admin))
                 .then(new SiftiteCommand(plugin.siftiteKeeper()).node().requires(source -> admin(source) && plugin.siftiteKeeper() != null))
                 .then(accessCommand().openShortcut().requires(SiftCommand::admin))
                 .then(accessCommand().closeShortcut().requires(SiftCommand::admin))

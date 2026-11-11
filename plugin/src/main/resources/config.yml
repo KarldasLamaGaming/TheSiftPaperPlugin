@@ -19,8 +19,8 @@
 #   mobs            Sift-Mobs (Blub, Sifter, Singer, Dunkler Schnüffler, Echo Golem, Allays)
 #   recipes         Rezeptbuch beim Join
 #   resource-pack   Resource Pack (URL, Pflicht, Texte)
-#   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39), Sculk Enchanter (ab alpha.40);
-#                   später Tempel, Bosse
+#   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39), Sculk Enchanter (ab alpha.40),
+#                   Tempel (ab alpha.41a); später Bosse
 #
 # Neue Einstellungen eines Updates fügt das Plugin beim Start selbst hinzu; was schon in der Datei steht, bleibt.
 
@@ -985,6 +985,30 @@ phase4:
       looting: 1
     # Amboss: gesteigerte Stufen bleiben beim Kombinieren erhalten (Vanilla würde sie auf das Maximum kürzen)
     anvil-keeps-boost: true
+    # Der fest verbaute Enchanter im Tempel (ab alpha.41a): erst nutzbar, wenn der Wächter des Tempels besiegt ist
+    temple-enchanter:
+      requires-defeat: true
+  # Tempel (ab alpha.41a) [Start]: genau count Tempel je Sift, auf einem Ring um 0/0, aus dem Seed berechnet (nur neue
+  # Chunks). Ein zerfallener Siftschiefer-Tempel (41 × 41) mit runder Arena und Seelen-Altar (Boss ab alpha.42), einer
+  # Halle mit festem Sculk Enchanter und zwei Truhen, sowie zwei versiegelten Kammern (Wither, Wächter) für spätere
+  # Prüfungen. Jeder Wächter lässt sich einmal besiegen (je Tempel). Andere Strukturen halten Abstand.
+  temples:
+    enabled: true
+    count: 10
+    # Abstand zu 0/0 in Blöcken; eine kleinere Weltgrenze der Sift zieht den Ring nach innen (Warnung im Log)
+    ring:
+      min-radius: 1500
+      max-radius: 3000
+      # zufällige Abweichung vom gleichmäßigen Winkel, in Grad
+      angle-jitter: 15
+    # Zusätzlicher Abstand anderer Strukturen zur Tempelfläche, in Blöcken
+    clearance: 8
+    # Tempelblöcke lassen sich bis zum Sieg nicht abbauen oder sprengen (Enchanter, Altar und Kammern immer)
+    protect-until-defeated: true
+    # Beute der zwei Truhen (Datapack); Hinweise auf andere Tempel kommen später über diese Tabelle (alpha.41b)
+    loot-table: "the_sift:chests/temple"
+    # Text beim Rechtsklick auf den Seelen-Altar, solange es den Boss noch nicht gibt (alpha.42)
+    altar-message: "Der Seelen-Altar schweigt noch."
   # Rezepte der Phase-4-Items (Format wie portals.recipes, Rückfall auf das eingebaute Rezept bei Fehlern)
   recipes:
     # Charoit-Kern (Arbeitstitel): 5 Charoit, Herz des Wächters, Drachenschuppe, Kern des Withers, Siftitbarren
