@@ -57,13 +57,13 @@ public final class TempleBuilder {
 
     /** Where a part is built: the worldgen region or the loaded world (deferred parts, rebuild). */
     public interface Canvas {
-        /** y of the topmost solid block (ocean floor: water does not count). */
-        int groundY(int x, int z);
-
         /** y of the topmost block of any kind. */
         int surfaceY(int x, int z);
 
         boolean isAir(int x, int y, int z);
+
+        /** Solid ground a foundation can rest on (not air, not a fluid, not a plant). */
+        boolean isSolid(int x, int y, int z);
 
         void set(int x, int y, int z, BlockData data);
 
@@ -142,6 +142,11 @@ public final class TempleBuilder {
     /** Half side of the area a temple touches (footprint plus the cut-back slope). */
     public int reach() {
         return params.extent() + SLOPE;
+    }
+
+    /** Computes all plans ahead (pure, off the main thread), so no chunk pays for it while generating. */
+    public void prepare() {
+        sites.forEach(this::packed);
     }
 
     /** The plan of a site (the same for every call). */
@@ -270,17 +275,18 @@ public final class TempleBuilder {
                     continue;
                 }
                 // clear above the court; outside the footprint as a slope that rises away from the temple
+                // (the worldgen heightmap does not know plants placed by features: always sweep up past the tower tops)
                 int from = floorY + Math.max(0, out) * 2;
-                int to = Math.min(maxY - 1, Math.min(floorY + MAX_CLEAR, canvas.surfaceY(x, z)));
+                int to = Math.min(maxY - 1, Math.min(floorY + MAX_CLEAR, Math.max(canvas.surfaceY(x, z) + 3, floorY + params.top() + 4)));
                 for (int y = Math.max(from, minY); y <= to; y++) {
                     if (!canvas.isAir(x, y, z)) {
                         canvas.set(x, y, z, air);
                     }
                 }
-                // foundation under everything that stands on the court
+                // foundation under everything that stands on the court: from below the court floor down to the first solid
+                // block (also fills a cave or a lake right below the court)
                 if (out <= 0 && plan.standing().contains(TempleLayout.column(dx, dz))) {
-                    int ground = canvas.groundY(x, z);
-                    for (int y = floorY - 2; y > ground && y >= Math.max(minY, floorY - 2 - MAX_FOUNDATION); y--) {
+                    for (int y = floorY - 2; y >= Math.max(minY, floorY - 2 - MAX_FOUNDATION) && !canvas.isSolid(x, y, z); y--) {
                         canvas.set(x, y, z, foundation);
                     }
                 }
@@ -316,11 +322,6 @@ public final class TempleBuilder {
         }
 
         @Override
-        public int groundY(int x, int z) {
-            return region.height(HeightMap.OCEAN_FLOOR_WG, x, z) - 1;
-        }
-
-        @Override
         public int surfaceY(int x, int z) {
             return region.height(HeightMap.WORLD_SURFACE_WG, x, z) - 1;
         }
@@ -328,6 +329,11 @@ public final class TempleBuilder {
         @Override
         public boolean isAir(int x, int y, int z) {
             return region.isAir(x, y, z);
+        }
+
+        @Override
+        public boolean isSolid(int x, int y, int z) {
+            return region.type(x, y, z).isSolid();
         }
 
         @Override

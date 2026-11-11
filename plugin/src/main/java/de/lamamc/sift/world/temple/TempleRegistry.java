@@ -471,6 +471,8 @@ public final class TempleRegistry implements Listener {
         int columns = 0;
         int foreign = 0;
         int unloaded = 0;
+        Map<String, Integer> kinds = new java.util.TreeMap<>();
+        String example = null;
         Set<Long> standing = TempleLayout.standingColumns(plan);
         int ext = builder.params().extent();
         for (int dx = -ext; dx <= ext; dx++) {
@@ -495,6 +497,12 @@ public final class TempleRegistry implements Listener {
                         Block b = sift.getBlockAt(x, t.y() + y, z);
                         if (planned == null && !b.getType().isAir() && !templeMaterial(b, false)) {
                             foreign++;
+                            CustomBlock custom = blocks.at(b);
+                            kinds.merge(custom != null ? custom.id() : b.getType().getKey().getKey(), 1, Integer::sum);
+                            if (example == null) {
+                                example = b.getX() + " " + b.getY() + " " + b.getZ() + " auf "
+                                        + sift.getBlockAt(b.getX(), b.getY() - 1, b.getZ()).getBlockData().getAsString();
+                            }
                         }
                     }
                 }
@@ -502,6 +510,10 @@ public final class TempleRegistry implements Listener {
         }
         out.add("Säulen auf dem Hof: " + columns + ", davon schwebend " + floating + "; fremde Blöcke über dem Hof " + foreign
                 + (unloaded > 0 ? " (" + unloaded + " Säulen nicht geladen)" : ""));
+        if (!kinds.isEmpty()) {
+            out.add("Fremd: " + kinds.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(5)
+                    .map(e -> e.getKey() + " " + e.getValue()).collect(Collectors.joining(", ")) + " (z. B. " + example + ")");
+        }
         return out;
     }
 
@@ -603,11 +615,6 @@ public final class TempleRegistry implements Listener {
         }
 
         @Override
-        public int groundY(int x, int z) {
-            return world.getHighestBlockYAt(x, z, HeightMap.OCEAN_FLOOR);
-        }
-
-        @Override
         public int surfaceY(int x, int z) {
             return world.getHighestBlockYAt(x, z, HeightMap.WORLD_SURFACE);
         }
@@ -615,6 +622,11 @@ public final class TempleRegistry implements Listener {
         @Override
         public boolean isAir(int x, int y, int z) {
             return world.getBlockAt(x, y, z).getType().isAir();
+        }
+
+        @Override
+        public boolean isSolid(int x, int y, int z) {
+            return world.getBlockAt(x, y, z).getType().isSolid();
         }
 
         @Override

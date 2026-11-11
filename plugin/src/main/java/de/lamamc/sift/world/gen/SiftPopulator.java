@@ -165,8 +165,10 @@ public final class SiftPopulator extends BlockPopulator {
     }
 
     private void populate(GenRegion region, Random random, int chunkX, int chunkZ, long seed) {
-        if (temples != null) {
+        if (temples != null && temples.siteAt(chunkX, chunkZ) != null) {
+            // a temple's chunk: no trees, plants, sculk or springs of the later steps on the court (alpha.41.1)
             temples.populate(region, random, chunkX, chunkZ);
+            return;
         }
         int centerX = (chunkX << 4) + 8;
         int centerZ = (chunkZ << 4) + 8;

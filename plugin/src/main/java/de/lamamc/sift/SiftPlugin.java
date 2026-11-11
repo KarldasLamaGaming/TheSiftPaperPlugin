@@ -521,11 +521,12 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         org.bukkit.NamespacedKey lootKey = org.bukkit.NamespacedKey.fromString(c.getString("loot-table", "the_sift:chests/temple"));
         var builder = new de.lamamc.sift.world.temple.TempleBuilder(world.getSeed(), sites, params,
                 lootKey == null ? null : getServer().getLootTable(lootKey), blocks);
+        getServer().getScheduler().runTaskAsynchronously(this, builder::prepare);
         reservation.reserveTemples(builder.reservedAreas(clearance));
         siftPopulator.temples(builder);
         temples = new de.lamamc.sift.world.temple.TempleRegistry(this, blocks, builder, c.getBoolean("protect-until-defeated", true),
                 getConfig().getBoolean("phase4.enchanter.temple-enchanter.requires-defeat", true),
-                c.getString("altar-message", "Der Seelen-Altar schweigt noch."), c.getInt("deferred-per-tick", 2));
+                c.getString("altar-message", "Der Seelen-Altar schweigt noch."), c.getInt("deferred-per-tick", 1));
         getServer().getPluginManager().registerEvents(temples, this);
         temples.start(world);
         if (enchanters != null) {

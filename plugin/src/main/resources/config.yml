@@ -1016,7 +1016,7 @@ phase4:
     clearance: 8
     # Teile eines Tempels, deren Chunk vor der Tempelmitte generiert wurde, baut das Plugin danach auf dem Main-Thread
     # nach, sobald der Chunk geladen ist: so viele Chunks je Tick (ab alpha.41.1)
-    deferred-per-tick: 2
+    deferred-per-tick: 1
     # Tempelblöcke lassen sich bis zum Sieg nicht abbauen oder sprengen (Enchanter, Altar und Kammern immer)
     protect-until-defeated: true
     # Beute der zwei Truhen in der Schatzhalle (Datapack)

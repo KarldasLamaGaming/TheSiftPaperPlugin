@@ -93,6 +93,7 @@ public final class TempleLayout {
     static final String AIR = "air";
     static final String FLOOR = "minecraft:polished_deepslate";
     static final String GRID = "minecraft:deepslate_tiles";
+    static final String CRACKED = "minecraft:cracked_deepslate_tiles";
     static final String SLAB = "minecraft:deepslate_brick_slab[type=bottom]";
     static final String WALL = "minecraft:deepslate_brick_wall";
     static final String BARS = "minecraft:iron_bars";
@@ -110,7 +111,7 @@ public final class TempleLayout {
     public static final List<String> PALETTE = List.of(BRICKS, CHISELED, REINFORCED, COBBLED, GROWTH, SOUL, ENCHANTER, SIFTITE,
             CHAROITE, SCULK, ICHOR_GLASS);
     /** Vanilla materials of the temple (protected like the palette inside the temple). */
-    public static final List<String> VANILLA = List.of("polished_deepslate", "deepslate_tiles", "deepslate_brick_slab",
+    public static final List<String> VANILLA = List.of("polished_deepslate", "deepslate_tiles", "cracked_deepslate_tiles", "deepslate_brick_slab",
             "deepslate_brick_wall", "deepslate_brick_stairs", "iron_bars", "iron_chain", "soul_lantern", "chest");
 
     private static final Set<String> NOT_WEATHERED = Set.of(ENCHANTER, CHEST, SOUL, CHAROITE, SIFTITE, REINFORCED, CHAIN, LANTERN,
@@ -203,9 +204,13 @@ public final class TempleLayout {
             }
         }
 
+        /**
+         * Vanilla deepslate on purpose: the Sift's plant features grow on every mushroom-stem state (all Sift masonry), and
+         * neighbour chunks decorated after a temple part would sow them over the court.
+         */
         String courtFloor() {
             double v = rnd.nextDouble();
-            return v < 0.05 ? COBBLED : v < 0.08 ? GROWTH : v < 0.30 ? FLOOR : BRICKS;
+            return v < 0.12 ? CRACKED : v < 0.45 ? GRID : FLOOR;
         }
 
         // ------------------------------------------------------------------------------------------- above
@@ -243,9 +248,9 @@ public final class TempleLayout {
             for (int i = 0; i < 160; i++) {
                 int x = rnd.nextInt(-r, r + 1);
                 int z = rnd.nextInt(-r, r + 1);
-                for (int y = -1; y < 4; y++) {
+                for (int y = 0; y < 4; y++) {
                     String v = get(x, y, z);
-                    if (BRICKS.equals(v) || FLOOR.equals(v)) {
+                    if (BRICKS.equals(v)) {
                         set(x, y, z, SCULK, keep.contains(new Pos(x, y, z)));
                     }
                 }
