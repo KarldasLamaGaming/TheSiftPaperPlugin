@@ -49,10 +49,9 @@ items:
   dragon_scale: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
   wither_core: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
   golem_trophy: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
-  # Sculk Enchanter (alpha.40): the Charoit-Kern (working title) turns an enchanting table into one in a ritual; the
-  # enchanter item places one again (it is an enchanting table marked in the chunk data)
+  # Sculk Enchanter (alpha.40): the Charoit-Kern (working title) turns an enchanting table into one in a ritual. Since
+  # alpha.40.1 the enchanter is an own block (block-mapping, red mushroom block state); its item comes with the block.
   charoite_core: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
-  sculk_enchanter: {category: misc, base: "minecraft:enchanting_table", protect: true}
   # spawn eggs of the Sift mobs (phase 2), one per finished mob
   blub_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
   sifter_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}

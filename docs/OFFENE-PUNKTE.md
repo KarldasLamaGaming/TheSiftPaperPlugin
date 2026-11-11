@@ -68,11 +68,12 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
 - Vor dem Go-live (Reihenfolge): alpha.36 Ichor A (gemergt) → alpha.37 Portale nur mit dem Schlüssel (Melodie und
   Weck-Funktion des Singers entfallen, gestaffelte Schlüssel-Rezepte, Antiker Resonator für die Antike Stadt,
   `/sift portal lock`) → alpha.38 Ichor B (nur Ausnahmen markieren: Wasser aus der Oberwelt bleibt in der Sift
-  Wasser, Ichor bleibt in der Oberwelt Ichor) → Phase 4: alpha.39 Boss-Items → alpha.40 Sculk Enchanter (im PR) →
+  Wasser, Ichor bleibt in der Oberwelt Ichor) → Phase 4: alpha.39 Boss-Items → alpha.40 Sculk Enchanter →
+  alpha.40.1 eigener Enchanter-Block mit Kristall (im PR) →
   alpha.41 Tempel (letzte Worldgen-Änderung) → Welt- und Spieler-Reset → Go-live → alpha.42 Boss „Großer Echo-Golem“
   als Update (bis dahin schläft der Altar). Offen vor alpha.42: Namen für Golem-Trophäe und Charoit-Kern (Karl).
-- Später, optional: eigener Block mit eigener Textur für den Sculk Enchanter (braucht neue Blockzustände im Pack,
-  packgen-Mapping); bis dahin ein markierter Zaubertisch.
+- Bedrock-Optik für Sift-Blöcke (auch den Sculk Enchanter) bräuchte Geyser-Mappings und ein Bedrock-Pack; bisher
+  sehen Bedrock-Spieler die Ersatzblöcke (Pilzblöcke), die Funktion bleibt gleich.
 - Boss-Items aus Phase 4 (Herz des Wächters, Drachenschuppe, Kern des Withers) lassen sich später ohne neuen PR als
   Zutaten in `portals.recipes` eintragen (`the_sift:<id>`); ein ungültiges Rezept fällt auf das eingebaute zurück.
 - Schritt 6a: Seelenschluchten fertig (alpha.18/18.1).

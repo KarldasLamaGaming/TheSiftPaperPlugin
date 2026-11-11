@@ -67,10 +67,11 @@ public final class Main {
                     german(out.resolve("resourcepack-overlay/assets/the_sift/lang/de_de.json")));
             Path pack = out.resolve("resourcepack");
             importAssets(zip, report, pack);
-            writeBlockstateOverrides(zip, client, mapping, report, pack);
+            Path overlay = out.resolve("resourcepack-overlay");
+            writeBlockstateOverrides(zip, client, mapping, report, pack, overlay);
             deleteTree(out.resolve("mob-data"));
             MobRigImporter.run(zip, pack, out.resolve("mob-data"), report);
-            new PackValidator(pack, path -> client.getEntry(path) != null, report).validate();
+            new PackValidator(pack, overlay, path -> client.getEntry(path) != null, report).validate();
         }
         writeResolvedMapping(mapping, out.resolve("block-mapping.json"));
         if (options.containsKey("--vanilla-blocks")) {
@@ -243,15 +244,30 @@ public final class Main {
         }
     }
 
+    /**
+     * Blockstate overrides. A block of the mod takes its blockstate from the jar; an own block of the plugin (not in
+     * the original, e.g. the Sculk Enchanter of alpha.40.1) from the overlay ({@code assets/the_sift/blockstates}).
+     */
     private static void writeBlockstateOverrides(ZipFile mod, ZipFile client, BlockMapping mapping,
-                                                 ImportReport report, Path pack) throws IOException {
+                                                 ImportReport report, Path pack, Path overlay) throws IOException {
         deleteTree(pack.resolve("assets/minecraft"));
-        BlockstateOverrides overrides = new BlockstateOverrides(mapping,
-                id -> readJsonEntry(mod, ASSET_PREFIX + "blockstates/" + id + ".json"), report);
+        BlockstateOverrides overrides = new BlockstateOverrides(mapping, id -> {
+            JsonObject fromMod = readJsonEntry(mod, ASSET_PREFIX + "blockstates/" + id + ".json");
+            Path own = overlay.resolve(ASSET_PREFIX + "blockstates/" + id + ".json");
+            return fromMod != null || !Files.isRegularFile(own) ? fromMod : readJsonFile(own);
+        }, report);
         Map<String, JsonElement> files = overrides.generate(
                 block -> readJsonEntry(client, "assets/minecraft/blockstates/" + block + ".json"));
         for (var e : files.entrySet()) {
             writeJson(pack.resolve(e.getKey()), e.getValue());
+        }
+    }
+
+    private static JsonObject readJsonFile(Path file) {
+        try {
+            return JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
         }
     }
 

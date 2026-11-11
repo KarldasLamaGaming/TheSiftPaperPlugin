@@ -41,16 +41,19 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 /**
- * Sculk Enchanter (phase 4, alpha.40, phase4.enchanter): an enchanting table that a ritual has changed. Right-click
- * on a vanilla enchanting table with a Charoit-Kern at enough experience levels makes it one; it keeps the look of
- * the table (sculk particles above it) and opens its own menu that raises enchantments above their vanilla maximum
- * (rules in {@link EnchantBoost}). Which tables are enchanters is kept in the chunk's data
- * ({@code the_sift:sculk_enchanters}); broken, it drops the Sculk Enchanter item, which places one again.
+ * Sculk Enchanter (phase 4, alpha.40, phase4.enchanter): right-click on a vanilla enchanting table with a Charoit-Kern
+ * at enough experience levels turns it into one. Since alpha.40.1 it is an own block (custom block
+ * {@code sculk_enchanter} on a mushroom-block state, block-style: block) with a slowly turning charoite crystal above
+ * it; with block-style: table it stays a marked enchanting table (alpha.40). Its menu raises enchantments above their
+ * vanilla maximum (rules in {@link EnchantBoost}). Where enchanters stand is kept in the chunk's data
+ * ({@code the_sift:sculk_enchanters}) for the particles and the crystal; broken, it drops the Sculk Enchanter item.
  */
 public final class SculkEnchanters implements Listener {
 
     public static final NamespacedKey KEY = new NamespacedKey("the_sift", "sculk_enchanters");
     public static final String ITEM = "sculk_enchanter";
+    /** The custom block (same id as its item). */
+    public static final String ID = "sculk_enchanter";
     public static final String CORE = "charoite_core";
 
     private final Plugin plugin;
@@ -58,13 +61,23 @@ public final class SculkEnchanters implements Listener {
     private final int ritualLevels;
     private final boolean anvilKeepsBoost;
     private final EnchantBoost.Settings rules;
+    private final de.lamamc.sift.block.CustomBlockRegistry blocks;
+    /** block-style: block (own block, alpha.40.1) or table (marked enchanting table, alpha.40). */
+    private final boolean blockStyle;
+    private final boolean floatingCrystal;
     /** Enchanters in loaded chunks, per world (for the particles). */
     private final Map<String, Set<Long>> loaded = new HashMap<>();
+    /** The floating crystal above each loaded enchanter (not persistent, rebuilt on load). */
+    private final Map<String, Map<Long, org.bukkit.entity.ItemDisplay>> crystals = new HashMap<>();
+    private long ticks;
 
-    public SculkEnchanters(Plugin plugin, SiftItems items, ConfigurationSection config) {
+    public SculkEnchanters(Plugin plugin, SiftItems items, de.lamamc.sift.block.CustomBlockRegistry blocks, ConfigurationSection config) {
         this.plugin = plugin;
         this.items = items;
+        this.blocks = blocks;
         ConfigurationSection c = config == null ? new org.bukkit.configuration.MemoryConfiguration() : config;
+        blockStyle = !"table".equalsIgnoreCase(c.getString("block-style", "block")) && blocks.defaultState(ID) != null;
+        floatingCrystal = c.getBoolean("floating-crystal", true);
         ritualLevels = Math.max(0, c.getInt("ritual-levels", 30));
         anvilKeepsBoost = c.getBoolean("anvil-keeps-boost", true);
         Map<String, Integer> perEnchantment = new HashMap<>();
@@ -99,11 +112,48 @@ public final class SculkEnchanters implements Listener {
         Bukkit.getScheduler().runTaskTimer(plugin, this::particles, 40L, 20L);
     }
 
+    public boolean blockStyle() {
+        return blockStyle;
+    }
+
+    /** Removes all crystals (plugin disable). */
+    public void removeAll() {
+        crystals.values().forEach(map -> map.values().forEach(org.bukkit.entity.Entity::remove));
+        crystals.clear();
+    }
+
+    /** The block an enchanter is in this style (own block or enchanting table). */
+    private boolean enchanterBlock(Block block) {
+        if (blockStyle) {
+            var custom = blocks.at(block);
+            return custom != null && custom.id().equals(ID);
+        }
+        return block.getType() == Material.ENCHANTING_TABLE;
+    }
+
+    /**
+     * Makes the block at this position an enchanter (ritual, /sift debug enchanter): the own block in block style,
+     * an enchanting table in table style. Returns false if it was one already.
+     */
+    public boolean create(Block block) {
+        boolean was = isEnchanter(block);
+        if (blockStyle) {
+            block.setBlockData(blocks.defaultState(ID).data(), false);
+        } else {
+            block.setType(Material.ENCHANTING_TABLE, false);
+        }
+        mark(block, true);
+        return !was;
+    }
+
     // ---- which tables are enchanters ---------------------------------------------------------------------------
 
     public boolean isEnchanter(Block block) {
-        if (block.getType() != Material.ENCHANTING_TABLE) {
+        if (!enchanterBlock(block)) {
             return false;
+        }
+        if (blockStyle) {
+            return true; // the own block is always an enchanter
         }
         int[] stored = block.getChunk().getPersistentDataContainer().get(KEY, PersistentDataType.INTEGER_ARRAY);
         int packed = FluidIdentity.pack(block.getX(), block.getY(), block.getZ());
@@ -139,14 +189,62 @@ public final class SculkEnchanters implements Listener {
         Set<Long> keys = loaded.computeIfAbsent(block.getWorld().getName(), w -> new HashSet<>());
         if (enchanter) {
             keys.add(block.getBlockKey());
+            showCrystal(block.getWorld(), block.getBlockKey());
         } else {
             keys.remove(block.getBlockKey());
+            hideCrystal(block.getWorld(), block.getBlockKey());
         }
+    }
+
+    // ---- the floating crystal -------------------------------------------------------------------------------
+
+    private void showCrystal(World world, long key) {
+        if (!floatingCrystal || !blockStyle) {
+            return;
+        }
+        Map<Long, org.bukkit.entity.ItemDisplay> map = crystals.computeIfAbsent(world.getName(), w -> new HashMap<>());
+        org.bukkit.entity.ItemDisplay existing = map.get(key);
+        if (existing != null && existing.isValid()) {
+            return;
+        }
+        ItemStack crystal = items.create(CORE, 1);
+        if (crystal == null) {
+            return;
+        }
+        Location at = new Location(world, Block.getBlockKeyX(key) + 0.5, Block.getBlockKeyY(key) + 1.55, Block.getBlockKeyZ(key) + 0.5);
+        map.put(key, world.spawn(at, org.bukkit.entity.ItemDisplay.class, display -> {
+            display.setPersistent(false); // never saved: rebuilt when the chunk loads
+            display.setItemStack(crystal);
+            display.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
+            display.setTransformation(transformation(0));
+            display.getPersistentDataContainer().set(KEY, PersistentDataType.BOOLEAN, true);
+        }));
+    }
+
+    private void hideCrystal(World world, long key) {
+        Map<Long, org.bukkit.entity.ItemDisplay> map = crystals.get(world.getName());
+        org.bukkit.entity.ItemDisplay display = map == null ? null : map.remove(key);
+        if (display != null) {
+            display.remove();
+        }
+    }
+
+    /** Slowly turning crystal: a quarter turn every 2 seconds, interpolated by the client. */
+    private static org.bukkit.util.Transformation transformation(long step) {
+        float angle = (float) (step % 4 * Math.PI / 2);
+        return new org.bukkit.util.Transformation(new org.joml.Vector3f(), new org.joml.AxisAngle4f(angle, 0, 1, 0),
+                new org.joml.Vector3f(0.5f, 0.5f, 0.5f), new org.joml.AxisAngle4f());
     }
 
     @EventHandler
     public void onLoad(ChunkLoadEvent event) {
-        remember(event.getChunk());
+        Chunk chunk = event.getChunk();
+        // entities are not spawned inside the load event; the crystal comes a tick later
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (chunk.isLoaded()) {
+                remember(chunk);
+            }
+        });
     }
 
     @EventHandler
@@ -154,7 +252,12 @@ public final class SculkEnchanters implements Listener {
         Set<Long> keys = loaded.get(event.getWorld().getName());
         if (keys != null) {
             Chunk chunk = event.getChunk();
-            keys.removeIf(key -> Block.getBlockKeyX(key) >> 4 == chunk.getX() && Block.getBlockKeyZ(key) >> 4 == chunk.getZ());
+            for (long key : List.copyOf(keys)) {
+                if (Block.getBlockKeyX(key) >> 4 == chunk.getX() && Block.getBlockKeyZ(key) >> 4 == chunk.getZ()) {
+                    keys.remove(key);
+                    hideCrystal(event.getWorld(), key);
+                }
+            }
         }
     }
 
@@ -165,12 +268,26 @@ public final class SculkEnchanters implements Listener {
         }
         Set<Long> keys = loaded.computeIfAbsent(chunk.getWorld().getName(), w -> new HashSet<>());
         for (int p : stored) {
-            keys.add(Block.getBlockKey((chunk.getX() << 4) + FluidIdentity.localX(p), FluidIdentity.y(p), (chunk.getZ() << 4) + FluidIdentity.localZ(p)));
+            long key = Block.getBlockKey((chunk.getX() << 4) + FluidIdentity.localX(p), FluidIdentity.y(p), (chunk.getZ() << 4) + FluidIdentity.localZ(p));
+            keys.add(key);
+            showCrystal(chunk.getWorld(), key);
         }
     }
 
     /** Sculk souls above the enchanters near players. */
     private void particles() {
+        ticks++;
+        if (ticks % 2 == 0) {
+            for (var map : crystals.values()) {
+                for (var display : map.values()) {
+                    if (display.isValid()) {
+                        display.setInterpolationDelay(0);
+                        display.setInterpolationDuration(40);
+                        display.setTransformation(transformation(ticks / 2));
+                    }
+                }
+            }
+        }
         for (var entry : loaded.entrySet()) {
             World world = Bukkit.getWorld(entry.getKey());
             if (world == null || entry.getValue().isEmpty() || world.getPlayers().isEmpty()) {
@@ -182,7 +299,7 @@ public final class SculkEnchanters implements Listener {
                     continue;
                 }
                 Block block = at.getBlock().getRelative(0, -1, 0);
-                if (block.getType() != Material.ENCHANTING_TABLE) {
+                if (!enchanterBlock(block)) {
                     mark(block, false); // removed without a player (command, other plugin)
                     continue;
                 }
@@ -196,8 +313,7 @@ public final class SculkEnchanters implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null || block.getType() != Material.ENCHANTING_TABLE
-                || event.getHand() != EquipmentSlot.HAND) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null || event.getHand() != EquipmentSlot.HAND) {
             return;
         }
         Player player = event.getPlayer();
@@ -210,7 +326,7 @@ public final class SculkEnchanters implements Listener {
             return;
         }
         ItemStack held = player.getInventory().getItemInMainHand();
-        if (!CORE.equals(SiftItems.idOf(held))) {
+        if (block.getType() != Material.ENCHANTING_TABLE || !CORE.equals(SiftItems.idOf(held))) {
             return;
         }
         event.setCancelled(true);
@@ -223,7 +339,7 @@ public final class SculkEnchanters implements Listener {
             player.giveExpLevels(-ritualLevels);
             held.subtract();
         }
-        mark(block, true);
+        create(block);
         Location at = block.getLocation().add(0.5, 1.0, 0.5);
         block.getWorld().spawnParticle(Particle.SCULK_SOUL, at, 40, 0.6, 0.5, 0.6, 0.05);
         block.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, at, 30, 0.6, 0.4, 0.6, 0.02);
@@ -234,9 +350,17 @@ public final class SculkEnchanters implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent event) {
-        if (event.getBlockPlaced().getType() == Material.ENCHANTING_TABLE) {
-            // a plain table never inherits a stale mark of an enchanter removed without a player
-            mark(event.getBlockPlaced(), ITEM.equals(SiftItems.idOf(event.getItemInHand())));
+        Block placed = event.getBlockPlaced();
+        boolean enchanterItem = ITEM.equals(SiftItems.idOf(event.getItemInHand()));
+        if (enchanterItem && !blockStyle) {
+            // table style: the item (a block item since alpha.40.1) places a marked enchanting table
+            Bukkit.getScheduler().runTask(plugin, () -> create(placed));
+            return;
+        }
+        if (enchanterItem && enchanterBlock(placed)) {
+            mark(placed, true);
+        } else if (placed.getType() == Material.ENCHANTING_TABLE) {
+            mark(placed, false); // a plain table never inherits a stale mark of an enchanter removed without a player
         }
     }
 
@@ -247,6 +371,9 @@ public final class SculkEnchanters implements Listener {
             return;
         }
         mark(block, false);
+        if (blockStyle) {
+            return; // the custom block listener drops the block item (blocks.sculk_enchanter)
+        }
         event.setDropItems(false);
         if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
             ItemStack drop = items.create(ITEM, 1);

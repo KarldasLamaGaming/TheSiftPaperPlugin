@@ -80,6 +80,9 @@ repurposed:
   red_mushroom_block:
     - dry_healthy_sculk
     - dry_healthy_sculk_growth
+    # own block of the plugin, not in the original (phase 4, alpha.40.1); its blockstate is in the resource pack
+    # overlay (assets/the_sift/blockstates/sculk_enchanter.json). Appended: all states above stay as they are.
+    - sculk_enchanter
   tripwire:
     - siftslate_stalks
     - healthy_sculk_sprouts

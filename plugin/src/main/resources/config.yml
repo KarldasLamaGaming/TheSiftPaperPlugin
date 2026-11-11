@@ -68,6 +68,8 @@ blocks:
   sift_rubble: {hardness: 0.6, tool: shovel, drops: {type: chance, item: "the_sift:ichor_shard", chances: [0.1, 0.14285715, 0.25, 1.0]}, fallback: "minecraft:gravel"}
   ichor_snow_block: {hardness: 0.2, tool: shovel, requires-tool: true, drops: {type: silk-or, item: "the_sift:ichor_snowball", min: 4, max: 4}, fallback: "minecraft:snow_block"}
   soul_block: {hardness: 0.35, tool: shovel, drops: {type: none}, fallback: "minecraft:soul_soil"}
+  # Sculk Enchanter (Phase 4, ab alpha.40.1): eigener Block, abbaubar mit der Spitzhacke, droppt sich selbst
+  sculk_enchanter: {hardness: 5.0, tool: pickaxe, requires-tool: true, explosion-proof: true, drops: {type: self}, fallback: "minecraft:enchanting_table"}
   healthy_sculk: {hardness: 0.2, tool: hoe, drops: {type: self}, fallback: "minecraft:sculk"}
   dry_healthy_sculk: {hardness: 0.2, tool: hoe, drops: {type: self}, fallback: "minecraft:sculk"}
   dry_healthy_sculk_growth: {hardness: 0.2, tool: hoe, drops: {type: silk-or, item: "the_sift:dry_healthy_sculk"}, fallback: "minecraft:sculk"}
@@ -954,10 +956,14 @@ phase4:
       min-damage-share: 0.0
 
   # Sculk Enchanter (ab alpha.40): hebt Verzauberungen über das Vanilla-Maximum. Entsteht im Ritual: Rechtsklick mit
-  # dem Charoit-Kern auf einen Zaubertisch (kostet ritual-levels Erfahrungslevel und den Kern). Er sieht aus wie ein
-  # Zaubertisch mit Sculk-Partikeln und öffnet ein eigenes Menü; abgebaut droppt er sich selbst.
+  # dem Charoit-Kern auf einen Zaubertisch (kostet ritual-levels Erfahrungslevel und den Kern). Seit alpha.40.1 ein
+  # eigener Block (Charoit-Rune oben, seelenblaue Gravur an den Seiten); öffnet ein eigenes Menü, droppt sich selbst.
   enchanter:
     enabled: true
+    # block = eigener Block mit eigener Optik (ab alpha.40.1); table = markierter Zaubertisch (Rückfall, wie alpha.40)
+    block-style: block
+    # Langsam drehender Charoit-Kristall über dem Block (nur block-style: block); nicht gespeichert, beim Laden neu
+    floating-crystal: true
     ritual-levels: 30
     # So viele Stufen über das Vanilla-Maximum (Schärfe V → VII); gesteigert wird nur, was schon auf dem Maximum ist,
     # immer eine Stufe pro Schritt
