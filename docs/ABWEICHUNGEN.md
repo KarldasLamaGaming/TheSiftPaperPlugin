@@ -270,6 +270,13 @@ wird nachgebildet:
     (geprüft). Lava-Ergebnisse, Nebel und die Sniffer-Regel gelten nur in der Sift.
   - Ichor und Wasser mischen sich im Kessel nicht: Eine Flasche der anderen Art wird abgewiesen.
 
+## Phase 4: eigene Inhalte (seit alpha.39)
+
+Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` abschaltbar:
+- **Boss-Items** (alpha.39): Herz des Wächters, Kern des Withers, Drachenschuppe aus den Vanilla-Bossen, dazu die
+  Golem-Trophäe (Arbeitstitel) für den späteren eigenen Boss. Die Texturen sind eigene (Skript), keine Mojang-Dateien.
+- Später: Sculk Enchanter (alpha.40), Tempel (alpha.41), Boss „Großer Echo-Golem“ (alpha.42).
+
 ## Siftit-Erhalt beim Tod (seit alpha.23)
 
 Ablauf, Zeiten und Flugbahn wie im Original 1.1.1. Unterschiede:

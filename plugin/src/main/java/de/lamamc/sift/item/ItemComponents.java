@@ -70,6 +70,11 @@ final class ItemComponents {
                 stack.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
                 stack.setData(DataComponentTypes.MAX_STACK_SIZE, 16);
             }
+            case BOSS_ITEM -> {
+                stack.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+                stack.setData(DataComponentTypes.RARITY, org.bukkit.inventory.ItemRarity.EPIC);
+                stack.setData(DataComponentTypes.MAX_STACK_SIZE, 16);
+            }
             case SPAWN_EGG -> {
             }
             case SIFT_COMPASS -> {

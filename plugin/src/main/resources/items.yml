@@ -43,6 +43,12 @@ items:
   # key of the Ancient City portals (alpha.37): no recipe, only found in Ancient City chests
   ancient_resonator: {category: misc, base: "minecraft:paper", kind: portal-key, protect: true}
   sift_compass: {category: misc, base: "minecraft:compass", kind: sift-compass, protect: true}
+  # boss items (phase 4, alpha.39): drops of the warden, the wither and the ender dragon (phase4.boss-items), and the
+  # trophy of the Great Echo Golem (working title, its boss comes with alpha.42; until then only via /sift give)
+  warden_heart: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
+  dragon_scale: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
+  wither_core: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
+  golem_trophy: {category: materials, base: "minecraft:paper", kind: boss-item, protect: true}
   # spawn eggs of the Sift mobs (phase 2), one per finished mob
   blub_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}
   sifter_spawn_egg: {category: misc, base: "minecraft:paper", kind: spawn-egg, protect: true}

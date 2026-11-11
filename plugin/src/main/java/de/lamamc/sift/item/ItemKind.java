@@ -22,6 +22,8 @@ public enum ItemKind {
     PORTAL_KEY,
     /** Compass pointing at the nearest portal. */
     SIFT_COMPASS,
+    /** Trophy of a boss (phase 4, alpha.39): glint, epic rarity, ingredient for the enchanter and key recipes. */
+    BOSS_ITEM,
     /** Spawn egg of a Sift mob (&lt;mob&gt;_spawn_egg), used by the mob framework. */
     SPAWN_EGG;
 

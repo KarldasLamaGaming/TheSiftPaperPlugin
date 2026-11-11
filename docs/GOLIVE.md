@@ -249,6 +249,7 @@ diff -u plugins/TheSift/config.yml /tmp/sift-config-default.yml | less
 | `portals.recipes.*` | Standard (gestaffelt Hauptwelt < Nether < End). Unveränderte alte Rezepte ersetzt das Plugin beim ersten Start mit alpha.37 selbst (Log „old defaults replaced“); selbst geänderte bleiben und müssen von Hand angepasst werden | Schlüssel-Staffelung |
 | `portals.keys.*.loot.chance` | Hauptwelt/Nether `0.03`, End `0.0`, Antike Stadt `0.01` | sonst umgeht die Truhe das schwere Rezept |
 | `portals.keys.consume` | `true` | ein Schlüssel öffnet ein Portal |
+| `phase4.boss-items.*` | Standard; bei Wither-Farmen `wither-core.chance` senken oder `cooldown-hours` setzen | Schutz vor Farmen |
 | `worldgen.abandoned-portals.chance` | `1.0` | Häufigkeit wie im Original (#15, alte Configs haben `0.25`) |
 | `resource-pack.required` | `true`, wenn ohne Pack nicht gespielt werden soll (Sift-Blöcke sehen sonst wie Pilzblöcke aus) | `false` bietet das Pack nur an |
 | `resource-pack.url` / `sha1` | URL des veröffentlichten Releases; `sha1` leer lassen (wird beim Start berechnet) | |

@@ -128,6 +128,11 @@ public final class ItemSelfTest {
                     && Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, id)) != null, id + ": Item und Rezept");
         }
         check(sift("sift_compass").getType() == Material.COMPASS, "Sift-Kompass ist ein Kompass (Nadel)");
+        for (String id : List.of("warden_heart", "dragon_scale", "wither_core", "golem_trophy")) {
+            ItemStack item = sift(id);
+            check(item != null && item.getData(DataComponentTypes.RARITY) == org.bukkit.inventory.ItemRarity.EPIC,
+                    id + ": Boss-Item (episch, alpha.39)");
+        }
         ItemStack ancientKey = sift("ancient_resonator");
         check(ancientKey != null && Bukkit.getRecipe(new NamespacedKey(SiftRecipes.NAMESPACE, "ancient_resonator")) == null,
                 "ancient_resonator: Item ohne Rezept (nur Truhenfund, alpha.37)");
