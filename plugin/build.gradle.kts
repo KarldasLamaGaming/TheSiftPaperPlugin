@@ -18,6 +18,10 @@ tasks.processResources {
     from(rootDir.resolve("pack-src/datapack")) {
         into("datapack")
     }
+    // own datapack files of the plugin (not from the original; packgen rewrites pack-src/datapack on every import)
+    from(rootDir.resolve("pack-src/datapack-overlay")) {
+        into("datapack")
+    }
     // recipes and item tags of the original, registered by the plugin
     from(rootDir.resolve("pack-src/item-data")) {
         into("item-data")
