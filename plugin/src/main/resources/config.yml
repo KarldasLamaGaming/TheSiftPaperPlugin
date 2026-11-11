@@ -19,7 +19,8 @@
 #   mobs            Sift-Mobs (Blub, Sifter, Singer, Dunkler Schnüffler, Echo Golem, Allays)
 #   recipes         Rezeptbuch beim Join
 #   resource-pack   Resource Pack (URL, Pflicht, Texte)
-#   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39); später Enchanter, Tempel, Bosse
+#   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39), Sculk Enchanter (ab alpha.40);
+#                   später Tempel, Bosse
 #
 # Neue Einstellungen eines Updates fügt das Plugin beim Start selbst hinzu; was schon in der Datei steht, bleibt.
 
@@ -951,3 +952,39 @@ phase4:
       item: dragon_scale
       amount-per-player: 1
       min-damage-share: 0.0
+
+  # Sculk Enchanter (ab alpha.40): hebt Verzauberungen über das Vanilla-Maximum. Entsteht im Ritual: Rechtsklick mit
+  # dem Charoit-Kern auf einen Zaubertisch (kostet ritual-levels Erfahrungslevel und den Kern). Er sieht aus wie ein
+  # Zaubertisch mit Sculk-Partikeln und öffnet ein eigenes Menü; abgebaut droppt er sich selbst.
+  enchanter:
+    enabled: true
+    ritual-levels: 30
+    # So viele Stufen über das Vanilla-Maximum (Schärfe V → VII); gesteigert wird nur, was schon auf dem Maximum ist,
+    # immer eine Stufe pro Schritt
+    max-bonus: 2
+    # Höchstens so viele Verzauberungen eines Gegenstands über dem Maximum
+    max-boosted-per-item: 2
+    # Kosten je Schritt: auf Maximum +1 bzw. +2 (Charoit im Menü, Erfahrungslevel des Spielers)
+    costs:
+      plus-1: {charoite: 8, levels: 15}
+      plus-2: {charoite: 16, levels: 30}
+    # Einstufige Verzauberungen, die nie gesteigert werden
+    single-level: [mending, silk_touch, infinity, aqua_affinity, channeling, flame, multishot, binding_curse, vanishing_curse]
+    # Leer = alle mehrstufigen dürfen gesteigert werden; sonst nur diese (z. B. [unbreaking, efficiency])
+    whitelist: []
+    # Weniger Bonus für einzelne Verzauberungen (0 = gar nicht steigerbar). Glück und Plünderung nur +1 (Wirtschaft).
+    # Für PvP z. B. sharpness: 1, protection: 0, power: 1 eintragen.
+    max-bonus-per-enchantment:
+      fortune: 1
+      looting: 1
+    # Amboss: gesteigerte Stufen bleiben beim Kombinieren erhalten (Vanilla würde sie auf das Maximum kürzen)
+    anvil-keeps-boost: true
+  # Rezepte der Phase-4-Items (Format wie portals.recipes, Rückfall auf das eingebaute Rezept bei Fehlern)
+  recipes:
+    # Charoit-Kern (Arbeitstitel): 5 Charoit, Herz des Wächters, Drachenschuppe, Kern des Withers, Siftitbarren
+    charoite_core:
+      type: minecraft:crafting_shaped
+      category: misc
+      pattern: ["CHC", "DSW", "C C"]
+      key: {C: "the_sift:charoite", H: "the_sift:warden_heart", D: "the_sift:dragon_scale", W: "the_sift:wither_core", S: "the_sift:siftite_ingot"}
+      result: {id: "the_sift:charoite_core"}

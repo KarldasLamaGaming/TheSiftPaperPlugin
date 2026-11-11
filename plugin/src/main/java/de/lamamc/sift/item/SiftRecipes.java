@@ -55,6 +55,8 @@ public final class SiftRecipes {
     private final List<NamespacedKey> registered = new ArrayList<>();
     private final org.bukkit.configuration.ConfigurationSection configRecipes;
     private final org.bukkit.configuration.ConfigurationSection defaultRecipes;
+    /** Further recipe sections of the config with their defaults (phase4.recipes, alpha.40). */
+    private final List<org.bukkit.configuration.ConfigurationSection[]> more = new ArrayList<>();
 
     public SiftRecipes(SiftItems items, org.bukkit.configuration.ConfigurationSection configRecipes,
                        org.bukkit.configuration.ConfigurationSection defaultRecipes, Logger logger) {
@@ -74,6 +76,21 @@ public final class SiftRecipes {
         return RecipeSpec.items(id -> registry.get(id) != null, registry::substitute, tags);
     }
 
+    /** Another config section with recipes (same format and fallback as portals.recipes); call before {@link #register()}. */
+    public void addConfigSection(org.bukkit.configuration.ConfigurationSection recipes, org.bukkit.configuration.ConfigurationSection defaults) {
+        if (recipes != null) {
+            more.add(new org.bukkit.configuration.ConfigurationSection[] {recipes, defaults});
+        }
+    }
+
+    private List<RecipeSpec> allConfigured(java.util.function.Consumer<String> warnings) {
+        List<RecipeSpec> specs = all(items.registry(), configRecipes, defaultRecipes, SiftRecipes::knownVanilla, warnings);
+        for (var pair : more) {
+            specs.addAll(configured(resolver(items.registry()), pair[0], pair[1], SiftRecipes::knownVanilla, warnings));
+        }
+        return specs;
+    }
+
     /** The bundled recipes plus the ones in config.yml (portals.recipes: portal keys and compass). */
     public static List<RecipeSpec> all(ItemRegistry registry, org.bukkit.configuration.ConfigurationSection configRecipes) {
         return all(registry, configRecipes, null, id -> true, warning -> { });
@@ -88,7 +105,16 @@ public final class SiftRecipes {
                                        java.util.function.Predicate<String> knownVanilla, java.util.function.Consumer<String> warnings) {
         List<RecipeSpec> specs = new ArrayList<>(bundled(registry));
         if (configRecipes != null) {
-            RecipeSpec.Items resolver = resolver(registry);
+            specs.addAll(configured(resolver(registry), configRecipes, defaultRecipes, knownVanilla, warnings));
+        }
+        return specs;
+    }
+
+    private static List<RecipeSpec> configured(RecipeSpec.Items resolver, org.bukkit.configuration.ConfigurationSection configRecipes,
+                                               org.bukkit.configuration.ConfigurationSection defaultRecipes,
+                                               java.util.function.Predicate<String> knownVanilla, java.util.function.Consumer<String> warnings) {
+        List<RecipeSpec> specs = new ArrayList<>();
+        {
             for (String name : configRecipes.getKeys(false)) {
                 Object json = toJson(configRecipes.get(name));
                 Object fallback = defaultRecipes == null || defaultRecipes == configRecipes || !defaultRecipes.isConfigurationSection(name)
@@ -159,7 +185,7 @@ public final class SiftRecipes {
         int skipped = 0;
         List<Recipe> recipes = new ArrayList<>();
         List<NamespacedKey> keys = new ArrayList<>();
-        for (RecipeSpec spec : all(items.registry(), configRecipes, defaultRecipes, SiftRecipes::knownVanilla, logger::warning)) {
+        for (RecipeSpec spec : allConfigured(logger::warning)) {
             if (spec.skipped()) {
                 skipped++;
                 logger.fine("Recipe " + spec.name() + " skipped: " + spec.skipReason());
@@ -180,7 +206,7 @@ public final class SiftRecipes {
 
     /** How many recipes should be registered (bundled and config, without the skipped ones). */
     public int expected() {
-        return (int) all(items.registry(), configRecipes, defaultRecipes, SiftRecipes::knownVanilla, w -> { }).stream()
+        return (int) allConfigured(w -> { }).stream()
                 .filter(r -> !r.skipped()).count();
     }
 

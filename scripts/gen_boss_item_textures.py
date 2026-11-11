@@ -16,7 +16,7 @@ from PIL import Image
 
 ASSETS = Path("pack-src/resourcepack-overlay/assets/the_sift")
 OUT = ASSETS / "textures/item"
-ITEMS = ("warden_heart", "dragon_scale", "wither_core", "golem_trophy")
+ITEMS = ("warden_heart", "dragon_scale", "wither_core", "golem_trophy", "charoite_core", "sculk_enchanter")
 
 
 def rgb(value, alpha=255):
@@ -109,6 +109,43 @@ def golem_trophy():
     return im
 
 
+def charoite_core():
+    """Charoit-Kern (alpha.40, working title): violet charoite swirls around a teal-white heart."""
+    dark, mid, light = rgb(0x3B1F5C), rgb(0x8E5BC9), rgb(0xE2C8FF)
+    teal = rgb(0x6FE6EA)
+    im = blank()
+    for y in range(16):
+        for x in range(16):
+            d = math.hypot(x + 0.5 - 8, y + 0.5 - 8)
+            if d <= 6.2:
+                swirl = (math.atan2(y + 0.5 - 8, x + 0.5 - 8) * 2 + d * 0.9) % (2 * math.pi)
+                im.putpixel((x, y), dark if d > 5.3 else light if swirl < 0.9 else mid)
+    for x, y in ((7, 7), (8, 7), (7, 8), (8, 8)):
+        im.putpixel((x, y), teal)
+    return im
+
+
+def sculk_enchanter():
+    """Sculk Enchanter item (alpha.40): a dark enchanting table with sculk veins and a floating book."""
+    shade, body, rim = rgb(0x111118), rgb(0x22222C), rgb(0x3A3A48)
+    teal, glow = rgb(0x1C8A93), rgb(0x6FE6EA)
+    book, page = rgb(0x5A2A83), rgb(0xD8C8A8)
+    im = blank()
+    for y in range(8, 15):  # table body
+        for x in range(2, 14):
+            im.putpixel((x, y), rim if y == 8 else body if y < 14 else shade)
+    for x, y in ((3, 10), (4, 11), (5, 11), (6, 12), (9, 10), (10, 11), (11, 11), (12, 12)):  # sculk veins
+        im.putpixel((x, y), teal)
+    for x in (4, 11):
+        im.putpixel((x, 9), glow)
+    for x in range(5, 11):  # book
+        im.putpixel((x, 4), book)
+        im.putpixel((x, 5), page if x not in (5, 10) else book)
+    im.putpixel((7, 3), glow)
+    im.putpixel((8, 2), glow)
+    return im
+
+
 def write_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2) + "\n")
@@ -117,7 +154,7 @@ def write_json(path, data):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, draw in (("warden_heart", warden_heart), ("dragon_scale", dragon_scale), ("wither_core", wither_core),
-                       ("golem_trophy", golem_trophy)):
+                       ("golem_trophy", golem_trophy), ("charoite_core", charoite_core), ("sculk_enchanter", sculk_enchanter)):
         draw().save(OUT / f"{name}.png")
         write_json(ASSETS / f"models/item/{name}.json",
                    {"parent": "minecraft:item/generated", "textures": {"layer0": "the_sift:item/" + name}})

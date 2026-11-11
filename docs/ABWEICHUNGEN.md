@@ -275,7 +275,10 @@ wird nachgebildet:
 Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` abschaltbar:
 - **Boss-Items** (alpha.39): Herz des Wächters, Kern des Withers, Drachenschuppe aus den Vanilla-Bossen, dazu die
   Golem-Trophäe (Arbeitstitel) für den späteren eigenen Boss. Die Texturen sind eigene (Skript), keine Mojang-Dateien.
-- Später: Sculk Enchanter (alpha.40), Tempel (alpha.41), Boss „Großer Echo-Golem“ (alpha.42).
+- **Sculk Enchanter** (alpha.40): Ritual mit dem Charoit-Kern an einem Zaubertisch. Er hebt Verzauberungen bis
+  2 Stufen über das Vanilla-Maximum. Er sieht vorerst aus wie ein Zaubertisch mit Sculk-Partikeln; ein eigener
+  Block bräuchte neue Blockzustände im Pack.
+- Später: Tempel (alpha.41), Boss „Großer Echo-Golem“ (alpha.42).
 
 ## Siftit-Erhalt beim Tod (seit alpha.23)
 

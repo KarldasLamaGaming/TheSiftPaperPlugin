@@ -160,6 +160,7 @@ public final class SiftCommand {
                                 .then(Commands.literal("scan").executes(ctx -> debugIchorScan(ctx, 4))
                                         .then(Commands.argument("chunks", IntegerArgumentType.integer(0, 8))
                                                 .executes(ctx -> debugIchorScan(ctx, IntegerArgumentType.getInteger(ctx, "chunks"))))))
+                        .then(Commands.literal("enchanter").executes(this::debugEnchanter))
                         .then(Commands.literal("allays").executes(this::debugAllays))
                         .then(Commands.literal("weather").executes(this::debugWeather))
                         .then(Commands.literal("intro").executes(ctx -> debugIntro(ctx, null))
@@ -622,6 +623,25 @@ public final class SiftCommand {
                         + "</white> (" + distance + " Blöcke) <click:run_command:'" + tp + "'><aqua>[Teleport]</aqua></click>");
             }
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** /sift debug enchanter (alpha.40): the enchanting table at the position becomes a Sculk Enchanter (or says it is one). */
+    private int debugEnchanter(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        var enchanters = plugin.enchanters();
+        var block = ctx.getSource().getLocation().getBlock();
+        if (enchanters == null) {
+            sender.sendRichMessage("<red>Der Sculk Enchanter ist aus (phase4.enchanter.enabled).");
+            return 0;
+        }
+        if (block.getType() != org.bukkit.Material.ENCHANTING_TABLE) {
+            sender.sendRichMessage("<red>Dort (" + block.getX() + " " + block.getY() + " " + block.getZ() + ") steht kein Zaubertisch.");
+            return 0;
+        }
+        boolean was = enchanters.isEnchanter(block);
+        enchanters.mark(block, true);
+        sender.sendRichMessage(was ? "<gray>Das ist schon ein Sculk Enchanter." : "<green>Der Zaubertisch ist jetzt ein Sculk Enchanter.");
         return Command.SINGLE_SUCCESS;
     }
 

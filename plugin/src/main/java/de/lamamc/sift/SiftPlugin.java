@@ -66,6 +66,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.mob.MobSpawner mobSpawner;
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
     private de.lamamc.sift.world.ichor.FluidMarks fluidMarks;
+    private de.lamamc.sift.world.enchanter.SculkEnchanters enchanters;
     private de.lamamc.sift.world.ichor.FluidIdentityListener fluidIdentity;
     private de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns;
     private de.lamamc.sift.mob.echogolem.GolemLight golemLight;
@@ -97,6 +98,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new ItemMenuListener(items, SiftCommand.ITEMS_PERMISSION), this);
         recipes = new SiftRecipes(items, getConfig().getConfigurationSection("portals.recipes"),
                 getConfig().getDefaults() == null ? null : getConfig().getDefaults().getConfigurationSection("portals.recipes"), getLogger());
+        recipes.addConfigSection(getConfig().getConfigurationSection("phase4.recipes"),
+                getConfig().getDefaults() == null ? null : getConfig().getDefaults().getConfigurationSection("phase4.recipes"));
         recipes.register();
         getServer().getPluginManager().registerEvents(new SiftiteGuard(items), this);
         getServer().getPluginManager().registerEvents(new SiftFire(this, blocks, blockSettings), this);
@@ -156,6 +159,13 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                     this, items, blocks, fluidMarks, getConfig().getConfigurationSection("ichor"));
             getServer().getPluginManager().registerEvents(ichor, this);
             ichor.start();
+        }
+        if (getConfig().getBoolean("phase4.enchanter.enabled", true)) {
+            enchanters = new de.lamamc.sift.world.enchanter.SculkEnchanters(this, items,
+                    getConfig().getConfigurationSection("phase4.enchanter"));
+            getServer().getPluginManager().registerEvents(enchanters, this);
+            getServer().getPluginManager().registerEvents(de.lamamc.sift.world.enchanter.EnchanterMenu.listener(), this);
+            enchanters.start();
         }
         if (getConfig().getBoolean("phase4.boss-items.enabled", true)) {
             getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.boss.BossDropListener(items,
@@ -271,6 +281,11 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns() {
         return darkSnifferSpawns;
+    }
+
+    /** Sculk Enchanters (alpha.40), null when phase4.enchanter.enabled is false. */
+    public de.lamamc.sift.world.enchanter.SculkEnchanters enchanters() {
+        return enchanters;
     }
 
     /** Ichor identity marks (alpha.38), null when ichor.identity.enabled is false. */
