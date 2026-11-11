@@ -4,11 +4,11 @@
 Own art, no Mojang files: Herz des Wächters (sculk-teal heart with a dark core), Drachenschuppe (violet scale),
 Kern des Withers (black skull-shaped core with a pale glow), Golem-Trophäe (working title; soul-blue crystal in a
 deepslate setting). Replace the PNGs in pack-src/resourcepack-overlay/assets/the_sift/textures/item/ with hand-made
-ones at any time (same names); the script also writes the item models and item definitions.
+ones at any time (same names). Since alpha.40.2 the items are 3D models (scripts/gen_item_models_3d.py writes the
+models and item definitions); these flat images are their particle textures.
 
 Usage: python3 -I scripts/gen_boss_item_textures.py   (from the repository root)
 """
-import json
 import math
 from pathlib import Path
 
@@ -125,20 +125,12 @@ def charoite_core():
     return im
 
 
-def write_json(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2) + "\n")
-
-
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, draw in (("warden_heart", warden_heart), ("dragon_scale", dragon_scale), ("wither_core", wither_core),
                        ("golem_trophy", golem_trophy), ("charoite_core", charoite_core)):
         draw().save(OUT / f"{name}.png")
-        write_json(ASSETS / f"models/item/{name}.json",
-                   {"parent": "minecraft:item/generated", "textures": {"layer0": "the_sift:item/" + name}})
-        write_json(ASSETS / f"items/{name}.json", {"model": {"type": "minecraft:model", "model": "the_sift:item/" + name}})
-    print("wrote", len(ITEMS), "boss item textures and their models to", ASSETS)
+    print("wrote", len(ITEMS), "boss item textures to", OUT, "(models: scripts/gen_item_models_3d.py)")
 
 
 if __name__ == "__main__":

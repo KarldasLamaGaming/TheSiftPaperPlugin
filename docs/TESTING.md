@@ -921,6 +921,31 @@ Test in der Sift, Überlebensmodus. Werte unter `mobs.echo_golem`, Seelen-Singer
 - [ ] Als Zutat: in `portals.recipes` z. B. beim Leere-Resonator `E: "the_sift:warden_heart"` eintragen, Neustart:
       Rezeptbuch zeigt das Herz; keine Warnung „recipe … in config.yml“ im Log.
 
+## 3D-Item-Modelle (ab alpha.40.2)
+
+Neues Release mit dem Resource Pack nötig.
+```
+/sift give @s warden_heart
+/sift give @s wither_core
+/sift give @s dragon_scale
+/sift give @s golem_trophy
+/sift give @s charoite_core
+/give @s item_frame 5
+/sift debug enchanter
+```
+- [ ] **Inventar:** Alle fünf Items als kleine 3D-Modelle, schräg von oben wie Blöcke.
+  - Herz: Sculk-Herz mit dunklem Kern.
+  - Wither: schwarzer Block mit Augen und Zähnen.
+  - Schuppe: dicke violette Platte.
+  - Trophäe: seelenblaues Kristallbündel auf Sockel mit Silberring.
+  - Kern: Charoit-Kugel im Silber-Gimbal.
+- [ ] **Hand:** Erste und dritte Person (F5), rechte und linke Hand. Die Items sind sichtbar und nicht zu groß.
+- [ ] **Boden:** Fallen lassen, das Modell dreht sich klein am Boden.
+- [ ] **Item-Rahmen:** Die Vorderseite zeigt nach vorn (Augen des Wither-Kerns sichtbar).
+- [ ] **Sculk Enchanter:** Über dem Block dreht sich ein facettiertes violettes Kristallbündel mit drei kleinen
+      Nebenkristallen, kein flaches Oval. Es liest sich von allen Seiten.
+- [ ] **Unverändert:** Schlüssel, Kompass und das Sculk-Enchanter-Item (Block-Würfel).
+
 ## Sculk Enchanter (ab alpha.40, eigener Block ab alpha.40.1)
 
 Überlebensmodus. Neues Release mit dem Resource Pack nötig.

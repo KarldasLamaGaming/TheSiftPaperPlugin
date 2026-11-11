@@ -279,6 +279,9 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   hebt Verzauberungen bis 2 Stufen über das Vanilla-Maximum. Der Block hat eine eigene Optik (Charoit-Rune,
   seelenblaue Gravur, schwebender Kristall), aber nur für Java mit Resource Pack: **Bedrock-Spieler (Geyser) sehen
   einen roten Pilzblock**, wie bei allen Sift-Blöcken. Die Funktion (Ritual, Menü, Abbau) bleibt für alle gleich.
+- **3D-Item-Modelle** (alpha.40.2): Boss-Items, Charoit-Kern und der schwebende Kristall sind Element-Modelle
+  (eigene Formen und Materialtexturen, keine Mojang-Dateien). Bedrock-Spieler (Geyser) sehen sie nicht, sie
+  bekommen die Basis-Items (Papier).
 - Später: Tempel (alpha.41), Boss „Großer Echo-Golem“ (alpha.42).
 
 ## Siftit-Erhalt beim Tod (seit alpha.23)
