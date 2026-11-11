@@ -70,7 +70,7 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
   `/sift portal lock`) → alpha.38 Ichor B (nur Ausnahmen markieren: Wasser aus der Oberwelt bleibt in der Sift
   Wasser, Ichor bleibt in der Oberwelt Ichor) → Phase 4: alpha.39 Boss-Items → alpha.40 Sculk Enchanter →
   alpha.40.1 eigener Enchanter-Block mit Kristall → alpha.40.2 3D-Item-Modelle → alpha.41a Tempel (letzte
-  Worldgen-Änderung, im PR) → alpha.41b Kompass und Hinweise (Loot-Tabellen/Config, keine Worldgen, darf auch nach dem
+  Worldgen-Änderung, im PR) → alpha.41b Kompass und Gerüchte-Zettel (Loot-Tabellen/Config, keine Worldgen, darf auch nach dem
   Reset kommen) → Welt- und Spieler-Reset → Go-live → alpha.42 Boss „Großer Echo-Golem“
   als Update (bis dahin schläft der Altar). Offen vor alpha.42: Namen für Golem-Trophäe und Charoit-Kern (Karl).
 - Bedrock-Optik für Sift-Blöcke (auch den Sculk Enchanter) bräuchte Geyser-Mappings und ein Bedrock-Pack; bisher

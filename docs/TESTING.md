@@ -1026,6 +1026,31 @@ bleiben. Register übersteht den Neustart.
 - [ ] **Bypass:** `lp user <spieler> permission set thesift.temple.bypass true`: Mauer lässt sich abbauen. Danach wieder
       entfernen.
 - [ ] **Andere Strukturen:** Um den Tempel stehen keine verlassenen Portale, Schluchten oder Monolithen in der Fläche.
+
+### Kompass und Gerüchte-Zettel (ab alpha.41b)
+
+Smoke-Test ohne Spieler (Truhen per Trichter geleert, Chance zum Test auf 1,0): Tempeltruhe von temple-1 → „etwa 1100
+Blöcke im Südosten“ (temple-10, der eigene Tempel ist ausgelassen); Truhe eines verlassenen Portals 68 Blöcke südlich von
+temple-1 → „etwa 100 Blöcke im Norden“; alle 10 besiegt → „Alle Tempel sind verstummt.“; Tempel-Tabelle in einer Truhe
+der Oberwelt → kein Zettel. Neue Config-Schlüssel kommen beim Start in eine bestehende `config.yml`.
+
+**Nur mit Spieler** (in der Sift, neues Release mit Resource Pack):
+```
+/sift give @s sift_compass
+/sift give @s temple_rumor
+/sift temple list
+```
+- [ ] **Kompass umschalten:** Schleichen + Rechtsklick: Klang, Actionbar „Tempel: N Blöcke“, die Nadel zeigt auf den
+      nächsten Tempel. Noch einmal: „Portal: N Blöcke“ (Hauptportal). Kein Leitstein wird gebunden, kein Block benutzt.
+- [ ] **Hinlaufen:** Der Nadel folgen, die Entfernung sinkt, man kommt am Tempel an (Mitte der Arena).
+- [ ] **Besiegte überspringen:** Konsole `sift temple defeat <id des nächsten>`: nach spätestens 2 s zeigt die Nadel auf
+      den nächsten schlafenden. Danach `sift temple reset-all confirm`.
+- [ ] **Modus bleibt:** Kompass ablegen, wieder aufnehmen, ausloggen und einloggen: weiter im Tempel-Modus. In der
+      Oberwelt zeigt er auf Schreine („Portal: …“).
+- [ ] **Zettel:** Truhen verlassener Portale öffnen (frisch generiert): ab und zu „Gerücht vom Tempel“ mit eigener
+      Textur, Tooltip mit Richtung und Entfernung. Richtung und Entfernung passen ungefähr zum Kompass.
+- [ ] **Abschalten:** `phase4.temples.compass.enabled: false` + Neustart: Schleichen + Rechtsklick tut nichts.
+      `phase4.temples.hints.enabled: false` + Neustart: keine neuen Zettel.
 - [ ] **Abschalten:** `phase4.temples.enabled: false` + Neustart: `/sift temple list` meldet „Tempel sind aus“, neue
       Chunks bekommen keine Tempel (bestehende bleiben stehen, ohne Schutz).
 

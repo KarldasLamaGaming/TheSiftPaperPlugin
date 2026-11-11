@@ -32,6 +32,8 @@ items:
   ichor_bottle: {category: misc, base: "minecraft:paper", kind: drink, protect: true}
   # filled from water in the Sift (alpha.21); empties as water (outside the Sift ichor is plain water)
   ichor_bucket: {category: misc, base: "minecraft:water_bucket", protect: true}
+  # rumour note about the nearest sleeping temple (alpha.41b); the plugin writes the way into its lore
+  temple_rumor: {category: misc, base: "minecraft:paper", protect: true}
   # opens a rift where it is used (alpha.22); like the original only in creative (and for admins)
   sift_rift: {category: misc, base: "minecraft:paper", protect: true}
   music_disc_rift: {category: misc, base: "minecraft:paper", kind: music-disc, protect: true}

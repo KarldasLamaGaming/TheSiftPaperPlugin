@@ -172,6 +172,21 @@ public final class TempleRegistry implements Listener {
                 .min(Comparator.comparingDouble(t -> (t.x() - x) * (t.x() - x) + (t.z() - z) * (t.z() - z)));
     }
 
+    /**
+     * The nearest site whose temple is not defeated (alpha.41b), built or not yet generated; null when all are
+     * defeated. exclude: a temple id to skip (the temple a chest stands in), or null.
+     */
+    public TempleSites.Site nearestOpenSite(double x, double z, String exclude) {
+        return TempleSites.nearest(builder.sites(), x, z, site -> !site.id().equals(exclude)
+                && (temples.get(site.id()) == null || temples.get(site.id()).state() != State.DEFEATED));
+    }
+
+    /** The y of the temple floor at this site, or the fallback when it is not built yet. */
+    public int floorY(TempleSites.Site site, int fallback) {
+        Temple t = temples.get(site.id());
+        return t == null ? fallback : t.y();
+    }
+
     /** Admin: back to sleep (alpha.41a: the state only; the arena is restored with the boss in alpha.42). */
     public boolean reset(String id) {
         Temple t = temples.get(id);

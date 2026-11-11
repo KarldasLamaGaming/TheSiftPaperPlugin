@@ -145,7 +145,17 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         if (consoles.keysEnabled()) {
             getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.portal.PortalKeyLoot(keyLoot, items), this);
         }
-        new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites).start(this, getConfig().getInt("portals.compass.update-ticks", 40));
+        de.lamamc.sift.world.portal.SiftCompass compass = new de.lamamc.sift.world.portal.SiftCompass(this::shrineSites);
+        if (getConfig().getBoolean("phase4.temples.compass.enabled", true)) {
+            // temples attach later (with the Sift world); until then and while they are off the supplier gives null
+            compass.temples(() -> temples == null ? null : here -> {
+                var site = temples.nearestOpenSite(here.getX(), here.getZ(), null);
+                return site == null ? null : new org.bukkit.Location(here.getWorld(), site.x(), temples.floorY(site, here.getBlockY()), site.z());
+            });
+            getServer().getPluginManager().registerEvents(compass, this);
+        }
+        compass.start(this, getConfig().getInt("portals.compass.update-ticks", 40));
+        registerTempleRumors();
         messages = Messages.load(this);
         gate = new de.lamamc.sift.world.access.SiftGate(this, messages, getConfig().getConfigurationSection("access"));
         getServer().getPluginManager().registerEvents(gate, this);
@@ -518,6 +528,25 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             enchanters.setLock(temples::lockReason);
         }
         getLogger().info("Temples: " + sites.size() + " sites on the ring " + radii[0] + "-" + radii[1] + " around 0/0");
+    }
+
+    /** Rumour notes about the temples in chests (alpha.41b, phase4.temples.hints). */
+    private void registerTempleRumors() {
+        org.bukkit.configuration.ConfigurationSection h = getConfig().getConfigurationSection("phase4.temples.hints");
+        if (h == null || !h.getBoolean("enabled", true)) {
+            return;
+        }
+        java.util.Map<String, Double> chances = new java.util.LinkedHashMap<>();
+        org.bukkit.configuration.ConfigurationSection c = h.getConfigurationSection("chests");
+        if (c != null) {
+            // loot table keys contain ':' and '/', so the section holds them as plain keys
+            for (String table : c.getKeys(false)) {
+                chances.put(table, Math.max(0, Math.min(1, c.getDouble(table))));
+            }
+        }
+        getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.temple.TempleRumors(() -> temples, items,
+                new de.lamamc.sift.world.temple.TempleRumors.Settings(chances, Math.max(1, h.getInt("distance-step", 100)),
+                        h.getStringList("text"), h.getStringList("all-defeated"))), this);
     }
 
     /** Temples (alpha.41a), null when phase4.temples.enabled is false or the Sift is not attached yet. */
