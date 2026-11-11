@@ -153,7 +153,21 @@ public final class SiftPopulator extends BlockPopulator {
         }
     }
 
+    private de.lamamc.sift.world.temple.TempleBuilder temples;
+
+    /** Temples (phase 4, alpha.41a); built first, so the other features of the chunk see their reservation. */
+    public void temples(de.lamamc.sift.world.temple.TempleBuilder temples) {
+        this.temples = temples;
+    }
+
+    public de.lamamc.sift.world.temple.TempleBuilder temples() {
+        return temples;
+    }
+
     private void populate(GenRegion region, Random random, int chunkX, int chunkZ, long seed) {
+        if (temples != null) {
+            temples.populate(region, random, chunkX, chunkZ);
+        }
         int centerX = (chunkX << 4) + 8;
         int centerZ = (chunkZ << 4) + 8;
         String biome = biome(region, centerX, centerZ);

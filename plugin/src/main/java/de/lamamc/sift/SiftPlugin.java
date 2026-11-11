@@ -67,6 +67,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private de.lamamc.sift.mob.singer.SingerSummoner singerSummoner;
     private de.lamamc.sift.world.ichor.FluidMarks fluidMarks;
     private de.lamamc.sift.world.enchanter.SculkEnchanters enchanters;
+    private de.lamamc.sift.world.temple.TempleRegistry temples;
     private de.lamamc.sift.world.ichor.FluidIdentityListener fluidIdentity;
     private de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns darkSnifferSpawns;
     private de.lamamc.sift.mob.echogolem.GolemLight golemLight;
@@ -473,9 +474,55 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 landforms.save(world);
                 snifferCaves.save(world);
             }, 100L, 100L);
+            attachTemples(world, reservation);
             world.getPopulators().add(siftPopulator);
             getLogger().info("Sift worldgen attached to " + world.getKey() + " (" + templates.size() + " templates)");
         }
+    }
+
+    /**
+     * Temples (phase 4, alpha.41a, phase4.temples): exactly N sites on a ring around 0/0, computed from the seed and the
+     * world border before the first chunk; other features keep out of them.
+     */
+    private void attachTemples(World world, PortalReservation reservation) {
+        org.bukkit.configuration.ConfigurationSection c = getConfig().getConfigurationSection("phase4.temples");
+        if (c == null || !c.getBoolean("enabled", true)) {
+            return;
+        }
+        var ring = new de.lamamc.sift.core.temple.TempleSites.Ring(Math.max(0, c.getInt("count", 10)),
+                Math.max(0, c.getInt("ring.min-radius", 1500)), Math.max(0, c.getInt("ring.max-radius", 3000)),
+                c.getDouble("ring.angle-jitter", 15));
+        double border = world.getWorldBorder().getSize() / 2;
+        int[] radii = de.lamamc.sift.core.temple.TempleSites.effectiveRadii(ring, border);
+        if (radii[1] < ring.maxRadius()) {
+            getLogger().warning("Sift world border (" + (int) border + " blocks from the centre) is smaller than the temple ring; "
+                    + "ring pulled in to " + radii[0] + "-" + radii[1]);
+        }
+        var sites = de.lamamc.sift.core.temple.TempleSites.sites(world.getSeed(), ring, 0, 0, border);
+        org.bukkit.NamespacedKey lootKey = org.bukkit.NamespacedKey.fromString(c.getString("loot-table", "the_sift:chests/temple"));
+        var builder = new de.lamamc.sift.world.temple.TempleBuilder(world.getSeed(), sites,
+                lootKey == null ? null : getServer().getLootTable(lootKey));
+        reservation.reserveTemples(builder.reservedAreas(Math.max(0, c.getInt("clearance", 8))));
+        siftPopulator.temples(builder);
+        temples = new de.lamamc.sift.world.temple.TempleRegistry(this, blocks, builder, c.getBoolean("protect-until-defeated", true),
+                getConfig().getBoolean("phase4.enchanter.temple-enchanter.requires-defeat", true),
+                c.getString("altar-message", "Der Seelen-Altar schweigt noch."));
+        getServer().getPluginManager().registerEvents(temples, this);
+        temples.start(world);
+        if (enchanters != null) {
+            temples.onEnchanter(b -> {
+                if (enchanters.isEnchanter(b)) {
+                    enchanters.mark(b, true);
+                }
+            });
+            enchanters.setLock(temples::lockReason);
+        }
+        getLogger().info("Temples: " + sites.size() + " sites on the ring " + radii[0] + "-" + radii[1] + " around 0/0");
+    }
+
+    /** Temples (alpha.41a), null when phase4.temples.enabled is false or the Sift is not attached yet. */
+    public de.lamamc.sift.world.temple.TempleRegistry temples() {
+        return temples;
     }
 
     @Override

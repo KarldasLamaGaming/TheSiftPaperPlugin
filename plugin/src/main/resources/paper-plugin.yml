@@ -23,3 +23,6 @@ permissions:
   thesift.access.bypass:
     description: Betreten der Sift, auch wenn sie geschlossen ist (nicht in thesift.admin enthalten)
     default: op
+  thesift.temple.bypass:
+    description: Geschützte Tempelblöcke abbauen (ab alpha.41a; auch OPs haben es nur, wenn es vergeben wird)
+    default: false

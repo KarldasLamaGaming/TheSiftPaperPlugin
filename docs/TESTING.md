@@ -989,6 +989,46 @@ Neues Release mit dem Resource Pack nötig.
 - [ ] **Bedrock (falls Geyser im Einsatz):** Ein Bedrock-Spieler sieht einen roten Pilzblock; Rechtsklick öffnet trotzdem
       das Menü.
 
+## Tempel (ab alpha.41a)
+
+Smoke-Test ohne Spieler (frische Sift, alle 10 Plätze per Forceload): 10 von 10 gebaut und eingetragen, 3,7 ms je
+Tempel im Mittel, höchstens 5,6 ms. Truhen tragen `the_sift:chests/temple`, die Tabelle liefert Beute
+(`/loot spawn`). Enchanter mit genau einem Kristall. Kammern innen leer, Hülle geschlossen. Explosion (Endkristall)
+und Kolben: Tempelblöcke bleiben, solange er schläft; nach `defeat` fallen Mauer und Truhe, Enchanter und Kammern
+bleiben. Register übersteht den Neustart.
+
+**Nur mit Spieler** (Überlebensmodus, ohne `thesift.temple.bypass`; OP reicht nicht als Ausnahme):
+```
+/sift temple sites
+/sift temple list
+/give @s diamond_pickaxe
+/give @s tnt 8
+/give @s flint_and_steel
+/give @s piston 2
+/give @s redstone_block
+/sift give @s charoite 64
+/xp add @s 100 levels
+```
+- [ ] **Hinkommen:** In `/sift temple list` auf den Teleport-Klick eines Tempels (landet am Eingang im Süden).
+- [ ] **Aussehen:** zerfallene Siftschiefer-Mauern, vier Ecktürme, runde Arena mit Seelenblock-Ring und Säulen, Altar
+      in der Mitte, Halle im Süden mit Enchanter (Kristall dreht sich) und zwei Truhen. Zwei geschlossene Kammern im
+      Osten und Westen ohne Zugang. Der Tempel schwebt nicht und steckt nicht im Berg (Sockel unter Kanten in Hängen).
+      Bitte von zwei, drei Tempeln einen Screenshot.
+- [ ] **Truhen:** öffnen, Beute aus Charoit, Siftit-Nuggets, Ichor usw. Die zweite Truhe hat andere Beute.
+- [ ] **Schutz:** Mauer, Boden und Truhe abbauen: geht nicht, Actionbar-Hinweis. TNT an der Mauer: die Mauer bleibt.
+      Kolben gegen die Mauer: fährt nicht aus.
+- [ ] **Altar:** Rechtsklick auf den Seelenblock in der Mitte: „Der Seelen-Altar schweigt noch.“
+- [ ] **Enchanter gesperrt:** Rechtsklick: Hinweis, dass er erst nach dem Sieg erwacht, kein Menü.
+- [ ] **Nach dem Sieg** (Konsole `sift temple defeat temple-1`):
+  - Enchanter öffnet das Menü und steigert wie ein hergestellter.
+  - Mauern und Truhen lassen sich abbauen; Enchanter, Altar und Kammerwände weiterhin nicht.
+  - `sift temple reset temple-1`: wieder geschützt, Enchanter wieder gesperrt.
+- [ ] **Bypass:** `lp user <spieler> permission set thesift.temple.bypass true`: Mauer lässt sich abbauen. Danach wieder
+      entfernen.
+- [ ] **Andere Strukturen:** Um den Tempel stehen keine verlassenen Portale, Schluchten oder Monolithen in der Fläche.
+- [ ] **Abschalten:** `phase4.temples.enabled: false` + Neustart: `/sift temple list` meldet „Tempel sind aus“, neue
+      Chunks bekommen keine Tempel (bestehende bleiben stehen, ohne Schutz).
+
 ## Overworld unberührt
 
 - [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.
