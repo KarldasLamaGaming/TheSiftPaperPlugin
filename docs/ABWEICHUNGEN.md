@@ -282,9 +282,17 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
 - **3D-Item-Modelle** (alpha.40.2): Boss-Items, Charoit-Kern und der schwebende Kristall sind Element-Modelle
   (eigene Formen und Materialtexturen, keine Mojang-Dateien). Bedrock-Spieler (Geyser) sehen sie nicht, sie
   bekommen die Basis-Items (Papier).
-- **Tempel** (alpha.41a): genau 10 je Sift auf einem Ring um 0/0, im Plugin gebaut (keine Datapack-Struktur, damit
-  die Zahl fest ist und die Plätze vorab bekannt sind). Der Seelen-Altar schläft bis alpha.42, die Kammern für Wither
-  und Wächter bleiben bis zu ihren Prüfungen versiegelt. Tempel entstehen nur in neu generierten Chunks.
+- **Tempel** (alpha.41a, Bastion über einer Prüfungsebene seit alpha.41.1): genau 10 je Sift auf einem Ring um 0/0, im
+  Plugin gebaut (keine Datapack-Struktur, damit die Zahl fest ist und die Plätze vorab bekannt sind). Der Seelen-Altar
+  schläft bis alpha.42, die Prüfungsräume für Wither und Wächter bleiben bis zu ihren Prüfungen versiegelt. Tempel
+  entstehen nur in neu generierten Chunks.
+  - Ein Tempel reicht über 7 × 7 Chunks. Chunks, die vor der Tempelmitte generiert werden, bekommen ihren Teil kurz
+    danach auf dem Main-Thread (die Paper-API kennt die Geländehöhe eines noch nicht generierten Chunks nicht, NMS wäre
+    der einzige andere Weg).
+  - Hofboden, Treppen, Stufen, Mauern, Gitter, Ketten und Laternen sind Vanilla-Tiefenschiefer bzw. Vanilla-Blöcke: Auf
+    Siftschiefer (Pilzstiel-Zustände) würden die Pflanzen der Sift-Weltgenerierung wachsen.
+  - In den Chunks eines Tempels setzt der Sift-Populator keine Bäume, Pflanzen, Sculk-Flecken oder Quellen.
+- **Siftit-Block und Charoit-Block** (alpha.41.1): eigene Speicher- und Zierblöcke, nicht im Original.
 - **Tempel-Kompass und Gerüchte-Zettel** (alpha.41b): Der Sift-Kompass zeigt in der Sift wahlweise zum nächsten
   schlafenden Tempel; Zettel in Truhen nennen Richtung und gerundete Entfernung. Nicht im Original.
 - Später: Boss „Großer Echo-Golem“ (alpha.42).
