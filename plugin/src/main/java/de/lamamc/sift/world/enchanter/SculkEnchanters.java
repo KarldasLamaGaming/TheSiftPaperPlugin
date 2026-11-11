@@ -70,6 +70,12 @@ public final class SculkEnchanters implements Listener {
     /** The floating crystal above each loaded enchanter (not persistent, rebuilt on load). */
     private final Map<String, Map<Long, org.bukkit.entity.ItemDisplay>> crystals = new HashMap<>();
     private long ticks;
+    /** Why an enchanter cannot be used yet (temple enchanter before the victory), or null. */
+    private java.util.function.Function<Block, String> lock = b -> null;
+
+    public void setLock(java.util.function.Function<Block, String> lock) {
+        this.lock = lock;
+    }
 
     public SculkEnchanters(Plugin plugin, SiftItems items, de.lamamc.sift.block.CustomBlockRegistry blocks, ConfigurationSection config) {
         this.plugin = plugin;
@@ -322,6 +328,11 @@ public final class SculkEnchanters implements Listener {
                 return; // placing a block against it
             }
             event.setCancelled(true);
+            String locked = lock.apply(block);
+            if (locked != null) {
+                player.sendActionBar(Component.text(locked, NamedTextColor.DARK_AQUA));
+                return;
+            }
             EnchanterMenu.open(this, player);
             return;
         }

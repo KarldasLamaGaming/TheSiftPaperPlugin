@@ -2,13 +2,30 @@ package de.lamamc.sift.world.gen;
 
 /**
  * The area of the main portal that other features keep out of (SiftFeaturePlacementGuard): before the
- * portal is built the whole search area around 0/0, afterwards its footprint plus 15 blocks.
+ * portal is built the whole search area around 0/0, afterwards its footprint plus 15 blocks. Since alpha.41a the
+ * temple sites as well: they are computed from the seed in advance, so every feature avoids them whichever chunk is
+ * generated first.
  */
 public final class PortalReservation {
 
     private volatile int[] rectangle; // minX, minZ, maxX, maxZ or null
     private volatile boolean built;
     private final java.util.ArrayDeque<int[]> recent = new java.util.ArrayDeque<>();
+    /** Temple areas (minX, minZ, maxX, maxZ), fixed before the first chunk is generated. */
+    private volatile java.util.List<int[]> temples = java.util.List.of();
+
+    public void reserveTemples(java.util.List<int[]> areas) {
+        temples = java.util.List.copyOf(areas);
+    }
+
+    private boolean templeTouches(int minX, int minZ, int maxX, int maxZ) {
+        for (int[] t : temples) {
+            if (maxX >= t[0] && minX <= t[2] && maxZ >= t[1] && minZ <= t[3]) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void reserveSearchArea(int radius) {
         rectangle = new int[] {-radius, -radius, radius, radius};
@@ -27,7 +44,8 @@ public final class PortalReservation {
     /** Whether a square of {@code radius} around x/z touches the reserved area. */
     public boolean intersects(int x, int z, int radius) {
         int[] r = rectangle;
-        return r != null && x + radius >= r[0] && x - radius <= r[2] && z + radius >= r[1] && z - radius <= r[3];
+        return r != null && x + radius >= r[0] && x - radius <= r[2] && z + radius >= r[1] && z - radius <= r[3]
+                || templeTouches(x - radius, z - radius, x + radius, z + radius);
     }
 
     /**
@@ -36,7 +54,7 @@ public final class PortalReservation {
      */
     public synchronized boolean tryReserveSolid(int minX, int minZ, int maxX, int maxZ) {
         int[] r = rectangle;
-        if (r != null && maxX >= r[0] && minX <= r[2] && maxZ >= r[1] && minZ <= r[3]) {
+        if (r != null && maxX >= r[0] && minX <= r[2] && maxZ >= r[1] && minZ <= r[3] || templeTouches(minX, minZ, maxX, maxZ)) {
             return false;
         }
         for (int[] other : recent) {
@@ -53,6 +71,6 @@ public final class PortalReservation {
 
     /** Trees only keep out of the finished portal; before that the site clearing removes them. */
     public boolean intersectsBuilt(int x, int z, int radius) {
-        return built && intersects(x, z, radius);
+        return built && intersects(x, z, radius) || templeTouches(x - radius, z - radius, x + radius, z + radius);
     }
 }
