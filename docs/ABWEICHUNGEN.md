@@ -292,6 +292,11 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   - Hofboden, Treppen, Stufen, Mauern, Gitter, Ketten und Laternen sind Vanilla-Tiefenschiefer bzw. Vanilla-Blöcke: Auf
     Siftschiefer (Pilzstiel-Zustände) würden die Pflanzen der Sift-Weltgenerierung wachsen.
   - In den Chunks eines Tempels setzt der Sift-Populator keine Bäume, Pflanzen, Sculk-Flecken oder Quellen.
+- **Tempel-Wege** (alpha.42e, Layout-Version 4): Alle Wege, Räume und Spawner-Zonen sind für Mobs bis 3 × 3 × 3 gebaut
+  (Zone 3 4 hoch), weil die Sift-Mobs breiter als Spieler sind (Dunkler Schnüffler 1,9 × 1,9) und in 1 breiten Gängen
+  erstickten. Die Hitbox der Mobs bleibt, wie sie ist (keine Verkleinerung per Config). Weniger Treppen auf den Wehrgang
+  (zwei statt vier, dafür 3 breit). Die Mauerhöhe ist auf `size.radius` − 19 begrenzt, damit die Wandtreppe zwischen die
+  Türme passt. Bereits gebaute Tempel ändern sich nur mit `/sift temple rebuild`.
 - **Charoit-Irrlicht** (alpha.42d): eigener Mob für Zone 3 der Brut-Spawner, nicht im Original; eigenes Modell und
   eigene Textur (Skript), Basis unsichtbare Biene; nur aus den Spawnern.
 - **Brut-Spawner** (alpha.42a): 12 je Tempel, vom Plugin gesteuert (Wellen, Skalierung, Erschöpfung wie ein

@@ -1223,6 +1223,47 @@ Resource Pack für Siftit- und Charoit-Block):
 - [ ] **Schutz:** Spawner abbauen: geht nicht (bis zum Sieg). Nach `sift temple defeat temple-1`: alle dunkel, keine Brut.
 - [ ] **Abschalten:** `phase4.temples.spawners.enabled: false` + Neustart: keine Brut, Altar ohne Gate.
 
+### Tempel-Wege (ab alpha.42e, Layout-Version 4)
+
+**Begehbarkeit** (rein, ohne Welt: `TempleWalk`): Ein Körper von 3 × 3 × 3 geht vom Tor aus; Stufen höchstens 1 hoch oder
+tief, nie ein Sprung hinab, auch diagonal. Er muss den Hof, alle 12 Spawner (Zone 3 mit 4 hoch für das Irrlicht), die Arena
+am Altar (4 hoch), beide Truhen und den Enchanter erreichen. Gemeldet werden auch Treppenstufen ohne Anschluss und
+Stellen, an die nur ein Spieler passt. Unit-Tests: Standardgröße mit drei Seeds und fünf weitere erlaubte Größen (Radius
+40 bis 64, Tiefe 16 bis 24, Mauern 10 bis 21) ohne Befund; kleine Testgitter für 1 breite Gänge und Treppen ohne Absatz.
+
+**Vorher (Version 3, Bauplan):** Zone 2 und 3, Arena, Truhen und Enchanter für 3 × 3 × 3 nicht erreichbar, 34 Treppenstufen
+ohne Anschluss (Wandtreppen 1 breit gegen die Mauer, Geländerstufen der Brücken), über 5000 Stellen nur für Spieler.
+Ursachen: Die Treppen hinab liefen über die Verbindungsgänge und endeten am Fels, die Decke über ihnen stieg ab;
+Speichen und Ring zu schmal für die Diagonale, Turmtüren 1–2 breit, Spawner mitten im Durchgang.
+
+**Smoke-Test** (ohne Spieler, temple-1):
+- `/sift temple validate temple-1` am alten Bau (Version 3): „Mängel“, 13 Ziele nicht erreichbar, 36 Treppenstufen ohne
+  Anschluss, 4460 Engstellen (182 ms).
+- `/sift temple rebuild temple-1` (48356 alte Blöcke, 49 Chunks, 5 s), danach `validate`: „in Ordnung“, Version 4, alle
+  Ziele erreichbar, keine Treppe ohne Anschluss, keine Engstelle (211 ms). `inspect`: 0 schwebend, 0 fremd.
+- `sift debug selftest`: „Tempel-Wege (Layout-Version 4, Radius 40): … alle Ziele erreichbar …“, bestanden.
+- `spawners simulate temple-1 3 300`: 16 Brut-Mobs aus allen Zonen, keiner erstickt (Log ohne „suffocated“).
+- Ein Tempel mit Version 3 behält seine Spawner an den alten Stellen (`spawners temple-2`).
+
+**Nur mit Spieler** (ein Tempel mit Version 4: `/sift temple list`, sonst `/sift temple rebuild <id>`):
+```
+/sift temple validate temple-1
+/sift temple spawners reset temple-1
+/sift spawn dark_sniffer
+```
+- [ ] **Rundgang:** Vom Tor über den Hof, eine der vier Treppen hinab (bei x ±31), unten geradeaus und durch die Tür in die
+      Pfeilerkammer, über die Speiche in den Ringgang (Zone 3), durch ein Tor in die Arena zum Altar, in die Nordkammer
+      und in die Schatzhalle (Truhen, Enchanter). Nirgends hängen bleiben, nirgends springen müssen, keine Treppe endet an
+      einer Wand.
+- [ ] **Wehrgang:** Die Treppen an der Ost- und Westmauer (3 breit) hinauf, über den Absatz auf den Wehrgang, durch die
+      Turmtüren (3 × 3).
+- [ ] **Schnüffler im Gang:** Einen Dunklen Schnüffler in einen Gang der Prüfungsebene und auf eine Treppe locken
+      (`/sift spawn dark_sniffer` dort): kein Erstickungsschaden, er folgt um Ecken und die Treppe hinauf.
+- [ ] **Brut:** Spawner wecken: Schnüffler und Irrlichter erscheinen frei im Raum, nicht in Wänden; Irrlichter haben im
+      Ringgang Platz über den Köpfen.
+- [ ] **Optik:** Die offenen Treppenschächte im Hof mit Geländer, die Türen der Pfeilerkammern, die Spawner unter den
+      Kammersäulen sehen stimmig aus.
+
 ### Großer Echo-Golem (ab alpha.42b.1)
 
 **Smoke-Test** (ohne Spieler, temple-1, mit `/sift temple boss start temple-1 1` und `boss damage`):
