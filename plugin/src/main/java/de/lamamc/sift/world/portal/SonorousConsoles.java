@@ -202,6 +202,12 @@ public final class SonorousConsoles implements Listener {
                 player.sendActionBar(Component.text("Dieser Schlüssel passt nicht zu diesem Portal."));
             }
             case OPEN -> {
+                PortalUnlocks unlocks = portals.unlocks();
+                if (unlocks != null && !unlocks.allows(player, portal.get(), world)) {
+                    glitch(console);
+                    unlocks.refuse(player, portal.get(), world); // the key stays in the hand
+                    return;
+                }
                 if (KeyActivation.consumes(consume, player.getGameMode() == org.bukkit.GameMode.CREATIVE, portal.get().state())) {
                     held.subtract();
                 }

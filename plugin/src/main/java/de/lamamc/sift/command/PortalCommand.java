@@ -10,6 +10,7 @@ import de.lamamc.sift.core.portal.PortalFrame;
 import de.lamamc.sift.core.portal.PortalState;
 import de.lamamc.sift.world.SiftWorlds;
 import de.lamamc.sift.world.portal.PortalService;
+import de.lamamc.sift.world.portal.PortalUnlocks;
 import de.lamamc.sift.world.portal.PortalSurface;
 import de.lamamc.sift.world.portal.SiftPortal;
 import de.lamamc.sift.world.portal.SonorousConsoles;
@@ -59,7 +60,112 @@ final class PortalCommand {
                 .then(byId("info", this::info))
                 .then(Commands.literal("remove").then(idArgument().executes(ctx -> run(ctx, this::remove))))
                 .then(Commands.literal("list").executes(this::list))
-                .then(Commands.literal("locate").executes(this::locate));
+                .then(Commands.literal("locate").executes(this::locate))
+                .then(schedule());
+    }
+
+    // ---- unlock schedule (alpha.42a.2) -----------------------------------------------------------------------
+
+    private LiteralArgumentBuilder<CommandSourceStack> schedule() {
+        return Commands.literal("schedule").executes(ctx -> showSchedule(ctx.getSource().getSender()))
+                .then(Commands.literal("set-open")
+                        .then(Commands.argument("when", com.mojang.brigadier.arguments.StringArgumentType.greedyString())
+                                .suggests((c, b) -> {
+                                    b.suggest("now");
+                                    b.suggest("clear");
+                                    return b.buildFuture();
+                                })
+                                .executes(this::setOpen)))
+                .then(Commands.literal("shift")
+                        .then(Commands.argument("days", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(-365, 365))
+                                .executes(this::shift)))
+                .then(groupOverride("unlock", de.lamamc.sift.core.portal.PortalSchedule.Override.UNLOCKED))
+                .then(groupOverride("lock", de.lamamc.sift.core.portal.PortalSchedule.Override.LOCKED))
+                .then(groupOverride("auto", de.lamamc.sift.core.portal.PortalSchedule.Override.NONE));
+    }
+
+    private LiteralArgumentBuilder<CommandSourceStack> groupOverride(String name, de.lamamc.sift.core.portal.PortalSchedule.Override override) {
+        return Commands.literal(name).then(Commands.argument("group", com.mojang.brigadier.arguments.StringArgumentType.word())
+                .suggests((c, b) -> {
+                    for (var g : de.lamamc.sift.core.portal.PortalSchedule.Group.values()) {
+                        b.suggest(g.key());
+                    }
+                    return b.buildFuture();
+                })
+                .executes(ctx -> {
+                    var unlocks = portals.unlocks();
+                    var sender = ctx.getSource().getSender();
+                    var group = de.lamamc.sift.core.portal.PortalSchedule.Group.of(
+                            com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "group"));
+                    if (unlocks == null || group == null) {
+                        sender.sendRichMessage(unlocks == null ? "<red>Die Staffel ist aus (portals.unlock-schedule.enabled)."
+                                : "<red>Unbekannte Gruppe (end, ancient-city, nether, overworld).");
+                        return 0;
+                    }
+                    unlocks.override(group, override);
+                    return showSchedule(sender);
+                }));
+    }
+
+    private int setOpen(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+        var unlocks = portals.unlocks();
+        var sender = ctx.getSource().getSender();
+        if (unlocks == null) {
+            sender.sendRichMessage("<red>Die Staffel ist aus (portals.unlock-schedule.enabled).");
+            return 0;
+        }
+        String when = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "when").trim();
+        if (when.equalsIgnoreCase("clear")) {
+            unlocks.setOpenedAt(null);
+        } else {
+            Long at = when.equalsIgnoreCase("now") ? Long.valueOf(System.currentTimeMillis())
+                    : de.lamamc.sift.core.access.SiftAccess.parseDate(when, unlocks.zone());
+            if (at == null) {
+                sender.sendRichMessage("<red>Datum nicht lesbar. Beispiel: 2026-12-01T18:00, now oder clear.");
+                return 0;
+            }
+            unlocks.setOpenedAt(at);
+        }
+        return showSchedule(sender);
+    }
+
+    private int shift(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+        var unlocks = portals.unlocks();
+        var sender = ctx.getSource().getSender();
+        Long opened = unlocks == null ? null : unlocks.openedAt();
+        if (opened == null) {
+            sender.sendRichMessage("<red>" + (unlocks == null ? "Die Staffel ist aus." : "Tag 0 ist noch unbekannt; zuerst set-open."));
+            return 0;
+        }
+        double days = com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "days");
+        unlocks.setOpenedAt(opened + Math.round(days * 86_400_000L));
+        return showSchedule(sender);
+    }
+
+    private int showSchedule(CommandSender sender) {
+        var unlocks = portals.unlocks();
+        if (unlocks == null) {
+            sender.sendRichMessage("<gray>Gestaffelte Freischaltung: aus (portals.unlock-schedule.enabled).");
+            return 1;
+        }
+        Long opened = unlocks.openedAt();
+        sender.sendRichMessage("<gold>Freischaltung der Portale</gold> <gray>(Tag 0: " + (opened == null ? "noch unbekannt, die Sift ist nicht offen"
+                : de.lamamc.sift.core.access.SiftAccess.format(opened, unlocks.zone())) + ")");
+        var overrides = unlocks.overrides();
+        for (var g : de.lamamc.sift.core.portal.PortalSchedule.Group.values()) {
+            var status = unlocks.status(g);
+            String when = status.at() != null ? de.lamamc.sift.core.access.SiftAccess.format(status.at(), unlocks.zone()) : "–";
+            var o = overrides.getOrDefault(g, de.lamamc.sift.core.portal.PortalSchedule.Override.NONE);
+            sender.sendRichMessage("<gray>  <white>" + g.key() + "</white>: Tag " + trim(unlocks.settings().days(g)) + ", ab " + when + " – "
+                    + (status.unlocked() ? "<green>frei</green>" : "<red>versiegelt</red>")
+                    + (o != de.lamamc.sift.core.portal.PortalSchedule.Override.NONE ? " <yellow>(per Befehl: " + o + ")</yellow>" : ""));
+        }
+        sender.sendRichMessage("<gray>  sift_exit (Haupt-Portal in der Sift): nie versiegelt");
+        return 1;
+    }
+
+    private static String trim(double d) {
+        return d == Math.rint(d) ? String.valueOf((long) d) : String.valueOf(d);
     }
 
     /** "name" acts on the nearest portal (64 blocks), "name <id>" on that one. */
@@ -248,6 +354,13 @@ final class PortalCommand {
                 + p.state() + "</white>, Rahmen " + p.frame().width() + " × " + p.frame().height() + " (" + p.frame().axis()
                 + ") bei " + (int) Math.floor(c[0]) + " " + (int) c[1] + " " + (int) Math.floor(c[2]) + ", Konsolen "
                 + awake + "/" + p.consoles().size() + " wach.");
+        var unlocks = portals.unlocks();
+        var group = PortalUnlocks.group(p, target.world());
+        if (unlocks != null && group != null) {
+            var status = unlocks.status(group);
+            sender.sendRichMessage("<gray>  Gruppe <white>" + group.key() + "</white>: " + (status.unlocked() ? "<green>frei</green>"
+                    : "<red>" + unlocks.sealedText(status) + "</red>"));
+        }
         // sound numbers of the note blocks on the consoles, in the stored order (for tests)
         StringBuilder sounds = new StringBuilder();
         for (int[] k : p.consoles()) {

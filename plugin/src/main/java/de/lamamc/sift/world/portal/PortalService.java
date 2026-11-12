@@ -61,6 +61,17 @@ public final class PortalService implements Listener {
     }
 
     /** The time lock of the Sift (alpha.20); without one every entrance stays open. */
+    private PortalUnlocks unlocks;
+
+    /** The staggered unlocking of the portal groups (alpha.42a.2); null = no schedule. */
+    public void setUnlocks(PortalUnlocks unlocks) {
+        this.unlocks = unlocks;
+    }
+
+    public PortalUnlocks unlocks() {
+        return unlocks;
+    }
+
     public void setGate(de.lamamc.sift.world.access.SiftGate gate) {
         this.gate = gate;
     }
@@ -202,6 +213,14 @@ public final class PortalService implements Listener {
                     gate.refuse(player);
                 }
                 guard.arrived(entity.getUniqueId()); // not again every tick while it stands in the portal
+                return;
+            }
+            World portalWorld = entity.getWorld();
+            if (unlocks != null && !unlocks.allows(entity, portal, portalWorld)) {
+                if (entity instanceof Player player) {
+                    unlocks.refuse(player, portal, portalWorld); // sealed group: even an open portal lets nobody in yet
+                }
+                guard.arrived(entity.getUniqueId());
                 return;
             }
             World sift = Bukkit.getWorld(SiftWorlds.DIMENSION);
