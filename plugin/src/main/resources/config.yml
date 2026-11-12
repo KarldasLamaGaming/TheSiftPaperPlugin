@@ -1165,8 +1165,35 @@ phase4:
       loot:
         # Beute bekommt, wer mindestens diesen Anteil der Lebenspunkte abgezogen hat oder beim Tod in der Arena steht
         min-damage-share: 0.05
-        # Nachtkristalle je berechtigtem Spieler (weitere Beute folgt mit alpha.42b.2)
+        # Nachtkristalle je berechtigtem Spieler
         night-crystal: 1
+        # Verzaubertes Netherit (ab alpha.42b.2): je berechtigtem Spieler `rolls` Teile, jedes zufällig nach Gewicht aus der
+        # Tabelle. Verzauberungen: Stufe fest (3) oder [min, max]; min 0 = darf fehlen. Über dem Vanilla-Maximum wird
+        # gekappt. Ids ohne Namensraum gelten als minecraft:. Unbekannte Items oder Verzauberungen meldet das Log beim Start.
+        gear:
+          enabled: true
+          rolls: 1
+          table:
+            - item: "minecraft:netherite_helmet"
+              weight: 3
+              enchantments: {protection: [3, 4], unbreaking: [2, 3], respiration: [0, 3], aqua_affinity: [0, 1], mending: [0, 1]}
+            - item: "minecraft:netherite_chestplate"
+              weight: 3
+              enchantments: {protection: [3, 4], unbreaking: [2, 3], thorns: [0, 2], mending: [0, 1]}
+            - item: "minecraft:netherite_leggings"
+              weight: 3
+              enchantments: {protection: [3, 4], unbreaking: [2, 3], swift_sneak: [0, 2], mending: [0, 1]}
+            - item: "minecraft:netherite_boots"
+              weight: 3
+              enchantments: {protection: [3, 4], unbreaking: [2, 3], feather_falling: [2, 4], depth_strider: [0, 3], mending: [0, 1]}
+            - item: "minecraft:netherite_sword"
+              weight: 2
+              enchantments: {sharpness: [3, 5], unbreaking: [2, 3], looting: [0, 2], fire_aspect: [0, 2], mending: [0, 1]}
+            - item: "minecraft:netherite_pickaxe"
+              weight: 2
+              enchantments: {efficiency: [3, 5], unbreaking: [2, 3], fortune: [0, 2], mending: [0, 1]}
+      # Advancement „Bezwinger des Großen Echo-Golems“ für jeden Berechtigten (ab alpha.42b.2)
+      advancement: true
       # Aussehen: Größe des Modells, Hitbox (Schaf-Skalierung), Farbton normal / in Wut, Charoit-Krone und Kern
       model-scale: 2.5
       base-scale: 3.2
@@ -1180,7 +1207,9 @@ phase4:
       # Seelenhelfer (Echo Golems des Seelenrufs)
       helper:
         max-health: 34
-        movement-speed: 0.26
+        movement-speed: 0.2
+        # Pause nach jeder gebrachten Seele (Ticks), damit eine Gruppe die Helfer aufhalten kann
+        rest-ticks: 60
   # Rezepte der Phase-4-Items (Format wie portals.recipes, Rückfall auf das eingebaute Rezept bei Fehlern)
   recipes:
     # Charoit-Kern (Arbeitstitel): 5 Charoit, Herz des Wächters, Drachenschuppe, Kern des Withers, Siftitbarren

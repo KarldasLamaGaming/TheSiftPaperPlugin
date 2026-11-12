@@ -67,6 +67,18 @@ final class TempleCommand {
                                         .executes(ctx -> withTemple(ctx, (s, r, t) -> bossStart(s, r, t,
                                                 com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "players")))))))
                         .then(Commands.literal("stop").then(id().executes(ctx -> withTemple(ctx, this::bossStop))))
+                        .then(Commands.literal("loot").then(Commands.argument("count", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 50))
+                                .executes(ctx -> {
+                                    CommandSender sender = ctx.getSource().getSender();
+                                    var bosses = bosses(sender);
+                                    if (bosses == null) {
+                                        return 0;
+                                    }
+                                    sender.sendRichMessage("<gold>Beute-Vorschau (Netherit-Tabelle, ohne Nachtkristall):");
+                                    bosses.previewLoot(com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "count"))
+                                            .forEach(line -> sender.sendRichMessage("<gray>  " + line));
+                                    return Command.SINGLE_SUCCESS;
+                                })))
                         .then(Commands.literal("damage").then(id()
                                 .then(Commands.argument("amount", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 100_000))
                                         .executes(ctx -> withTemple(ctx, (s, r, t) -> bossDamage(s, t,
