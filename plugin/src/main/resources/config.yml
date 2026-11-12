@@ -346,8 +346,12 @@ ichor:
 rifts:
   # Risse (ab alpha.22) wie im Original: Sie öffnen sich von selbst nahe Spielern in der Sift und führen
   # hinaus zum Respawnpunkt; dort öffnet sich ein Gegen-Riss, der bis zum Schließen zurückführt.
-  # Risse in die Sift beachten die Zeitsperre (access.*). Offene Risse überstehen keinen Neustart.
-  enabled: true
+  # Risse in die Sift beachten die Zeitsperre (access.*); Gegen-Risse öffnen sich nur, wenn die Sift offen ist.
+  # Offene Risse überstehen keinen Neustart.
+  # Seit alpha.42a.2 standardmäßig aus: Zugang nur über die Portale mit Schlüssel. Aus heißt ganz aus (auch das Item
+  # sift_rift und /sift rift); Lichtblöcke alter Risse werden beim Laden der Chunks entfernt. Der Mini-Riss beim
+  # Siftit-Erhalt (siftite.keep-on-death) hängt nicht davon ab. Eine bestehende config.yml behält ihren Wert.
+  enabled: false
   natural:
     enabled: true
     # erster Riss nach dem Betreten, danach Abstand (+ Zufallsanteil), bei Fehlschlag neuer Versuch
@@ -420,6 +424,22 @@ access:
   dragon-worlds: []
 
 portals:
+  # Gestaffelte Freischaltung (ab alpha.42a.2): Jede Gruppe öffnet sich so viele Tage, nachdem die Sift geöffnet hat
+  # (Tag 0: access.date bei fixed-date, Drachenkill + delay-days bei after-dragon, sonst der Moment, in dem das Plugin
+  # die Sift zum ersten Mal offen sieht; per /sift portal schedule set-open festlegbar). Vorher ist ein Portal der
+  # Gruppe versiegelt: Der Schlüssel öffnet es nicht (er bleibt erhalten), und auch ein schon offenes lässt niemanden
+  # hinein. Schlüssel sind vorher herstellbar und auffindbar. thesift.access.bypass gilt wie bei der Zeitsperre. Das
+  # Haupt-Portal in der Sift (der Weg hinaus) ist nie versiegelt. Kommazahlen erlaubt.
+  unlock-schedule:
+    enabled: true
+    # End-Schreine
+    end: 0
+    # Portale in den Zentren der Antiken Städte (Oberwelt)
+    ancient-city: 0
+    # Nether-Schreine
+    nether: 7
+    # die übrigen Oberwelt-Schreine
+    overworld: 14
   # Lichtstärke der Portalfläche (Original: 12)
   light-level: 12
   # alle N Ticks prüfen, wer eine offene Portalfläche berührt
@@ -1072,7 +1092,7 @@ phase4:
           waves: 3
           mobs-per-wave: 3
           per-extra-player: 1
-          # alpha.42a.2 bringt das Charoit-Irrlicht für diese Zone
+          # alpha.42a.3 bringt das Charoit-Irrlicht für diese Zone
           mobs: [dark_sniffer]
     # Gerüchte-Zettel (ab alpha.41b): Item "temple_rumor" mit Himmelsrichtung und gerundeter Entfernung vom Fundort zum
     # nächsten schlafenden Tempel (nie zum eigenen). Nur in der Sift; außerhalb und bei ausgeschalteten Tempeln wird

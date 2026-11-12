@@ -72,7 +72,7 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
   alpha.40.1 eigener Enchanter-Block mit Kristall → alpha.40.2 3D-Item-Modelle → alpha.41a Tempel → alpha.41b
   Kompass und Gerüchte-Zettel (keine Worldgen) → alpha.41.1 Tempel als Bastion über einer Prüfungsebene → alpha.41.2
   Pilzkappen-Zustände, Nachtkristall → alpha.42a.1 Brut-Spawner (Worldgen: Spawner im Bauplan) → alpha.42a.2
-  Charoit-Irrlicht → Welt- und Spieler-Reset → Go-live → alpha.42 Boss „Großer Echo-Golem“
+  Risse aus und Portal-Staffel → Welt- und Spieler-Reset → alpha.42a.3 Charoit-Irrlicht (keine Worldgen) → Go-live → alpha.42 Boss „Großer Echo-Golem“
   als Update (bis dahin schläft der Altar). Name des Golem-Items: Nachtkristall (Id `golem_trophy` bleibt). Offen: Name für den Charoit-Kern (Karl).
 - Bedrock-Optik für Sift-Blöcke (auch den Sculk Enchanter) bräuchte Geyser-Mappings und ein Bedrock-Pack; bisher
   sehen Bedrock-Spieler die Ersatzblöcke (Pilzblöcke), die Funktion bleibt gleich.

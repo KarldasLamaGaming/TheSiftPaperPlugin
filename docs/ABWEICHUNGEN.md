@@ -311,6 +311,13 @@ Ablauf, Zeiten und Flugbahn wie im Original 1.1.1. Unterschiede:
 
 ## Risse (seit alpha.22)
 
+**Seit alpha.42a.2 standardmäßig aus** (`rifts.enabled: false`, Karls Wunsch: keine Abkürzung in die Sift, Zugang nur
+über die Portale mit Schlüssel). Im Original gibt es sie immer. Der Mini-Riss beim Siftit-Erhalt bleibt. Mit
+`rifts.enabled: true` öffnen sich Gegen-Risse nur, solange die Sift offen ist.
+
+**Gestaffelte Portale** (alpha.42a.2, nicht im Original): End-Schreine und Antike Städte ab Tag 0, Nether-Schreine ab Tag
+7, übrige Oberwelt-Schreine ab Tag 14 nach der Öffnung der Sift (`portals.unlock-schedule`).
+
 Verhalten, Zeiten, Abstände, Licht und Klänge wie im Original 1.1.1. Unterschiede:
 - **Aussehen:** Das Original zeichnet den Riss mit einem eigenen Shader (fließende Energie, Vorschau des
   Ziels, die beim Näherkommen erscheint). Hier ist er eine leuchtende Fläche aus einem Display.

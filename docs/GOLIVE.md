@@ -252,6 +252,8 @@ diff -u plugins/TheSift/config.yml /tmp/sift-config-default.yml | less
 
 | Schlüssel | Empfehlung für den Start | Warum |
 |---|---|---|
+| `rifts.enabled` | **`false`** (seit alpha.42a.2 Standard; eine alte config.yml hat noch `true`) | Zugang nur über die Portale mit Schlüssel; Siftit-Erhalt bleibt |
+| `portals.unlock-schedule.*` | Standard (End und Antike Stadt Tag 0, Nether 7, Oberwelt 14). Am Go-live-Tag `sift portal schedule set-open now` (oder das Datum der Öffnung), damit die Staffel ab dem Go-live zählt; prüfen mit `sift portal schedule` | Portale gestaffelt |
 | `access.mode` | `always`, oder `after-dragon` mit `delay-days`, oder `fixed-date` mit `date` | Zeitpunkt der Öffnung; `sift access status` prüft das Ergebnis |
 | `portals.melody`, `portals.ancient-city.melody`, `portals.ancient-city.book` | **löschen** (seit alpha.37 ohne Wirkung; sonst Warnung beim Start) | Portale öffnen nur noch mit dem Schlüssel |
 | `portals.recipes.*` | Standard (gestaffelt Hauptwelt < Nether < End). Unveränderte alte Rezepte ersetzt das Plugin beim ersten Start mit alpha.37 selbst (Log „old defaults replaced“); selbst geänderte bleiben und müssen von Hand angepasst werden | Schlüssel-Staffelung |

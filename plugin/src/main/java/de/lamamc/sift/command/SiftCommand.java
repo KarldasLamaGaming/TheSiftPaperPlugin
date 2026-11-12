@@ -126,7 +126,11 @@ public final class SiftCommand {
                         .node().requires(SiftCommand::admin))
                 .then(mobCommand().spawnNode().requires(SiftCommand::admin))
                 .then(accessCommand().node().requires(SiftCommand::admin))
-                .then(new RiftCommand(plugin.rifts()).node().requires(source -> admin(source) && plugin.rifts() != null))
+                .then(plugin.rifts() != null ? new RiftCommand(plugin.rifts()).node().requires(SiftCommand::admin)
+                        : Commands.literal("rift").requires(SiftCommand::admin).executes(ctx -> {
+                            ctx.getSource().getSender().sendRichMessage("<gray>Risse sind aus (rifts.enabled: false, Standard seit alpha.42a.2).");
+                            return 1;
+                        }))
                 .then(new TempleCommand(plugin).node().requires(SiftCommand::admin))
                 .then(new SiftiteCommand(plugin.siftiteKeeper()).node().requires(source -> admin(source) && plugin.siftiteKeeper() != null))
                 .then(accessCommand().openShortcut().requires(SiftCommand::admin))

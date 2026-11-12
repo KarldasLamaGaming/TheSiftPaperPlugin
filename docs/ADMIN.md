@@ -460,6 +460,38 @@ auch nach einem Neustart oder Relog.
 Portale gibt es nur dort, wo sie registriert sind: in den Portal-Schreinen (unten) oder per Befehl. Pro
 Welt stehen sie im Weltspeicher (`the_sift:portals`).
 
+### Gestaffelte Freischaltung der Portale (ab alpha.42a.2)
+
+Jede Portalgruppe öffnet sich einige Tage, nachdem die Sift geöffnet hat (`portals.unlock-schedule`, Kommazahlen
+erlaubt, `enabled: false` schaltet die Staffel ab):
+
+| Gruppe | Portale | Standard |
+|---|---|---|
+| `end` | End-Schreine | Tag 0 |
+| `ancient-city` | Portale in den Zentren der Antiken Städte | Tag 0 |
+| `nether` | Nether-Schreine | Tag 7 |
+| `overworld` | die übrigen Oberwelt-Schreine | Tag 14 |
+| – | Haupt-Portal in der Sift (der Weg hinaus) | nie versiegelt |
+
+- **Tag 0:**
+  - Von Hand gesetzt (`/sift portal schedule set-open`) gilt dieser Wert.
+  - Sonst bei `access.mode: fixed-date` das Datum und bei `after-dragon` Drachenkill plus `delay-days`.
+  - Sonst der Moment, in dem das Plugin die Sift zum ersten Mal offen sieht (`always`, `manual`, `/sift open`).
+  - Gespeichert in den Weltdaten der Hauptwelt, übersteht also den Reset der Sift.
+- **Versiegelt:**
+  - Der Schlüssel öffnet das Portal nicht und bleibt in der Hand (Konsolen-Glitch, Meldung „Dieses Portal ist noch
+    versiegelt. Es öffnet sich am … (in …).“).
+  - Auch ein schon offenes Portal der Gruppe lässt niemanden hinein (Spieler mit Meldung, Mobs still). Wer abgewiesen
+    wurde, muss die Fläche einmal verlassen und wieder betreten.
+  - Ab dem Datum öffnet sich nichts von selbst: Der Schlüssel wirkt wieder, offene Portale lassen durch.
+- **Schlüssel** bleiben vorher herstellbar und auffindbar (Rezepte und Beute aus alpha.37 unverändert). Nur das Öffnen
+  ist gesperrt; so kann man sich für den Freischalttag vorbereiten.
+- **Bypass:** `thesift.access.bypass` umgeht auch die Staffel.
+- **Befehle:**
+  - `/sift portal schedule` zeigt Tag 0 und je Gruppe Tag, Datum, Zustand und Overrides.
+  - `/sift portal info <id>` nennt die Gruppe und ob das Portal versiegelt ist.
+  - `set-open <datum|now|clear>`, `shift <tage>`, `unlock|lock|auto <gruppe>`: siehe Befehlstabelle.
+
 ### Schlüssel öffnen die Portale (ab alpha.37)
 
 Bis alpha.36 weckte der Schlüssel (oder der Singer) die Konsolen, und eine Melodie öffnete das Portal. Seit
@@ -809,7 +841,19 @@ Einstellungen: `siftite.keep-on-death.*` (`enabled`, `delay-ticks`, `emit-interv
 | `/sift siftite list [Spieler]` | Gesicherte Siftit-Stapel, die noch nicht zurück sind (auch für Offline-Spieler; ohne Namen: man selbst), dazu `keep_inventory` je Welt |
 | `/sift siftite restore <Spieler>` | Notausgang: alles Gesicherte sofort ins Inventar (Rest vor die Füße, nur für diesen Spieler aufhebbar), Sicherung geleert, laufende Lieferung beendet |
 
-## Risse (ab alpha.22)
+## Risse (ab alpha.22, seit alpha.42a.2 standardmäßig aus)
+
+**Seit alpha.42a.2 ist `rifts.enabled: false` der Standard.** Zugang in die Sift nur über die Portale mit Schlüssel.
+- **Aus heißt ganz aus:** kein natürlicher Riss, kein Gegen-Riss, kein Admin-Riss. Das Item `sift_rift` tut nichts,
+  `/sift rift` meldet „Risse sind aus“.
+- **Aufräumen:** Lichtblöcke alter Risse, die im Chunk vermerkt sind, entfernt das Plugin beim Laden des Chunks; alte
+  Riss-Displays beim Start. Offene Risse gab es über Neustarts ohnehin nie, also geht nichts verloren.
+- **Siftit-Erhalt bleibt:** Der Erhalt beim Tod samt Mini-Riss (`siftite.keep-on-death`) ist ein eigenes System und hängt
+  nicht an `rifts.enabled` (Test: der `SiftiteKeeper` verweist auf keine Riss-Klasse und keinen `rifts.`-Schlüssel).
+- **Bestehende config.yml:** Sie behält ihren Wert. Auf dem Live-Server `rifts.enabled` von Hand auf `false` setzen
+  (GOLIVE.md).
+- Wird `rifts.enabled: true` gesetzt, öffnen sich Gegen-Risse in der Hauptwelt nur noch, solange die Sift offen ist
+  (`access.*`).
 
 Wie im Original 1.1.1:
 - **Natürliche Risse** öffnen sich nur in der Sift, je Spieler alle 4,5–5,5 Minuten, 20–64 Blöcke entfernt.
@@ -1089,7 +1133,7 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
   bekommen sie mit `/sift temple rebuild <id>`).
   - **Zonen:** 1 = drei Kasernen im Hof (leicht, Sifter, 2 Wellen); 2 = vier Pfeilerkammern und die Nordkammer (Sifter
     und Dunkler Schnüffler, 3 Wellen); 3 = vier im inneren Ringgang an der Arena (am stärksten, vorerst Dunkler
-    Schnüffler, ab alpha.42a.2 das Charoit-Irrlicht). Je Zone in `zones.1` bis `zones.3`: an/aus, Wellen, Mobs je Welle,
+    Schnüffler, ab alpha.42a.3 das Charoit-Irrlicht). Je Zone in `zones.1` bis `zones.3`: an/aus, Wellen, Mobs je Welle,
     je weiterem Spieler, welche Sift-Mobs.
   - **Ablauf:** Ein Spieler in `activation-radius` (12) weckt einen Spawner. Er schickt Welle für Welle (Pause
     `wave-delay-seconds`), mit mehr Spielern mehr Mobs (bis `max-players-scaled`). Nach der letzten Welle ist er erschöpft,
@@ -1143,6 +1187,10 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
 | `/sift temple reset <id>`, `reset-all [confirm]` | Tempel wieder auf „schläft“ (der Boss kann erneut besiegt werden) |
 | `/sift temple rebuild <id>` | Tempel an seinem Platz mit dem aktuellen Bauplan neu bauen (alter Bau wird entfernt) |
 | `/sift temple inspect <id>` | Version, Bodenhöhe, wartende Teile, schwebende Säulen und fremde Blöcke über dem Hof |
+| `/sift portal schedule` | Gestaffelte Freischaltung: Tag 0, je Gruppe Tag, Datum, Zustand, Override |
+| `/sift portal schedule set-open <datum\|now\|clear>` | Tag 0 von Hand setzen (z. B. `2026-12-01T18:00`), `clear` = wieder aus `access.*` bzw. der ersten Öffnung |
+| `/sift portal schedule shift <tage>` | Tag 0 verschieben (negativ = alle Gruppen früher, positiv = später) |
+| `/sift portal schedule unlock\|lock\|auto <gruppe>` | Eine Gruppe sofort freischalten oder versiegeln, `auto` = wieder nach Plan |
 | `/sift temple spawners <id>` | Brut-Spawner eines Tempels: Zone, Position (Teleport), Zustand, Welle, lebende Brut |
 | `/sift temple spawners clear <id>` | Alle Spawner sofort erschöpft (bis zum Zurücksetzen), Brut entfernt: der Altar ist frei |
 | `/sift temple spawners reset <id>` | Alle Spawner wieder wach (Welle 1), Brut entfernt |
