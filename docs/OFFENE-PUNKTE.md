@@ -72,8 +72,12 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
   alpha.40.1 eigener Enchanter-Block mit Kristall → alpha.40.2 3D-Item-Modelle → alpha.41a Tempel → alpha.41b
   Kompass und Gerüchte-Zettel (keine Worldgen) → alpha.41.1 Tempel als Bastion über einer Prüfungsebene → alpha.41.2
   Pilzkappen-Zustände, Nachtkristall → alpha.42a.1 Brut-Spawner (Worldgen: Spawner im Bauplan) → alpha.42a.2
-  Risse aus und Portal-Staffel → Welt- und Spieler-Reset → alpha.42a.3 Charoit-Irrlicht (keine Worldgen) → Go-live → alpha.42 Boss „Großer Echo-Golem“
-  als Update (bis dahin schläft der Altar). Name des Golem-Items: Nachtkristall (Id `golem_trophy` bleibt). Offen: Name für den Charoit-Kern (Karl).
+  Risse aus und Portal-Staffel → alpha.42b.1 Boss „Großer Echo-Golem“: Kampf (keine Worldgen, Bauplan unverändert) →
+  alpha.42b.2 Boss: Netherit-Beute, Advancement, Feinschliff nach dem gesammelten Playtest → Welt- und Spieler-Reset →
+  Go-live → alpha.42a.3 Charoit-Irrlicht (nicht mehr vor dem Go-live nötig). Name des Golem-Items: Nachtkristall (Id
+  `golem_trophy` bleibt); der Charoit-Kern behält seinen Namen.
+- Offen für alpha.42b.2: verzaubertes Netherit-Teil je Berechtigtem (Tabelle in der Config), Advancement für den Sieg,
+  Klänge und Partikel feiner, Werte nach dem Playtest (Leben, Schaden, Abklingzeiten, Tempo der Seelenhelfer).
 - Bedrock-Optik für Sift-Blöcke (auch den Sculk Enchanter) bräuchte Geyser-Mappings und ein Bedrock-Pack; bisher
   sehen Bedrock-Spieler die Ersatzblöcke (Pilzblöcke), die Funktion bleibt gleich.
 - Boss-Items aus Phase 4 (Herz des Wächters, Drachenschuppe, Kern des Withers) lassen sich später ohne neuen PR als

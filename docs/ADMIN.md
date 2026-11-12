@@ -975,7 +975,7 @@ Die Abschnitte der obersten Ebene, in der Reihenfolge der Datei (dieselbe Übers
 | `mobs` | Sift-Mobs | Mobs |
 | `recipes` | Rezeptbuch beim Join | Items, Rezepte, Siftit |
 | `resource-pack` | Resource Pack | Resource Pack |
-| `phase4` | Eigene Inhalte nach dem Original-Port: `boss-items` (ab alpha.39), `enchanter` (ab alpha.40), `temples` (ab alpha.41a); später `bosses` | Boss-Items, Sculk Enchanter, Tempel |
+| `phase4` | Eigene Inhalte nach dem Original-Port: `boss-items` (ab alpha.39), `enchanter` (ab alpha.40), `temples` (ab alpha.41a), `bosses` (ab alpha.42b) | Boss-Items, Sculk Enchanter, Tempel, Tempel-Boss |
 
 ## Boss-Items (Phase 4, ab alpha.39)
 
@@ -1062,7 +1062,8 @@ Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar m
 ## Tempel (Phase 4, ab alpha.41a, Bastion ab alpha.41.1)
 
 Genau `count` (10) zerfallene Siftschiefer-Bastionen je Sift (`phase4.temples`, abschaltbar mit `enabled: false`). Jeder
-Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** besiegbar ist.
+Tempel hat genau einen Boss, den **Großen Echo-Golem** (ab alpha.42b.1, siehe unten), der **einmal je Tempel** besiegbar
+ist.
 
 - **Lage:** fest aus dem Seed berechnet, auf einem Ring um 0/0: gleiche Winkelabstände plus Seed-Versatz
   (`ring.angle-jitter`, ±15°), Abstand zwischen `ring.min-radius` (1500) und `ring.max-radius` (3000). Jeder Platz liegt
@@ -1084,8 +1085,8 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
   - **Spalte und Kern:** Um den erhöhten Kern (+5) läuft eine Spalte mit Seelenfeuer am Grund; vier Brücken steigen über
     sie zum Kern an. Auf dem Kern vier Obelisken mit Charoit-Spitze.
   - **Schacht:** In der Mitte geht ein offener Schacht (Radius 11) vom Kern hinab bis zur Arena der Prüfungsebene. Dort
-    steht der **Seelen-Altar** (Seelenblock auf Sockel, Seelenblock-Ring im Boden). Bis alpha.42 meldet ein Rechtsklick
-    nur `altar-message`.
+    steht der **Seelen-Altar** (Seelenblock auf Sockel, Seelenblock-Ring im Boden). Dort erwacht der Boss; ist er aus,
+    meldet ein Rechtsklick nur `altar-message`.
   - **Unten die Prüfungsebene** (`size.depth` 16 unter dem Hof): runder Ringgang um die Arena mit vier Toren hinein,
     acht Speichen, Pfeilerkammern auf den Diagonalen (Ichorglas-Licht), ein äußerer Ringgang, eine Nordkammer. Vier
     Treppen führen vom Hof hinab.
@@ -1170,6 +1171,47 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
 - **Zeit beim Generieren:** gemessen je Chunk-Teil, getrennt nach Weltgenerierung und Nachbau auf dem Main-Thread;
   `/sift temple sites` zeigt Mittel und Maximum seit dem Start (Messwerte im PR und in TESTING).
 
+### Großer Echo-Golem (ab alpha.42b.1, `phase4.bosses.great-echo-golem`)
+
+Eigener Boss (nicht im Original), Aussehen „Charoit-Koloss“: das Modell des Echo Golems 2,5-fach (≈ 5,3 Blöcke hoch),
+violetter Ton, 12 Seelenblöcke als Panzerplatten, Krone und Schulterkristalle aus Charoit, Nachtkristall in der Brust.
+Hitbox 2,9 × 4,2 (unsichtbares Schaf ×3,2): Er passt nicht durch die Arena-Tore. Keine neuen Pack-Dateien.
+Abschalten: `enabled: false` (der Altar meldet dann `altar-message`), Werte siehe Kommentare in der `config.yml`.
+
+- **Start:** Rechtsklick auf den Seelen-Altar eines schlafenden Tempels, dessen Brut-Spawner erschöpft sind
+  (Altar-Gate), mit `start.amount` (8) Seelenblöcken in der Haupthand; sie werden verbraucht (Kreativmodus: ohne).
+  Danach 5 s Countdown; wer dann in der Arena steht, bestimmt die Lebenspunkte. Der Golem fällt durch den Schacht und
+  landet 6 Blöcke nördlich vor dem Altar. Bossleiste für alle Kämpfer.
+- **Arena:** Zylinder Radius 11,5 um den Altar, vom Boden bis `arena.height` (10) Blöcke hoch. Wer darin steht (Überleben
+  oder Abenteuer), kämpft; wer später hineingeht, kämpft mit. **Nur Treffer aus der Arena zählen** (kein Beschuss vom
+  Kern oder aus dem Ringgang; Actionbar-Hinweis). Fall-, Feuer- und Mob-Schaden wirken nicht.
+- **Seelengitter** (`arena.seal-gates: true`): Ab der Landung hält ein Kraftfeld (Seelenfeuer in den Toren, keine Blöcke)
+  die Kämpfer in der Arena: Wer hinausläuft oder zu hoch klettert, wird an seinen letzten Platz in der Arena gesetzt;
+  Enderperlen und Chorusfrüchte hinaus gehen nicht. Hinein geht immer. Frei wird man durch Sieg, Abbruch, Tod oder ein
+  Teleport eines Admins (`/tp`, `/sift tp`: dann zählt man nicht mehr als Kämpfer).
+- **Lebenspunkte:** `health.base` (600) +50 % je weiterem Spieler, gezählt bis 4 (1500). Eigener Lebenspool des Kampfes;
+  der Schaden der Spieler zählt wie angezeigt (Schärfe, Stärke, Kritisch eingerechnet).
+- **Phasen:**
+  1. **Panzer** (100 → 60 %): Jeder Nahkampftreffer bricht eine Platte ab (je 1/12 von 40 % der Leben) und gibt dem
+     Spieler einen Seelenblock (`plates-drop`). Pfeile und Dreizacke prallen ab. Die Phase endet mit der letzten Platte.
+  2. **Schall** (60 → 25 %): normaler Schaden, auch Fernkampf. Schallwelle (`attacks.sonic`, 10 Schaden, ignoriert
+     Rüstung wie die des Wärters). Einmal ruft er 2 **Seelenhelfer** (`helpers`): kleine Echo Golems holen Seelen aus dem
+     Ring im Arenaboden und bringen sie ihm; jede wird eine Platte (höchstens `rearmor-plates` = 6), die einen
+     Nahkampftreffer schluckt und Geschosse abprallen lässt. Ein Treffer lässt einen Helfer die Seele fallen (kein Item),
+     34 Leben, keine Beute.
+  3. **Wut** (unter 25 %): +30 % Tempo, rötlicher Ton, Platten und Helfer weg, Stampfer und Schall öfter.
+- **Angriffe:** Faustschlag 14 (Reichweite 3,5 ab Körpermitte), Stampfer alle 12 s (Wut 6 s) mit 1 s Vorwarnung durch
+  einen roten Ring: Umkreis 6, 8 Schaden in der Mitte, 4 am Rand, schleudert hoch (wer springt, entgeht ihm).
+- **Sieg:** Tempel BESIEGT (Spawner aus, Enchanter frei, Kompass und Zettel zeigen ihn nicht mehr). Jeder Berechtigte
+  bekommt `loot.night-crystal` (1) **Nachtkristall** ins Inventar (voll: vor die Füße, nur er kann es aufheben).
+  Berechtigt: mindestens `loot.min-damage-share` (5 %) der Lebenspunkte abgezogen **oder** beim Tod in der Arena. Dazu
+  300 Erfahrung (wie ein Mob, beim letzten Treffer). Weitere Beute (Netherit-Teil) folgt mit alpha.42b.2.
+- **Abbruch** (Tempel schläft wieder, Opfergabe bleibt verbraucht, außer `reset.refund-offering: true`): `leave-seconds`
+  (30) lang kein lebender Kämpfer in der Arena, niemand beim Ende des Countdowns in der Arena, Chunk entladen, Neustart
+  oder Stopp (der Golem wird nie gespeichert), `/sift temple boss stop`, `/sift temple reset`.
+- **Bestehende Tempel:** Der Bauplan ist unverändert (Layout-Version 3). Tempel der Version 1 (alpha.41a) haben keine
+  Arena: erst `/sift temple rebuild <id>`.
+
 ## Befehle (`thesift.admin`)
 
 | Befehl | Wirkung |
@@ -1195,7 +1237,11 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
 | `/sift temple spawners clear <id>` | Alle Spawner sofort erschöpft (bis zum Zurücksetzen), Brut entfernt: der Altar ist frei |
 | `/sift temple spawners reset <id>` | Alle Spawner wieder wach (Welle 1), Brut entfernt |
 | `/sift temple spawners simulate <id> <spieler> <sekunden>` | Testhilfe: zählt so viele Spieler an jedem Spawner des Tempels |
-| `/sift temple defeat <id>` | Tempel als besiegt markieren (Testhilfe bis zum Boss in alpha.42) |
+| `/sift temple defeat <id>` | Tempel als besiegt markieren (Testhilfe ohne Kampf und Beute; beendet einen laufenden Kampf) |
+| `/sift temple boss info [id]` | Laufende Bosskämpfe: Stufe, Kämpfer, Phase, Leben, Platten, Aktion und Ziel des Golems |
+| `/sift temple boss start <id> [spieler]` | Kampf ohne Opfergabe und Altar-Gate starten; mit `spieler`: Testhilfe, Leben wie für so viele Spieler, kein Abbruch bei leerer Arena |
+| `/sift temple boss stop <id>` | Kampf abbrechen (Golem weg, Tempel schläft wieder) |
+| `/sift temple boss damage <id> <menge> [ranged]` | Testhilfe: Treffer auf den gelandeten Golem (Nahkampf oder `ranged`), wie ein Spielertreffer |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
 | `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung); er singt, weckt aber nicht (seit alpha.37) |

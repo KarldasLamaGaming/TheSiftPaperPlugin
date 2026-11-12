@@ -20,7 +20,7 @@
 #   recipes         Rezeptbuch beim Join
 #   resource-pack   Resource Pack (URL, Pflicht, Texte)
 #   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39), Sculk Enchanter (ab alpha.40),
-#                   Tempel (ab alpha.41a), Tempel-Kompass und Gerüchte-Zettel (ab alpha.41b); später Bosse
+#                   Tempel (ab alpha.41a), Tempel-Kompass und Gerüchte-Zettel (ab alpha.41b), Tempel-Boss (ab alpha.42b)
 #
 # Neue Einstellungen eines Updates fügt das Plugin beim Start selbst hinzu; was schon in der Datei steht, bleibt.
 

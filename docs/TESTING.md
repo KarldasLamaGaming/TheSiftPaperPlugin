@@ -1137,6 +1137,50 @@ Resource Pack für Siftit- und Charoit-Block):
 - [ ] **Schutz:** Spawner abbauen: geht nicht (bis zum Sieg). Nach `sift temple defeat temple-1`: alle dunkel, keine Brut.
 - [ ] **Abschalten:** `phase4.temples.spawners.enabled: false` + Neustart: keine Brut, Altar ohne Gate.
 
+### Großer Echo-Golem (ab alpha.42b.1)
+
+**Smoke-Test** (ohne Spieler, temple-1, mit `/sift temple boss start temple-1 1` und `boss damage`):
+- Start → 5 s Countdown → „falls (1 players, 600 health)“; nach 8 s gelandet auf dem Landepunkt (-1543.5 71 626.5 =
+  6 nördlich vor dem Altar, Arenaboden). 33 Displays (13 Modell, 12 Platten, 8 Charoit-Teile), Fehler 0.
+- `damage 50 ranged` → abgeprallt, 600/600. 12 × `damage 5` → je Platte 20, nach der 12. Phase SCHALL bei 360/600.
+- Seelenruf: 2 Seelenhelfer; ohne Störung brachten sie in ~30 s 6 Seelen (6 Platten), dann verschwanden sie.
+- Helferplatte: Fernkampf prallt ab, Nahkampf bricht sie ohne Schaden. `damage 300` → WUT bei 60/600; `damage 100000` →
+  60 abgezogen, besiegt; Tempel „besiegt“, Golem und Helfer weg.
+- Start ohne Testhilfe und ohne Spieler in der Arena → nach dem Countdown abgebrochen, Tempel schläft.
+- 2 bzw. 3 simulierte Spieler → 900 bzw. 1200 Leben. `boss stop` → Golem weg, schläft. Chunks entladen → sofort
+  abgebrochen. Neustart mitten im Kampf → „called off“, nach dem Start schläft der Tempel, kein Golem, keine Displays.
+
+**Nur mit Spieler** (Überlebensmodus, ein Tempel mit Version 3; zu zweit für die Skalierung und die Beute):
+```
+/sift temple list
+/sift temple spawners clear temple-1
+/sift give @s soul_block 16
+/sift give @s minecraft:bow
+/sift temple boss info temple-1
+/sift temple reset temple-1
+```
+- [ ] **Altar:** Ohne Seelenblöcke: „Der Seelen-Altar verlangt 8 Seelenblöcke …“. Solange Spawner wach sind: Altar-Gate-Text.
+      Mit 8 in der Hand: verbraucht, Countdown in der Actionbar, Glocke.
+- [ ] **Landung:** Der Golem fällt durch den Schacht, landet vor dem Altar mit Stampfer (Stoß, kein Schaden). Aussehen:
+      violetter Koloss, 12 Seelenplatten, Charoit-Krone und Schulterkristalle, Nachtkristall in der Brust. Bossleiste.
+- [ ] **Größe:** Er passt nicht durch die Tore und bleibt in der Arena, kommt nach Ausweichen wieder zur Mitte.
+- [ ] **Panzer:** Pfeil prallt ab (Hinweis, Schildklang); jeder Schlag bricht eine Platte (Glasklang, Splitter), man
+      bekommt einen Seelenblock, die Bossleiste sinkt. Nach der 12. Platte: Brüllen, „Der Panzer ist gebrochen!“.
+- [ ] **Angriffe:** Faustschlag in der Nähe (≈ 7 Herzen auf ungeschütztem Spieler), Stampfer mit rotem Ring 1 s vorher (springen
+      → kein Schaden), Schallwelle ab Phase 2 auf Abstand (Aufladen hörbar, ausweichbar).
+- [ ] **Seelenruf:** Zwei Helfer laufen zum Seelenring, nehmen eine Seele (leuchten), bringen sie dem Golem: neue Platte.
+      Helfer schlagen: Seele fällt (verschwindet), er holt neu. Helfer töten geht.
+- [ ] **Wut:** unter 25 % rötlich, schneller, Helfer verschwinden.
+- [ ] **Seelengitter:** Während des Kampfes durch ein Tor hinaus: zurückgesetzt, Hinweis. Enderperle hinaus: geht nicht.
+      Ein zweiter Spieler kann von außen hinein und kämpft mit (Bossleiste).
+- [ ] **Nur aus der Arena:** Vom Kern oder aus dem Ringgang schießen: „Der Golem spürt nur Treffer aus der Arena.“
+- [ ] **Sieg:** Titel, Nachtkristall für jeden, der genug Schaden machte oder am Ende in der Arena stand; Tempel
+      besiegt, Enchanter frei, Kompass zeigt den nächsten Tempel. Erneuter Altar-Klick: „Der Wächter … ist besiegt.“
+- [ ] **Abbruch:** Alle sterben bzw. 30 s niemand in der Arena → „zieht sich zurück“, Golem weg, Tempel schläft,
+      Seelenblöcke weg. Erneut starten geht.
+- [ ] **Tod im Kampf:** Respawn außerhalb, kein Zurücksetzen in die Arena; zurücklaufen und wieder mitkämpfen.
+- [ ] **Abschalten:** `phase4.bosses.great-echo-golem.enabled: false` + Neustart: Altar meldet „schweigt noch“.
+
 ### Kompass und Gerüchte-Zettel (ab alpha.41b)
 
 Smoke-Test ohne Spieler (Truhen per Trichter geleert, Chance zum Test auf 1,0): Tempeltruhe von temple-1 → „etwa 1100
