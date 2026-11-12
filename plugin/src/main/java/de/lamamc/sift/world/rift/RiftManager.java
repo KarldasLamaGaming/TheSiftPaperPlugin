@@ -706,7 +706,8 @@ public final class RiftManager implements Listener {
             }
         }
         Player player = entity instanceof Player p ? p : null;
-        if (player != null) {
+        // a counter rift leads into the Sift: only while the Sift is open (alpha.42a.2)
+        if (player != null && (gate == null || gate.state().open())) {
             for (int[] xz : RiftRules.ringColumns(anchor.getBlockX(), anchor.getBlockZ(), counterMin, counterMax, counterStep, counterAngles)) {
                 if (!allowed(player, main, xz[0], xz[1])) {
                     continue;

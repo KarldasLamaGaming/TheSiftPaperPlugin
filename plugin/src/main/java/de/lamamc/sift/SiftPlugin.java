@@ -160,6 +160,17 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         gate = new de.lamamc.sift.world.access.SiftGate(this, messages, getConfig().getConfigurationSection("access"));
         getServer().getPluginManager().registerEvents(gate, this);
         portals.setGate(gate);
+        org.bukkit.configuration.ConfigurationSection schedule = getConfig().getConfigurationSection("portals.unlock-schedule");
+        if (schedule != null && schedule.getBoolean("enabled", true)) {
+            java.util.Map<de.lamamc.sift.core.portal.PortalSchedule.Group, Double> days = new java.util.EnumMap<>(
+                    de.lamamc.sift.core.portal.PortalSchedule.Group.class);
+            for (var g : de.lamamc.sift.core.portal.PortalSchedule.Group.values()) {
+                days.put(g, Math.max(0, schedule.getDouble(g.key(), 0)));
+            }
+            unlocks = new de.lamamc.sift.world.portal.PortalUnlocks(this, gate, new de.lamamc.sift.core.portal.PortalSchedule.Settings(true, days));
+            portals.setUnlocks(unlocks);
+            unlocks.start();
+        }
         gate.start();
         if (getConfig().getBoolean("ichor.enabled", true)) {
             if (getConfig().getBoolean("ichor.identity.enabled", true)) {
@@ -193,10 +204,17 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         playerReset.listen(this);
         weather = new de.lamamc.sift.world.weather.SiftWeather(getConfig().getConfigurationSection("weather"));
         getServer().getPluginManager().registerEvents(weather, this);
-        if (getConfig().getBoolean("rifts.enabled", true)) {
+        if (getConfig().getBoolean("rifts.enabled", false)) {
             rifts = new de.lamamc.sift.world.rift.RiftManager(this, blocks, messages, advancements, gate, getConfig().getConfigurationSection("rifts"));
             getServer().getPluginManager().registerEvents(rifts, this);
             rifts.start();
+        } else {
+            // alpha.42a.2: no rifts at all; only what earlier rifts left behind is cleaned up (the mini rift of the
+            // Siftite keeper below is separate and stays)
+            de.lamamc.sift.world.rift.RiftCleanup cleanup = new de.lamamc.sift.world.rift.RiftCleanup(this);
+            getServer().getPluginManager().registerEvents(cleanup, this);
+            cleanup.start();
+            getLogger().info("Rifts are off (rifts.enabled: false); Siftite keep-on-death and its mini rift are independent of this");
         }
         if (getConfig().getBoolean("siftite.keep-on-death.enabled", true)) {
             siftiteKeeper = new de.lamamc.sift.world.siftite.SiftiteKeeper(this, messages, advancements,
@@ -677,6 +695,13 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
 
     public de.lamamc.sift.world.atmosphere.SiftIntro intro() {
         return intro;
+    }
+
+    private de.lamamc.sift.world.portal.PortalUnlocks unlocks;
+
+    /** Portal unlock schedule (alpha.42a.2), null when portals.unlock-schedule.enabled is false. */
+    public de.lamamc.sift.world.portal.PortalUnlocks unlocks() {
+        return unlocks;
     }
 
     /** Null when rifts.enabled is false. */
