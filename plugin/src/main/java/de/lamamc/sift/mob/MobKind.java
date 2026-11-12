@@ -85,6 +85,14 @@ public abstract class MobKind {
         return false;
     }
 
+    /**
+     * Room a fresh mob needs where it appears (alpha.42e, brood spawners): {width, height} in blocks; width 1 or 3 (a
+     * box wider than one block reaches into the blocks beside its centre).
+     */
+    public int[] spawnRoom() {
+        return new int[] {1, 2};
+    }
+
     /** Whether the base mob may teleport on its own (e.g. a wolf following its owner). */
     public boolean allowsTeleport() {
         return false;

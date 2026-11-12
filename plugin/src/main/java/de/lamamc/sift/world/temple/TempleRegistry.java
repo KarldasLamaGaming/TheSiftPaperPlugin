@@ -5,6 +5,7 @@ import de.lamamc.sift.block.CustomBlockRegistry;
 import de.lamamc.sift.core.temple.BroodSpawner;
 import de.lamamc.sift.core.temple.TempleLayout;
 import de.lamamc.sift.core.temple.TempleSites;
+import de.lamamc.sift.core.temple.TempleWalk;
 import de.lamamc.sift.world.SiftWorlds;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -61,8 +62,13 @@ public final class TempleRegistry implements Listener {
     public static final NamespacedKey PENDING = new NamespacedKey("the_sift", "temple_pending");
     public static final NamespacedKey SPAWNERS = new NamespacedKey("the_sift", "temple_spawners");
     public static final String BYPASS = "thesift.temple.bypass";
-    /** Layout versions: 1 = alpha.41a (41 x 41, one chunk), 2 = alpha.41.1 bastion, 3 = with brood spawners (alpha.42a). */
-    public static final int CURRENT = 3;
+    /**
+     * Layout versions: 1 = alpha.41a (41 x 41, one chunk), 2 = alpha.41.1 bastion, 3 = with brood spawners (alpha.42a),
+     * 4 = ways 3 x 3 x 3 with stairs that end on landings (alpha.42e).
+     */
+    public static final int CURRENT = 4;
+    /** Oldest version with brood spawners. */
+    public static final int BROOD = 3;
     /** Oldest version built with the bastion layout (markers, size). */
     public static final int BASTION = 2;
 
@@ -143,6 +149,7 @@ public final class TempleRegistry implements Listener {
         this.markers = new Markers(plan.altar(), plan.enchanter(), List.copyOf(plan.chambers().values()), p.extent(), p.bottom(),
                 p.top());
         this.spawnerPlan = plan.spawners();
+        this.spawnerPlanV3 = TempleLayout.spawnersOfVersion3(p);
     }
 
     public TempleBuilder builder() {
@@ -164,15 +171,21 @@ public final class TempleRegistry implements Listener {
     private Consumer<Temple> onDefeat = t -> { };
     private boolean altarGate;
 
-    /** Brood spawners of the plan (relative); only temples of version 3 or later have them. */
+    /** Brood spawners of the current plan (relative); only temples of version 3 or later have them. */
     public List<TempleLayout.Spawner> spawners() {
         return spawnerPlan;
     }
 
+    /** Brood spawners of this temple: version 3 has some of them elsewhere than version 4 (alpha.42e). */
+    public List<TempleLayout.Spawner> spawners(Temple t) {
+        return t.version() >= CURRENT ? spawnerPlan : spawnerPlanV3;
+    }
+
     private List<TempleLayout.Spawner> spawnerPlan = List.of();
+    private List<TempleLayout.Spawner> spawnerPlanV3 = List.of();
 
     public boolean hasSpawners(Temple t) {
-        return t.version() >= CURRENT && !spawnerPlan.isEmpty();
+        return t.version() >= BROOD && !spawnerPlan.isEmpty();
     }
 
     /** The current states of a temple's spawners (a copy). */
@@ -229,7 +242,7 @@ public final class TempleRegistry implements Listener {
     }
 
     public Block spawnerBlock(Temple t, int index) {
-        TempleLayout.Pos p = spawnerPlan.get(index).pos();
+        TempleLayout.Pos p = spawners(t).get(index).pos();
         return sift.getBlockAt(t.x() + p.x(), t.y() + p.y(), t.z() + p.z());
     }
 
@@ -622,7 +635,9 @@ public final class TempleRegistry implements Listener {
             return out;
         }
         out.add("Version " + t.version() + (t.version() < BASTION ? " (alpha.41a, /sift temple rebuild " + id + " baut die Bastion)"
-                : t.version() < CURRENT ? " (ohne Brut-Spawner, /sift temple rebuild " + id + " setzt sie)" : "")
+                : t.version() < BROOD ? " (ohne Brut-Spawner, /sift temple rebuild " + id + " setzt sie)"
+                : t.version() < CURRENT ? " (alte Wege: zu schmal, Treppen ohne Anschluss; /sift temple rebuild " + id + " baut Version "
+                        + CURRENT + ")" : "")
                 + ", Boden y " + t.y() + ", wartende Teile " + pending(id));
         if (t.version() < BASTION) {
             return out;
@@ -677,6 +692,90 @@ public final class TempleRegistry implements Listener {
                     .map(e -> e.getKey() + " " + e.getValue()).collect(Collectors.joining(", ")) + " (z. B. " + example + ")");
         }
         return out;
+    }
+
+    /**
+     * Admin (alpha.42e): the walk check on the built temple. The blocks are copied from chunk snapshots on the main thread
+     * (its chunks are loaded for that), the walk runs asynchronously, done gets the report lines on the main thread.
+     */
+    public boolean validate(String id, Consumer<List<String>> done) {
+        Temple t = temples.get(id);
+        TempleSites.Site site = site(id);
+        if (t == null || site == null || t.version() < BASTION) {
+            return false;
+        }
+        TempleLayout.Params p = builder.params();
+        int ext = p.extent();
+        Map<Long, org.bukkit.ChunkSnapshot> snapshots = new java.util.HashMap<>();
+        for (int cx = (t.x() - ext) >> 4; cx <= (t.x() + ext) >> 4; cx++) {
+            for (int cz = (t.z() - ext) >> 4; cz <= (t.z() + ext) >> 4; cz++) {
+                snapshots.put(TempleBuilder.key(cx, cz), sift.getChunkAt(cx, cz).getChunkSnapshot(false, false, false));
+            }
+        }
+        TempleLayout.Layout plan = builder.layout(site);
+        List<TempleLayout.Spawner> spawners = spawners(t);
+        boolean current = t.version() >= CURRENT;
+        TempleLayout.Layout planned = current ? builder.unweathered(site) : null;
+        int minWorldY = sift.getMinHeight();
+        int maxWorldY = sift.getMaxHeight();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            TempleWalk.Grid world = new SnapshotGrid(snapshots, t.x(), t.y(), t.z(), minWorldY, maxWorldY);
+            long start = System.nanoTime();
+            TempleWalk.Report report = TempleWalk.check(world, planned == null ? world : TempleWalk.grid(planned),
+                    new TempleLayout.Pos(0, 0, p.radius() - 2), TempleWalk.targets(plan, spawners), ext, p.bottom() - 1, p.top());
+            List<String> lines = new ArrayList<>();
+            lines.add((report.ok() ? "<green>in Ordnung" : "<red>Mängel") + "<gray> (Version " + t.version()
+                    + (current ? "" : ", vor alpha.42e: /sift temple rebuild " + id + " baut Version " + CURRENT) + ", "
+                    + (System.nanoTime() - start) / 1_000_000 + " ms)");
+            report.lines().forEach(l -> lines.add("<gray>" + l));
+            Bukkit.getScheduler().runTask(plugin, () -> done.accept(lines));
+        });
+        return true;
+    }
+
+    /** Blocks of the snapshots, coordinates relative to the temple (y 0 = standing level of the court). */
+    private record SnapshotGrid(Map<Long, org.bukkit.ChunkSnapshot> chunks, int ox, int oy, int oz, int minY, int maxY)
+            implements TempleWalk.Grid {
+
+        private org.bukkit.block.data.BlockData data(int x, int y, int z) {
+            int wx = ox + x;
+            int wy = oy + y;
+            int wz = oz + z;
+            org.bukkit.ChunkSnapshot c = chunks.get(TempleBuilder.key(wx >> 4, wz >> 4));
+            if (c == null || wy < minY || wy >= maxY) {
+                return null;
+            }
+            return c.getBlockData(wx & 15, wy, wz & 15);
+        }
+
+        @Override
+        public TempleWalk.Kind kind(int x, int y, int z) {
+            org.bukkit.block.data.BlockData d = data(x, y, z);
+            if (d == null) {
+                return TempleWalk.Kind.SOLID;
+            }
+            Material m = d.getMaterial();
+            if (m == Material.FIRE || m == Material.SOUL_FIRE || m == Material.LAVA || m == Material.MAGMA_BLOCK) {
+                return TempleWalk.Kind.HAZARD;
+            }
+            if (d instanceof org.bukkit.block.data.type.Stairs stairs && stairs.getHalf() == org.bukkit.block.data.Bisected.Half.BOTTOM) {
+                return TempleWalk.Kind.STAIR;
+            }
+            return m.isAir() || !m.isCollidable() ? TempleWalk.Kind.AIR : TempleWalk.Kind.SOLID;
+        }
+
+        @Override
+        public int[] facing(int x, int y, int z) {
+            if (data(x, y, z) instanceof org.bukkit.block.data.type.Stairs stairs) {
+                return switch (stairs.getFacing()) {
+                    case NORTH -> new int[] {0, -1};
+                    case SOUTH -> new int[] {0, 1};
+                    case EAST -> new int[] {1, 0};
+                    default -> new int[] {-1, 0};
+                };
+            }
+            return null;
+        }
     }
 
     // ---- protection -----------------------------------------------------------------------------------------

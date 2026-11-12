@@ -1072,7 +1072,8 @@ phase4:
       # zufällige Abweichung vom gleichmäßigen Winkel, in Grad
       angle-jitter: 15
     # Größe (ab alpha.41.1, nur für neu generierte Tempel): radius = halbe Seitenlänge des Hofs (40 bis 64, 40 = 81 × 81),
-    # Höhe der Mauern und der Ecktürme über dem Hof, Tiefe der Prüfungsebene unter dem Hof (16 bis 24)
+    # Höhe der Mauern (10 bis radius − 19, ab alpha.42e) und der Ecktürme über dem Hof, Tiefe der Prüfungsebene unter dem
+    # Hof (16 bis 24)
     size:
       radius: 40
       wall-height: 14

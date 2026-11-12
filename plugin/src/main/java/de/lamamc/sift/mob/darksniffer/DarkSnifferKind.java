@@ -26,6 +26,12 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class DarkSnifferKind extends MobKind {
 
+    /** Polar bear x 1.36: 1.9 x 1.9 (alpha.42e: never spawned into a wall). */
+    @Override
+    public int[] spawnRoom() {
+        return new int[] {3, 2};
+    }
+
     public static final String ID = "dark_sniffer";
 
     private final DarkSnifferRules rules;

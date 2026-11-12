@@ -54,6 +54,7 @@ public final class ItemSelfTest {
         languages();
         messages();
         charoiteWisp();
+        templeWalk(world);
         loot(world);
         lines.add(failures == 0 ? "Selbsttest bestanden" : "Selbsttest: " + failures + " Fehler");
         return lines;
@@ -229,6 +230,24 @@ public final class ItemSelfTest {
     }
 
     /** alpha.42d: the Charoite Wisp is registered with its rig, animations, names and is in the zone 3 mix. */
+    /** alpha.42e: the planned temple (configured size) can be walked by a 3 x 3 x 3 body, zone 3 and the arena 4 high. */
+    private void templeWalk(World world) {
+        de.lamamc.sift.SiftPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class);
+        if (plugin.temples() == null) {
+            check(true, "Tempel-Wege: Tempel aus, nicht geprüft");
+            return;
+        }
+        var p = plugin.temples().builder().params();
+        long seed = world.getSeed();
+        var layout = de.lamamc.sift.core.temple.TempleLayout.build(seed, p);
+        var report = de.lamamc.sift.core.temple.TempleWalk.check(de.lamamc.sift.core.temple.TempleWalk.grid(layout),
+                de.lamamc.sift.core.temple.TempleWalk.grid(de.lamamc.sift.core.temple.TempleLayout.unweathered(seed, p)),
+                new de.lamamc.sift.core.temple.TempleLayout.Pos(0, 0, p.radius() - 2), de.lamamc.sift.core.temple.TempleWalk.targets(layout),
+                p.extent(), p.bottom() - 1, p.top());
+        check(report.ok(), "Tempel-Wege (Layout-Version " + de.lamamc.sift.world.temple.TempleRegistry.CURRENT + ", Radius " + p.radius()
+                + "): " + String.join("; ", report.lines()));
+    }
+
     private void charoiteWisp() {
         de.lamamc.sift.SiftPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class);
         var kind = plugin.mobs() == null ? null : plugin.mobs().kind(de.lamamc.sift.mob.wisp.CharoiteWispKind.ID);
