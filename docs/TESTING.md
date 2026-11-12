@@ -557,7 +557,46 @@ thesift.access.bypass false`, danach wieder entfernen).
   - Mit `true` in der Sterbewelt: alles bleibt im Inventar, Log-Zeile „not saved: keep_inventory is on in …“.
   - `/sift siftite list` ohne Namen zeigt die eigenen Stapel und `keep_inventory` je Welt.
 
-## Risse (ab alpha.22)
+## Risse aus, Portal-Staffel (ab alpha.42a.2)
+
+**Smoke-Test** (ohne Spieler):
+- Bestehende config.yml mit `rifts.enabled: true` behält den Wert (Risse laufen); auf `false` gesetzt: Log „Rifts are
+  off …; Siftite keep-on-death and its mini rift are independent of this“, `/sift rift` meldet „Risse sind aus“.
+- Unit-Test `SiftiteKeeperIndependenceTest`: Die Klassen des Siftit-Erhalts verweisen auf keine Riss-Klasse und lesen
+  keinen `rifts.`-Schlüssel; Standard `rifts.enabled: false`, `siftite.keep-on-death.enabled: true`, Mini-Riss-Modell im
+  Pack.
+- `access.mode: always`: Tag 0 wird beim Start festgehalten; `end` und `ancient-city` frei, `nether` ab Tag 7,
+  `overworld` ab Tag 14 versiegelt.
+- Ein offener Oberwelt-Schrein (`overworld` versiegelt): Ein Schwein in der Portalfläche bleibt in der Oberwelt. Nach
+  `schedule unlock overworld` kommt ein neues Schwein am Haupt-Portal der Sift an. `auto`, `set-open 2026-11-01T12:00`
+  (Nether frei), `shift 2` und `set-open clear` zeigen die erwarteten Daten.
+- Unit-Test `PortalScheduleTest`: Gruppen, Tage, Overrides, Tag 0 je Zugangsmodus.
+
+**Nur mit Spieler:**
+```
+/sift portal schedule
+/sift portal info
+/sift give @s echo_resonator
+/sift give @s soul_ember_core
+/sift give @s void_resonator
+/sift give @s ancient_resonator
+/sift give @s siftite_ingot 3
+/sift give @s sift_rift
+```
+- [ ] **Siftit-Tod mit abgeschalteten Rissen** (`rifts.enabled: false`): mit Siftitbarren im Inventar sterben (z. B.
+      `/kill @s`, keepInventory aus). Nach dem Respawn öffnet sich der Mini-Riss neben dir, die Barren fliegen einzeln
+      heraus und landen im Inventar. Nichts geht verloren (`/sift siftite list <spieler>` danach leer).
+- [ ] **Keine Risse:** eine Viertelstunde in der Sift: kein natürlicher Riss. Das Item `sift_rift`: Rechtsklick tut
+      nichts außer der Meldung „Risse sind abgeschaltet“.
+- [ ] **Versiegelter Schrein:** Oberwelt-Schrein mit Echo-Resonator (Gruppe `overworld`, Tag 14): Konsole glitcht,
+      Meldung mit Datum und Restzeit, der Schlüssel bleibt in der Hand.
+- [ ] **Frei am Tag 0:** End-Schrein mit Leere-Resonator und Portal der Antiken Stadt mit Antikem Resonator öffnen sich.
+- [ ] **Offenes, aber versiegeltes Portal:** ein offenes Portal einer versiegelten Gruppe betreten: Meldung, kein
+      Durchgang. `sift portal schedule unlock <gruppe>`, Portal verlassen und wieder betreten: Durchgang.
+- [ ] **Bypass:** mit `thesift.access.bypass` öffnet der Schlüssel auch versiegelte Portale, und man geht durch.
+- [ ] **Hinaus immer:** In der Sift durch das Haupt-Portal hinaus geht immer.
+
+## Risse (ab alpha.22, seit alpha.42a.2 standardmäßig aus)
 
 Für schnelle Tests `rifts.natural.first-delay-ticks: 200` und `interval-ticks: 400` setzen, danach zurück.
 - [ ] Natürlicher Riss in der Sift erscheint 20–64 Blöcke entfernt, mit Klang beim Öffnen; leuchtende
