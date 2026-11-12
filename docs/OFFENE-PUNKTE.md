@@ -76,8 +76,9 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
   alpha.42b.2 Boss: Netherit-Beute, Advancement, Feinschliff nach dem gesammelten Playtest → Welt- und Spieler-Reset →
   Go-live → alpha.42a.3 Charoit-Irrlicht (nicht mehr vor dem Go-live nötig). Name des Golem-Items: Nachtkristall (Id
   `golem_trophy` bleibt); der Charoit-Kern behält seinen Namen.
-- Offen für alpha.42b.2: verzaubertes Netherit-Teil je Berechtigtem (Tabelle in der Config), Advancement für den Sieg,
-  Klänge und Partikel feiner, Werte nach dem Playtest (Leben, Schaden, Abklingzeiten, Tempo der Seelenhelfer).
+- alpha.42b.1 und alpha.42b.2 kommen zusammen als Release v0.1.0-alpha.42b; der Go-live nach Playtest und Reset als
+  v0.1.0-beta.1. Werte des Bosses (Leben, Schaden, Abklingzeiten, Tempo der Seelenhelfer) nach dem Playtest anpassen,
+  alles in `phase4.bosses.great-echo-golem`.
 - Bedrock-Optik für Sift-Blöcke (auch den Sculk Enchanter) bräuchte Geyser-Mappings und ein Bedrock-Pack; bisher
   sehen Bedrock-Spieler die Ersatzblöcke (Pilzblöcke), die Funktion bleibt gleich.
 - Boss-Items aus Phase 4 (Herz des Wächters, Drachenschuppe, Kern des Withers) lassen sich später ohne neuen PR als

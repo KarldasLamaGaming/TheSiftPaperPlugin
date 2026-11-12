@@ -1198,14 +1198,27 @@ Abschalten: `enabled: false` (der Altar meldet dann `altar-message`), Werte sieh
      Rüstung wie die des Wärters). Einmal ruft er 2 **Seelenhelfer** (`helpers`): kleine Echo Golems holen Seelen aus dem
      Ring im Arenaboden und bringen sie ihm; jede wird eine Platte (höchstens `rearmor-plates` = 6), die einen
      Nahkampftreffer schluckt und Geschosse abprallen lässt. Ein Treffer lässt einen Helfer die Seele fallen (kein Item),
-     34 Leben, keine Beute.
+     34 Leben, keine Beute. Nach jeder gebrachten Seele ruht ein Helfer `helper.rest-ticks` (60) Ticks; Tempo
+     `helper.movement-speed` (0,2).
   3. **Wut** (unter 25 %): +30 % Tempo, rötlicher Ton, Platten und Helfer weg, Stampfer und Schall öfter.
 - **Angriffe:** Faustschlag 14 (Reichweite 3,5 ab Körpermitte), Stampfer alle 12 s (Wut 6 s) mit 1 s Vorwarnung durch
   einen roten Ring: Umkreis 6, 8 Schaden in der Mitte, 4 am Rand, schleudert hoch (wer springt, entgeht ihm).
-- **Sieg:** Tempel BESIEGT (Spawner aus, Enchanter frei, Kompass und Zettel zeigen ihn nicht mehr). Jeder Berechtigte
-  bekommt `loot.night-crystal` (1) **Nachtkristall** ins Inventar (voll: vor die Füße, nur er kann es aufheben).
-  Berechtigt: mindestens `loot.min-damage-share` (5 %) der Lebenspunkte abgezogen **oder** beim Tod in der Arena. Dazu
-  300 Erfahrung (wie ein Mob, beim letzten Treffer). Weitere Beute (Netherit-Teil) folgt mit alpha.42b.2.
+- **Sieg:** Tempel BESIEGT (Spawner aus, Enchanter frei, Kompass und Zettel zeigen ihn nicht mehr). Berechtigt ist,
+  wer mindestens `loot.min-damage-share` (5 %) der Lebenspunkte abgezogen hat **oder** beim Tod in der Arena steht.
+  Jeder Berechtigte bekommt eigene Beute ins Inventar (voll: vor die Füße, nur er kann sie aufheben) und eine
+  Chatzeile „Du erhältst: …“:
+  - `loot.night-crystal` (1) **Nachtkristall**;
+  - ab alpha.42b.2 `loot.gear.rolls` (1) **verzaubertes Netherit-Teil** aus `loot.gear.table`: je Eintrag Item, Gewicht
+    und Verzauberungen (Stufe fest oder `[min, max]`, `min` 0 = darf fehlen; über dem Vanilla-Maximum wird gekappt).
+    Standard: Helm, Brust, Hose, Stiefel (Gewicht je 3, Schutz III–IV, Haltbarkeit II–III, dazu passende) sowie
+    Schwert und Spitzhacke (je 2). Unbekannte Items oder Verzauberungen meldet das Log beim Start und lässt sie weg.
+    Vorschau ohne Kampf: `/sift temple boss loot <anzahl>`. Ausschalten: `loot.gear.enabled: false`;
+  - ab alpha.42b.2 das Advancement **„Stille im Tempel“** (`the_sift:the_sift/great_echo_golem`, Herausforderung, unter
+    „Freund der Sift“), abschaltbar mit `advancement: false`.
+
+  Dazu 300 Erfahrung (wie ein Mob, beim letzten Treffer).
+- **Anzeige:** Die Bossleiste nennt Phase und Plattenzahl („Panzer, 8 Platten“), Farbe je Phase (blau, gelb, rot). Ab
+  Phase 2 steigen Seelen vom Golem auf, in der Wut roter Staub. Beim Tod: Seelen- und Kristallsplitter, Todesschrei.
 - **Abbruch** (Tempel schläft wieder, Opfergabe bleibt verbraucht, außer `reset.refund-offering: true`): `leave-seconds`
   (30) lang kein lebender Kämpfer in der Arena, niemand beim Ende des Countdowns in der Arena, Chunk entladen, Neustart
   oder Stopp (der Golem wird nie gespeichert), `/sift temple boss stop`, `/sift temple reset`.
@@ -1242,6 +1255,7 @@ Abschalten: `enabled: false` (der Altar meldet dann `altar-message`), Werte sieh
 | `/sift temple boss start <id> [spieler]` | Kampf ohne Opfergabe und Altar-Gate starten; mit `spieler`: Testhilfe, Leben wie für so viele Spieler, kein Abbruch bei leerer Arena |
 | `/sift temple boss stop <id>` | Kampf abbrechen (Golem weg, Tempel schläft wieder) |
 | `/sift temple boss damage <id> <menge> [ranged]` | Testhilfe: Treffer auf den gelandeten Golem (Nahkampf oder `ranged`), wie ein Spielertreffer |
+| `/sift temple boss loot <anzahl>` | Vorschau: so viele Netherit-Teile aus `loot.gear.table` ziehen und anzeigen (nichts wird vergeben) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |
 | `/sift debug singer` | Singer zum nächsten schlafenden Portal in 40 Blöcken rufen (wie ein Ziegenhorn, ohne Verzögerung); er singt, weckt aber nicht (seit alpha.37) |
