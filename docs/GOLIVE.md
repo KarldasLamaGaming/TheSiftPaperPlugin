@@ -187,6 +187,9 @@ gelöscht.
    Main Sift portal ready at <x> <y> <z>
    ```
    Danach `sift debug portals`: leer bis auf neue Einträge. `sift debug landmarks`: 0 Monolithen, Höhlen usw.
+   Seit alpha.41.2 liegen Trockener-Sculk-Bewuchs, Siftit- und Charoit-Block auf anderen Zuständen (Kollision mit
+   Pilzkappen behoben): Der Reset muss auch **nach alpha.41.2** kommen, sonst sehen alte Blöcke in der Sift wie Pilzkappen
+   aus.
    Tempel (ab alpha.41a, Bastion ab alpha.41.1, der Reset muss **danach** kommen): im Log `Temples: 10 sites on the ring 1500-3000 around 0/0`;
    `sift temple sites` zeigt alle 10 als „noch nicht generiert“, keiner rot. Das Tempel-Register liegt in der Sift und
    ist damit ebenfalls neu.

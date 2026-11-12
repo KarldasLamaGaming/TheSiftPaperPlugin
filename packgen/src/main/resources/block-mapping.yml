@@ -17,9 +17,12 @@
 
 pools:
   # Only boolean properties are supported; states are enumerated with the first property changing slowest.
-  # Huge mushroom features never produce down=false (stems: up=false,down=false and all sides true;
-  # caps keep down=true), so the down=false states only appear when players clump mushroom blocks
-  # together in worlds with block updates enabled.
+  # Natural huge mushrooms (26.3, measured with /sift debug mushrooms in mushroom fields, dark forest and on 64+64
+  # mushrooms grown with /place feature, alpha.41.2): stems are up=false,down=false with all sides true; ALL caps are
+  # down=false. Red caps: the top layer and the upper wall ring up=true, the lower wall rings up=false, each with no
+  # side, one side or two adjacent sides open. Brown caps: always up=true, no side, one side or two adjacent sides.
+  # These natural states are excluded below, so no Sift block looks like a mushroom cap or the other way round. Players
+  # who clump mushroom blocks can still make any state (documented in ADMIN.md).
   mushroom_stem:
     properties: [up, down, north, east, south, west]
     filter: { down: "false" }
@@ -28,9 +31,40 @@ pools:
   brown_mushroom_block:
     properties: [up, down, north, east, south, west]
     filter: { down: "false" }
+    # natural brown caps (alpha.41.2); the states in use are all up=false and stay as they are
+    exclude:
+      - { up: "true", down: "false", north: "false", east: "false", south: "false", west: "false" }
+      - { up: "true", down: "false", north: "false", east: "false", south: "false", west: "true" }
+      - { up: "true", down: "false", north: "false", east: "false", south: "true", west: "false" }
+      - { up: "true", down: "false", north: "false", east: "false", south: "true", west: "true" }
+      - { up: "true", down: "false", north: "true", east: "false", south: "false", west: "false" }
+      - { up: "true", down: "false", north: "true", east: "false", south: "false", west: "true" }
+      - { up: "true", down: "false", north: "false", east: "true", south: "false", west: "false" }
+      - { up: "true", down: "false", north: "false", east: "true", south: "true", west: "false" }
+      - { up: "true", down: "false", north: "true", east: "true", south: "false", west: "false" }
   red_mushroom_block:
     properties: [up, down, north, east, south, west]
     filter: { down: "false" }
+    # natural red caps (alpha.41.2): moves dry_healthy_sculk_growth, sculk_enchanter, siftite_block and charoite_block
+    # off the cap states they had (the Sculk Enchanter migrates its placed blocks; the Sift is reset anyway)
+    exclude:
+      - { up: "false", down: "false", north: "false", east: "false", south: "false", west: "true" }
+      - { up: "false", down: "false", north: "false", east: "false", south: "true", west: "false" }
+      - { up: "false", down: "false", north: "false", east: "false", south: "true", west: "true" }
+      - { up: "false", down: "false", north: "true", east: "false", south: "false", west: "false" }
+      - { up: "false", down: "false", north: "true", east: "false", south: "false", west: "true" }
+      - { up: "false", down: "false", north: "false", east: "true", south: "false", west: "false" }
+      - { up: "false", down: "false", north: "false", east: "true", south: "true", west: "false" }
+      - { up: "false", down: "false", north: "true", east: "true", south: "false", west: "false" }
+      - { up: "true", down: "false", north: "false", east: "false", south: "false", west: "false" }
+      - { up: "true", down: "false", north: "false", east: "false", south: "false", west: "true" }
+      - { up: "true", down: "false", north: "false", east: "false", south: "true", west: "false" }
+      - { up: "true", down: "false", north: "false", east: "false", south: "true", west: "true" }
+      - { up: "true", down: "false", north: "true", east: "false", south: "false", west: "false" }
+      - { up: "true", down: "false", north: "true", east: "false", south: "false", west: "true" }
+      - { up: "true", down: "false", north: "false", east: "true", south: "false", west: "false" }
+      - { up: "true", down: "false", north: "false", east: "true", south: "true", west: "false" }
+      - { up: "true", down: "false", north: "true", east: "true", south: "false", west: "false" }
   # String that is both powered and disarmed only exists for a moment in vanilla
   tripwire:
     properties: [attached, disarmed, east, north, powered, south, west]
