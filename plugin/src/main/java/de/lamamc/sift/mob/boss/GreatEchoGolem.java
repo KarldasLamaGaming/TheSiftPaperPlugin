@@ -182,7 +182,7 @@ public final class GreatEchoGolem extends SiftMob {
         animations.play(MISSION, "idle", 1.0);
         if (age > 3 && sheep.isOnGround() || age > DESCENT_TIMEOUT) {
             if (!sheep.isOnGround()) {
-                sheep.teleport(arena.landing());
+                teleportSelf(arena.landing());
             }
             landed = true;
             impact(arena.fighters(), 0, 1.0);
@@ -196,7 +196,7 @@ public final class GreatEchoGolem extends SiftMob {
         Location at = sheep.getLocation();
         double d = bounds.distance(at.getX(), at.getZ());
         if (d > bounds.radius() + 3 || Math.abs(at.getY() - bounds.floorY()) > 6) {
-            sheep.teleport(arena.landing());
+            teleportSelf(arena.landing());
             cancelAction();
             return false;
         }

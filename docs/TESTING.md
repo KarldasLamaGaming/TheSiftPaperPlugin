@@ -679,6 +679,36 @@ Für schnelle Tests `rifts.natural.first-delay-ticks: 200` und `interval-ticks: 
   - Zweimal `/sift rift open` an derselben Stelle: Der zweite Riss steht daneben, nie darüber.
   - `/sift rift list` zeigt die Zähler; „Riss-Displays ohne Riss: jetzt 0“.
 
+## Mobs: Charoit-Irrlicht (ab alpha.42d)
+
+**Smoke-Test** (ohne Spieler): Selbsttest „Charoit-Irrlicht: 17 Würfel, Animationen idle/attack/blink, Name
+„Charoit-Irrlicht“ / „Charoite Wisp““, „Brut-Zone 3: [charoite_wisp, dark_sniffer]“; alte Config `[dark_sniffer]` →
+„old defaults replaced … (alpha42d)“. `/sift spawn charoite_wisp`: Name `{translate: "entity.the_sift.charoite_wisp"}`,
+schwebt ohne Ziel auf 1,5 Blöcke über dem Boden; `/damage … 2` → 4 Blöcke weggeblinkt, zweiter Treffer in der
+Abklingzeit ohne Blinken, 18 → 12 Leben. Brut von temple-1 (`spawners simulate`): Zone 3 wartet, bis die 16 Brut-Plätze
+frei sind, dann 6 Irrlichter aus den vier Spawnern; Tod ohne Beute.
+
+**Nur mit Spieler** (Überlebensmodus, in der Sift; einmal Client Englisch, einmal Deutsch):
+```
+/sift tp
+/sift spawn charoite_wisp
+/sift temple spawners clear temple-1
+/sift temple spawners reset temple-1
+```
+- [ ] **Aussehen:** leuchtender türkiser Kern mit Auge, acht violette Splitter kreisen, grauer Ring dreht gegenläufig,
+      Schweif pendelt; beim Schuss weiten sich die Splitter, beim Blinken schrumpft es weg.
+- [ ] **Verhalten:** hält etwa 10 Blöcke Abstand, schwebt über einem, kreist; kommt man nah, weicht es zurück.
+- [ ] **Splitter:** langsam, folgt einem leicht, weicht man seitlich aus, verfehlt er; trifft er, 2,5 Herzen; prallt an
+      Wänden ab (verschwindet). Ohne Sichtlinie schießt es nicht.
+- [ ] **Blinken:** Pfeil oder Schlag → es springt ein paar Blöcke weg (Partikel, Klang), ein zweiter Treffer kurz danach
+      lässt es stehen.
+- [ ] **Brut:** In Zone 3 (innerer Ringgang) kommen Irrlichter und Dunkle Schnüffler gemischt; keine Beute, keine
+      Erfahrung; weggehen → verschwinden; nie mehr als 16 Brut-Mobs.
+- [ ] **Zu zweit:** mehr Mobs je Welle, die Irrlichter teilen sich auf beide auf; schwer, aber machbar.
+- [ ] **Todesmeldung:** von einem Splitter getötet → „… was slain by Charoite Wisp“ (englischer Client) bzw.
+      „… wurde von Charoit-Irrlicht erschlagen“ (deutscher Client).
+- [ ] **Friedlich:** greift nicht an.
+
 ## Mobs: Allays (ab alpha.31)
 
 Nur mit Spieler (der Spawner arbeitet nur in der Nähe von Spielern in der Sift):

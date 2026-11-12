@@ -53,6 +53,7 @@ public final class ItemSelfTest {
         advancements();
         languages();
         messages();
+        charoiteWisp();
         loot(world);
         lines.add(failures == 0 ? "Selbsttest bestanden" : "Selbsttest: " + failures + " Fehler");
         return lines;
@@ -225,6 +226,29 @@ public final class ItemSelfTest {
         check(problems.isEmpty() && !german.isEmpty(), "Spielertexte: " + german.size() + " Keys Deutsch, " + english.size()
                 + " Englisch" + (problems.isEmpty() ? ", alle in beiden Sprachen mit gleichen Platzhaltern"
                 : ", Abweichungen: " + String.join("; ", problems.subList(0, Math.min(5, problems.size())))));
+    }
+
+    /** alpha.42d: the Charoite Wisp is registered with its rig, animations, names and is in the zone 3 mix. */
+    private void charoiteWisp() {
+        de.lamamc.sift.SiftPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class);
+        var kind = plugin.mobs() == null ? null : plugin.mobs().kind(de.lamamc.sift.mob.wisp.CharoiteWispKind.ID);
+        if (kind == null) {
+            check(!plugin.getConfig().getBoolean("mobs.charoite_wisp.enabled", true) || !plugin.getConfig().getBoolean("mobs.enabled", true),
+                    "Charoit-Irrlicht: nicht registriert (nur in Ordnung, wenn mobs.charoite_wisp.enabled oder mobs.enabled aus ist)");
+            return;
+        }
+        int cubes = kind.assets().rig().cubes().size();
+        boolean anims = kind.assets().animations().keySet().containsAll(List.of("idle", "attack", "blink"));
+        java.util.Map<String, String> en = new java.util.HashMap<>();
+        java.util.Map<String, String> german = new java.util.HashMap<>();
+        Translations.read("/lang/lamakingdom_en_us.json", en);
+        Translations.read("/lang/de_de.json", german);
+        String key = "entity.the_sift.charoite_wisp";
+        check(cubes >= 10 && anims && en.containsKey(key) && german.containsKey(key), "Charoit-Irrlicht: " + cubes + " Würfel, Animationen "
+                + (anims ? "idle/attack/blink" : "fehlen") + ", Name „" + german.get(key) + "“ / „" + en.get(key) + "“");
+        var zone = plugin.getConfig().getStringList("phase4.temples.spawners.zones.3.mobs");
+        lines.add((zone.contains(de.lamamc.sift.mob.wisp.CharoiteWispKind.ID) ? "OK      " : "HINWEIS ")
+                + "Brut-Zone 3: " + zone + (zone.contains(de.lamamc.sift.mob.wisp.CharoiteWispKind.ID) ? "" : " (ohne Irrlicht)"));
     }
 
     private void loot(World world) {

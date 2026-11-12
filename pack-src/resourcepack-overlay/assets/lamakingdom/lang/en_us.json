@@ -18,5 +18,6 @@
   "block.the_sift.charoite_block": "Block of Charoite",
   "item.the_sift.charoite_block": "Block of Charoite",
   "entity.the_sift.great_echo_golem": "Great Echo Golem",
-  "entity.the_sift.soul_helper": "Soul Helper"
+  "entity.the_sift.soul_helper": "Soul Helper",
+  "entity.the_sift.charoite_wisp": "Charoite Wisp"
 }

@@ -33,13 +33,20 @@ final class MobRigImporter {
         MOBS.put("singer", List.of("singer"));
         MOBS.put("echo_golem", List.of("echo_golem", "echo_golem_glow"));
         MOBS.put("dark_sniffer", List.of("dark_sniffer"));
+        MOBS.put("charoite_wisp", List.of("charoite_wisp"));
     }
 
     /**
      * Mobs whose model is our own (packgen resources mobs/&lt;id&gt;.geo.json and .animation.json) instead of the
      * original's: the Dark Sniffer is the vanilla sniffer model in the original, which must not be copied.
      */
-    static final java.util.Set<String> OWN_MODELS = java.util.Set.of("dark_sniffer");
+    static final java.util.Set<String> OWN_MODELS = java.util.Set.of("dark_sniffer", "charoite_wisp");
+
+    /**
+     * Own mobs that are not in the original at all (alpha.42d Charoite Wisp): their texture is ours too
+     * (packgen resources mobs/&lt;id&gt;.png, scripts/gen_charoite_wisp.py), and every cube glows.
+     */
+    static final java.util.Set<String> OWN_TEXTURES = java.util.Set.of("charoite_wisp");
 
     /**
      * Variants made here instead of read from the jar: the carrying echo golem (EchoGolemSoulGlowLayer of the
@@ -79,6 +86,11 @@ final class MobRigImporter {
             }
             JsonArray cubes = rig.getAsJsonArray("cubes");
             for (String variant : mob.getValue()) {
+                if (OWN_TEXTURES.contains(variant)) {
+                    ownTexture(variant, cubes, rig, assets);
+                    report.note("Mob rigs (one item model per cube)", variant + ": " + cubes.size() + " cubes (own model and texture)");
+                    continue;
+                }
                 GlowVariant glow = GLOW_VARIANTS.get(variant);
                 ZipEntry texture = zip.getEntry(TEXTURES + (glow != null ? glow.base() : variant) + ".png");
                 if (texture == null) {
@@ -147,6 +159,40 @@ final class MobRigImporter {
         java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
         javax.imageio.ImageIO.write(out, "png", bytes);
         return bytes.toByteArray();
+    }
+
+    /** A mob with our own texture: the PNG from the packgen resources, every cube model full bright. */
+    private static void ownTexture(String variant, JsonArray cubes, JsonObject rig, Path assets) throws IOException {
+        Path png = assets.resolve("textures/item/mob/" + variant + ".png");
+        Files.createDirectories(png.getParent());
+        try (InputStream in = MobRigImporter.class.getResourceAsStream("/mobs/" + variant + ".png")) {
+            if (in == null) {
+                throw new IOException("missing packgen resource mobs/" + variant + ".png");
+            }
+            Files.write(png, in.readAllBytes());
+        }
+        for (int i = 0; i < cubes.size(); i++) {
+            String id = "mob/" + variant + "/" + i;
+            JsonObject cubeModel = cubeModel(cubes.get(i).getAsJsonObject(), rig.get("texture_width").getAsInt(),
+                    rig.get("texture_height").getAsInt(), "the_sift:item/mob/" + variant);
+            for (JsonElement element : cubeModel.getAsJsonArray("elements")) {
+                element.getAsJsonObject().addProperty("light_emission", GLOW_LIGHT);
+            }
+            Main.writeJson(assets.resolve("models/item/" + id + ".json"), cubeModel);
+            JsonObject model = new JsonObject();
+            model.addProperty("type", "minecraft:model");
+            model.addProperty("model", "the_sift:item/" + id);
+            JsonObject tint = new JsonObject();
+            tint.addProperty("type", "minecraft:custom_model_data");
+            tint.addProperty("index", 0);
+            tint.addProperty("default", 0xFFFFFF);
+            JsonArray tints = new JsonArray();
+            tints.add(tint);
+            model.add("tints", tints);
+            JsonObject definition = new JsonObject();
+            definition.add("model", model);
+            Main.writeJson(assets.resolve("items/" + id + ".json"), definition);
+        }
     }
 
     static JsonElement resource(String name) throws IOException {

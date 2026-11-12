@@ -777,6 +777,27 @@ das Portal des Originals. Es wird beim Generieren registriert (`city-…` in `/s
 frühere Melodie und das Buch „Lied der Tiefe“ gibt es nicht mehr.
 Mit `enabled: false` bleiben neue Städte Vanilla; vorhandene Portale bleiben registriert.
 
+### Charoit-Irrlicht (ab alpha.42d, `mobs.charoite_wisp`)
+
+Eigener Mob (nicht im Original) für Zone 3 der Brut-Spawner (innerer Ringgang an der Arena): ein schwebender Kern aus
+Sculk-Licht mit acht kreisenden Charoit-Splittern, Schieferring darüber, leuchtet. 18 Leben.
+- **Verhalten:** Sucht den nächsten Spieler (Überleben/Abenteuer) in `aggro-range` (24) Blöcken, schwebt in
+  `preferred-distance` (10) Blöcken Abstand und `hover-height` (3) über ihm, kreist langsam, weicht unter `min-distance`
+  (7) zurück. Schießt alle `shoot-cooldown-ticks` (40) einen Charoit-Splitter (`shard-damage` 5, langsam, lenkt
+  `shard-turn-degrees` 4° je Tick zum Ziel nach, verschwindet an Blöcken), nur mit Sichtlinie und in `shoot-range` (18).
+  Getroffen blinkt es `blink-distance` (4) Blöcke weg, danach erst wieder nach `blink-cooldown-ticks` (120). Ohne Ziel
+  schwebt es gut einen Block über dem Boden. Auf Friedlich greift es nicht an.
+- **Herkunft:** nur aus den Brut-Spawnern (als Brut ohne Beute und Erfahrung, Despawn ohne Spieler, nach Neustart
+  entfernt, zählt zu `max-alive-per-temple`) und per `/sift spawn charoite_wisp`. Kein natürlicher Spawn, kein Spawn-Ei.
+- **Mischung in Zone 3:** `phase4.temples.spawners.zones.3.mobs`, Standard `[charoite_wisp, dark_sniffer]`; jeder
+  Eintrag zählt einmal (`[charoite_wisp, charoite_wisp, dark_sniffer]` = zwei Drittel Irrlichter). Eine unveränderte
+  alte Liste `[dark_sniffer]` ersetzt das Update selbst (Log „old defaults replaced … (alpha42d)“), eine eigene bleibt.
+- **Name:** „Charoit-Irrlicht“ / „Charoite Wisp“ (Pack `entity.the_sift.charoite_wisp`, auch in Todesmeldungen).
+- **Technik:** unsichtbare Biene ×1,5 (Hitbox etwa 1,05 × 0,9, Modell etwa 1,2 Blöcke hoch), alle Bienen-Goals entfernt,
+  ohne Schwerkraft. Modell, Textur und Animationen (idle, attack, blink) erzeugt `scripts/gen_charoite_wisp.py`
+  (packgen-Ressourcen `mobs/charoite_wisp.*`); eine eigene PNG gleichen Aufbaus kann die Textur ersetzen.
+- `/sift debug selftest` prüft Rig (17 Würfel), Animationen, Namen in beiden Sprachen und meldet die Mischung von Zone 3.
+
 ## Drops und Erze
 
 - Sift-Geröll wie im Original (und wie Vanilla-Kies/Feuerstein): mit Behutsamkeit das Geröll, sonst

@@ -11,6 +11,7 @@ mobs:
     echo_golem: "Echo Golem"
     great_echo_golem: "Great Echo Golem"
     soul_helper: "Soul Helper"
+    charoite_wisp: "Charoite Wisp"
   spawned: "<green><count> × <mob> spawned."
   spawn-failed: "<red><mob> could not spawn here (<reason>)."
   unknown: "<red>Unknown Sift mob: <mob>"

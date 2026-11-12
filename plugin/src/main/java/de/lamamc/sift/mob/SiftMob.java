@@ -121,6 +121,22 @@ public abstract class SiftMob {
     protected void detached() {
     }
 
+    /** True only while {@link #teleportSelf} runs: the base mob guard lets the plugin's own teleport through. */
+    boolean teleportingSelf;
+
+    /**
+     * Teleports the base mob on behalf of the Sift mob (blink, back into an arena). The base mob guard cancels every
+     * other teleport of a base mob (vanilla habits like the enderman's), which used to stop these too (alpha.42d fix).
+     */
+    protected boolean teleportSelf(Location to) {
+        teleportingSelf = true;
+        try {
+            return base.teleport(to);
+        } finally {
+            teleportingSelf = false;
+        }
+    }
+
     /** Plays a sound of the resource pack (the_sift:&lt;name&gt;) at the mob; the base mob itself is silent. */
     protected void playSound(String name, float volume, float pitch) {
         Location at = base.getLocation();
