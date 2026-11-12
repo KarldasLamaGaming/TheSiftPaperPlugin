@@ -27,6 +27,22 @@ class TempleLayoutTest {
     }
 
     @Test
+    void bossArenaIsOpenAroundTheAltarWithTheSoulRingInItsFloor() {
+        int floor = -P.depth();
+        assertTrue(TempleLayout.soulRing().size() >= 16);
+        for (int[] xz : TempleLayout.soulRing()) {
+            assertEquals("soul_block", LAYOUT.blocks().get(new TempleLayout.Pos(xz[0], floor - 1, xz[1])), "ring soul in the floor");
+            assertEquals("air", LAYOUT.blocks().get(new TempleLayout.Pos(xz[0], floor, xz[1])), "room above it");
+        }
+        // the golem (2.9 x 4.2) lands 6 north of the altar and falls from the keep top: the column is open
+        for (int y = floor; y <= TempleLayout.KEEP_TOP + 3; y++) {
+            String b = LAYOUT.blocks().get(new TempleLayout.Pos(0, y, -6));
+            assertTrue(b == null || b.equals("air"), "shaft open at y " + y + ": " + b);
+        }
+        assertEquals(11, TempleLayout.ARENA_RADIUS);
+    }
+
+    @Test
     void broodSpawnersStandInTheirZones() {
         assertEquals(12, LAYOUT.spawners().size());
         assertEquals(java.util.Map.of(1, 3L, 2, 5L, 3, 4L), LAYOUT.spawners().stream()

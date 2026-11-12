@@ -110,6 +110,30 @@ public final class TempleLayout {
     static final String CHEST = "minecraft:chest[facing=north]";
     static final String SOUL_SOIL = "minecraft:soul_soil";
     static final String SOUL_FIRE = "minecraft:soul_fire";
+    /** Radius of the arena shaft around the altar (blocks). */
+    public static final int ARENA_RADIUS = Plan.SHAFT;
+    /** Height of the keep's floor above the court; the arena shaft opens at its top. */
+    public static final int KEEP_TOP = Plan.KEEP;
+
+    /** Whether the arena floor at (x, z) from the altar is one of the soul blocks of its ring. */
+    static boolean soulRingCell(int x, int z) {
+        double d = Math.hypot(x, z);
+        return d >= 7.5 && d < 8.4 && Math.floorMod(x + z, 2) == 0;
+    }
+
+    /** Offsets (x, z) from the altar of the soul blocks in the arena floor. */
+    public static List<int[]> soulRing() {
+        List<int[]> out = new java.util.ArrayList<>();
+        for (int x = -Plan.SHAFT; x <= Plan.SHAFT; x++) {
+            for (int z = -Plan.SHAFT; z <= Plan.SHAFT; z++) {
+                if (soulRingCell(x, z)) {
+                    out.add(new int[] {x, z});
+                }
+            }
+        }
+        return out;
+    }
+
     public static final String SPAWNER = "minecraft:trial_spawner[trial_spawner_state=inactive,ominous=true]";
 
     private static String stairs(String facing) {
@@ -536,7 +560,7 @@ public final class TempleLayout {
                     double d = Math.hypot(x, z);
                     if (d <= SHAFT + 0.5) {
                         box(x, ug, z, x, KEEP, z, AIR, false);
-                        String floor = d >= 7.5 && d < 8.4 && Math.floorMod(x + z, 2) == 0 ? SOUL
+                        String floor = soulRingCell(x, z) ? SOUL
                                 : d > SHAFT - 0.7 ? CHISELED : FLOOR;
                         set(x, ug - 1, z, floor, true);
                     } else if (d <= SHAFT + 1.6) {

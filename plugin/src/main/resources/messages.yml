@@ -9,6 +9,8 @@ mobs:
     singer: "Singer"
     dark_sniffer: "Dunkler Schnüffler"
     echo_golem: "Echo Golem"
+    great_echo_golem: "Großer Echo-Golem"
+    soul_helper: "Seelenhelfer"
   spawned: "<green><count> × <mob> erschienen."
   spawn-failed: "<red><mob> konnte hier nicht erscheinen (<reason>)."
   unknown: "<red>Unbekannter Sift-Mob: <mob>"

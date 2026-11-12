@@ -239,6 +239,9 @@ public final class TempleRegistry implements Listener {
             for (String line : stored.split("\n")) {
                 Temple t = Temple.parse(line);
                 if (t != null) {
+                    if (t.state() == State.FIGHT) {
+                        t = t.withState(State.SLEEPING, 0); // a fight never survives a restart (the boss is not saved)
+                    }
                     temples.put(t.id(), t);
                     if (t.version() >= BASTION) {
                         builder.knownFloor(t.id(), t.y());
@@ -427,6 +430,52 @@ public final class TempleRegistry implements Listener {
         spawnerStates.remove(id); // fresh again
         save();
         return true;
+    }
+
+    /** A boss fight began (FIGHT) or ended without a victory (back to SLEEPING); the spawners keep their state. */
+    public void fighting(String id, boolean fight) {
+        Temple t = temples.get(id);
+        if (t != null && t.state() != State.DEFEATED) {
+            temples.put(id, t.withState(fight ? State.FIGHT : State.SLEEPING, 0));
+            save();
+        }
+    }
+
+    /** Whether this temple has the arena the boss needs (bastion layout, alpha.41.1 or later). */
+    public boolean hasArena(Temple t) {
+        return t.version() >= BASTION;
+    }
+
+    /** Arena centre block (x, z) and the level fighters stand on (y), for temples with an arena. */
+    public org.bukkit.Location arenaCenter(Temple t) {
+        TempleLayout.Pos altar = markers(t).altar();
+        return new org.bukkit.Location(sift, t.x() + altar.x() + 0.5, t.y() + altar.y() - 2, t.z() + altar.z() + 0.5);
+    }
+
+    /** Top of the keep (the shaft opens there), absolute y. */
+    public int keepTop(Temple t) {
+        return t.y() + TempleLayout.KEEP_TOP + 1;
+    }
+
+    /** Positions of the soul blocks in the arena floor. */
+    public java.util.List<org.bukkit.Location> soulRing(Temple t) {
+        org.bukkit.Location c = arenaCenter(t);
+        java.util.List<org.bukkit.Location> out = new java.util.ArrayList<>();
+        for (int[] xz : TempleLayout.soulRing()) {
+            out.add(new org.bukkit.Location(sift, c.getBlockX() + xz[0], c.getBlockY() - 1, c.getBlockZ() + xz[1]));
+        }
+        return out;
+    }
+
+    /** The Seelen-Altar of a sleeping temple whose spawners are exhausted was used (alpha.42b: the boss fight). */
+    public interface AltarUse {
+        void use(Player player, Temple temple);
+    }
+
+    private AltarUse altarUse;
+
+    public void altarUse(AltarUse use) {
+        this.altarUse = use;
     }
 
     /** For the boss (alpha.42) and tests: the boss of this temple is defeated. */
@@ -699,6 +748,10 @@ public final class TempleRegistry implements Listener {
             event.setCancelled(true);
             Player player = event.getPlayer();
             int awake = altarGate && t.get().state() != State.DEFEATED ? spawnersAwake(t.get()) : 0;
+            if (awake == 0 && t.get().state() != State.DEFEATED && altarUse != null && hasArena(t.get())) {
+                altarUse.use(player, t.get());
+                return;
+            }
             player.sendActionBar(Component.text(t.get().state() == State.DEFEATED ? "Der Wächter dieses Tempels ist besiegt."
                     : awake > 0 ? "Der Seelen-Altar schweigt, solange " + awake + (awake == 1 ? " Brutkern wacht." : " Brutkerne wachen.")
                     : altarMessage, NamedTextColor.DARK_AQUA));
