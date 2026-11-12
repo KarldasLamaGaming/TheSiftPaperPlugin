@@ -931,6 +931,39 @@ mobs:
     # Spawn beim Generieren: 1–2 je neuer Sculk-Region an der Oberfläche der Sift (wie im Original)
     spawn:
       enabled: true
+  # Charoit-Irrlicht (ab alpha.42d, eigener Mob, nicht im Original): schwebender Fernkämpfer der Tempel-Brut (Zone 3).
+  # Kommt nur aus den Brut-Spawnern (phase4.temples.spawners.zones) und per /sift spawn charoite_wisp; als Brut-Mob ohne
+  # Beute und Erfahrung, verschwindet ohne Spieler. Basis: unsichtbare Biene.
+  charoite_wisp:
+    enabled: true
+    # Größe der Basis-Biene (1,5 ergibt etwa 1,05 × 0,9 Blöcke); das Modell ist etwa 1,2 Blöcke hoch
+    base-scale: 1.5
+    model-scale: 1.0
+    attributes:
+      max-health: 18.0
+      flying-speed: 0.6
+      movement-speed: 0.3
+      follow-range: 32.0
+    combat:
+      # Spieler in so vielen Blöcken werden zum Ziel
+      aggro-range: 24
+      # schwebt in diesem Abstand (waagrecht) um sein Ziel, so hoch darüber; näher als min-distance weicht es zurück
+      preferred-distance: 10
+      min-distance: 7
+      hover-height: 3
+      # Charoit-Splitter: Reichweite, Abklingzeit, Tempo (Blöcke je Tick), Lenkung (Grad je Tick), Lebensdauer, Schaden,
+      # Trefferradius
+      shoot-range: 18
+      shoot-cooldown-ticks: 40
+      shard-speed: 0.45
+      shard-turn-degrees: 4
+      shard-lifetime-ticks: 80
+      shard-damage: 5.0
+      shard-hit-radius: 0.45
+      # Getroffen blinkt es so viele Blöcke weg, danach erst wieder nach der Abklingzeit
+      blink-distance: 4
+      blink-cooldown-ticks: 120
+    experience: 0
 
 recipes:
   # Rezepte der Sift beim Betreten im Rezeptbuch freischalten
@@ -1089,7 +1122,8 @@ phase4:
       # Der Seelen-Altar erwacht erst, wenn alle Spawner seines Tempels erschöpft sind (Boss ab alpha.42b);
       # hängt ein Spawner, beendet /sift temple spawners clear <id> alle
       altar-gate: true
-      # Je Zone: Wellen, Mobs je Welle für einen Spieler, dazu je weiterem Spieler, Sift-Mobs (zufällig gewählt)
+      # Je Zone: Wellen, Mobs je Welle für einen Spieler, dazu je weiterem Spieler, Sift-Mobs (zufällig gewählt, ein
+      # Eintrag mehrfach = häufiger)
       zones:
         "1":
           enabled: true
@@ -1108,8 +1142,9 @@ phase4:
           waves: 3
           mobs-per-wave: 3
           per-extra-player: 1
-          # alpha.42a.3 bringt das Charoit-Irrlicht für diese Zone
-          mobs: [dark_sniffer]
+          # Charoit-Irrlicht (ab alpha.42d) und Dunkler Schnüffler; die Liste ist die Mischung: jeder Eintrag zählt
+          # einmal, z. B. [charoite_wisp, charoite_wisp, dark_sniffer] = zwei Drittel Irrlichter
+          mobs: [charoite_wisp, dark_sniffer]
     # Gerüchte-Zettel (ab alpha.41b): Item "temple_rumor" mit Himmelsrichtung und gerundeter Entfernung vom Fundort zum
     # nächsten schlafenden Tempel (nie zum eigenen). Nur in der Sift; außerhalb und bei ausgeschalteten Tempeln wird
     # er aus der Beute genommen.

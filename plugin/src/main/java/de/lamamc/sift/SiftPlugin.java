@@ -269,6 +269,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         wardens.start(this);
         darkSnifferSpawns = new de.lamamc.sift.mob.darksniffer.DarkSnifferSpawns(mobs, darkSnifferKind);
         darkSnifferSpawns.start(this);
+        org.bukkit.configuration.ConfigurationSection wisp = config.getConfigurationSection("charoite_wisp");
+        mobs.register(new de.lamamc.sift.mob.wisp.CharoiteWispKind(wisp != null ? wisp : new org.bukkit.configuration.MemoryConfiguration(),
+                items));
         org.bukkit.configuration.ConfigurationSection golem = config.getConfigurationSection("echo_golem");
         if (golem == null) {
             golem = new org.bukkit.configuration.MemoryConfiguration();
@@ -400,7 +403,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private void updateConfig() {
         org.bukkit.configuration.file.FileConfiguration config = getConfig();
         // alpha.37: recipes and loot chances; alpha.42c: single German texts become de/en sections
-        for (String version : List.of("alpha37", "alpha42c")) {
+        for (String version : List.of("alpha37", "alpha42c", "alpha42d")) {
             java.io.InputStream migration = getResource("migrations/" + version + ".yml");
             if (migration != null && config.getDefaults() != null) {
                 org.bukkit.configuration.file.YamlConfiguration old = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(

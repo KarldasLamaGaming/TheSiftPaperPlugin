@@ -65,9 +65,9 @@ Enchanter-Block (3 und 2), danach der Boss mit Tempel (1).
   Chunk-Entladen) nach den Hotfixes prüfen und schließen, Plugin-Kompatibilität (#18) auf dem Produktivserver
   prüfen, die Sift einmal zurücksetzen (#16, TESTING → „Sift-Welt zurücksetzen“), bestehende `config.yml` mit den
   neuen Standardwerten abgleichen (u. a. `abandoned-portals.chance: 1.0`), #17 schließen.
-- Bis zum Go-live: alpha.42c (Deutsch/Englisch) → gesammelter Playtest → Welt- und Spieler-Reset (GOLIVE.md) →
-  Go-live als v0.1.0-beta.1. Danach: alpha.42a.3 Charoit-Irrlicht (Zone 3), optional Prüfungsräume für Wächter und
-  Wither (Option B). Name des Golem-Items: Nachtkristall (Id `golem_trophy` bleibt); der Charoit-Kern behält seinen
+- Bis zum Go-live: alpha.42d Charoit-Irrlicht → alpha.42e Tempel-Wege (Mindestmaße, Begehbarkeit, Layout-Version 4) →
+  gesammelter Playtest → Welt- und Spieler-Reset (GOLIVE.md) → Go-live als v0.1.0-beta.1. Danach optional
+  Prüfungsräume für Wächter und Wither (Option B). Name des Golem-Items: Nachtkristall (Id `golem_trophy` bleibt); der Charoit-Kern behält seinen
   Namen.
 - Bedrock-Optik für Sift-Blöcke (auch den Sculk Enchanter) bräuchte Geyser-Mappings und ein Bedrock-Pack; bisher
   sehen Bedrock-Spieler die Ersatzblöcke (Pilzblöcke), die Funktion bleibt gleich.

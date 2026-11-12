@@ -291,5 +291,6 @@
   "block.the_sift.charoite_block": "Charoit-Block",
   "item.the_sift.charoite_block": "Charoit-Block",
   "entity.the_sift.great_echo_golem": "Großer Echo-Golem",
-  "entity.the_sift.soul_helper": "Seelenhelfer"
+  "entity.the_sift.soul_helper": "Seelenhelfer",
+  "entity.the_sift.charoite_wisp": "Charoit-Irrlicht"
 }

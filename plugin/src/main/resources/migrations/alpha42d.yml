@@ -1,0 +1,8 @@
+# Defaults of alpha.42c that alpha.42d replaces when a server still has them unchanged (ConfigUpdate): zone 3 of the
+# brood spawners gets the Charoite Wisp. A list an admin changed stays.
+phase4:
+  temples:
+    spawners:
+      zones:
+        "3":
+          mobs: [dark_sniffer]

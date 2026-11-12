@@ -68,7 +68,7 @@ public final class BaseMobGuard implements Listener {
     public void onTeleport(EntityTeleportEvent event) {
         if (sift(event.getEntity())) {
             SiftMob mob = mobs.mob(event.getEntity());
-            if (mob == null || !mob.kind().allowsTeleport()) {
+            if (mob == null || !mob.kind().allowsTeleport() && !mob.teleportingSelf) {
                 event.setCancelled(true);
             }
         }
