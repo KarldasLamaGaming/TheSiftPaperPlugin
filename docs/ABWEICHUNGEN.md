@@ -292,6 +292,9 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   - Hofboden, Treppen, Stufen, Mauern, Gitter, Ketten und Laternen sind Vanilla-Tiefenschiefer bzw. Vanilla-Blöcke: Auf
     Siftschiefer (Pilzstiel-Zustände) würden die Pflanzen der Sift-Weltgenerierung wachsen.
   - In den Chunks eines Tempels setzt der Sift-Populator keine Bäume, Pflanzen, Sculk-Flecken oder Quellen.
+- **Brut-Spawner** (alpha.42a): 12 je Tempel, vom Plugin gesteuert (Wellen, Skalierung, Erschöpfung wie ein
+  Prüfungsspawner). Optik: Vanilla-Prüfungsspawner ohne Vanilla-Logik; wach blau (ominös), erschöpft dunkel; die
+  Vanilla-Zustände „aktiv“ und „Abklingzeit“ lassen sich nicht halten (Vanilla setzt sie ohne Mob-Daten zurück).
 - **Siftit-Block und Charoit-Block** (alpha.41.1): eigene Speicher- und Zierblöcke, nicht im Original.
 - **Tempel-Kompass und Gerüchte-Zettel** (alpha.41b): Der Sift-Kompass zeigt in der Sift wahlweise zum nächsten
   schlafenden Tempel; Zettel in Truhen nennen Richtung und gerundete Entfernung. Nicht im Original.

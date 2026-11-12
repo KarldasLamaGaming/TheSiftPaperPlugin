@@ -75,7 +75,15 @@ public final class TempleLayout {
      * @param chambers "wither" and "warden" -> their inner, empty space
      */
     public record Layout(Map<Pos, String> blocks, Pos altar, Pos enchanter, List<Pos> chests, Map<String, Box> chambers,
-                         Params params) {
+                         Params params, List<Spawner> spawners) {
+    }
+
+    /**
+     * A brood spawner (alpha.42a): zone 1 = court (barracks, light), 2 = chambers of the trial level, 3 = inner ring next to
+     * the arena (strongest). The block is a vanilla trial spawner without spawn data (vanilla leaves it alone); the plugin
+     * runs it.
+     */
+    public record Spawner(Pos pos, int zone) {
     }
 
     // materials
@@ -102,6 +110,7 @@ public final class TempleLayout {
     static final String CHEST = "minecraft:chest[facing=north]";
     static final String SOUL_SOIL = "minecraft:soul_soil";
     static final String SOUL_FIRE = "minecraft:soul_fire";
+    public static final String SPAWNER = "minecraft:trial_spawner[trial_spawner_state=inactive,ominous=true]";
 
     private static String stairs(String facing) {
         return "minecraft:deepslate_brick_stairs[facing=" + facing + "]";
@@ -112,10 +121,10 @@ public final class TempleLayout {
             CHAROITE, SCULK, ICHOR_GLASS);
     /** Vanilla materials of the temple (protected like the palette inside the temple). */
     public static final List<String> VANILLA = List.of("polished_deepslate", "deepslate_tiles", "cracked_deepslate_tiles", "deepslate_brick_slab",
-            "deepslate_brick_wall", "deepslate_brick_stairs", "iron_bars", "iron_chain", "soul_lantern", "chest");
+            "deepslate_brick_wall", "deepslate_brick_stairs", "iron_bars", "iron_chain", "soul_lantern", "chest", "trial_spawner");
 
     private static final Set<String> NOT_WEATHERED = Set.of(ENCHANTER, CHEST, SOUL, CHAROITE, SIFTITE, REINFORCED, CHAIN, LANTERN,
-            BARS, SOUL_SOIL, SOUL_FIRE, ICHOR_GLASS);
+            BARS, SOUL_SOIL, SOUL_FIRE, ICHOR_GLASS, SPAWNER);
 
     private TempleLayout() {
     }
@@ -293,6 +302,7 @@ public final class TempleLayout {
             openCorridor(16, 0, 18, 0);
             openCorridor(-18, 0, -16, 0);
             Pos[] hall = treasureHall(-9, 19, 9, r - 3);
+            List<Spawner> spawners = spawners();
             // stairways last: where they pass through a chamber the steps stand free in the room
             stairTunnel(-(r - 5), 22, 1);
             stairTunnel(r - 5, 22, -1);
@@ -304,7 +314,7 @@ public final class TempleLayout {
                     throw new IllegalStateException("marker lost: " + marker);
                 }
             }
-            return new Layout(b, altar, hall[0], List.of(hall[1], hall[2]), chambers, p);
+            return new Layout(b, altar, hall[0], List.of(hall[1], hall[2]), chambers, p, spawners);
         }
 
         void curtainWall() {
@@ -668,6 +678,28 @@ public final class TempleLayout {
                 set(x, ug + h - 3, z2 - 4, LANTERN);
             }
             return new Pos[] {enchanter, chestA, chestB};
+        }
+
+        /** Brood spawners: 3 in the barracks, 4 in the pillar chambers and 1 in the north chamber, 4 in the inner ring. */
+        List<Spawner> spawners() {
+            List<Spawner> out = new java.util.ArrayList<>();
+            for (int[] c : new int[][] {{-29, -30}, {29, -30}, {0, -30}}) {
+                out.add(new Spawner(new Pos(c[0], 0, c[1]), 1));
+            }
+            for (int sx = -1; sx <= 1; sx += 2) {
+                for (int sz = -1; sz <= 1; sz += 2) {
+                    out.add(new Spawner(new Pos(sx * 23, ug, sz * 23), 2));
+                }
+            }
+            out.add(new Spawner(new Pos(0, ug, -(r - 4)), 2));
+            for (int[] c : new int[][] {{15, 6}, {-15, -6}, {6, -15}, {-6, 15}}) {
+                out.add(new Spawner(new Pos(c[0], ug, c[1]), 3));
+            }
+            for (Spawner sp : out) {
+                set(sp.pos().x(), sp.pos().y(), sp.pos().z(), SPAWNER, true);
+                set(sp.pos().x(), sp.pos().y() + 1, sp.pos().z(), AIR, false);
+            }
+            return List.copyOf(out);
         }
 
         // ------------------------------------------------------------------------------------------- ruin
