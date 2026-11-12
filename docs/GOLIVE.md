@@ -7,6 +7,152 @@ Befehle ohne `/` sind für die Konsole, Befehle mit `/` für einen Spieler im Sp
 Platzhalter: `<spieler>` = Spielername, `<welt>` = `level-name` aus `server.properties` (meist `world`),
 `N` = laufende Nummer des Backups (z. B. Datum `20261106`).
 
+**Backups:** Alle Sicherungen liegen in `./sift-backups` im Serverordner (Pterodactyl-Volume, also auch im
+Dateimanager sichtbar). Der Ordner ist nur eine Ablage für diese Checkliste: Das Plugin liest und schreibt dort nichts,
+auch der Spieler-Reset nicht. (Die „Siftit-Sicherungen“ des Spieler-Resets sind etwas anderes: die beim Tod
+gesicherten Siftit-Gegenstände in den Spielerdaten.)
+
+---
+
+## 0. Go-live als v0.1.0-beta.1 – Ablauf zum Abhaken
+
+Vorher erledigt: gesammelter Playtest (TESTING.md, alle Punkte „Nur mit Spieler“ bis alpha.42c) auf dem Testserver.
+
+### 0.1 Entscheidungen (vorher festlegen)
+
+- [ ] **Öffnung der Sift** (`access.mode`): `always` (sofort), `after-dragon` (Drachenkill + `delay-days`) oder
+      `fixed-date` mit `date`, z. B. `"2026-12-01T18:00"` (Serverzeit). Zur Wahl: ADMIN.md → „Zugang zur Sift“.
+- [ ] **Pack Pflicht:** `resource-pack.required: true` (Empfehlung; ohne Pack sehen Sift-Blöcke wie Pilzblöcke aus).
+- [ ] **Spieler-Reset:** Wer hatte bisher Zugang (`whitelist list`)? Der Reset trifft alle, die online sind, sofort;
+      wer offline ist, wird beim nächsten Login zurückgesetzt, **aber nur, solange `admin.reset-players.enabled: true`
+      bleibt**. Entweder alle Tester sind beim Reset online (dann gleich wieder aus), oder der Schalter bleibt an, bis
+      alle einmal da waren (siehe 0.4).
+
+### 0.2 Release v0.1.0-beta.1 (GitHub)
+
+1. Auf GitHub: Releases → „Draft a new release“ → neues Tag `v0.1.0-beta.1` auf `main`, Titel „The Sift 0.1.0-beta.1“.
+2. **„Set as a pre-release“ nicht ankreuzen**, „Set as the latest release“ ankreuzen, veröffentlichen.
+   (Ein per Tag-Push erzeugtes Release macht der Workflow seit alpha.42c bei Beta- und Endversionen ebenfalls nicht
+   zum Pre-release.)
+3. Warten, bis der Workflow „Release“ grün ist: Am Release hängen `TheSift-0.1.0-beta.1.jar`, `the-sift-pack.zip` und
+   `the-sift-pack.zip.sha1`.
+4. Die Jar herunterladen (noch nicht einspielen).
+
+### 0.3 Wartungsfenster (Produktivserver)
+
+1. Ankündigen, Whitelist bleibt an. Alle aus der Sift holen (Konsole):
+   ```
+   sift close
+   ```
+   Nach dem Countdown sind alle ohne Bypass draußen. Ein laufender Bosskampf endet beim Stopp von selbst.
+2. Server stoppen:
+   ```
+   stop
+   ```
+3. Backup (Shell im Serverordner, z. B. `cd /var/lib/pterodactyl/volumes/<volume-id>`):
+   ```bash
+   mkdir -p ./sift-backups/N
+   cp -a plugins/TheSift-*.jar ./sift-backups/N/
+   cp -a plugins/TheSift/config.yml plugins/TheSift/messages.yml ./sift-backups/N/
+   cp -a ./world/playerdata ./world/advancements ./sift-backups/N/
+   cp -a ./world/dimensions/the_sift/the_sift ./sift-backups/N/the_sift
+   ```
+   Prüfen: `du -sh ./sift-backups/N/the_sift` ist etwa so groß wie das Original (`du -sh ./world/dimensions/the_sift/the_sift`).
+4. Sift umbenennen statt löschen:
+   ```bash
+   mv ./world/dimensions/the_sift/the_sift ./world/dimensions/the_sift/the_sift.preN
+   ```
+   Paper lädt nur `the_sift`; `the_sift.preN` daneben wird ignoriert (später nach `./sift-backups/N/` verschieben).
+5. Jar tauschen:
+   ```bash
+   mv plugins/TheSift-0.1.0-alpha.*.jar ./sift-backups/N/
+   cp TheSift-0.1.0-beta.1.jar plugins/
+   ls plugins/TheSift-*.jar
+   ```
+   Es darf nur **eine** TheSift-Jar in `plugins/` liegen.
+6. `plugins/TheSift/config.yml` anpassen:
+   ```yaml
+   admin:
+     reset-players:
+       enabled: true
+   resource-pack:
+     required: true
+   access:
+     mode: always          # oder after-dragon / fixed-date (siehe 0.1)
+     date: ""              # nur bei fixed-date, z. B. "2026-12-01T18:00"
+   ```
+   Außerdem prüfen: `rifts.enabled: false`, `resource-pack.url` mit `{version}` (Standard), `resource-pack.sha1: ""`,
+   `language: de`.
+
+### 0.4 Start und Spieler-Reset
+
+1. Server starten. Erwartet im Log (Reihenfolge egal):
+   ```
+   Selecting a location for the main Sift portal
+   Main Sift portal ready at <x> <y> <z>
+   Temples: 10 sites on the ring 1500-3000 around 0/0
+   Temple boss: Great Echo Golem, 600 health
+   ```
+   Keine `ERROR`-Zeilen von TheSift. Beim ersten Start mit alpha.42c außerdem „old defaults replaced … (alpha42c)“.
+2. Spieler-Reset (Konsole):
+   ```
+   sift admin reset-players
+   sift admin reset-players confirm
+   ```
+   Erwartet: „Reset <n> ausgelöst: … Spieler online zurückgesetzt“ (<n> zählt die Resets des Servers); im Log je Spieler
+   `Sift player reset <n> for <name>: … data entries, … advancements, … Sift items removed`.
+3. Schalter wieder aus – **nur wenn alle mit Sift-Daten online waren** (sonst erst später, siehe 0.1):
+   ```yaml
+   admin:
+     reset-players:
+       enabled: false
+   ```
+   und Server neu starten (`stop`, starten).
+
+### 0.5 Prüfungen nach dem Start
+
+Konsole:
+```
+sift temple sites
+sift access status
+sift pack reload
+sift debug selftest
+sift portal schedule
+```
+Erwartet:
+- [ ] `sift temple sites`: alle 10 Plätze „noch nicht generiert“, keiner rot.
+- [ ] `sift access status`: Modus wie in 0.1, offen bzw. zu wie gewollt.
+- [ ] `sift pack reload`: URL von `v0.1.0-beta.1`, SHA-1 berechnet (kein Fehler).
+- [ ] `sift debug selftest`: „Selbsttest bestanden“, darunter 23 von 23 Advancements, „Sprachdateien des Packs … in
+      beiden Sprachen“ und „Spielertexte … in beiden Sprachen“.
+
+Im Spiel als Admin (in der Sift, nahe dem Haupt-Portal):
+```
+/sift tp
+/sift debug ichor scan
+```
+- [ ] Ichor-Scan: `0` wassergeloggte Lichtblöcke (versteckte Quellen).
+- [ ] Pack wird abgefragt (Text in der Sprache des Clients); ablehnen → Kick-Text.
+- [ ] Portale aus den Spieltests in Hauptwelt, Nether und End wieder schlafen legen (Abschnitt 3, „Portale aus den
+      Spieltests“).
+
+### 0.6 Öffnen
+
+1. Portal-Staffel ab jetzt zählen lassen (Tag 0 lief bisher seit dem 12.11., 10:44):
+   ```
+   sift portal schedule set-open now
+   sift portal schedule
+   ```
+   Erwartet: End und Antike Stadt offen, Nether in 7 Tagen, Oberwelt in 14 Tagen.
+2. Sift öffnen, falls in 0.3 geschlossen: `sift access reset` (Modus aus der Config) oder `sift open`.
+3. Whitelist aus: `whitelist off`.
+4. Nach dem Go-live: `the_sift.preN` aus der Welt nach `./sift-backups/N/` verschieben (Server gestoppt) oder dort lassen.
+
+### 0.7 Wenn etwas schiefgeht
+
+Abschnitt 4 (Rollback). Kurz: Server stoppen, `the_sift` umbenennen, `the_sift.preN` zurück nach `the_sift`, alte Jar
+aus `./sift-backups/N/` zurück, `config.yml` aus `./sift-backups/N/`, starten.
+
 ---
 
 ## 1. Spieltests (Testserver)
@@ -162,7 +308,7 @@ gehen nicht, Todesnachricht nennt „Blub“. Kontrolle: `/sift debug mobs`.
 
 ---
 
-## 2. Welt-Reset der Sift (Produktivserver, nichts löschen)
+## 2. Welt-Reset der Sift (Hintergrund; der Ablauf zum Abhaken steht in Abschnitt 0)
 
 Nur die Sift wird neu erzeugt; Hauptwelt, Nether, End und `playerdata` bleiben. Der alte Stand wird **umbenannt**, nicht
 gelöscht.
@@ -175,12 +321,12 @@ gelöscht.
 2. Server stoppen: `stop`
 3. Backup und Umbenennen (Shell im Serverordner):
    ```bash
-   mkdir -p ../sift-backups
-   cp -a <welt>/dimensions/the_sift/the_sift ../sift-backups/the_sift.preN
+   mkdir -p ./sift-backups
+   cp -a <welt>/dimensions/the_sift/the_sift ./sift-backups/the_sift.preN
    mv <welt>/dimensions/the_sift/the_sift <welt>/dimensions/the_sift/the_sift.preN
    ```
    Paper lädt nur den Ordner `the_sift`; `the_sift.preN` daneben wird ignoriert. Wer den Ordner nicht in der Welt
-   lassen will, verschiebt ihn nur nach `../sift-backups/`.
+   lassen will, verschiebt ihn nur nach `./sift-backups/`.
 4. Server starten. Erwartet im Log:
    ```
    Selecting a location for the main Sift portal
@@ -213,14 +359,14 @@ gelöscht.
 **Optional: Spieler „von null“** mit `/sift admin reset-players`:
 1. In der `config.yml` `admin.reset-players.enabled: true` setzen und neu starten. Recht: `thesift.admin.reset` (OP
    standardmäßig; nicht in `thesift.admin` enthalten), z. B. `lp user <spieler> permission set thesift.admin.reset true`.
-2. Backup der Spielerdaten: `cp -a <welt>/playerdata <welt>/advancements ../sift-backups/` (vor Schritt 3).
+2. Backup der Spielerdaten: `cp -a <welt>/playerdata <welt>/advancements ./sift-backups/` (vor Schritt 3).
 3. Ausführen:
    ```
    sift admin reset-players
    sift admin reset-players confirm
    ```
    Erwartet: „Reset 1 ausgelöst: … Spieler online zurückgesetzt“, im Log je Spieler
-   `Sift player reset 1 for <name>: … data entries, … advancements, … Sift items removed`.
+   `Sift player reset <n> for <name>: … data entries, … advancements, … Sift items removed`.
    Der Reset betrifft je Spieler:
    - alle `the_sift:`-Daten im Spieler (Intro-Flag, Siftit-Sicherungen, Rückkehrpunkte);
    - alle `the_sift:`-Advancements;
@@ -308,11 +454,11 @@ Fehler im Log, `/plugins` alle grün.
 
 Vor dem Update anlegen (Server gestoppt):
 ```bash
-mkdir -p ../sift-backups/N
-cp -a plugins/TheSift-*.jar ../sift-backups/N/
-cp -a plugins/TheSift/config.yml ../sift-backups/N/config.yml.preN
-cp -a plugins/TheSift/datapack ../sift-backups/N/datapack.preN
-tar czf ../sift-backups/N/world.preN.tar.gz <welt>
+mkdir -p ./sift-backups/N
+cp -a plugins/TheSift-*.jar ./sift-backups/N/
+cp -a plugins/TheSift/config.yml ./sift-backups/N/config.yml.preN
+cp -a plugins/TheSift/datapack ./sift-backups/N/datapack.preN
+tar czf ./sift-backups/N/world.preN.tar.gz <welt>
 ```
 Hinweise:
 - Den Ordner `plugins/TheSift/datapack` schreibt das Plugin bei jedem Start neu aus seiner Jar. Die Kopie ist nur
@@ -322,12 +468,12 @@ Hinweise:
 Rollback (Server gestoppt):
 ```bash
 rm plugins/TheSift-<neu>.jar
-cp -a ../sift-backups/N/TheSift-<alt>.jar plugins/
-cp -a ../sift-backups/N/config.yml.preN plugins/TheSift/config.yml
+cp -a ./sift-backups/N/TheSift-<alt>.jar plugins/
+cp -a ./sift-backups/N/config.yml.preN plugins/TheSift/config.yml
 ```
 - Nur Plugin-Fehler: Jar und Config zurück, Welt behalten, starten.
 - Weltschaden: zusätzlich die Welt zurück (`mv <welt> <welt>.kaputt`,
-  `tar xzf ../sift-backups/N/world.preN.tar.gz`). Wenn nur die Sift betroffen ist, reicht der Ordner
+  `tar xzf ./sift-backups/N/world.preN.tar.gz`). Wenn nur die Sift betroffen ist, reicht der Ordner
   `<welt>/dimensions/the_sift/the_sift` aus dem Backup bzw. `the_sift.preN`.
 - Resource Pack: Die alte Jar zeigt mit `{version}` auf ihr eigenes Release; das alte Release muss dafür noch auf
   GitHub stehen. Danach `sift pack reload`.

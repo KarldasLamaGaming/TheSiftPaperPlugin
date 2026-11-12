@@ -2,9 +2,10 @@ name: Release
 
 # Builds the plugin and the resource pack for a version and attaches them to its GitHub release.
 # Two ways to start it:
-# - publish a release in the GitHub UI with a new tag v<version> (e.g. v0.1.0-alpha.1); the files are
-#   attached to that release
-# - push a tag v<version>; the release is created (tags with "-" such as -alpha.1 as pre-release)
+# - publish a release in the GitHub UI with a new tag v<version> (e.g. v0.1.0-beta.1); the files are
+#   attached to that release (the pre-release box in the UI decides)
+# - push a tag v<version>; the release is created; only -alpha versions are marked as pre-release, so a beta or
+#   a final version becomes "Latest"
 # The plugin's default resource-pack.url points to the pack of the release that matches its version.
 on:
   push:
@@ -51,7 +52,7 @@ jobs:
             gh release upload "$TAG" "${files[@]}" --clobber
           else
             prerelease=""
-            if [[ "$version" == *-* ]]; then prerelease="--prerelease"; fi
+            if [[ "$version" == *-alpha* ]]; then prerelease="--prerelease"; fi
             sha1="$(cat packgen/build/pack/the-sift-pack.zip.sha1)"
             gh release create "$TAG" $prerelease --title "The Sift $version" \
               --notes "Plugin und Resource Pack für Paper 26.3. Resource Pack SHA-1: $sha1" "${files[@]}"

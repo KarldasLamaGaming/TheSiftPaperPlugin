@@ -26,10 +26,6 @@ Sift-Kompass.
    `/sift tp` bringt dich danach direkt ans Haupt-Portal.
    Danach können Spieler die Sift betreten.
 
-Hinweis zu 0.1.0-alpha.1: Eine von dieser Version angelegte Datei
-`<welt>/dimensions/the_sift/the_sift/paper-world.yml` mit `block-updates`-Einträgen ist wirkungslos
-und kann gelöscht werden.
-
 ## Resource Pack
 
 Spieler brauchen das Resource Pack der Sift (Texturen, Modelle, Sounds, deutsche Texte). Das Plugin
