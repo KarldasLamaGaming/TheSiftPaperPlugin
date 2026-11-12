@@ -26,17 +26,42 @@ final class RigDisplays {
     private static final float DEG = (float) (Math.PI / 180.0);
 
     private final SiftMob mob;
+    /** Cube displays first, then one per extra part (SiftMob#parts). */
     private final List<ItemDisplay> displays = new ArrayList<>();
-    private final Matrix4f[] matrices;
-    private final Matrix4f[] sent;
+    private final int cubes;
+    private Matrix4f[] matrices;
+    private Matrix4f[] sent;
+    private List<RigPart> parts;
+    private int[] partBones;
+    private boolean[] shownVisible;
+    private boolean[] shownGlow;
     private final Matrix4f root = new Matrix4f();
     private String appearance;
 
     RigDisplays(SiftMob mob) {
         this.mob = mob;
-        int cubes = mob.kind.assets().rig().cubes().size();
-        this.matrices = new Matrix4f[cubes];
-        this.sent = new Matrix4f[cubes];
+        this.cubes = mob.kind.assets().rig().cubes().size();
+    }
+
+    /** Parts are asked for lazily: the mob's own fields are not set yet while its constructor builds this. */
+    private void ensure() {
+        if (matrices != null) {
+            return;
+        }
+        parts = List.copyOf(mob.parts());
+        Rig rig = mob.kind.assets().rig();
+        partBones = new int[parts.size()];
+        for (int j = 0; j < parts.size(); j++) {
+            Integer bone = rig.boneIndex().get(parts.get(j).bone());
+            partBones[j] = bone == null ? 0 : bone;
+        }
+        shownVisible = new boolean[parts.size()];
+        shownGlow = new boolean[parts.size()];
+        matrices = new Matrix4f[cubes + parts.size()];
+        sent = new Matrix4f[matrices.length];
+        for (int i = 0; i < matrices.length; i++) {
+            matrices[i] = new Matrix4f();
+        }
     }
 
     int size() {
@@ -44,6 +69,7 @@ final class RigDisplays {
     }
 
     boolean intact() {
+        ensure();
         if (displays.size() != matrices.length) {
             return false;
         }
@@ -56,6 +82,7 @@ final class RigDisplays {
     }
 
     void spawn(RenderSettings settings) {
+        ensure();
         remove();
         // the displays never turn or tilt themselves: yaw comes only through the matrix (body yaw), no pitch or roll
         Location at = mob.base.getLocation();
@@ -74,6 +101,13 @@ final class RigDisplays {
                 d.setInterpolationDuration(0);
                 d.setTeleportDuration(0);
                 d.setTransformationMatrix(matrices[cube]);
+                if (cube >= cubes) {
+                    int j = cube - cubes;
+                    shownVisible[j] = mob.partVisible(j);
+                    shownGlow[j] = mob.partGlows(j);
+                    d.setItemStack(item(cube));
+                    d.setBrightness(shownGlow[j] ? new org.bukkit.entity.Display.Brightness(15, 15) : null);
+                }
                 float shadow = (float) mob.kind.config().getDouble("shadow-radius", 0);
                 if (cube == 0 && shadow > 0) {
                     d.setShadowRadius(shadow);
@@ -150,12 +184,26 @@ final class RigDisplays {
         if (displays.isEmpty() || settings.onlyWhenWatched() && displays.getFirst().getTrackedBy().isEmpty()) {
             return 0;
         }
+        ensure();
         String look = appearanceKey();
         if (!look.equals(appearance)) {
-            for (int i = 0; i < displays.size(); i++) {
+            for (int i = 0; i < cubes && i < displays.size(); i++) {
                 displays.get(i).setItemStack(item(i));
             }
             appearance = look;
+        }
+        for (int j = 0; j < parts.size() && cubes + j < displays.size(); j++) {
+            boolean visible = mob.partVisible(j);
+            boolean glow = mob.partGlows(j);
+            ItemDisplay display = displays.get(cubes + j);
+            if (visible != shownVisible[j]) {
+                shownVisible[j] = visible;
+                display.setItemStack(item(cubes + j));
+            }
+            if (glow != shownGlow[j]) {
+                shownGlow[j] = glow;
+                display.setBrightness(glow ? new org.bukkit.entity.Display.Brightness(15, 15) : null);
+            }
         }
         Location base = mob.base.getLocation();
         Location seat = displays.getFirst().getLocation();
@@ -194,7 +242,12 @@ final class RigDisplays {
             root.rotateZ(Math.min(1f, f) * 90f * DEG);
         }
         root.scale(scale);
-        RigPose.cubeMatrices(rig, mob.pose, root, matrices);
+        Matrix4f[] bones = RigPose.boneMatrices(rig, mob.pose, root);
+        RigPose.cubeMatrices(rig, bones, matrices);
+        for (int j = 0; j < parts.size(); j++) {
+            RigPart part = parts.get(j);
+            RigPose.partMatrix(bones[partBones[j]], part.center(), part.size(), part.rotation(), matrices[cubes + j]);
+        }
     }
 
     /** Root yaw sent last (180° − body yaw, degrees) and the entity rotation of the first display, for /sift debug mobs. */
@@ -213,15 +266,20 @@ final class RigDisplays {
     }
 
     private String appearanceKey() {
-        return mob.variant() + (mob.hurtTicks > 0 || mob.dying() ? "#hurt" : "");
+        Color tint = mob.tint();
+        return mob.variant() + (mob.hurtTicks > 0 || mob.dying() ? "#hurt" : "") + (tint == null ? "" : "#" + tint.asRGB());
     }
 
     private ItemStack item(int cube) {
+        if (cube >= cubes) {
+            int j = cube - cubes;
+            return mob.partVisible(j) ? parts.get(j).item().clone() : ItemStack.empty();
+        }
         ItemStack stack = ItemStack.of(Material.PAPER);
         stack.setData(DataComponentTypes.ITEM_MODEL, Key.key("the_sift", "mob/" + mob.variant() + "/" + cube));
-        if (mob.hurtTicks > 0 || mob.dying()) {
-            stack.setData(DataComponentTypes.CUSTOM_MODEL_DATA,
-                    CustomModelData.customModelData().addColor(mob.manager.renderSettings().hurtColor()).build());
+        Color color = mob.hurtTicks > 0 || mob.dying() ? mob.manager.renderSettings().hurtColor() : mob.tint();
+        if (color != null) {
+            stack.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addColor(color).build());
         }
         return stack;
     }

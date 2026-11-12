@@ -81,6 +81,26 @@ public abstract class SiftMob {
         return kind.variants().getFirst();
     }
 
+    /** Colour the model is tinted with (multiplied with its texture), or null for none; the hurt flash wins. */
+    protected org.bukkit.Color tint() {
+        return null;
+    }
+
+    /** Extra displays fixed to bones (armour, crystals); asked once when the rig is built, the list must not change. */
+    protected java.util.List<RigPart> parts() {
+        return java.util.List.of();
+    }
+
+    /** Whether part {@code index} of {@link #parts()} is shown now (e.g. a plate not broken yet). */
+    protected boolean partVisible(int index) {
+        return true;
+    }
+
+    /** Whether part {@code index} glows now (full brightness); by default as the part says. */
+    protected boolean partGlows(int index) {
+        return parts().get(index).glow();
+    }
+
     /** A player right-clicked the mob; true = handled (vanilla interactions are always cancelled). */
     protected boolean interact(Player player, EquipmentSlot hand) {
         return false;

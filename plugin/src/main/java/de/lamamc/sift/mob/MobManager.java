@@ -170,7 +170,7 @@ public final class MobManager implements Listener {
      * limits checked by the caller). Returns null when the world limit is reached.
      */
     public Mob spawn(MobKind kind, Location location, boolean natural, Consumer<Mob> setup) {
-        if (count(location.getWorld()) >= perWorld) {
+        if (kind.limited() && count(location.getWorld()) >= perWorld) {
             return null;
         }
         location = location.clone();
