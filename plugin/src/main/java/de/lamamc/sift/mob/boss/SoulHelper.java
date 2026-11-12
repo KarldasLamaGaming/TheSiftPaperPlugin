@@ -113,11 +113,13 @@ final class SoulHelper extends SiftMob {
                 }
                 if (stateTicks >= 48) {
                     source = null;
-                    enter(State.FETCH);
+                    animations.stop(MISSION);
+                    enter(State.REST);
                 }
             }
             case REST -> {
-                if (stateTicks >= 40) {
+                animations.play(MISSION, "idle", 1.0);
+                if (stateTicks >= helperKind.restTicks()) {
                     enter(State.FETCH);
                 }
             }

@@ -159,6 +159,9 @@ public final class GreatEchoGolem extends SiftMob {
         if (!leash(arena)) {
             return;
         }
+        if (age % 10 == 0) {
+            aura(phase);
+        }
         List<Player> fighters = arena.fighters();
         if (--targetRefresh <= 0 || target == null || !fighters.contains(target)) {
             targetRefresh = 10;
@@ -436,6 +439,19 @@ public final class GreatEchoGolem extends SiftMob {
         if (phase == Phase.SOUND) {
             // the armour is gone: its plates shatter visibly
             sheep.getWorld().spawnParticle(Particle.BLOCK, at, 60, 1.2, 1.2, 1.2, 0, Material.SOUL_SOIL.createBlockData());
+        }
+    }
+
+    /** Souls rise from the golem once its armour is gone; red dust in its rage. */
+    private void aura(Phase phase) {
+        if (phase == Phase.ARMOR) {
+            return;
+        }
+        Location head = sheep.getLocation().add(0, sheep.getHeight() * 0.85, 0);
+        sheep.getWorld().spawnParticle(Particle.SOUL, head, 3, sheep.getWidth() / 3, 0.4, sheep.getWidth() / 3, 0.02);
+        if (phase == Phase.RAGE) {
+            sheep.getWorld().spawnParticle(Particle.DUST, head, 6, sheep.getWidth() / 2, 0.8, sheep.getWidth() / 2, 0,
+                    new Particle.DustOptions(Color.fromRGB(220, 50, 70), 1.4f));
         }
     }
 

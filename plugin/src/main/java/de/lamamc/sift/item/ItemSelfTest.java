@@ -196,7 +196,9 @@ public final class ItemSelfTest {
         Iterator<Advancement> it = Bukkit.advancementIterator();
         long count = StreamSupport.stream(((Iterable<Advancement>) () -> it).spliterator(), false)
                 .filter(a -> a.getKey().getNamespace().equals("the_sift")).count();
-        check(count == 22, "Advancements der Sift geladen: " + count + " von 22");
+        check(count == 23, "Advancements der Sift geladen: " + count + " von 23 (22 des Originals, 1 eigenes)");
+        check(Bukkit.getAdvancement(new NamespacedKey("the_sift", "the_sift/great_echo_golem")) != null,
+                "Advancement the_sift:the_sift/great_echo_golem (Tempel-Boss, alpha.42b.2) geladen");
     }
 
     private void loot(World world) {

@@ -1,5 +1,6 @@
 package de.lamamc.sift.world.temple;
 
+import de.lamamc.sift.core.boss.GearTable;
 import de.lamamc.sift.core.boss.GolemBoss;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.mob.MobManager;
@@ -27,6 +28,8 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -63,7 +66,8 @@ public final class TempleBosses implements Listener {
     public static final UUID ADMIN = new UUID(0, 0);
 
     public record Settings(boolean enabled, String offeringItem, int offeringAmount, int countdownTicks, int leaveTicks, double arenaHeight,
-                           boolean sealGates, boolean refundOffering, boolean platesDrop, int helpers, int lootNightCrystals) {
+                           boolean sealGates, boolean refundOffering, boolean platesDrop, int helpers, int lootNightCrystals,
+                           GearTable gear, int gearRolls, boolean advancement) {
 
         public static Settings of(ConfigurationSection c) {
             ConfigurationSection start = sub(c, "start");
@@ -74,7 +78,37 @@ public final class TempleBosses implements Listener {
                     Math.max(1, reset.getInt("leave-seconds", 30)) * 20, arena.getDouble("height", 10),
                     arena.getBoolean("seal-gates", true), reset.getBoolean("refund-offering", false),
                     sub(c, "phases").getBoolean("plates-drop", true), Math.max(0, sub(c, "phases").getInt("helpers", 2)),
-                    Math.max(0, sub(c, "loot").getInt("night-crystal", 1)));
+                    Math.max(0, sub(c, "loot").getInt("night-crystal", 1)), gear(sub(c, "loot.gear")),
+                    sub(c, "loot.gear").getBoolean("enabled", true) ? Math.max(0, sub(c, "loot.gear").getInt("rolls", 1)) : 0,
+                    c.getBoolean("advancement", true));
+        }
+
+        /** loot.gear.table: list of {item, weight, enchantments: {id: level | [min, max]}}; broken entries are skipped. */
+        private static GearTable gear(ConfigurationSection c) {
+            List<GearTable.Entry> entries = new ArrayList<>();
+            for (Map<?, ?> m : c.getMapList("table")) {
+                Object item = m.get("item");
+                if (!(item instanceof String id) || Material.matchMaterial(id) == null) {
+                    Bukkit.getLogger().warning("[TheSift] phase4.bosses.great-echo-golem.loot.gear.table: unknown item " + item);
+                    continue;
+                }
+                int weight = m.get("weight") instanceof Number n ? n.intValue() : 1;
+                Map<String, int[]> enchantments = new LinkedHashMap<>();
+                if (m.get("enchantments") instanceof Map<?, ?> en) {
+                    en.forEach((k, v) -> {
+                        int[] range = GearTable.range(v);
+                        String key = String.valueOf(k).contains(":") ? String.valueOf(k) : "minecraft:" + k;
+                        if (range == null || enchantment(key) == null) {
+                            Bukkit.getLogger().warning("[TheSift] phase4.bosses.great-echo-golem.loot.gear.table: " + id
+                                    + ": skipped enchantment " + k + " = " + v);
+                        } else {
+                            enchantments.put(key, range);
+                        }
+                    });
+                }
+                entries.add(new GearTable.Entry(id, weight, enchantments));
+            }
+            return new GearTable(entries);
         }
 
         private static ConfigurationSection sub(ConfigurationSection c, String path) {
@@ -84,6 +118,31 @@ public final class TempleBosses implements Listener {
     }
 
     private enum Stage { COUNTDOWN, DESCENT, FIGHT, ENDED }
+
+    /** Advancement for everyone who earned loot (datapack the_sift:the_sift/great_echo_golem, alpha.42b.2). */
+    public static final NamespacedKey ADVANCEMENT = new NamespacedKey("the_sift", "the_sift/great_echo_golem");
+
+    static org.bukkit.enchantments.Enchantment enchantment(String key) {
+        NamespacedKey k = NamespacedKey.fromString(key);
+        return k == null ? null : io.papermc.paper.registry.RegistryAccess.registryAccess()
+                .getRegistry(io.papermc.paper.registry.RegistryKey.ENCHANTMENT).get(k);
+    }
+
+    /** One drawn piece as an item: enchantments above the vanilla maximum are capped to it. */
+    static ItemStack gearItem(GearTable.Roll roll) {
+        Material material = Material.matchMaterial(roll.item());
+        if (material == null) {
+            return null;
+        }
+        ItemStack stack = ItemStack.of(material);
+        roll.enchantments().forEach((key, level) -> {
+            org.bukkit.enchantments.Enchantment e = enchantment(key);
+            if (e != null) {
+                stack.addUnsafeEnchantment(e, Math.min(level, e.getMaxLevel()));
+            }
+        });
+        return stack;
+    }
 
     private final Plugin plugin;
     private final TempleRegistry registry;
@@ -132,6 +191,24 @@ public final class TempleBosses implements Listener {
 
     public Battle battle(String templeId) {
         return battles.get(templeId);
+    }
+
+    /** Test aid (/sift temple boss loot): draws pieces from the gear table as the victory would, as text. */
+    public List<String> previewLoot(int count) {
+        List<String> out = new ArrayList<>();
+        java.util.SplittableRandom random = new java.util.SplittableRandom();
+        for (int i = 0; i < count; i++) {
+            GearTable.Roll roll = settings.gear().roll(random);
+            ItemStack piece = roll == null ? null : gearItem(roll);
+            if (piece == null) {
+                out.add("(nichts – Tabelle leer)");
+                continue;
+            }
+            StringBuilder line = new StringBuilder(piece.getType().getKey().getKey());
+            piece.getEnchantments().forEach((e, level) -> line.append(", ").append(e.getKey().getKey()).append(' ').append(level));
+            out.add(line.toString());
+        }
+        return out;
     }
 
     /** Calls a fight off (admin); false when none runs there. */
@@ -344,6 +421,7 @@ public final class TempleBosses implements Listener {
         GreatEchoGolem golem;
         Mob base;
         private GolemBoss.Phase barPhase;
+        private int barPlates = -1;
 
         Battle(TempleRegistry.Temple temple, UUID offerer, int simulated, boolean practice) {
             this.temple = temple;
@@ -486,24 +564,29 @@ public final class TempleBosses implements Listener {
                 empty = 0;
             }
             bar.progress((float) Math.max(0, Math.min(1, fight.fraction())));
-            if (fight.phase() != barPhase) {
+            if (fight.phase() != barPhase || fight.plates() != barPlates) {
+                boolean phaseChanged = fight.phase() != barPhase;
                 barPhase = fight.phase();
+                barPlates = fight.plates();
+                String plates = barPlates == 1 ? "1 Platte" : barPlates + " Platten";
                 bar.name(Component.text("Großer Echo-Golem · " + switch (barPhase) {
-                    case ARMOR -> "Panzer";
-                    case SOUND -> "Schall";
+                    case ARMOR -> "Panzer, " + plates;
+                    case SOUND -> barPlates > 0 ? "Schall, " + plates : "Schall";
                     case RAGE -> "Wut";
                     case DEAD -> "besiegt";
                 }, NamedTextColor.LIGHT_PURPLE));
-                bar.color(switch (barPhase) {
-                    case ARMOR -> BossBar.Color.BLUE;
-                    case SOUND -> BossBar.Color.YELLOW;
-                    case RAGE, DEAD -> BossBar.Color.RED;
-                });
-                if (barPhase == GolemBoss.Phase.RAGE) {
-                    removeHelpers();
-                    actionBar(Component.text("Der Golem rast vor Wut!", NamedTextColor.RED));
-                } else if (barPhase == GolemBoss.Phase.SOUND) {
-                    actionBar(Component.text("Der Panzer ist gebrochen!", NamedTextColor.YELLOW));
+                if (phaseChanged) {
+                    bar.color(switch (barPhase) {
+                        case ARMOR -> BossBar.Color.BLUE;
+                        case SOUND -> BossBar.Color.YELLOW;
+                        case RAGE, DEAD -> BossBar.Color.RED;
+                    });
+                    if (barPhase == GolemBoss.Phase.RAGE) {
+                        removeHelpers();
+                        actionBar(Component.text("Der Golem rast vor Wut!", NamedTextColor.RED));
+                    } else if (barPhase == GolemBoss.Phase.SOUND) {
+                        actionBar(Component.text("Der Panzer ist gebrochen!", NamedTextColor.YELLOW));
+                    }
                 }
             }
             if (sealed() && ticks % 10 == 0) {
@@ -557,14 +640,45 @@ public final class TempleBosses implements Listener {
             Set<UUID> eligible = fight.eligible(present);
             registry.defeat(temple.id());
             int given = 0;
+            java.util.SplittableRandom random = new java.util.SplittableRandom();
             for (UUID id : eligible) {
                 Player p = Bukkit.getPlayer(id);
-                if (p != null && settings.lootNightCrystals() > 0) {
-                    give(p, items.create("golem_trophy", settings.lootNightCrystals()));
-                    p.sendMessage(Component.text("Du erhältst " + (settings.lootNightCrystals() == 1 ? "einen Nachtkristall."
-                            : settings.lootNightCrystals() + " Nachtkristalle."), NamedTextColor.LIGHT_PURPLE));
-                    given++;
+                if (p == null) {
+                    continue;
                 }
+                List<Component> got = new ArrayList<>();
+                if (settings.lootNightCrystals() > 0) {
+                    give(p, items.create("golem_trophy", settings.lootNightCrystals()));
+                    got.add(Component.text(settings.lootNightCrystals() == 1 ? "einen Nachtkristall"
+                            : settings.lootNightCrystals() + " Nachtkristalle"));
+                }
+                for (int i = 0; i < settings.gearRolls(); i++) {
+                    GearTable.Roll roll = settings.gear().roll(random);
+                    ItemStack piece = roll == null ? null : gearItem(roll);
+                    if (piece != null) {
+                        give(p, piece);
+                        got.add(Component.translatable(piece.translationKey()).append(Component.text(" (verzaubert)")));
+                    }
+                }
+                if (!got.isEmpty()) {
+                    p.sendMessage(Component.text("Du erhältst: ", NamedTextColor.LIGHT_PURPLE)
+                            .append(Component.join(net.kyori.adventure.text.JoinConfiguration.commas(true), got).color(NamedTextColor.WHITE)));
+                }
+                if (settings.advancement()) {
+                    org.bukkit.advancement.Advancement adv = Bukkit.getAdvancement(ADVANCEMENT);
+                    if (adv != null) {
+                        var progress = p.getAdvancementProgress(adv);
+                        progress.getRemainingCriteria().forEach(progress::awardCriteria);
+                    }
+                }
+                given++;
+            }
+            if (base != null) {
+                Location at = base.getLocation().add(0, base.getHeight() * 0.6, 0);
+                world.spawnParticle(Particle.SOUL, at, 120, 1.6, 2.0, 1.6, 0.06);
+                world.spawnParticle(Particle.BLOCK, at, 80, 1.4, 1.8, 1.4, 0, Material.AMETHYST_BLOCK.createBlockData());
+                world.playSound(Sound.sound(Key.key("minecraft", "entity.warden.death"), Sound.Source.HOSTILE, 2.5f, 0.6f),
+                        at.getX(), at.getY(), at.getZ());
             }
             show(Title.title(Component.text("Der Große Echo-Golem ist besiegt", NamedTextColor.LIGHT_PURPLE),
                     Component.text("Der Tempel ist befreit.", NamedTextColor.GRAY),

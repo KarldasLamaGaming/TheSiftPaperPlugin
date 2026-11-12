@@ -37,6 +37,11 @@ public final class SoulHelperKind extends MobKind {
         this.arenas = arenas;
     }
 
+    /** Pause after each soul brought (ticks), so a group has time to stop the helpers. */
+    int restTicks() {
+        return Math.max(0, config.getInt("rest-ticks", 60));
+    }
+
     BossArena arena(UUID golem) {
         return golem == null ? null : arenas.apply(golem);
     }
@@ -65,7 +70,7 @@ public final class SoulHelperKind extends MobKind {
     public void prepare(Mob base, boolean fresh) {
         Sheep sheep = (Sheep) base;
         GreatEchoGolemKind.set(sheep, Attribute.MAX_HEALTH, config, "max-health", 34.0);
-        GreatEchoGolemKind.set(sheep, Attribute.MOVEMENT_SPEED, config, "movement-speed", 0.26);
+        GreatEchoGolemKind.set(sheep, Attribute.MOVEMENT_SPEED, config, "movement-speed", 0.2);
         GreatEchoGolemKind.set(sheep, Attribute.STEP_HEIGHT, null, "", 1.5);
         GreatEchoGolemKind.set(sheep, Attribute.SCALE, null, "", 1.28);
         if (fresh) {

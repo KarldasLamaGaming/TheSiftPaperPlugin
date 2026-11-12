@@ -1150,6 +1150,12 @@ Resource Pack für Siftit- und Charoit-Block):
 - 2 bzw. 3 simulierte Spieler → 900 bzw. 1200 Leben. `boss stop` → Golem weg, schläft. Chunks entladen → sofort
   abgebrochen. Neustart mitten im Kampf → „called off“, nach dem Start schläft der Tempel, kein Golem, keine Displays.
 
+**Smoke-Test alpha.42b.2** (ohne Spieler): `sift debug selftest` bestanden, 23 von 23 Advancements, darunter
+`the_sift:the_sift/great_echo_golem`; „Stille im Tempel“ im Pack. `boss loot 8` → z. B. „netherite_chestplate,
+mending 1, unbreaking 3, protection 4“, „netherite_sword, unbreaking 2, looting 1, sharpness 3“ (alle Stufen in den
+Spannen). Helfer mit Pause: ungestört 6 Platten nach ~40 s (vorher ~30 s). Sieg mit Effekt ohne Fehler, danach keine
+Mobs übrig.
+
 **Nur mit Spieler** (Überlebensmodus, ein Tempel mit Version 3; zu zweit für die Skalierung und die Beute):
 ```
 /sift temple list
@@ -1174,8 +1180,13 @@ Resource Pack für Siftit- und Charoit-Block):
 - [ ] **Seelengitter:** Während des Kampfes durch ein Tor hinaus: zurückgesetzt, Hinweis. Enderperle hinaus: geht nicht.
       Ein zweiter Spieler kann von außen hinein und kämpft mit (Bossleiste).
 - [ ] **Nur aus der Arena:** Vom Kern oder aus dem Ringgang schießen: „Der Golem spürt nur Treffer aus der Arena.“
-- [ ] **Sieg:** Titel, Nachtkristall für jeden, der genug Schaden machte oder am Ende in der Arena stand; Tempel
-      besiegt, Enchanter frei, Kompass zeigt den nächsten Tempel. Erneuter Altar-Klick: „Der Wächter … ist besiegt.“
+- [ ] **Sieg:** Titel, Seelen- und Kristallsplitter, Todesschrei. Für jeden, der genug Schaden machte oder am Ende in
+      der Arena stand: Chat „Du erhältst: einen Nachtkristall, <Netherit-Teil> (verzaubert)“, beides im Inventar
+      (Verzauberungen im Tooltip), Advancement „Stille im Tempel“ (Herausforderung). Wer unter 5 % blieb und am Ende
+      draußen war (tot): nichts. Tempel besiegt, Enchanter frei, Kompass zeigt den nächsten Tempel. Erneuter
+      Altar-Klick: „Der Wächter … ist besiegt.“
+- [ ] **Volles Inventar:** Beute fällt vor die Füße, nur der Besitzer kann sie aufheben.
+- [ ] **Bossleiste:** zeigt „Panzer, N Platten“ und zählt mit; in Phase 2 mit Helferplatten „Schall, N Platten“.
 - [ ] **Abbruch:** Alle sterben bzw. 30 s niemand in der Arena → „zieht sich zurück“, Golem weg, Tempel schläft,
       Seelenblöcke weg. Erneut starten geht.
 - [ ] **Tod im Kampf:** Respawn außerhalb, kein Zurücksetzen in die Arena; zurücklaufen und wieder mitkämpfen.

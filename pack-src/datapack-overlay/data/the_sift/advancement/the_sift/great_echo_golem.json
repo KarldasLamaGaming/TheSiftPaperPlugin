@@ -1,0 +1,30 @@
+{
+  "parent": "the_sift:the_sift/friend_of_the_sift",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "the_sift:golem_trophy"
+      }
+    },
+    "title": {
+      "translate": "advancement.the_sift.great_echo_golem.title",
+      "fallback": "Stille im Tempel"
+    },
+    "description": {
+      "translate": "advancement.the_sift.great_echo_golem.description",
+      "fallback": "Besiege einen Großen Echo-Golem"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "event": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ]
+}
