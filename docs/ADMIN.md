@@ -1085,6 +1085,27 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
   verschieben. Gelände im Bereich bleibt abbaubar. Nach dem Sieg ist der Tempel frei, außer Enchanter, Altar und den
   Prüfungsräumen (immer geschützt). Ausnahme: Recht `thesift.temple.bypass` (auch für OPs nur, wenn vergeben), z. B.
   `lp user <spieler> permission set thesift.temple.bypass true`.
+- **Brut-Spawner** (ab alpha.42a, `spawners`): 12 je Tempel, fest im Bauplan (Version 3 des Bauplans; ältere Tempel
+  bekommen sie mit `/sift temple rebuild <id>`).
+  - **Zonen:** 1 = drei Kasernen im Hof (leicht, Sifter, 2 Wellen); 2 = vier Pfeilerkammern und die Nordkammer (Sifter
+    und Dunkler Schnüffler, 3 Wellen); 3 = vier im inneren Ringgang an der Arena (am stärksten, vorerst Dunkler
+    Schnüffler, ab alpha.42a.2 das Charoit-Irrlicht). Je Zone in `zones.1` bis `zones.3`: an/aus, Wellen, Mobs je Welle,
+    je weiterem Spieler, welche Sift-Mobs.
+  - **Ablauf:** Ein Spieler in `activation-radius` (12) weckt einen Spawner. Er schickt Welle für Welle (Pause
+    `wave-delay-seconds`), mit mehr Spielern mehr Mobs (bis `max-players-scaled`). Nach der letzten Welle ist er erschöpft,
+    bis `cooldown-minutes` (30; 0 = bis zum Zurücksetzen) um sind. Gehen alle Spieler und verschwindet seine Brut, fängt
+    er beim nächsten Besuch wieder mit Welle 1 an.
+  - **Gegen Farmen:** Brut-Mobs geben keine Beute (`drops: false`) und keine Erfahrung (`experience-factor: 0`).
+    Höchstens `max-alive-per-temple` (16) leben gleichzeitig; ist der Tempel voll, wartet die Welle (sie wird nicht
+    übersprungen). Brut verschwindet, wenn `despawn-seconds` lang kein Spieler in `despawn-radius` war, und nach einem
+    Neustart oder Chunk-Entladen beim nächsten Laden.
+  - **Optik:** ein Vanilla-Prüfungsspawner ohne Mob-Daten (Vanilla lässt ihn in Ruhe, geprüft). Wach: blaue
+    (ominöse) Flammen; erschöpft oder aus: dunkel. Dazu Klänge und Partikel beim Erwachen, Spawnen und Erschöpfen.
+  - **Schutz:** Spawner sind Tempelmaterial (bis zum Sieg geschützt). Nach dem Sieg sind alle Spawner aus und die
+    Brut verschwindet.
+  - **Altar-Gate** (`altar-gate: true`): Der Seelen-Altar schweigt, solange noch Spawner wach sind („…, solange 5
+    Brutkerne wachen“). Hängt einer, beendet `/sift temple spawners clear <id>` alle.
+  - **Zustand:** in den Weltdaten der Sift (`the_sift:temple_spawners`), übersteht Neustarts.
 - **Fest verbauter Enchanter:** wie ein hergestellter (Kristall, Menü), aber mit
   `phase4.enchanter.temple-enchanter.requires-defeat: true` erst nach dem Sieg nutzbar; vorher meldet er das.
 - **Sift-Kompass zu den Tempeln (ab alpha.41b, `compass.enabled`):** In der Sift wechselt Schleichen + Rechtsklick mit
@@ -1122,6 +1143,10 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
 | `/sift temple reset <id>`, `reset-all [confirm]` | Tempel wieder auf „schläft“ (der Boss kann erneut besiegt werden) |
 | `/sift temple rebuild <id>` | Tempel an seinem Platz mit dem aktuellen Bauplan neu bauen (alter Bau wird entfernt) |
 | `/sift temple inspect <id>` | Version, Bodenhöhe, wartende Teile, schwebende Säulen und fremde Blöcke über dem Hof |
+| `/sift temple spawners <id>` | Brut-Spawner eines Tempels: Zone, Position (Teleport), Zustand, Welle, lebende Brut |
+| `/sift temple spawners clear <id>` | Alle Spawner sofort erschöpft (bis zum Zurücksetzen), Brut entfernt: der Altar ist frei |
+| `/sift temple spawners reset <id>` | Alle Spawner wieder wach (Welle 1), Brut entfernt |
+| `/sift temple spawners simulate <id> <spieler> <sekunden>` | Testhilfe: zählt so viele Spieler an jedem Spawner des Tempels |
 | `/sift temple defeat <id>` | Tempel als besiegt markieren (Testhilfe bis zum Boss in alpha.42) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |

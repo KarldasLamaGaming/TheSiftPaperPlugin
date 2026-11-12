@@ -1065,6 +1065,39 @@ Resource Pack für Siftit- und Charoit-Block):
       Beim Näherkommen kein Ruckeln; der Tempel steht vollständig, keine fehlenden Chunk-Stücke. Danach
       `sift temple inspect <id>`: 0 schwebend, wartende Teile 0.
 
+### Brut-Spawner (ab alpha.42a)
+
+**Smoke-Test** (ohne Spieler, mit `/sift temple spawners simulate temple-1 2 900`):
+- `rebuild temple-1` → Version 3, 12 Spawner (3/5/4 je Zone) als Prüfungsspawner mit blauen Flammen.
+- Erste Welle sofort, 16 lebende Brut (Grenze je Tempel); Spawner über der Grenze warten (zuerst sprangen sie ohne Kampf
+  durch ihre Wellen; behoben).
+- Brut in Runden getötet: Wellen 1 → 2 → 3, nach 7 Runden alle 12 erschöpft (dunkel). Keine Beute, keine Erfahrung.
+- `reset` → wach (blau); `defeat` → alle OFF, Brut weg, dunkel, übersteht den Neustart; Tempel-`reset` → frisch;
+  `spawners clear` → erschöpft bis zum Reset. Übrig gebliebene Brut verschwindet beim Neustart.
+- Frische Sift: alle 10 Tempel als Version 3 mit Spawnern, 0 schwebend, 0 fremd; 0,58 ms je Chunk-Teil in der
+  Weltgenerierung (höchstens 4 ms), Nachbau auf dem Main-Thread 2,7 ms im Mittel.
+- Ein Vanilla-Prüfungsspawner ohne Mob-Daten fällt nach 45 s auf `inactive` zurück und bleibt dort, auch mit `ominous`;
+  keine Mobs, keine Beute. Nur mit einem Spieler daneben noch nicht geprüft (siehe unten).
+
+**Nur mit Spieler** (Überlebensmodus, ein Tempel mit Version 3, sonst `sift temple rebuild <id>`):
+```
+/sift temple spawners temple-1
+/sift temple spawners reset temple-1
+```
+- [ ] **Prüfungsspawner bleibt ruhig:** Neben einem Spawner stehen: Vanilla spawnt nichts, wirft keine Beute aus, der
+      Block behält blaue Flammen, solange er wach ist.
+- [ ] **Kasernen:** In eine Kaserne gehen: Klang, Sifter erscheinen um den Spawner, Welle 2 nach dem Sieg über Welle 1,
+      danach erschöpft (dunkel, Rauch, Klang).
+- [ ] **Prüfungsebene:** Pfeilerkammern (Sifter und Schnüffler, 3 Wellen), innerer Ring (Schnüffler) entsprechend.
+- [ ] **Zu zweit:** Mehr Mobs je Welle; nie mehr als 16 Brut-Mobs gleichzeitig.
+- [ ] **Keine Farm:** Brut-Mobs lassen nichts fallen und geben keine Erfahrung.
+- [ ] **Weggehen:** Mitten in einer Welle 60 Blöcke weggehen, 30 s warten: die Brut verschwindet; zurück: der Spawner
+      fängt wieder bei Welle 1 an.
+- [ ] **Altar-Gate:** Rechtsklick auf den Altar, solange Spawner wach sind: „Der Seelen-Altar schweigt, solange N
+      Brutkerne wachen.“; nach `sift temple spawners clear temple-1`: wieder der normale Text.
+- [ ] **Schutz:** Spawner abbauen: geht nicht (bis zum Sieg). Nach `sift temple defeat temple-1`: alle dunkel, keine Brut.
+- [ ] **Abschalten:** `phase4.temples.spawners.enabled: false` + Neustart: keine Brut, Altar ohne Gate.
+
 ### Kompass und Gerüchte-Zettel (ab alpha.41b)
 
 Smoke-Test ohne Spieler (Truhen per Trichter geleert, Chance zum Test auf 1,0): Tempeltruhe von temple-1 → „etwa 1100
