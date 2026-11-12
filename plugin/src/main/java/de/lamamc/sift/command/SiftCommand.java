@@ -207,6 +207,12 @@ public final class SiftCommand {
                                         .then(Commands.argument("y", IntegerArgumentType.integer())
                                                 .then(Commands.argument("z", IntegerArgumentType.integer())
                                                         .executes(this::debugShape)))))
+                        .then(Commands.literal("mushrooms")
+                                .then(Commands.argument("dimension", StringArgumentType.string())
+                                        .then(Commands.argument("radius", IntegerArgumentType.integer(0, 16))
+                                                .then(Commands.argument("chunkX", IntegerArgumentType.integer())
+                                                        .then(Commands.argument("chunkZ", IntegerArgumentType.integer())
+                                                                .executes(this::debugMushrooms))))))
                         .then(Commands.literal("chorus")
                                 .then(Commands.argument("radius", IntegerArgumentType.integer(0, 16))
                                         .then(Commands.argument("chunkX", IntegerArgumentType.integer())
@@ -310,6 +316,64 @@ public final class SiftCommand {
      * Generates/loads End chunks and counts chorus plants, and how many of them are in a state that stands
      * in for a Sift block (should be 0: those states do not occur naturally).
      */
+    /**
+     * Mushroom blocks of any world (generated if needed): which states occur and whether any of them is a Sift state.
+     * Shows that vanilla huge mushrooms and the Sift's repurposed states do not collide (alpha.41.2).
+     */
+    private int debugMushrooms(CommandContext<CommandSourceStack> ctx) {
+        var sender = ctx.getSource().getSender();
+        World world = Bukkit.getWorld(org.bukkit.NamespacedKey.fromString(StringArgumentType.getString(ctx, "dimension")));
+        if (world == null) {
+            sender.sendRichMessage("<red>Unbekannte Welt (z. B. \"minecraft:overworld\").");
+            return 0;
+        }
+        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        int cx = IntegerArgumentType.getInteger(ctx, "chunkX");
+        int cz = IntegerArgumentType.getInteger(ctx, "chunkZ");
+        List<CompletableFuture<Chunk>> futures = new ArrayList<>();
+        for (int x = cx - radius; x <= cx + radius; x++) {
+            for (int z = cz - radius; z <= cz + radius; z++) {
+                futures.add(world.getChunkAtAsync(x, z));
+            }
+        }
+        sender.sendRichMessage("<gray>Scanne " + futures.size() + " Chunks nach Pilzblöcken ...");
+        java.util.Set<Material> mushrooms = java.util.Set.of(Material.RED_MUSHROOM_BLOCK, Material.BROWN_MUSHROOM_BLOCK,
+                Material.MUSHROOM_STEM);
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).thenRun(() ->
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    List<ChunkSnapshot> snapshots = futures.stream().map(f -> f.join().getChunkSnapshot()).toList();
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        Map<String, Integer> states = new java.util.TreeMap<>();
+                        for (ChunkSnapshot snapshot : snapshots) {
+                            for (int x = 0; x < 16; x++) {
+                                for (int z = 0; z < 16; z++) {
+                                    for (int y = world.getMinHeight(); y < world.getMaxHeight(); y++) {
+                                        if (mushrooms.contains(snapshot.getBlockType(x, y, z))) {
+                                            states.merge(snapshot.getBlockData(x, y, z).getAsString(), 1, Integer::sum);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            int total = states.values().stream().mapToInt(Integer::intValue).sum();
+                            int reserved = 0;
+                            for (var e : states.entrySet()) {
+                                var custom = plugin.blocks().of(Bukkit.createBlockData(e.getKey()));
+                                if (custom != null) {
+                                    reserved += e.getValue();
+                                }
+                                sender.sendPlainMessage("  " + e.getValue() + " x " + e.getKey()
+                                        + (custom != null ? "  <- SIFT: " + custom.id() : ""));
+                            }
+                            sender.sendPlainMessage("Pilzblöcke: " + total + " in " + states.size() + " Zuständen, davon in "
+                                    + "Sift-Zuständen: " + reserved);
+                        });
+                    });
+                }));
+        return Command.SINGLE_SUCCESS;
+    }
+
     private int debugChorus(CommandContext<CommandSourceStack> ctx) {
         var sender = ctx.getSource().getSender();
         World end = Bukkit.getWorld(org.bukkit.NamespacedKey.minecraft("the_end"));

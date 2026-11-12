@@ -267,6 +267,18 @@ public final class SculkEnchanters implements Listener {
         }
     }
 
+    /**
+     * Up to alpha.41.1 the enchanter block was a state that natural red mushroom caps also have; a marked enchanter
+     * still in that state gets the current one (alpha.41.2). The mark makes sure it is an enchanter and not a cap.
+     */
+    private void migrate(Block block) {
+        if (blockStyle && LEGACY_STATE.equals(block.getBlockData().getAsString())) {
+            block.setBlockData(blocks.defaultState(ID).data(), false);
+        }
+    }
+
+    static final String LEGACY_STATE = "minecraft:red_mushroom_block[down=false,east=false,north=false,south=true,up=false,west=false]";
+
     private void remember(Chunk chunk) {
         int[] stored = chunk.getPersistentDataContainer().get(KEY, PersistentDataType.INTEGER_ARRAY);
         if (stored == null) {
@@ -275,6 +287,7 @@ public final class SculkEnchanters implements Listener {
         Set<Long> keys = loaded.computeIfAbsent(chunk.getWorld().getName(), w -> new HashSet<>());
         for (int p : stored) {
             long key = Block.getBlockKey((chunk.getX() << 4) + FluidIdentity.localX(p), FluidIdentity.y(p), (chunk.getZ() << 4) + FluidIdentity.localZ(p));
+            migrate(chunk.getWorld().getBlockAt(Block.getBlockKeyX(key), Block.getBlockKeyY(key), Block.getBlockKeyZ(key)));
             keys.add(key);
             showCrystal(chunk.getWorld(), key);
         }
