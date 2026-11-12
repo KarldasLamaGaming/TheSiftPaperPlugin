@@ -16,7 +16,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
-/** /sift temple list|info|sites|reset|reset-all|rebuild|inspect|defeat (phase 4, alpha.41a, rebuild/inspect alpha.41.1). */
+/**
+ * /sift temple list|info|sites|reset|reset-all|rebuild|inspect|defeat|spawners|boss (phase 4, alpha.41a; rebuild/inspect alpha.41.1,
+ * spawners alpha.42a, boss alpha.42b).
+ */
 final class TempleCommand {
 
     private final SiftPlugin plugin;
@@ -54,8 +57,22 @@ final class TempleCommand {
                                                     return Command.SINGLE_SUCCESS;
                                                 })))))))
                 .then(Commands.literal("inspect").then(id().executes(ctx -> withTemple(ctx, this::inspect))))
-                // test aid until the boss exists (alpha.42): the temple counts as defeated
-                .then(Commands.literal("defeat").then(id().executes(ctx -> withTemple(ctx, this::defeat))));
+                // test aid: the temple counts as defeated (no fight, no loot)
+                .then(Commands.literal("defeat").then(id().executes(ctx -> withTemple(ctx, this::defeat))))
+                // the Great Echo Golem (alpha.42b): start without offering and gate, call off, state, damage as a test aid
+                .then(Commands.literal("boss")
+                        .then(Commands.literal("info").executes(this::bossInfo).then(id().executes(ctx -> withTemple(ctx, this::bossInfo))))
+                        .then(Commands.literal("start").then(id().executes(ctx -> withTemple(ctx, (s, r, t) -> bossStart(s, r, t, 0)))
+                                .then(Commands.argument("players", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 8))
+                                        .executes(ctx -> withTemple(ctx, (s, r, t) -> bossStart(s, r, t,
+                                                com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "players")))))))
+                        .then(Commands.literal("stop").then(id().executes(ctx -> withTemple(ctx, this::bossStop))))
+                        .then(Commands.literal("damage").then(id()
+                                .then(Commands.argument("amount", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 100_000))
+                                        .executes(ctx -> withTemple(ctx, (s, r, t) -> bossDamage(s, t,
+                                                com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "amount"), false)))
+                                        .then(Commands.literal("ranged").executes(ctx -> withTemple(ctx, (s, r, t) -> bossDamage(s, t,
+                                                com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "amount"), true))))))));
     }
 
     private RequiredArgumentBuilder<CommandSourceStack, String> id() {
@@ -216,14 +233,101 @@ final class TempleCommand {
     }
 
     private int reset(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        if (plugin.bosses() != null) {
+            plugin.bosses().stop(t.id(), "Ein Admin hat den Tempel zurückgesetzt; der Kampf ist abgebrochen.");
+        }
         temples.reset(t.id());
         sender.sendRichMessage("<green>Tempel <white>" + t.id() + "</white> schläft wieder (Wächter kann erneut besiegt werden).");
         return Command.SINGLE_SUCCESS;
     }
 
     private int defeat(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        if (plugin.bosses() != null) {
+            plugin.bosses().stop(t.id(), "Ein Admin hat den Tempel als besiegt gesetzt; der Kampf ist beendet.");
+        }
         temples.defeat(t.id());
-        sender.sendRichMessage("<green>Tempel <white>" + t.id() + "</white> gilt als besiegt (Testhilfe bis zum Boss in alpha.42).");
+        sender.sendRichMessage("<green>Tempel <white>" + t.id() + "</white> gilt als besiegt (Testhilfe, ohne Kampf und Beute).");
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private de.lamamc.sift.world.temple.TempleBosses bosses(CommandSender sender) {
+        var bosses = plugin.bosses();
+        if (bosses == null) {
+            sender.sendRichMessage("<red>Der Tempel-Boss ist aus (phase4.bosses.great-echo-golem.enabled oder mobs.enabled).");
+        }
+        return bosses;
+    }
+
+    private int bossInfo(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        var bosses = bosses(sender);
+        if (bosses == null) {
+            return 0;
+        }
+        if (bosses.battles().isEmpty()) {
+            sender.sendRichMessage("<gray>Kein Bosskampf läuft.");
+        }
+        bosses.battles().forEach(b -> sender.sendRichMessage("<gray>" + b.describe()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int bossInfo(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        var bosses = bosses(sender);
+        if (bosses == null) {
+            return 0;
+        }
+        var b = bosses.battle(t.id());
+        sender.sendRichMessage("<gray>" + (b == null ? t.id() + ": kein Kampf, Tempel " + state(t.state()) : b.describe()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int bossStart(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t, int players) {
+        var bosses = bosses(sender);
+        if (bosses == null) {
+            return 0;
+        }
+        if (t.state() == TempleRegistry.State.DEFEATED) {
+            sender.sendRichMessage("<red>Tempel " + t.id() + " ist besiegt. Erst <white>/sift temple reset " + t.id());
+            return 0;
+        }
+        if (!temples.hasArena(t)) {
+            sender.sendRichMessage("<red>Tempel " + t.id() + " ist zu alt für die Arena. Erst <white>/sift temple rebuild " + t.id());
+            return 0;
+        }
+        if (bosses.battle(t.id()) != null) {
+            sender.sendRichMessage("<red>In " + t.id() + " läuft schon ein Kampf.");
+            return 0;
+        }
+        bosses.begin(t, null, players, players > 0);
+        sender.sendRichMessage("<green>Bosskampf in <white>" + t.id() + "</white> beginnt" + (players > 0
+                ? " (Testhilfe: Leben wie für " + players + " Spieler, kein Abbruch bei leerer Arena)." : "."));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int bossStop(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        var bosses = bosses(sender);
+        if (bosses == null) {
+            return 0;
+        }
+        boolean stopped = bosses.stop(t.id(), "Ein Admin hat den Kampf abgebrochen.");
+        sender.sendRichMessage(stopped ? "<green>Kampf in " + t.id() + " abgebrochen; der Tempel schläft wieder." : "<gray>Kein Kampf in " + t.id() + ".");
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int bossDamage(CommandSender sender, TempleRegistry.Temple t, double amount, boolean ranged) {
+        var bosses = bosses(sender);
+        if (bosses == null) {
+            return 0;
+        }
+        var b = bosses.battle(t.id());
+        var r = b == null ? null : b.adminHit(ranged ? de.lamamc.sift.core.boss.GolemBoss.Hit.RANGED
+                : de.lamamc.sift.core.boss.GolemBoss.Hit.MELEE, amount);
+        if (r == null) {
+            sender.sendRichMessage("<red>In " + t.id() + " kämpft gerade kein gelandeter Golem.");
+            return 0;
+        }
+        sender.sendRichMessage(String.format(Locale.ROOT, "<gray>Treffer: %.1f abgezogen%s%s, Phase %s → %s. %s", r.dealt(),
+                r.plateBroken() ? ", Platte gebrochen" : "", r.bounced() ? ", abgeprallt" : "", r.from(), r.to(), b.describe()));
         return Command.SINGLE_SUCCESS;
     }
 

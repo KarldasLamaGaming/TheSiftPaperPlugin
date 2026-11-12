@@ -32,6 +32,11 @@ public final class RigPose {
 
     /** Fills {@code out} (one matrix per cube of the rig). */
     public static Matrix4f[] cubeMatrices(Rig rig, Pose pose, Matrix4f root, Matrix4f[] out) {
+        return cubeMatrices(rig, boneMatrices(rig, pose, root), out);
+    }
+
+    /** One matrix per bone (model pixels to the display's local space), parents first. */
+    public static Matrix4f[] boneMatrices(Rig rig, Pose pose, Matrix4f root) {
         int boneCount = rig.bones().size();
         Matrix4f[] bones = new Matrix4f[boneCount];
         Vector3f rotation = new Vector3f();
@@ -49,6 +54,11 @@ public final class RigPose {
             m.scale(nonZero(scale.x), nonZero(scale.y), nonZero(scale.z)).translate(-pivot.x, -pivot.y, -pivot.z);
             bones[i] = m;
         }
+        return bones;
+    }
+
+    /** Cube matrices from bone matrices computed by {@link #boneMatrices}. */
+    public static Matrix4f[] cubeMatrices(Rig rig, Matrix4f[] bones, Matrix4f[] out) {
         for (int c = 0; c < rig.cubes().size(); c++) {
             Rig.Cube cube = rig.cubes().get(c);
             Matrix4f m = out[c] == null ? (out[c] = new Matrix4f()) : out[c];
@@ -63,6 +73,17 @@ public final class RigPose {
                     .rotateY((float) Math.PI);
         }
         return out;
+    }
+
+    /**
+     * Matrix for an extra item display fixed to a bone (e.g. a block worn as armour): a block item model drawn
+     * centred on {@code center} (model pixels, the rig's coordinates), {@code size} pixels large, turned by
+     * {@code rotation} (degrees, Z then Y then X like the bones) about its centre.
+     */
+    public static Matrix4f partMatrix(Matrix4f bone, Vector3f center, Vector3f size, Vector3f rotation, Matrix4f out) {
+        out.set(bone).translate(center);
+        rotateZyx(out, rotation);
+        return out.scale(nonZero(size.x), nonZero(size.y), nonZero(size.z)).rotateY((float) Math.PI);
     }
 
     private static void rotateZyx(Matrix4f m, Vector3f degrees) {

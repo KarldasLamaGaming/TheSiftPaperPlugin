@@ -17,9 +17,19 @@ public abstract class MobKind {
     protected final ConfigurationSection config;
 
     protected MobKind(String id, ConfigurationSection config) {
+        this(id, id, config);
+    }
+
+    /** A kind drawn with the rig and animations of another ({@code assetsId}), e.g. a boss built on a mob's model. */
+    protected MobKind(String id, String assetsId, ConfigurationSection config) {
         this.id = id;
         this.config = config;
-        this.assets = MobAssets.load(id);
+        this.assets = MobAssets.load(assetsId);
+    }
+
+    /** Whether this kind counts against and is stopped by the per-world limit (mobs.limits); a boss is not. */
+    public boolean limited() {
+        return true;
     }
 
     public final String id() {

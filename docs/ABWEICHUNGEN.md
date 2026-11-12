@@ -283,8 +283,8 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   (eigene Formen und Materialtexturen, keine Mojang-Dateien). Bedrock-Spieler (Geyser) sehen sie nicht, sie
   bekommen die Basis-Items (Papier).
 - **Tempel** (alpha.41a, Bastion über einer Prüfungsebene seit alpha.41.1): genau 10 je Sift auf einem Ring um 0/0, im
-  Plugin gebaut (keine Datapack-Struktur, damit die Zahl fest ist und die Plätze vorab bekannt sind). Der Seelen-Altar
-  schläft bis alpha.42, die Prüfungsräume für Wither und Wächter bleiben bis zu ihren Prüfungen versiegelt. Tempel
+  Plugin gebaut (keine Datapack-Struktur, damit die Zahl fest ist und die Plätze vorab bekannt sind). Am Seelen-Altar
+  erwacht seit alpha.42b.1 der Boss, die Prüfungsräume für Wither und Wächter bleiben bis zu ihren Prüfungen versiegelt. Tempel
   entstehen nur in neu generierten Chunks.
   - Ein Tempel reicht über 7 × 7 Chunks. Chunks, die vor der Tempelmitte generiert werden, bekommen ihren Teil kurz
     danach auf dem Main-Thread (die Paper-API kennt die Geländehöhe eines noch nicht generierten Chunks nicht, NMS wäre
@@ -298,7 +298,13 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
 - **Siftit-Block und Charoit-Block** (alpha.41.1): eigene Speicher- und Zierblöcke, nicht im Original.
 - **Tempel-Kompass und Gerüchte-Zettel** (alpha.41b): Der Sift-Kompass zeigt in der Sift wahlweise zum nächsten
   schlafenden Tempel; Zettel in Truhen nennen Richtung und gerundete Entfernung. Nicht im Original.
-- Später: Boss „Großer Echo-Golem“ (alpha.42).
+- **Großer Echo-Golem** (alpha.42b.1): eigener Boss, nicht im Original. Er nutzt das Modell des Echo Golems
+  (2,5-fach, gefärbt) mit Seelenblöcken, Charoit-Blöcken und einem Nachtkristall als zusätzliche Modellteile; Bewegungen
+  aus den vorhandenen Golem-Animationen (Aufheben = Faustschlag, Verbeugen = Stampfer, Tragen = Schall aufladen). Ein
+  eigenes Blockbench-Modell kann es später ersetzen. Seine Lebenspunkte sind ein eigener Pool des Kampfes (Vanilla
+  begrenzt Lebenspunkte auf 1024); die Bossleiste ist eine Plugin-Bossleiste. Das Seelengitter ist ein Kraftfeld ohne
+  Blöcke (Partikel in den Toren, Zurücksetzen statt Wand). Bedrock-Spieler (Geyser) sehen den Golem nicht, nur die
+  Bossleiste und die Angriffe (wie bei allen Sift-Mobs).
 
 ## Siftit-Erhalt beim Tod (seit alpha.23)
 

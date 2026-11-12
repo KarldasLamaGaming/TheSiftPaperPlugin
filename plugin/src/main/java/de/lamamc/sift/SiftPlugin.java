@@ -283,6 +283,15 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         golemKind.singers(new de.lamamc.sift.mob.singer.SoulSingers(mobs, singerKind, () -> canyonLandmarks));
         golemSpawner = new de.lamamc.sift.mob.echogolem.EchoGolemSpawner(mobs, golemKind, () -> canyonLandmarks);
         golemSpawner.start(this);
+        org.bukkit.configuration.ConfigurationSection boss = getConfig().getConfigurationSection("phase4.bosses.great-echo-golem");
+        if (boss == null) {
+            boss = new org.bukkit.configuration.MemoryConfiguration();
+        }
+        bossKind = new de.lamamc.sift.mob.boss.GreatEchoGolemKind(boss, items);
+        mobs.register(bossKind);
+        org.bukkit.configuration.ConfigurationSection helper = boss.getConfigurationSection("helper");
+        helperKind = new de.lamamc.sift.mob.boss.SoulHelperKind(helper != null ? helper : new org.bukkit.configuration.MemoryConfiguration());
+        mobs.register(helperKind);
         getServer().getPluginManager().registerEvents(mobs, this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.BaseMobGuard(mobs), this);
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.mob.SpawnEggs(mobs), this);
@@ -548,6 +557,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(temples, this);
         temples.start(world);
         startBroodSpawners(c.getConfigurationSection("spawners"));
+        startBosses();
         if (enchanters != null) {
             temples.onEnchanter(b -> {
                 if (enchanters.isEnchanter(b)) {
@@ -597,6 +607,31 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     }
 
     private de.lamamc.sift.world.temple.BroodSpawners brood;
+    private de.lamamc.sift.mob.boss.GreatEchoGolemKind bossKind;
+    private de.lamamc.sift.mob.boss.SoulHelperKind helperKind;
+    private de.lamamc.sift.world.temple.TempleBosses bosses;
+
+    /** The Great Echo Golem in the temple arenas (alpha.42b, phase4.bosses.great-echo-golem). */
+    private void startBosses() {
+        org.bukkit.configuration.ConfigurationSection c = getConfig().getConfigurationSection("phase4.bosses.great-echo-golem");
+        if (bossKind == null || helperKind == null || c == null || !c.getBoolean("enabled", true)) {
+            getLogger().info("Temple boss is off (phase4.bosses.great-echo-golem.enabled or mobs.enabled); the altars stay asleep");
+            return;
+        }
+        bosses = new de.lamamc.sift.world.temple.TempleBosses(this, temples, mobs, bossKind, helperKind, items,
+                de.lamamc.sift.world.temple.TempleBosses.Settings.of(c));
+        getServer().getPluginManager().registerEvents(bosses, this);
+        bosses.start();
+        var s = bossKind.settings();
+        getLogger().info(String.format(java.util.Locale.ROOT, "Temple boss: Great Echo Golem, %.0f health (+%.0f %% per extra player, up to %d), "
+                + "%d plates, offering %d %s", s.baseHealth(), s.perExtraPlayer() * 100, s.maxPlayersScaled(), s.plates(),
+                bosses.settings().offeringAmount(), bosses.settings().offeringItem()));
+    }
+
+    /** Null while the temple boss is off. */
+    public de.lamamc.sift.world.temple.TempleBosses bosses() {
+        return bosses;
+    }
 
     /** Brood spawner runtime (alpha.42a), null when off. */
     public de.lamamc.sift.world.temple.BroodSpawners brood() {
@@ -654,6 +689,9 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         if (golemLight != null) {
             golemLight.removeAll(); // before the golems detach: no block changes are scheduled any more
+        }
+        if (bosses != null) {
+            bosses.stop(); // the golem is never saved: every fight is called off, the temples sleep again
         }
         if (mobs != null) {
             mobs.stop();

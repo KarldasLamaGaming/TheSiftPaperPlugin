@@ -20,7 +20,7 @@
 #   recipes         Rezeptbuch beim Join
 #   resource-pack   Resource Pack (URL, Pflicht, Texte)
 #   phase4          Eigene Inhalte nach dem Original-Port: Boss-Items (ab alpha.39), Sculk Enchanter (ab alpha.40),
-#                   Tempel (ab alpha.41a), Tempel-Kompass und Gerüchte-Zettel (ab alpha.41b); später Bosse
+#                   Tempel (ab alpha.41a), Tempel-Kompass und Gerüchte-Zettel (ab alpha.41b), Tempel-Boss (ab alpha.42b)
 #
 # Neue Einstellungen eines Updates fügt das Plugin beim Start selbst hinzu; was schon in der Datei steht, bleibt.
 
@@ -1041,7 +1041,7 @@ phase4:
     protect-until-defeated: true
     # Beute der zwei Truhen in der Schatzhalle (Datapack)
     loot-table: "the_sift:chests/temple"
-    # Text beim Rechtsklick auf den Seelen-Altar, solange es den Boss noch nicht gibt (alpha.42)
+    # Text beim Rechtsklick auf den Seelen-Altar, solange der Boss aus ist (phase4.bosses.great-echo-golem.enabled)
     altar-message: "Der Seelen-Altar schweigt noch."
     # Sift-Kompass (ab alpha.41b): in der Sift wechselt Schleichen + Rechtsklick zwischen Hauptportal und dem nächsten
     # Tempel, dessen Wächter noch schläft (auch noch nicht generierte). Besiegte Tempel zeigt er nicht.
@@ -1114,6 +1114,73 @@ phase4:
       all-defeated:
         - "<gray>Ein Gerücht aus der Sift:"
         - "<dark_aqua>Alle Tempel sind verstummt."
+  # Bosse der Tempel (ab alpha.42b). Nichts davon gibt es im Original.
+  bosses:
+    # Großer Echo-Golem (Charoit-Koloss): erwacht am Seelen-Altar in der Arena, einmal je Tempel. Danach ist der Tempel
+    # besiegt (Enchanter frei, Spawner aus, Kompass zeigt ihn nicht mehr); zurück nur per /sift temple reset <id>.
+    great-echo-golem:
+      enabled: true
+      start:
+        # Opfergabe: so viele dieser Items in der Haupthand beim Rechtsklick auf den Altar (werden verbraucht)
+        offering: "the_sift:soul_block"
+        amount: 8
+        # Countdown nach der Opfergabe; wer dann in der Arena steht, zählt für die Lebenspunkte
+        countdown-seconds: 5
+      health:
+        # Lebenspunkte: Grundwert, +Anteil je weiterem Spieler beim Start, gezählt bis zu so vielen Spielern
+        base: 600
+        per-extra-player: 0.5
+        max-players-scaled: 4
+      phases:
+        # Panzer bis 60 % (endet erst mit der letzten Platte), Wut unter 25 %
+        armor-until: 0.6
+        enrage-below: 0.25
+        # Seelenplatten am Körper (höchstens 12); jeder Nahkampftreffer bricht eine ab, Geschosse prallen ab
+        armor-plates: 12
+        # Abgeschlagene Platten fallen dem, der sie abschlug, als Seelenblock zu
+        plates-drop: true
+        # Seelenruf zu Beginn der Schallphase: so viele Helfer holen Seelen aus dem Arenaboden; je gebrachte Seele
+        # eine neue Platte (höchstens rearmor-plates). Ein Treffer lässt sie die Seele fallen.
+        helpers: 2
+        rearmor-plates: 6
+      attacks:
+        # Faustschlag: Schaden, Reichweite ab Körpermitte (Blöcke), Abklingzeit (Ticks)
+        melee: {damage: 14, reach: 3.5, cooldown-ticks: 30}
+        # Stampfer: Schaden in der Mitte (am Rand die Hälfte), Umkreis, Vorwarnung (roter Ring), Abstand normal / in Wut
+        slam: {damage: 8, radius: 6, windup-ticks: 20, interval-ticks: 240, interval-ticks-rage: 120}
+        # Schallwelle (ab Phase 2): Schaden, Aufladen, Abstand normal / in Wut
+        sonic: {damage: 10, windup-ticks: 40, interval-ticks: 200, interval-ticks-rage: 140}
+        # Tempo in der Wut (Faktor)
+        rage-speed: 1.3
+      arena:
+        # Seelengitter: Wer in der Arena kämpft, kommt erst nach Sieg, Tod oder Abbruch wieder hinaus (Eintritt geht immer)
+        seal-gates: true
+        # Höhe der Arena über dem Boden; nur wer darin steht, kämpft und macht Schaden (kein Beschuss von oben)
+        height: 10
+      reset:
+        # Abbruch, wenn so lange kein lebender Kämpfer in der Arena war; der Tempel schläft dann wieder
+        leave-seconds: 30
+        # Opfergabe beim Abbruch zurückgeben
+        refund-offering: false
+      loot:
+        # Beute bekommt, wer mindestens diesen Anteil der Lebenspunkte abgezogen hat oder beim Tod in der Arena steht
+        min-damage-share: 0.05
+        # Nachtkristalle je berechtigtem Spieler (weitere Beute folgt mit alpha.42b.2)
+        night-crystal: 1
+      # Aussehen: Größe des Modells, Hitbox (Schaf-Skalierung), Farbton normal / in Wut, Charoit-Krone und Kern
+      model-scale: 2.5
+      base-scale: 3.2
+      tint: "#9E8CE0"
+      tint-rage: "#E07890"
+      model:
+        crown: true
+      attributes:
+        movement-speed: 0.24
+      experience: 300
+      # Seelenhelfer (Echo Golems des Seelenrufs)
+      helper:
+        max-health: 34
+        movement-speed: 0.26
   # Rezepte der Phase-4-Items (Format wie portals.recipes, Rückfall auf das eingebaute Rezept bei Fehlern)
   recipes:
     # Charoit-Kern (Arbeitstitel): 5 Charoit, Herz des Wächters, Drachenschuppe, Kern des Withers, Siftitbarren
