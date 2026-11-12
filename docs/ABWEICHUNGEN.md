@@ -307,7 +307,8 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   Bossleiste und die Angriffe (wie bei allen Sift-Mobs). Seit alpha.42b.2 mit eigener Netherit-Beute (Tabelle in der
   Config) und dem eigenen Advancement „Stille im Tempel“ (nicht im Original; seit alpha.42c auf Deutsch und Englisch).
 - **Sprachen** (alpha.42c): Das Original hat Englisch, Polnisch und Koreanisch, unsere eigenen Inhalte gibt es auf
-  Deutsch und Englisch. Ersatztexte (ohne Pack) sind seit alpha.42c englisch.
+  Deutsch und Englisch. Ersatztexte (ohne Pack) sind seit alpha.42c englisch. Meldungen des Plugins kommen in der
+  Sprache des Clients (Deutsch für `de_*`, sonst Englisch), unabhängig vom Pack.
 
 ## Siftit-Erhalt beim Tod (seit alpha.23)
 

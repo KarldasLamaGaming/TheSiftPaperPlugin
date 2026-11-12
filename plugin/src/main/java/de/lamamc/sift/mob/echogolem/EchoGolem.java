@@ -902,7 +902,7 @@ public final class EchoGolem extends SiftMob {
             player.getWorld().dropItem(player.getLocation(), left, item -> item.setOwner(player.getUniqueId()));
         }
         if (!rest.isEmpty() && golemKind.messages() != null) {
-            player.sendActionBar(golemKind.messages().get("mobs.echo_golem.inventory-full"));
+            player.sendActionBar(golemKind.messages().get(player, "mobs.echo_golem.inventory-full"));
         }
         hasSoul = false;
         golemKind.toPlayers.incrementAndGet();

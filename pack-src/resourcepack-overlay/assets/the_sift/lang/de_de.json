@@ -289,5 +289,7 @@
   "block.the_sift.siftite_block": "Siftit-Block",
   "item.the_sift.siftite_block": "Siftit-Block",
   "block.the_sift.charoite_block": "Charoit-Block",
-  "item.the_sift.charoite_block": "Charoit-Block"
+  "item.the_sift.charoite_block": "Charoit-Block",
+  "entity.the_sift.great_echo_golem": "Großer Echo-Golem",
+  "entity.the_sift.soul_helper": "Seelenhelfer"
 }

@@ -25,6 +25,20 @@ public final class TempleHints {
         return DIRECTIONS[sector];
     }
 
+    /** Key of the direction for the texts (alpha.42c): n, ne, e, se, s, sw, w, nw, or here. */
+    public static String directionKey(double fromX, double fromZ, double toX, double toZ) {
+        double dx = toX - fromX;
+        double dz = toZ - fromZ;
+        if (dx == 0 && dz == 0) {
+            return "here";
+        }
+        double degrees = Math.toDegrees(Math.atan2(dx, -dz));
+        int sector = (int) Math.floorMod(Math.round(degrees / 45.0), 8L);
+        return KEYS[sector];
+    }
+
+    private static final String[] KEYS = {"n", "ne", "e", "se", "s", "sw", "w", "nw"};
+
     /** The distance rounded to a multiple of step (at least step), so a note does not give the exact spot. */
     public static int roundedDistance(double fromX, double fromZ, double toX, double toZ, int step) {
         double distance = Math.hypot(toX - fromX, toZ - fromZ);

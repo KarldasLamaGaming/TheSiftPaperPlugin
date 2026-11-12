@@ -1,6 +1,6 @@
-# The Sift – Texte für Spieler (MiniMessage: https://docs.advntr.dev/minimessage/format.html)
+# The Sift – Texte für Spieler auf Deutsch (MiniMessage: https://docs.advntr.dev/minimessage/format.html)
+# Spieler mit deutschem Client bekommen diese Datei, alle anderen messages_en.yml (ab alpha.42c).
 # Platzhalter stehen in <spitzen Klammern>, z. B. <mob>. Neue Texte eines Updates werden beim Start ergänzt.
-# Bestehende Texte des Plugins ziehen nach und nach hierher um.
 
 mobs:
   names:
@@ -36,7 +36,120 @@ access:
 rifts:
   no-space: "<red>Nicht genug Platz für den Riss"
   no-exit: "<red>Der Riss konnte in sinnvoller Entfernung nicht geöffnet werden, du landest am Spawnpunkt."
+  disabled: "<gray>Risse sind abgeschaltet."
 
 # Siftit-Erhalt beim Tod (config siftite.keep-on-death.*)
 siftite:
   inventory-full: "<yellow>Inventar voll: Deine Siftit-Gegenstände warten, bis Platz ist."
+
+# Allgemein
+general:
+  # <item> = Name des Gegenstands
+  you-receive: "<light_purple>Du erhältst: <white><item>"
+  you-receive-list: "<light_purple>Du erhältst: <white><items>"
+
+# Ichor (config ichor.*)
+ichor:
+  no-mix: "Ichor und Wasser mischen sich nicht."
+
+# Eigene Blöcke (config custom-blocks.*)
+blocks:
+  only-in-sift: "<red>Sift-Blöcke lassen sich nur in der Sift platzieren."
+  cannot-grow: "<red>Kann hier nicht wachsen."
+
+# Portale, Konsolen, Staffel (config portals.*)
+portals:
+  sound: "<gray>Klang <white><bold><sound></bold></white> von <count>"
+  main-not-built: "Das Haupt-Portal der Sift ist noch nicht gebaut."
+  keys-disabled: "Schlüssel sind abgeschaltet; nur ein Admin öffnet Portale."
+  no-portal: "Diese Konsole gehört zu keinem Portal."
+  already-open: "Dieses Portal ist schon offen."
+  wrong-key: "Dieser Schlüssel passt nicht zu diesem Portal."
+  consoles-wake: "Die Konsolen erwachen."
+  console-sleeps: "Die Konsole schläft. Der passende Schlüssel öffnet das Portal."
+  singer-echo: "<light_purple>Die Konsolen hallen nach und schlafen weiter.</light_purple> <gray>Nur der passende Schlüssel öffnet dieses Portal."
+  # Gestaffelte Freischaltung: <date> = Datum, <time> = Restzeit
+  sealed-at: "<dark_purple>Dieses Portal ist noch versiegelt. Es öffnet sich am <date> (in <time>)."
+  sealed: "<dark_purple>Dieses Portal ist versiegelt."
+  sealed-until-open: "<dark_purple>Dieses Portal ist noch versiegelt; es öffnet sich erst, wenn die Sift offen ist."
+
+# Sift-Kompass (config portals.compass.*, phase4.temples.compass.*)
+compass:
+  temples-silent: "<gray>Alle Tempel sind verstummt"
+  no-portal: "<gray>Kein Portal in dieser Welt"
+  temple: "<dark_aqua>Tempel: <distance> Blöcke"
+  portal: "<light_purple>Portal: <distance> Blöcke"
+
+# Sculk Enchanter (config phase4.enchanter.*)
+enchanter:
+  menu-title: "Sculk Enchanter"
+  no-boost: "Keine Verzauberung zum Steigern"
+  item-slot: "Gegenstand →"
+  charoite-slot: "Charoit →"
+  cost: "Kosten: <charoite> Charoit, <levels> Level"
+  click: "Klicken zum Steigern"
+  cannot-afford: "Nicht genug Charoit oder Level"
+  ritual-levels: "<red>Das Ritual braucht <levels> Erfahrungslevel."
+  ritual-done: "<dark_aqua>Der Zaubertisch ist jetzt ein Sculk Enchanter."
+  temple-locked: "<dark_aqua>Der Sculk Enchanter des Tempels erwacht erst, wenn sein Wächter besiegt ist."
+
+# Tempel (config phase4.temples.*)
+temple:
+  protected: "<dark_aqua>Der Tempel lässt sich nicht abtragen, solange sein Wächter schläft."
+  defeated: "<dark_aqua>Der Wächter dieses Tempels ist besiegt."
+  altar-gate-one: "<dark_aqua>Der Seelen-Altar schweigt, solange <count> Brutkern wacht."
+  altar-gate-many: "<dark_aqua>Der Seelen-Altar schweigt, solange <count> Brutkerne wachen."
+  # Himmelsrichtungen für die Gerüchte-Zettel (<direction>)
+  directions:
+    n: "Norden"
+    ne: "Nordosten"
+    e: "Osten"
+    se: "Südosten"
+    s: "Süden"
+    sw: "Südwesten"
+    w: "Westen"
+    nw: "Nordwesten"
+    here: "hier"
+
+# Großer Echo-Golem (config phase4.bosses.great-echo-golem.*)
+boss:
+  name: "Großer Echo-Golem"
+  altar-off: "<dark_aqua>Der Seelen-Altar schweigt noch."
+  already-awake: "<dark_aqua>Der Wächter ist schon erwacht."
+  offering: "<dark_aqua>Der Seelen-Altar verlangt <amount> Seelenblöcke in deiner Hand."
+  awakening: "<dark_aqua>Der Seelen-Altar erwacht …"
+  countdown: "<light_purple>Der Große Echo-Golem erwacht in <seconds> …"
+  title: "<light_purple>Großer Echo-Golem"
+  subtitle: "<gray><health> Leben · <players> Spieler"
+  enter: "<light_purple>Du betrittst die Arena des Großen Echo-Golems."
+  bars-up: "<dark_aqua>Seelengitter versperren die Tore."
+  bars-hold: "<dark_aqua>Das Seelengitter hält dich in der Arena."
+  outside: "<dark_aqua>Der Golem spürt nur Treffer aus der Arena."
+  bounced: "<dark_aqua>Die Seelenplatten lassen Geschosse abprallen."
+  armor-broken: "<yellow>Der Panzer ist gebrochen!"
+  soul-call: "<yellow>Der Golem ruft nach Seelen – haltet seine Helfer auf!"
+  rage: "<red>Der Golem rast vor Wut!"
+  # Bossleiste: <plates> = Zahl der Platten
+  bar:
+    armor: "<light_purple>Großer Echo-Golem · Panzer, <plates>"
+    sound: "<light_purple>Großer Echo-Golem · Schall"
+    sound-plates: "<light_purple>Großer Echo-Golem · Schall, <plates>"
+    rage: "<light_purple>Großer Echo-Golem · Wut"
+    defeated: "<light_purple>Großer Echo-Golem · besiegt"
+    plate-one: "1 Platte"
+    plate-many: "<count> Platten"
+  defeated-title: "<light_purple>Der Große Echo-Golem ist besiegt"
+  defeated-subtitle: "<gray>Der Tempel ist befreit."
+  night-crystal-one: "einen Nachtkristall"
+  night-crystal-many: "<count> Nachtkristalle"
+  enchanted: " (verzaubert)"
+  # Abbruch des Kampfes
+  nobody-at-start: "<dark_aqua>Niemand stand in der Arena; der Altar schläft wieder ein."
+  nobody-left: "<dark_aqua>Niemand mehr in der Arena: der Golem zieht sich zurück, der Altar schläft wieder."
+  vanished: "<dark_aqua>Der Golem ist verschwunden; der Kampf ist abgebrochen."
+  no-landing: "<dark_aqua>Der Golem fand den Weg in die Arena nicht."
+  no-spawn: "<dark_aqua>Der Golem konnte nicht erscheinen."
+  error: "<dark_aqua>Der Kampf wurde abgebrochen (Fehler)."
+  stopped-by-admin: "<dark_aqua>Ein Admin hat den Kampf abgebrochen."
+  reset-by-admin: "<dark_aqua>Ein Admin hat den Tempel zurückgesetzt; der Kampf ist abgebrochen."
+  defeat-by-admin: "<dark_aqua>Ein Admin hat den Tempel als besiegt gesetzt; der Kampf ist beendet."

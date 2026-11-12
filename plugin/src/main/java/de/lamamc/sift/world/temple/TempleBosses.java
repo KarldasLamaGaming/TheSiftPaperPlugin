@@ -2,6 +2,7 @@ package de.lamamc.sift.world.temple;
 
 import de.lamamc.sift.core.boss.GearTable;
 import de.lamamc.sift.core.boss.GolemBoss;
+import de.lamamc.sift.core.lang.Lang;
 import de.lamamc.sift.item.SiftItems;
 import de.lamamc.sift.mob.MobManager;
 import de.lamamc.sift.mob.SiftMob;
@@ -225,19 +226,18 @@ public final class TempleBosses implements Listener {
 
     private void useAltar(Player player, TempleRegistry.Temple temple) {
         if (!settings.enabled() || !kind.enabled()) {
-            player.sendActionBar(Component.text("Der Seelen-Altar schweigt noch.", NamedTextColor.DARK_AQUA));
+            player.sendActionBar(msg().get(player, "boss.altar-off"));
             return;
         }
         if (battles.containsKey(temple.id())) {
-            player.sendActionBar(Component.text("Der Wächter ist schon erwacht.", NamedTextColor.DARK_AQUA));
+            player.sendActionBar(msg().get(player, "boss.already-awake"));
             return;
         }
         ItemStack hand = player.getInventory().getItemInMainHand();
         boolean creative = player.getGameMode() == GameMode.CREATIVE;
         if (settings.offeringAmount() > 0 && !creative
                 && (!settings.offeringItem().equals(SiftItems.idOf(hand)) || hand.getAmount() < settings.offeringAmount())) {
-            player.sendActionBar(Component.text("Der Seelen-Altar verlangt " + settings.offeringAmount() + " Seelenblöcke in deiner Hand.",
-                    NamedTextColor.DARK_AQUA));
+            player.sendActionBar(msg().get(player, "boss.offering", "amount", String.valueOf(settings.offeringAmount())));
             return;
         }
         if (settings.offeringAmount() > 0 && !creative) {
@@ -255,7 +255,7 @@ public final class TempleBosses implements Listener {
         Battle b = new Battle(temple, offerer, simulatedPlayers, practice);
         battles.put(temple.id(), b);
         registry.fighting(temple.id(), true);
-        b.say(Component.text("Der Seelen-Altar erwacht …", NamedTextColor.DARK_AQUA));
+        b.say("boss.awakening");
         b.sound(Key.key("minecraft", "block.bell.use"), 2f, 0.5f);
         plugin.getLogger().info("Temple " + temple.id() + ": boss fight begins");
         return b;
@@ -269,7 +269,7 @@ public final class TempleBosses implements Listener {
                 b.tick();
             } catch (RuntimeException e) {
                 plugin.getLogger().log(java.util.logging.Level.WARNING, "Boss fight " + b.temple.id() + " failed; called off", e);
-                b.end(false, "Der Kampf wurde abgebrochen (Fehler).");
+                b.end(false, "boss.error");
             }
         }
     }
@@ -314,13 +314,13 @@ public final class TempleBosses implements Listener {
         }
         if (!b.inArena(attacker)) {
             event.setCancelled(true);
-            notice(attacker, "Der Golem spürt nur Treffer aus der Arena.");
+            notice(attacker, "boss.outside");
             return;
         }
         GolemBoss.Result r = b.hit(attacker, hit, event.getFinalDamage());
         if (r.bounced()) {
             event.setCancelled(true);
-            notice(attacker, "Die Seelenplatten lassen Geschosse abprallen.");
+            notice(attacker, "boss.bounced");
             return;
         }
         if (r.to() == GolemBoss.Phase.DEAD) {
@@ -339,7 +339,7 @@ public final class TempleBosses implements Listener {
                     if (b.fight != null && b.fight.phase() == GolemBoss.Phase.DEAD) {
                         b.victory();
                     } else {
-                        b.end(false, "Der Golem ist verschwunden; der Kampf ist abgebrochen.");
+                        b.end(false, "boss.vanished");
                     }
                 }
             });
@@ -381,20 +381,25 @@ public final class TempleBosses implements Listener {
             if (b.sealed() && (cause == PlayerTeleportEvent.TeleportCause.ENDER_PEARL
                     || cause == PlayerTeleportEvent.TeleportCause.CONSUMABLE_EFFECT)) {
                 event.setCancelled(true);
-                notice(player, "Das Seelengitter hält dich in der Arena.");
+                notice(player, "boss.bars-hold");
             } else {
                 b.leave(player.getUniqueId());
             }
         }
     }
 
-    private void notice(Player player, String text) {
+    /** A messages key in the player's language, at most every 2 s. */
+    private void notice(Player player, String key) {
         long now = System.currentTimeMillis();
         Long last = lastNotice.get(player.getUniqueId());
         if (last == null || now - last > 2000) {
             lastNotice.put(player.getUniqueId(), now);
-            player.sendActionBar(Component.text(text, NamedTextColor.DARK_AQUA));
+            player.sendActionBar(msg().get(player, key));
         }
+    }
+
+    private static de.lamamc.sift.Messages msg() {
+        return de.lamamc.sift.Messages.current();
     }
 
     // ---- one fight -----------------------------------------------------------------------------------
@@ -411,8 +416,9 @@ public final class TempleBosses implements Listener {
         final boolean practice;
         final Set<UUID> fighters = new LinkedHashSet<>();
         final Map<UUID, Location> lastInside = new HashMap<>();
-        final BossBar bar;
-        final Set<UUID> viewers = new LinkedHashSet<>();
+        /** One boss bar per language (alpha.42c): each viewer sees the one of their client language. */
+        final Map<Lang, BossBar> bars = new java.util.EnumMap<>(Lang.class);
+        final Map<UUID, Lang> viewers = new LinkedHashMap<>();
         final List<UUID> helpers = new ArrayList<>();
         Stage stage = Stage.COUNTDOWN;
         int ticks;
@@ -433,8 +439,9 @@ public final class TempleBosses implements Listener {
             this.offerer = offerer;
             this.simulated = simulated;
             this.practice = practice;
-            this.bar = BossBar.bossBar(Component.text("Großer Echo-Golem", NamedTextColor.LIGHT_PURPLE), 1f, BossBar.Color.PURPLE,
-                    BossBar.Overlay.NOTCHED_10);
+            for (Lang lang : Lang.values()) {
+                bars.put(lang, BossBar.bossBar(msg().get(lang, "boss.title"), 1f, BossBar.Color.PURPLE, BossBar.Overlay.NOTCHED_10));
+            }
         }
 
         public String id() {
@@ -475,7 +482,7 @@ public final class TempleBosses implements Listener {
                 UUID id = p.getUniqueId();
                 if (inside && canFight(p)) {
                     if (fighters.add(id) && stage != Stage.COUNTDOWN) {
-                        p.sendActionBar(Component.text("Du betrittst die Arena des Großen Echo-Golems.", NamedTextColor.LIGHT_PURPLE));
+                        p.sendActionBar(msg().get(p, "boss.enter"));
                     }
                     lastInside.put(id, l.clone());
                     show(p);
@@ -490,7 +497,7 @@ public final class TempleBosses implements Listener {
                         }
                         p.setVelocity(new org.bukkit.util.Vector());
                         p.playSound(Sound.sound(Key.key("minecraft", "block.soul_sand.break"), Sound.Source.PLAYER, 1f, 0.6f));
-                        notice(p, "Das Seelengitter hält dich in der Arena.");
+                        notice(p, "boss.bars-hold");
                     }
                 }
             }
@@ -504,7 +511,7 @@ public final class TempleBosses implements Listener {
         private void countdown() {
             int left = settings.countdownTicks() - ticks;
             if (left > 0 && left % 20 == 0) {
-                actionBar(Component.text("Der Große Echo-Golem erwacht in " + left / 20 + " …", NamedTextColor.LIGHT_PURPLE));
+                actionBar("boss.countdown", "seconds", String.valueOf(left / 20));
                 world.spawnParticle(Particle.SOUL, registry.altarBlock(temple).getLocation().add(0.5, 1.2, 0.5), 20, 0.4, 0.6, 0.4, 0.03);
             }
             if (left > 0) {
@@ -513,7 +520,7 @@ public final class TempleBosses implements Listener {
             List<Player> present = fighters();
             int players = simulated > 0 ? simulated : present.size();
             if (players == 0) {
-                end(false, "Niemand stand in der Arena; der Altar schläft wieder ein.");
+                end(false, "boss.nobody-at-start");
                 return;
             }
             fight = new GolemBoss.Fight(kind.settings(), players);
@@ -523,17 +530,15 @@ public final class TempleBosses implements Listener {
             Mob spawned = mobs.spawn(kind, spawn, false, m -> m.getPersistentDataContainer().set(GreatEchoGolemKind.TEMPLE,
                     PersistentDataType.STRING, temple.id()));
             if (spawned == null) {
-                end(false, "Der Golem konnte nicht erscheinen.");
+                end(false, "boss.no-spawn");
                 return;
             }
             base = spawned;
             byBoss.put(spawned.getUniqueId(), this);
             stage = Stage.DESCENT;
             ticks = 0;
-            show(Title.title(Component.text("Großer Echo-Golem", NamedTextColor.LIGHT_PURPLE),
-                    Component.text(String.format(java.util.Locale.ROOT, "%.0f Leben · %d %s", fight.maxHealth(), players,
-                            players == 1 ? "Spieler" : "Spieler"), NamedTextColor.GRAY),
-                    Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(2), Duration.ofMillis(600))));
+            title("boss.title", "boss.subtitle", Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(2), Duration.ofMillis(600)),
+                    "health", String.format(java.util.Locale.ROOT, "%.0f", fight.maxHealth()), "players", String.valueOf(players));
             sound(Key.key("minecraft", "entity.warden.emerge"), 2.5f, 0.6f);
             plugin.getLogger().info(String.format(java.util.Locale.ROOT, "Temple %s: the Great Echo Golem falls (%d players, %.0f health)",
                     temple.id(), players, fight.maxHealth()));
@@ -542,7 +547,7 @@ public final class TempleBosses implements Listener {
         private void fightTick() {
             if (base == null || !base.isValid()) {
                 if (base == null || !base.isDead()) {
-                    end(false, "Der Golem ist verschwunden; der Kampf ist abgebrochen.");
+                    end(false, "boss.vanished");
                 }
                 return;
             }
@@ -551,41 +556,47 @@ public final class TempleBosses implements Listener {
                 golem = mob instanceof GreatEchoGolem g ? g : null;
             }
             if (stage == Stage.DESCENT && ticks > 400) {
-                end(false, "Der Golem fand den Weg in die Arena nicht.");
+                end(false, "boss.no-landing");
                 return;
             }
             List<Player> present = fighters();
             if (present.isEmpty() && !practice) {
                 if (++empty >= settings.leaveTicks()) {
-                    end(false, "Niemand mehr in der Arena: der Golem zieht sich zurück, der Altar schläft wieder.");
+                    end(false, "boss.nobody-left");
                     return;
                 }
             } else {
                 empty = 0;
             }
-            bar.progress((float) Math.max(0, Math.min(1, fight.fraction())));
+            float progress = (float) Math.max(0, Math.min(1, fight.fraction()));
+            bars.values().forEach(bar -> bar.progress(progress));
             if (fight.phase() != barPhase || fight.plates() != barPlates) {
                 boolean phaseChanged = fight.phase() != barPhase;
                 barPhase = fight.phase();
                 barPlates = fight.plates();
-                String plates = barPlates == 1 ? "1 Platte" : barPlates + " Platten";
-                bar.name(Component.text("Großer Echo-Golem · " + switch (barPhase) {
-                    case ARMOR -> "Panzer, " + plates;
-                    case SOUND -> barPlates > 0 ? "Schall, " + plates : "Schall";
-                    case RAGE -> "Wut";
-                    case DEAD -> "besiegt";
-                }, NamedTextColor.LIGHT_PURPLE));
+                String key = switch (barPhase) {
+                    case ARMOR -> "boss.bar.armor";
+                    case SOUND -> barPlates > 0 ? "boss.bar.sound-plates" : "boss.bar.sound";
+                    case RAGE -> "boss.bar.rage";
+                    case DEAD -> "boss.bar.defeated";
+                };
+                for (Map.Entry<Lang, BossBar> e : bars.entrySet()) {
+                    String plates = msg().raw(e.getKey(), barPlates == 1 ? "boss.bar.plate-one" : "boss.bar.plate-many")
+                            .replace("<count>", String.valueOf(barPlates));
+                    e.getValue().name(msg().get(e.getKey(), key, "plates", plates));
+                }
                 if (phaseChanged) {
-                    bar.color(switch (barPhase) {
+                    BossBar.Color color = switch (barPhase) {
                         case ARMOR -> BossBar.Color.BLUE;
                         case SOUND -> BossBar.Color.YELLOW;
                         case RAGE, DEAD -> BossBar.Color.RED;
-                    });
+                    };
+                    bars.values().forEach(bar -> bar.color(color));
                     if (barPhase == GolemBoss.Phase.RAGE) {
                         removeHelpers();
-                        actionBar(Component.text("Der Golem rast vor Wut!", NamedTextColor.RED));
+                        actionBar("boss.rage");
                     } else if (barPhase == GolemBoss.Phase.SOUND) {
-                        actionBar(Component.text("Der Panzer ist gebrochen!", NamedTextColor.YELLOW));
+                        actionBar("boss.armor-broken");
                     }
                 }
             }
@@ -649,20 +660,20 @@ public final class TempleBosses implements Listener {
                 List<Component> got = new ArrayList<>();
                 if (settings.lootNightCrystals() > 0) {
                     give(p, items.create("golem_trophy", settings.lootNightCrystals()));
-                    got.add(Component.text(settings.lootNightCrystals() == 1 ? "einen Nachtkristall"
-                            : settings.lootNightCrystals() + " Nachtkristalle"));
+                    got.add(msg().get(p, settings.lootNightCrystals() == 1 ? "boss.night-crystal-one" : "boss.night-crystal-many",
+                            "count", String.valueOf(settings.lootNightCrystals())));
                 }
                 for (int i = 0; i < settings.gearRolls(); i++) {
                     GearTable.Roll roll = settings.gear().roll(random);
                     ItemStack piece = roll == null ? null : gearItem(roll);
                     if (piece != null) {
                         give(p, piece);
-                        got.add(Component.translatable(piece.translationKey()).append(Component.text(" (verzaubert)")));
+                        got.add(Component.translatable(piece.translationKey()).append(msg().get(p, "boss.enchanted")));
                     }
                 }
                 if (!got.isEmpty()) {
-                    p.sendMessage(Component.text("Du erhältst: ", NamedTextColor.LIGHT_PURPLE)
-                            .append(Component.join(net.kyori.adventure.text.JoinConfiguration.commas(true), got).color(NamedTextColor.WHITE)));
+                    p.sendMessage(msg().get(p, "general.you-receive-list", net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.component(
+                            "items", Component.join(net.kyori.adventure.text.JoinConfiguration.commas(true), got))));
                 }
                 if (settings.advancement()) {
                     org.bukkit.advancement.Advancement adv = Bukkit.getAdvancement(ADVANCEMENT);
@@ -680,23 +691,22 @@ public final class TempleBosses implements Listener {
                 world.playSound(Sound.sound(Key.key("minecraft", "entity.warden.death"), Sound.Source.HOSTILE, 2.5f, 0.6f),
                         at.getX(), at.getY(), at.getZ());
             }
-            show(Title.title(Component.text("Der Große Echo-Golem ist besiegt", NamedTextColor.LIGHT_PURPLE),
-                    Component.text("Der Tempel ist befreit.", NamedTextColor.GRAY),
-                    Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(3), Duration.ofMillis(800))));
+            title("boss.defeated-title", "boss.defeated-subtitle",
+                    Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(3), Duration.ofMillis(800)));
             sound(Key.key("minecraft", "ui.toast.challenge_complete"), 1f, 1f);
             plugin.getLogger().info("Temple " + temple.id() + ": the Great Echo Golem is defeated; loot for " + given + " of "
                     + eligible.size() + " eligible players");
             end(true, null);
         }
 
-        /** Ends the fight: {@code won} = the temple is DEFEATED (already recorded), else it sleeps again. */
+        /** Ends the fight: {@code won} = the temple is DEFEATED (already recorded), else it sleeps again; {@code message}: messages key. */
         void end(boolean won, String message) {
             if (stage == Stage.ENDED) {
                 return;
             }
             stage = Stage.ENDED;
             if (message != null) {
-                say(Component.text(message, NamedTextColor.DARK_AQUA));
+                say(message);
             }
             removeHelpers();
             if (base != null) {
@@ -706,12 +716,12 @@ public final class TempleBosses implements Listener {
                     base.remove();
                 }
             }
-            for (UUID id : viewers) {
+            viewers.forEach((id, lang) -> {
                 Player p = Bukkit.getPlayer(id);
                 if (p != null) {
-                    p.hideBossBar(bar);
+                    p.hideBossBar(bars.get(lang));
                 }
-            }
+            });
             viewers.clear();
             if (!won) {
                 registry.fighting(temple.id(), false);
@@ -727,14 +737,20 @@ public final class TempleBosses implements Listener {
         }
 
         void show(Player p) {
-            if (viewers.add(p.getUniqueId())) {
-                p.showBossBar(bar);
+            Lang lang = msg().lang(p);
+            Lang before = viewers.put(p.getUniqueId(), lang);
+            if (before != lang) {
+                if (before != null) {
+                    p.hideBossBar(bars.get(before));
+                }
+                p.showBossBar(bars.get(lang));
             }
         }
 
         void hide(Player p) {
-            if (viewers.remove(p.getUniqueId())) {
-                p.hideBossBar(bar);
+            Lang lang = viewers.remove(p.getUniqueId());
+            if (lang != null) {
+                p.hideBossBar(bars.get(lang));
             }
         }
 
@@ -758,21 +774,22 @@ public final class TempleBosses implements Listener {
             }
         }
 
-        private void say(Component text) {
+        /** A messages key to everyone around, each in their language. */
+        private void say(String key, String... placeholders) {
             for (Player p : nearby()) {
-                p.sendMessage(text);
+                p.sendMessage(msg().get(p, key, placeholders));
             }
         }
 
-        private void actionBar(Component text) {
+        private void actionBar(String key, String... placeholders) {
             for (Player p : nearby()) {
-                p.sendActionBar(text);
+                p.sendActionBar(msg().get(p, key, placeholders));
             }
         }
 
-        private void show(Title title) {
+        private void title(String titleKey, String subtitleKey, Title.Times times, String... placeholders) {
             for (Player p : nearby()) {
-                p.showTitle(title);
+                p.showTitle(Title.title(msg().get(p, titleKey, placeholders), msg().get(p, subtitleKey, placeholders), times));
             }
         }
 
@@ -830,7 +847,7 @@ public final class TempleBosses implements Listener {
                 show(p);
             }
             if (settings.sealGates()) {
-                actionBar(Component.text("Seelengitter versperren die Tore.", NamedTextColor.DARK_AQUA));
+                actionBar("boss.bars-up");
             }
         }
 
@@ -847,7 +864,7 @@ public final class TempleBosses implements Listener {
                 }
             }
             if (!helpers.isEmpty()) {
-                actionBar(Component.text("Der Golem ruft nach Seelen – haltet seine Helfer auf!", NamedTextColor.YELLOW));
+                actionBar("boss.soul-call");
             }
         }
 

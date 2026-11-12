@@ -112,7 +112,8 @@ public final class BossDropListener implements Listener {
         }
         player.getInventory().addItem(stack).values().forEach(rest ->
                 player.getWorld().dropItem(player.getLocation(), rest, i -> i.setOwner(player.getUniqueId())));
-        player.sendActionBar(Component.text("Du erhältst: ", NamedTextColor.LIGHT_PURPLE).append(stack.effectiveName()));
+        player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "general.you-receive",
+                net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.component("item", stack.effectiveName())));
     }
 
     /** Dragons whose damage is still tracked (for /sift debug). */

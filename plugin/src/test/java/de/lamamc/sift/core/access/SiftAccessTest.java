@@ -79,4 +79,12 @@ class SiftAccessTest {
         assertNull(SiftAccess.parseDate("", utc));
         assertEquals("1970-01-01 18:00", SiftAccess.format(18 * 3_600_000L, utc));
     }
+
+    @Test
+    void remainingTimeInBothLanguages() {
+        long t = ((3 * 24 + 4) * 60 + 5) * 60_000L;
+        org.junit.jupiter.api.Assertions.assertEquals("3 T 4 Std. 5 Min.", SiftAccess.remaining(t));
+        org.junit.jupiter.api.Assertions.assertEquals("3 d 4 h 5 min", SiftAccess.remaining(t, de.lamamc.sift.core.lang.Lang.EN));
+        org.junit.jupiter.api.Assertions.assertEquals("42 s", SiftAccess.remaining(42_000, de.lamamc.sift.core.lang.Lang.EN));
+    }
 }

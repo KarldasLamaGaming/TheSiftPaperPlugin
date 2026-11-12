@@ -42,4 +42,12 @@ class TempleHintsTest {
         assertEquals("temple-3", notHere.id());
         assertEquals(null, TempleSites.nearest(sites, 0, 0, s -> false));
     }
+
+    @Test
+    void directionKeysMatchTheWords() {
+        org.junit.jupiter.api.Assertions.assertEquals("n", TempleHints.directionKey(0, 0, 0, -100));
+        org.junit.jupiter.api.Assertions.assertEquals("se", TempleHints.directionKey(0, 0, 100, 100));
+        org.junit.jupiter.api.Assertions.assertEquals("w", TempleHints.directionKey(0, 0, -100, 0));
+        org.junit.jupiter.api.Assertions.assertEquals("here", TempleHints.directionKey(5, 5, 5, 5));
+    }
 }

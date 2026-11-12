@@ -61,7 +61,7 @@ public final class ConfigUpdate {
             }
         }
         for (String path : defaults.getKeys(true)) {
-            if (config.get(path, null) != null || insideOwnRecipe(ownRecipes, path)) {
+            if (config.get(path, null) != null || insideOwnRecipe(ownRecipes, path) || underOwnValue(config, path)) {
                 continue;
             }
             Object value = defaults.get(path, null);
@@ -77,6 +77,23 @@ public final class ConfigUpdate {
             }
         }
         return added;
+    }
+
+    /**
+     * Whether a parent of the path is a plain value in the config (alpha.42c: an admin's single text where the default is
+     * now a de/en section stays as it is, nothing is added below it).
+     */
+    private static boolean underOwnValue(ConfigurationSection config, String path) {
+        int dot = path.lastIndexOf('.');
+        while (dot > 0) {
+            String parent = path.substring(0, dot);
+            Object value = config.get(parent, null);
+            if (value != null && !(value instanceof ConfigurationSection)) {
+                return true;
+            }
+            dot = parent.lastIndexOf('.');
+        }
+        return false;
     }
 
     /** Whether the path lies inside a recipe the config had before (those are never merged with a default). */

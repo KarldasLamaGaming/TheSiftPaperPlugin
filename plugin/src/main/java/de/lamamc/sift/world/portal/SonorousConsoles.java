@@ -112,8 +112,8 @@ public final class SonorousConsoles implements Listener {
     }
 
     private static void showSound(Player player, int sound) {
-        player.sendActionBar(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(
-                "<gray>Klang <white><bold>" + sound + "</bold></white> von " + de.lamamc.sift.core.portal.ConsoleSounds.COUNT));
+        player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.sound", "sound", String.valueOf(sound), "count",
+                String.valueOf(de.lamamc.sift.core.portal.ConsoleSounds.COUNT)));
     }
 
     /** Every way a note block sounds (hit, redstone): the sonorous sound or the glitch instead of the note. */
@@ -194,12 +194,12 @@ public final class SonorousConsoles implements Listener {
         KeyActivation.Result result = KeyActivation.decide(keysEnabled, portal.isPresent(),
                 portal.map(SiftPortal::state).orElse(null), key, portal.map(p -> keyFor(world, p)).orElse(null));
         switch (result) {
-            case DISABLED -> player.sendActionBar(Component.text("Schlüssel sind abgeschaltet; nur ein Admin öffnet Portale."));
-            case NO_PORTAL -> player.sendActionBar(Component.text("Diese Konsole gehört zu keinem Portal."));
-            case ALREADY_OPEN -> player.sendActionBar(Component.text("Dieses Portal ist schon offen."));
+            case DISABLED -> player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.keys-disabled"));
+            case NO_PORTAL -> player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.no-portal"));
+            case ALREADY_OPEN -> player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.already-open"));
             case WRONG_KEY -> {
                 glitch(console);
-                player.sendActionBar(Component.text("Dieser Schlüssel passt nicht zu diesem Portal."));
+                player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.wrong-key"));
             }
             case OPEN -> {
                 PortalUnlocks unlocks = portals.unlocks();
@@ -212,7 +212,7 @@ public final class SonorousConsoles implements Listener {
                     held.subtract();
                 }
                 activate(world, portal.get(), console);
-                player.sendActionBar(Component.text("Die Konsolen erwachen."));
+                player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.consoles-wake"));
             }
         }
     }
@@ -279,7 +279,7 @@ public final class SonorousConsoles implements Listener {
             event.setCancelled(true);
             if (mode == Mode.HORN) {
                 glitch(block);
-                player.sendActionBar(Component.text("Die Konsole schläft. Der passende Schlüssel öffnet das Portal."));
+                player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.console-sleeps"));
                 return;
             }
             NoteBlock data = (NoteBlock) block.getBlockData();

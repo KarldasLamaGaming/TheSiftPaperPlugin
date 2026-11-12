@@ -80,7 +80,7 @@ public final class RiftCleanup implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if ("sift_rift".equals(SiftItems.idOf(event.getItem()))) {
             event.setCancelled(true);
-            event.getPlayer().sendActionBar(Component.text("Risse sind abgeschaltet (rifts.enabled).", NamedTextColor.GRAY));
+            event.getPlayer().sendActionBar(de.lamamc.sift.Messages.current().get(event.getPlayer(), "rifts.disabled"));
         }
     }
 }

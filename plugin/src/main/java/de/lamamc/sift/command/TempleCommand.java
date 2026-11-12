@@ -246,7 +246,7 @@ final class TempleCommand {
 
     private int reset(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
         if (plugin.bosses() != null) {
-            plugin.bosses().stop(t.id(), "Ein Admin hat den Tempel zurückgesetzt; der Kampf ist abgebrochen.");
+            plugin.bosses().stop(t.id(), "boss.reset-by-admin");
         }
         temples.reset(t.id());
         sender.sendRichMessage("<green>Tempel <white>" + t.id() + "</white> schläft wieder (Wächter kann erneut besiegt werden).");
@@ -255,7 +255,7 @@ final class TempleCommand {
 
     private int defeat(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
         if (plugin.bosses() != null) {
-            plugin.bosses().stop(t.id(), "Ein Admin hat den Tempel als besiegt gesetzt; der Kampf ist beendet.");
+            plugin.bosses().stop(t.id(), "boss.defeat-by-admin");
         }
         temples.defeat(t.id());
         sender.sendRichMessage("<green>Tempel <white>" + t.id() + "</white> gilt als besiegt (Testhilfe, ohne Kampf und Beute).");
@@ -321,7 +321,7 @@ final class TempleCommand {
         if (bosses == null) {
             return 0;
         }
-        boolean stopped = bosses.stop(t.id(), "Ein Admin hat den Kampf abgebrochen.");
+        boolean stopped = bosses.stop(t.id(), "boss.stopped-by-admin");
         sender.sendRichMessage(stopped ? "<green>Kampf in " + t.id() + " abgebrochen; der Tempel schläft wieder." : "<gray>Kein Kampf in " + t.id() + ".");
         return Command.SINGLE_SUCCESS;
     }

@@ -37,18 +37,25 @@ public final class EnchanterMenu implements InventoryHolder, Listener {
     private final Inventory inventory;
     private List<EnchantBoost.Option> shown = new ArrayList<>();
 
-    private EnchanterMenu(SculkEnchanters enchanters) {
+    private final de.lamamc.sift.core.lang.Lang lang;
+
+    private EnchanterMenu(SculkEnchanters enchanters, de.lamamc.sift.core.lang.Lang lang) {
         this.enchanters = enchanters;
-        this.inventory = Bukkit.createInventory(this, 27, Component.text("Sculk Enchanter"));
+        this.lang = lang;
+        this.inventory = Bukkit.createInventory(this, 27, de.lamamc.sift.Messages.current().get(lang, "enchanter.menu-title"));
+    }
+
+    private static String text(de.lamamc.sift.core.lang.Lang lang, String key) {
+        return de.lamamc.sift.Messages.current().raw(lang, key);
     }
 
     /** Listener instance for the menu events (registered once). */
     public static Listener listener() {
-        return new EnchanterMenu(null);
+        return new EnchanterMenu(null, de.lamamc.sift.core.lang.Lang.EN);
     }
 
     static void open(SculkEnchanters enchanters, Player player) {
-        EnchanterMenu menu = new EnchanterMenu(enchanters);
+        EnchanterMenu menu = new EnchanterMenu(enchanters, de.lamamc.sift.Messages.current().lang(player));
         menu.refresh(player);
         player.openInventory(menu.inventory);
     }
@@ -67,11 +74,11 @@ public final class EnchanterMenu implements InventoryHolder, Listener {
     private void refresh(Player player) {
         for (int slot = 0; slot < 27; slot++) {
             if (slot != ITEM_SLOT && slot != CHAROITE_SLOT) {
-                inventory.setItem(slot, pane(slot >= FIRST_OPTION ? "Keine Verzauberung zum Steigern" : " "));
+                inventory.setItem(slot, pane(slot >= FIRST_OPTION ? text(lang, "enchanter.no-boost") : " "));
             }
         }
-        inventory.setItem(ITEM_SLOT - 1, pane("Gegenstand →"));
-        inventory.setItem(CHAROITE_SLOT - 1, pane("Charoit →"));
+        inventory.setItem(ITEM_SLOT - 1, pane(text(lang, "enchanter.item-slot")));
+        inventory.setItem(CHAROITE_SLOT - 1, pane(text(lang, "enchanter.charoite-slot")));
         shown = SculkEnchanters.options(enchanters.rules(), inventory.getItem(ITEM_SLOT));
         int charoite = charoite();
         for (int i = 0; i < shown.size() && i < 9; i++) {
@@ -83,9 +90,10 @@ public final class EnchanterMenu implements InventoryHolder, Listener {
             button.editMeta(meta -> {
                 meta.displayName(name.color(NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false));
                 meta.lore(List.of(
-                        Component.text("Kosten: " + option.cost().charoite() + " Charoit, " + option.cost().levels() + " Level",
-                                affordable ? NamedTextColor.GRAY : NamedTextColor.RED).decoration(TextDecoration.ITALIC, false),
-                        Component.text(affordable ? "Klicken zum Steigern" : "Nicht genug Charoit oder Level", NamedTextColor.DARK_GRAY)
+                        de.lamamc.sift.Messages.current().get(lang, "enchanter.cost", "charoite", String.valueOf(option.cost().charoite()),
+                                "levels", String.valueOf(option.cost().levels()))
+                                .color(affordable ? NamedTextColor.GRAY : NamedTextColor.RED).decoration(TextDecoration.ITALIC, false),
+                        Component.text(text(lang, affordable ? "enchanter.click" : "enchanter.cannot-afford"), NamedTextColor.DARK_GRAY)
                                 .decoration(TextDecoration.ITALIC, false)));
             });
             inventory.setItem(FIRST_OPTION + i, button);

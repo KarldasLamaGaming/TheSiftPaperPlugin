@@ -70,7 +70,7 @@ public final class SculkEnchanters implements Listener {
     /** The floating crystal above each loaded enchanter (not persistent, rebuilt on load). */
     private final Map<String, Map<Long, org.bukkit.entity.ItemDisplay>> crystals = new HashMap<>();
     private long ticks;
-    /** Why an enchanter cannot be used yet (temple enchanter before the victory), or null. */
+    /** Why an enchanter cannot be used yet (temple enchanter before the victory): a messages key, or null. */
     private java.util.function.Function<Block, String> lock = b -> null;
 
     public void setLock(java.util.function.Function<Block, String> lock) {
@@ -343,7 +343,7 @@ public final class SculkEnchanters implements Listener {
             event.setCancelled(true);
             String locked = lock.apply(block);
             if (locked != null) {
-                player.sendActionBar(Component.text(locked, NamedTextColor.DARK_AQUA));
+                player.sendActionBar(de.lamamc.sift.Messages.current().get(player, locked));
                 return;
             }
             EnchanterMenu.open(this, player);
@@ -356,7 +356,7 @@ public final class SculkEnchanters implements Listener {
         event.setCancelled(true);
         boolean creative = player.getGameMode() == GameMode.CREATIVE;
         if (!creative && player.getLevel() < ritualLevels) {
-            player.sendActionBar(Component.text("Das Ritual braucht " + ritualLevels + " Erfahrungslevel.", NamedTextColor.RED));
+            player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "enchanter.ritual-levels", "levels", String.valueOf(ritualLevels)));
             return;
         }
         if (!creative) {
@@ -369,7 +369,7 @@ public final class SculkEnchanters implements Listener {
         block.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, at, 30, 0.6, 0.4, 0.6, 0.02);
         block.getWorld().playSound(at, Sound.BLOCK_SCULK_CATALYST_BLOOM, 1.5f, 0.8f);
         block.getWorld().playSound(at, Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 0.6f);
-        player.sendActionBar(Component.text("Der Zaubertisch ist jetzt ein Sculk Enchanter.", NamedTextColor.DARK_AQUA));
+        player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "enchanter.ritual-done"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

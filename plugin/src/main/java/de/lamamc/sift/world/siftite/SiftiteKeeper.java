@@ -384,7 +384,7 @@ public final class SiftiteKeeper implements Listener {
             }
             if (head && !room && tick - session.lastFullNotice > 100) {
                 session.lastFullNotice = tick;
-                player.sendActionBar(messages.get("siftite.inventory-full"));
+                player.sendActionBar(messages.get(player, "siftite.inventory-full"));
             }
             if (head && room && SiftiteRecovery.reached(new double[] {m[0], m[1], m[2]}, target)) {
                 deliver(player, session, pending);

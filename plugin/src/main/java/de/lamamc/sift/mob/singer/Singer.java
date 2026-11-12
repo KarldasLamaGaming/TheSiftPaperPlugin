@@ -243,8 +243,7 @@ final class Singer extends SiftMob {
         double r2 = 48 * 48;
         for (Player player : trader.getWorld().getPlayers()) {
             if (player.getLocation().distanceSquared(trader.getLocation()) <= r2) {
-                player.sendRichMessage("<light_purple>Die Konsolen hallen nach und schlafen weiter.</light_purple> <gray>Nur der "
-                        + "passende Schlüssel öffnet dieses Portal.");
+                player.sendMessage(de.lamamc.sift.Messages.current().get(player, "portals.singer-echo"));
             }
         }
     }

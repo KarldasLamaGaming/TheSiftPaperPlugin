@@ -3,6 +3,7 @@
 # wirken erst nach einem Neustart.
 #
 # Inhalt (Abschnitte der obersten Ebene, in dieser Reihenfolge; Erklärungen in docs/ADMIN.md):
+#   language        Sprache der Konsole (Spieler: Sprache ihres Clients)
 #   custom-blocks   Platzieren, Abbau und Update-Schutz der Sift-Blöcke
 #   blocks          Härte, Werkzeug, Drops, Feuer je Sift-Block
 #   plant-support   Untergrund, auf dem Sift-Pflanzen stehen dürfen
@@ -23,6 +24,10 @@
 #                   Tempel (ab alpha.41a), Tempel-Kompass und Gerüchte-Zettel (ab alpha.41b), Tempel-Boss (ab alpha.42b)
 #
 # Neue Einstellungen eines Updates fügt das Plugin beim Start selbst hinzu; was schon in der Datei steht, bleibt.
+
+# Sprache der Konsole und anderer Nicht-Spieler (ab alpha.42c): de oder en. Spieler bekommen Texte immer in der
+# Sprache ihres Clients (Deutsch für deutsche Clients, Englisch für alle anderen), siehe messages.yml und messages_en.yml.
+language: de
 
 custom-blocks:
   # Eigene Blöcke nur in der Sift platzieren. Andere Welten brauchen dann die block-updates-Schalter nicht.
@@ -943,9 +948,17 @@ resource-pack:
   required: false
   # Fester Schlüssel des Packs beim Client; nur ändern, wenn mehrere Server unterschiedliche Packs senden
   uuid: "5f1a7c2e-3b84-4d6e-9a10-7c3e2b9d4f61"
-  prompt: "<gold>The Sift</gold> <gray>braucht ein Resource Pack für Blöcke, Items und Texte.</gray>"
-  kick-on-decline: "<red>Ohne das Resource Pack von The Sift kannst du hier nicht spielen.</red>\n<gray>Bitte nimm das Pack beim nächsten Verbinden an.</gray>"
-  failed-message: "<red>Das Resource Pack von The Sift konnte nicht geladen werden.</red> <gray>Melde dich bitte bei einem Admin.</gray>"
+  # Texte (MiniMessage) je Sprache des Spielers (ab alpha.42c): de für deutsche Clients, en für alle anderen.
+  # Ein einzelner Text statt de/en gilt für alle Sprachen.
+  prompt:
+    de: "<gold>The Sift</gold> <gray>braucht ein Resource Pack für Blöcke, Items und Texte.</gray>"
+    en: "<gold>The Sift</gold> <gray>needs a resource pack for blocks, items and texts.</gray>"
+  kick-on-decline:
+    de: "<red>Ohne das Resource Pack von The Sift kannst du hier nicht spielen.</red>\n<gray>Bitte nimm das Pack beim nächsten Verbinden an.</gray>"
+    en: "<red>You cannot play here without The Sift's resource pack.</red>\n<gray>Please accept the pack when you connect next time.</gray>"
+  failed-message:
+    de: "<red>Das Resource Pack von The Sift konnte nicht geladen werden.</red> <gray>Melde dich bitte bei einem Admin.</gray>"
+    en: "<red>The Sift's resource pack could not be loaded.</red> <gray>Please tell an admin.</gray>"
 
 # Eigene Inhalte nach dem Original-Port (Phase 4, ab alpha.39). Gegliedert nach Thema: boss-items, später
 # enchanter, temples, bosses. Nichts davon gibt es im Original (siehe docs/ABWEICHUNGEN.md).
@@ -1041,8 +1054,11 @@ phase4:
     protect-until-defeated: true
     # Beute der zwei Truhen in der Schatzhalle (Datapack)
     loot-table: "the_sift:chests/temple"
-    # Text beim Rechtsklick auf den Seelen-Altar, solange der Boss aus ist (phase4.bosses.great-echo-golem.enabled)
-    altar-message: "Der Seelen-Altar schweigt noch."
+    # Text beim Rechtsklick auf den Seelen-Altar, solange der Boss aus ist (phase4.bosses.great-echo-golem.enabled);
+    # je Sprache (ab alpha.42c), ein einzelner Text gilt für alle
+    altar-message:
+      de: "Der Seelen-Altar schweigt noch."
+      en: "The Soul Altar is still silent."
     # Sift-Kompass (ab alpha.41b): in der Sift wechselt Schleichen + Rechtsklick zwischen Hauptportal und dem nächsten
     # Tempel, dessen Wächter noch schläft (auch noch nicht generierte). Besiegte Tempel zeigt er nicht.
     compass:
@@ -1106,14 +1122,23 @@ phase4:
         "the_sift:chests/temple": 0.6
       # Entfernung auf ein Vielfaches davon gerundet, in Blöcken
       distance-step: 100
-      # Zeilen des Zettels (MiniMessage), <direction> = Himmelsrichtung, <distance> = Entfernung
+      # Zeilen des Zettels (MiniMessage), <direction> = Himmelsrichtung (Wörter in messages*.yml temple.directions),
+      # <distance> = Entfernung. Je Sprache (ab alpha.42c): in der Sprache dessen, der die Truhe öffnet
       text:
-        - "<gray>Ein Gerücht aus der Sift:"
-        - "<dark_aqua>Ein schlafender Tempel liegt etwa <white><distance></white> Blöcke im <white><direction></white>."
+        de:
+          - "<gray>Ein Gerücht aus der Sift:"
+          - "<dark_aqua>Ein schlafender Tempel liegt etwa <white><distance></white> Blöcke im <white><direction></white>."
+        en:
+          - "<gray>A rumour from the Sift:"
+          - "<dark_aqua>A sleeping temple lies about <white><distance></white> blocks to the <white><direction></white>."
       # Zeilen, wenn alle Tempel besiegt sind
       all-defeated:
-        - "<gray>Ein Gerücht aus der Sift:"
-        - "<dark_aqua>Alle Tempel sind verstummt."
+        de:
+          - "<gray>Ein Gerücht aus der Sift:"
+          - "<dark_aqua>Alle Tempel sind verstummt."
+        en:
+          - "<gray>A rumour from the Sift:"
+          - "<dark_aqua>All temples have fallen silent."
   # Bosse der Tempel (ab alpha.42b). Nichts davon gibt es im Original.
   bosses:
     # Großer Echo-Golem (Charoit-Koloss): erwacht am Seelen-Altar in der Arena, einmal je Tempel. Danach ist der Tempel

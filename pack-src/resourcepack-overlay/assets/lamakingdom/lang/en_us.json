@@ -16,5 +16,7 @@
   "block.the_sift.siftite_block": "Block of Siftite",
   "item.the_sift.siftite_block": "Block of Siftite",
   "block.the_sift.charoite_block": "Block of Charoite",
-  "item.the_sift.charoite_block": "Block of Charoite"
+  "item.the_sift.charoite_block": "Block of Charoite",
+  "entity.the_sift.great_echo_golem": "Great Echo Golem",
+  "entity.the_sift.soul_helper": "Soul Helper"
 }

@@ -185,7 +185,7 @@ public final class FluidIdentityListener implements Listener {
                 && FluidIdentity.mixes(event.getOldLevel(), marks.ichor(event.getBlock()), false)) {
             event.setCancelled(true);
             if (event.getEntity() instanceof Player player) {
-                player.sendActionBar(net.kyori.adventure.text.Component.text("Ichor und Wasser mischen sich nicht."));
+                player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "ichor.no-mix"));
             }
         }
     }
