@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.certified_sifter.title",
-      "fallback": "Zertifizierter Sifter"
+      "fallback": "Certified Sifter"
     },
     "description": {
       "translate": "advancement.the_sift.certified_sifter.description",
-      "fallback": "Erkunde alle Biome der Sift"
+      "fallback": "Explore all Sift biomes"
     },
     "frame": "challenge"
   },

@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.great_echo_golem.title",
-      "fallback": "Stille im Tempel"
+      "fallback": "Silence in the Temple"
     },
     "description": {
       "translate": "advancement.the_sift.great_echo_golem.description",
-      "fallback": "Besiege einen Großen Echo-Golem"
+      "fallback": "Defeat a Great Echo Golem"
     },
     "frame": "challenge"
   },

@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.pitch_perfect.title",
-      "fallback": "Absolutes Gehör"
+      "fallback": "Pitch Perfect"
     },
     "description": {
       "translate": "advancement.the_sift.pitch_perfect.description",
-      "fallback": "Tausche mit einem Sänger gegen einen Seelenblock"
+      "fallback": "Barter with a Singer using a Soul Block"
     }
   },
   "criteria": {

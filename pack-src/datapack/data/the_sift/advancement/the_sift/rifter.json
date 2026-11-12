@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.rifter.title",
-      "fallback": "Rissgänger"
+      "fallback": "Rifter"
     },
     "description": {
       "translate": "advancement.the_sift.rifter.description",
-      "fallback": "Reise durch einen Sift-Riss"
+      "fallback": "Travel through a Sift Rift"
     }
   },
   "criteria": {

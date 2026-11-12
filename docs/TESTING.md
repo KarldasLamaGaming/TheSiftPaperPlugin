@@ -40,6 +40,28 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Mit `required: true` und `/sift pack reload`: Ablehnen trennt mit `kick-on-decline`.
 - [ ] `/sift pack send <spieler>` schickt das Pack erneut.
 
+### Sprachen Deutsch/Englisch (ab alpha.42c.1: Pack)
+
+Smoke-Test ohne Spieler: Selbsttest „Sprachdateien des Packs: 291 Keys Deutsch, 291 Englisch, alle in beiden Sprachen
+mit gleichen Platzhaltern“; Pack enthält `assets/lamakingdom/lang/en_us.json`; Advancements des Originals haben jetzt
+englische Ersatztexte (z. B. „Tame the Blub“).
+
+**Nur mit Spieler** (zwei Durchgänge: Client auf Englisch, dann auf Deutsch; Optionen → Sprache):
+```
+/sift give @s golem_trophy
+/sift give @s echo_resonator
+/sift give @s sift_compass
+/sift give @s charoite_block
+/sift give @s temple_rumor
+/sift items
+```
+- [ ] **Englisch:** Night Crystal, Echo Resonator, Sift Compass, Block of Charoite, Temple Rumor; Sift-Items des
+      Originals englisch (z. B. Siftite Ingot). Advancement-Tab: „Silence in the Temple“ (vorher fälschlich deutsch).
+- [ ] **Deutsch:** dieselben Items als Nachtkristall, Echo-Resonator, Sift-Kompass, Charoit-Block, Gerücht vom Tempel;
+      Advancement „Stille im Tempel“.
+- [ ] **Ohne Pack** (ablehnen): Namen erscheinen englisch (Ersatztext).
+- [ ] **Andere Sprache** (z. B. Français): englische Namen.
+
 ## Blöcke
 
 **Abbauzeit mit Äxten (Fix alpha.35).** Vorher bauten Eisen-, Diamant-, Netherit- und Goldäxte jeden Sift-Block auf

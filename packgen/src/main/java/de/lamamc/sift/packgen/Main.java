@@ -64,7 +64,7 @@ public final class Main {
         Path clientJar = obtainClientJar(options.getOrDefault("--minecraft", "26.3"), cache);
         try (ZipFile zip = new ZipFile(jar.toFile()); ZipFile client = new ZipFile(clientJar.toFile())) {
             importDatapack(zip, mapping, report, out.resolve("datapack"), out.resolve("item-data"),
-                    german(out.resolve("resourcepack-overlay/assets/the_sift/lang/de_de.json")));
+                    english(zip, out.resolve("resourcepack-overlay/assets/lamakingdom/lang/en_us.json")));
             Path pack = out.resolve("resourcepack");
             importAssets(zip, report, pack);
             Path overlay = out.resolve("resourcepack-overlay");
@@ -88,7 +88,7 @@ public final class Main {
     }
 
     private static void importDatapack(ZipFile zip, BlockMapping mapping, ImportReport report, Path root,
-                                       Path itemData, Map<String, String> german) throws IOException {
+                                       Path itemData, Map<String, String> fallbacks) throws IOException {
         Map<String, JsonElement> json = new TreeMap<>();
         Map<String, byte[]> structures = new TreeMap<>();
         Map<String, byte[]> cityCenters = new TreeMap<>();
@@ -133,7 +133,7 @@ public final class Main {
             writeJson(data.resolve(e.getKey()), e.getValue());
         }
         // recipes and item tags for the plugin; chest loot, advancements and songs into the datapack
-        ItemDataImporter items = new ItemDataImporter(mapping, german, report);
+        ItemDataImporter items = new ItemDataImporter(mapping, fallbacks, report);
         for (var e : items.datapackFiles(json).entrySet()) {
             writeJson(data.resolve(e.getKey()), e.getValue());
         }
@@ -216,14 +216,24 @@ public final class Main {
         copyLicense(zip, root);
     }
 
-    /** The hand-written German lang file (pack-src/resourcepack-overlay). */
-    private static Map<String, String> german(Path langFile) throws IOException {
-        Map<String, String> german = new TreeMap<>();
-        if (Files.isRegularFile(langFile)) {
-            JsonParser.parseString(Files.readString(langFile)).getAsJsonObject().entrySet()
-                    .forEach(e -> german.put(e.getKey(), e.getValue().getAsString()));
+    /**
+     * English texts as fallback for translated texts (alpha.42c: players without the pack see English): the original's
+     * en_us.json plus our own English keys (pack-src/resourcepack-overlay/assets/lamakingdom/lang/en_us.json).
+     */
+    private static Map<String, String> english(ZipFile zip, Path ownLangFile) throws IOException {
+        Map<String, String> english = new TreeMap<>();
+        var entry = zip.getEntry("assets/the_sift/lang/en_us.json");
+        if (entry != null) {
+            try (InputStream in = zip.getInputStream(entry)) {
+                JsonParser.parseString(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject()
+                        .entrySet().forEach(e -> english.put(e.getKey(), e.getValue().getAsString()));
+            }
         }
-        return german;
+        if (Files.isRegularFile(ownLangFile)) {
+            JsonParser.parseString(Files.readString(ownLangFile)).getAsJsonObject().entrySet()
+                    .forEach(e -> english.put(e.getKey(), e.getValue().getAsString()));
+        }
+        return english;
     }
 
     /** "biome-effects" of worldgen-overrides.yml. */

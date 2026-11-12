@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.like_father_and_son.title",
-      "fallback": "Wie Vater und Sohn"
+      "fallback": "Like Father and Son"
     },
     "description": {
       "translate": "advancement.the_sift.like_father_and_son.description",
-      "fallback": "Sei in der Nähe, wenn der Echogolem dem Sänger den Seelenblock bringt"
+      "fallback": "Be near the Echo Golem when it gives the Soul Block to the Singer"
     }
   },
   "criteria": {

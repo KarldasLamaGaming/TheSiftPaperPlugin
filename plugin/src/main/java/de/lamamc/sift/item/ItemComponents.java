@@ -177,16 +177,16 @@ final class ItemComponents {
         stack.setData(DataComponentTypes.LORE, ItemLore.lore(List.of(
                 line("item.minecraft.smithing_template", "Schmiedevorlage", NamedTextColor.GRAY),
                 Component.empty(),
-                line("item.minecraft.smithing_template.applies_to", "Anwendbar auf:", NamedTextColor.GRAY),
+                line("item.minecraft.smithing_template.applies_to", "Applies to:", NamedTextColor.GRAY),
                 Component.space().append(line("item.the_sift.smithing_template.siftite_upgrade.applies_to",
                         null, NamedTextColor.BLUE)).decoration(TextDecoration.ITALIC, false),
-                line("item.minecraft.smithing_template.ingredients", "Zutaten:", NamedTextColor.GRAY),
+                line("item.minecraft.smithing_template.ingredients", "Ingredients:", NamedTextColor.GRAY),
                 Component.space().append(line("item.the_sift.smithing_template.siftite_upgrade.ingredients",
                         null, NamedTextColor.BLUE)).decoration(TextDecoration.ITALIC, false))));
     }
 
     private Component line(String key, String fallback, NamedTextColor color) {
-        String text = fallback != null ? fallback : translations.german(key);
+        String text = fallback != null ? fallback : translations.fallback(key);
         return Component.translatable().key(key).fallback(text).color(color)
                 .decoration(TextDecoration.ITALIC, false).build();
     }

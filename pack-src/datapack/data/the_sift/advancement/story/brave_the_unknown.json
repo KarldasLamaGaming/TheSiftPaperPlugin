@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.story.brave_the_unknown.title",
-      "fallback": "Wage das Unbekannte"
+      "fallback": "Brave the Unknown"
     },
     "description": {
       "translate": "advancement.the_sift.story.brave_the_unknown.description",
-      "fallback": "Betritt die Sift"
+      "fallback": "Enter the Sift"
     }
   },
   "criteria": {

@@ -51,6 +51,7 @@ public final class ItemSelfTest {
         siftiteGear();
         otherItems();
         advancements();
+        languages();
         loot(world);
         lines.add(failures == 0 ? "Selbsttest bestanden" : "Selbsttest: " + failures + " Fehler");
         return lines;
@@ -199,6 +200,19 @@ public final class ItemSelfTest {
         check(count == 23, "Advancements der Sift geladen: " + count + " von 23 (22 des Originals, 1 eigenes)");
         check(Bukkit.getAdvancement(new NamespacedKey("the_sift", "the_sift/great_echo_golem")) != null,
                 "Advancement the_sift:the_sift/great_echo_golem (Tempel-Boss, alpha.42b.2) geladen");
+    }
+
+    /** alpha.42c: the lang files of the pack in the jar, every key in German and English, same placeholders. */
+    private void languages() {
+        java.util.Map<String, String> en = new java.util.HashMap<>();
+        java.util.Map<String, String> german = new java.util.HashMap<>();
+        Translations.read("/lang/en_us.json", en);
+        Translations.read("/lang/lamakingdom_en_us.json", en);
+        Translations.read("/lang/de_de.json", german);
+        List<String> problems = de.lamamc.sift.core.lang.LangCheck.compare("de_de", german, "en_us", en);
+        check(problems.isEmpty() && !german.isEmpty(), "Sprachdateien des Packs: " + german.size() + " Keys Deutsch, " + en.size()
+                + " Englisch" + (problems.isEmpty() ? ", alle in beiden Sprachen mit gleichen Platzhaltern"
+                : ", Abweichungen: " + String.join("; ", problems.subList(0, Math.min(5, problems.size())))));
     }
 
     private void loot(World world) {

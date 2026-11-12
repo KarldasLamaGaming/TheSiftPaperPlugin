@@ -6,11 +6,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.story.song_of_the_past.title",
-      "fallback": "Lied der Vergangenheit"
+      "fallback": "Song of the Past"
     },
     "description": {
       "translate": "advancement.the_sift.story.song_of_the_past.description",
-      "fallback": "Blase das Ziegenhorn im Zentrum einer antiken Stätte"
+      "fallback": "Blow the Goat Horn in the center of the Ancient City"
     }
   },
   "criteria": {

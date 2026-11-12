@@ -305,7 +305,9 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   begrenzt Lebenspunkte auf 1024); die Bossleiste ist eine Plugin-Bossleiste. Das Seelengitter ist ein Kraftfeld ohne
   Blöcke (Partikel in den Toren, Zurücksetzen statt Wand). Bedrock-Spieler (Geyser) sehen den Golem nicht, nur die
   Bossleiste und die Angriffe (wie bei allen Sift-Mobs). Seit alpha.42b.2 mit eigener Netherit-Beute (Tabelle in der
-  Config) und dem eigenen Advancement „Stille im Tempel“ (nicht im Original; Text nur auf Deutsch im Pack).
+  Config) und dem eigenen Advancement „Stille im Tempel“ (nicht im Original; seit alpha.42c auf Deutsch und Englisch).
+- **Sprachen** (alpha.42c): Das Original hat Englisch, Polnisch und Koreanisch, unsere eigenen Inhalte gibt es auf
+  Deutsch und Englisch. Ersatztexte (ohne Pack) sind seit alpha.42c englisch.
 
 ## Siftit-Erhalt beim Tod (seit alpha.23)
 

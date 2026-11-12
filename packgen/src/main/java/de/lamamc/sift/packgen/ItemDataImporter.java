@@ -32,13 +32,13 @@ public final class ItemDataImporter {
     private static final String NS = BlockMapping.MOD_NAMESPACE + ":";
 
     private final BlockMapping mapping;
-    private final Map<String, String> german;
+    private final Map<String, String> fallbacks;
     private final ImportReport report;
 
-    /** @param german the German lang file, used as fallback for translated texts */
-    public ItemDataImporter(BlockMapping mapping, Map<String, String> german, ImportReport report) {
+    /** @param fallbacks the English lang texts, used as fallback for translated texts (players without the pack) */
+    public ItemDataImporter(BlockMapping mapping, Map<String, String> fallbacks, ImportReport report) {
         this.mapping = mapping;
-        this.german = german;
+        this.fallbacks = fallbacks;
         this.report = report;
     }
 
@@ -203,11 +203,11 @@ public final class ItemDataImporter {
     private void addFallback(JsonElement text) {
         if (text instanceof JsonObject object && object.get("translate") instanceof JsonPrimitive key
                 && !object.has("fallback")) {
-            String german = this.german.get(key.getAsString());
-            if (german == null) {
-                report.note("No German text for", key.getAsString());
+            String english = fallbacks.get(key.getAsString());
+            if (english == null) {
+                report.note("No English text for", key.getAsString());
             } else {
-                object.addProperty("fallback", german);
+                object.addProperty("fallback", english);
             }
         }
     }

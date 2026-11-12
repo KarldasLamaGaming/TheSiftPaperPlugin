@@ -53,6 +53,21 @@ schickt es beim Betreten des Servers.
 Selbst bauen: `./gradlew :packgen:resourcePack` legt `packgen/build/pack/the-sift-pack.zip` und die
 `.sha1` an.
 
+### Sprachen (ab alpha.42c)
+
+Alle Texte gibt es auf Deutsch und Englisch; der Client zeigt sie in seiner Spracheinstellung, alle anderen Sprachen
+bekommen Englisch (Polnisch und Koreanisch nur für die Texte des Originals).
+- **Pack (alpha.42c.1):** Item-, Block- und Mobnamen, Advancements, Tooltips. Deutsch in
+  `assets/the_sift/lang/de_de.json`, Englisch in `assets/the_sift/lang/en_us.json` (Original, MIT) plus
+  `assets/lamakingdom/lang/en_us.json` (unsere eigenen Inhalte: Schlüssel, Kompass, Boss-Items, Enchanter, Tempel …;
+  eigener Namensraum, weil das Pack die Datei des Originals nicht überschreibt). Quellen in `pack-src/resourcepack-overlay`.
+- **Ohne Pack** (abgelehnt, `required: false`) zeigen Items und Advancements ihren Ersatztext, seit alpha.42c auf
+  **Englisch** (vorher Deutsch).
+- **Prüfung:** `/sift debug selftest` meldet „Sprachdateien des Packs: N Keys Deutsch, N Englisch, alle in beiden
+  Sprachen mit gleichen Platzhaltern“; ein Unit-Test prüft dasselbe beim Bauen. Wer einen Text ändert, ändert ihn in
+  beiden Dateien (danach neues Release).
+- Meldungen des Plugins (Chat, Actionbar, Bossleiste) folgen mit alpha.42c.2.
+
 ## Wie eigene Blöcke funktionieren
 
 Paper kennt keine neuen Blöcke. Die Blöcke der Sift nutzen Zustände von Vanilla-Blöcken, die im

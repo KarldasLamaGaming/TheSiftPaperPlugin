@@ -13,7 +13,7 @@
     },
     "description": {
       "translate": "advancement.the_sift.blub.description",
-      "fallback": "Zähme den Blub"
+      "fallback": "Tame the Blub"
     }
   },
   "criteria": {

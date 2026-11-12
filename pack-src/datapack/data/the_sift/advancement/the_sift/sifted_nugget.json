@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.sifted_nugget.title",
-      "fallback": "Gesiebter Klumpen"
+      "fallback": "Sifted Nugget"
     },
     "description": {
       "translate": "advancement.the_sift.sifted_nugget.description",
-      "fallback": "Baue Siftiterz ab"
+      "fallback": "Mine the Siftite Ore"
     }
   },
   "criteria": {

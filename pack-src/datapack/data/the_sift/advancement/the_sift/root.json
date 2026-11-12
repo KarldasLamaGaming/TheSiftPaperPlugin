@@ -8,11 +8,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.root.title",
-      "fallback": "Die Sift"
+      "fallback": "The Sift"
     },
     "description": {
       "translate": "advancement.the_sift.root.description",
-      "fallback": "Alternative Realität"
+      "fallback": "Alternative reality"
     },
     "background": "the_sift:block/dry_healthy_sculk",
     "show_toast": false,

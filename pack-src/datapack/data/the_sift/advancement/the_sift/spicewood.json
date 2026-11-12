@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.spicewood.title",
-      "fallback": "Würzholz"
+      "fallback": "Spicewood"
     },
     "description": {
       "translate": "advancement.the_sift.spicewood.description",
-      "fallback": "Setze in der Sift Holz in Brand"
+      "fallback": "Set wood on fire in the Sift"
     }
   },
   "criteria": {

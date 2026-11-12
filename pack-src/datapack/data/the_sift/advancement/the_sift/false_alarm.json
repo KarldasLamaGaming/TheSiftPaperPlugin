@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.false_alarm.title",
-      "fallback": "Fehlalarm"
+      "fallback": "False Alarm"
     },
     "description": {
       "translate": "advancement.the_sift.false_alarm.description",
-      "fallback": "Täusche den Wärter mit Erschütterungen, indem du einen Ichorschneeball wirfst"
+      "fallback": "Trick the Warden with vibrations by throwing an Ichor Snowball"
     },
     "frame": "challenge"
   },

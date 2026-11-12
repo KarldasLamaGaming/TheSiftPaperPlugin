@@ -6,11 +6,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.story.fallen_civilization.title",
-      "fallback": "Gefallene Zivilisation"
+      "fallback": "Fallen Civilization"
     },
     "description": {
       "translate": "advancement.the_sift.story.fallen_civilization.description",
-      "fallback": "Besuche eine antike Stätte"
+      "fallback": "Visit an Ancient City"
     }
   },
   "criteria": {
