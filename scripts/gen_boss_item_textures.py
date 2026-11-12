@@ -2,7 +2,7 @@
 """Draws the 16x16 item textures of the boss items (phase 4, alpha.39).
 
 Own art, no Mojang files: Herz des Wächters (sculk-teal heart with a dark core), Drachenschuppe (violet scale),
-Kern des Withers (black skull-shaped core with a pale glow), Golem-Trophäe (working title; soul-blue crystal in a
+Kern des Withers (black skull-shaped core with a pale glow), Nachtkristall (golem_trophy, the golem boss item; soul-blue crystal in a
 deepslate setting). Replace the PNGs in pack-src/resourcepack-overlay/assets/the_sift/textures/item/ with hand-made
 ones at any time (same names). Since alpha.40.2 the items are 3D models (scripts/gen_item_models_3d.py writes the
 models and item definitions); these flat images are their particle textures.

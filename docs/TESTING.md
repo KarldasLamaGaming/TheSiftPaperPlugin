@@ -910,7 +910,7 @@ Test in der Sift, Überlebensmodus. Werte unter `mobs.echo_golem`, Seelen-Singer
 /give @s wither_skeleton_skull 3
 ```
 - [ ] Die vier Items: eigene Textur, lila Name (episch), Glanz, stapelbar bis 16. Deutsche Namen „Herz des Wächters“,
-      „Drachenschuppe“, „Kern des Withers“, „Golem-Trophäe“.
+      „Drachenschuppe“, „Kern des Withers“, „Nachtkristall“ (bis alpha.41.1 „Golem-Trophäe“).
 - [ ] Wächter selbst töten: Herz des Wächters liegt in den Drops.
 - [ ] Wächter per `/kill @e[type=warden]`: kein Herz.
 - [ ] Wither bauen (Seelensand + 3 Schädel) und töten: Kern des Withers in den Drops.

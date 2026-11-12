@@ -938,7 +938,7 @@ Die Abschnitte der obersten Ebene, in der Reihenfolge der Datei (dieselbe Übers
 Vier neue Items (episch, mit Glanz). Seit alpha.40.2 sind sie, wie der Charoit-Kern, **3D-Modelle** aus Blöcken.
 Das gilt im Inventar, in der Hand, am Boden und im Item-Rahmen:
 - Wächter, Wither, Drache: massiv, wie rohe Boss-Drops.
-- Golem-Trophäe und Charoit-Kern: veredelt, in Siftit gefasst.
+- Nachtkristall und Charoit-Kern: veredelt, in Siftit gefasst.
 - Erzeugt von `scripts/gen_item_models_3d.py`: Modelle, Item-Definitionen und Materialtexturen unter
   `textures/item/m3d/`.
 - Die flachen Bilder aus `scripts/gen_boss_item_textures.py` dienen nur noch als Partikeltextur.
@@ -950,7 +950,7 @@ Das gilt im Inventar, in der Hand, am Boden und im Item-Rahmen:
 | Herz des Wächters | `warden_heart` | jeder Wächter, den ein Spieler tötet (auch mit Pfeil) |
 | Kern des Withers | `wither_core` | jeder Wither, den ein Spieler tötet |
 | Drachenschuppe | `dragon_scale` | jeder Spieler, der dem Enderdrachen Schaden gemacht hat, bekommt eine ins Inventar (voll: vor die Füße) |
-| Golem-Trophäe (Arbeitstitel) | `golem_trophy` | später vom Boss „Großer Echo-Golem“ (alpha.42); bis dahin nur `/sift give` |
+| Nachtkristall (bis alpha.41.1 „Golem-Trophäe“) | `golem_trophy` | später vom Boss „Großer Echo-Golem“ (alpha.42); bis dahin nur `/sift give` |
 
 - Je Item: `enabled`, `item`, `chance`, `amount` bzw. `amount-per-player`, `cooldown-hours` (Abklingzeit je Spieler,
   0 = keine; gemerkt im Spieler unter `the_sift:boss_drop_<id>`), beim Drachen `min-damage-share`.

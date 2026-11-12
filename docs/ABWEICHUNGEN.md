@@ -274,7 +274,7 @@ wird nachgebildet:
 
 Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` abschaltbar:
 - **Boss-Items** (alpha.39): Herz des Wächters, Kern des Withers, Drachenschuppe aus den Vanilla-Bossen, dazu die
-  Golem-Trophäe (Arbeitstitel) für den späteren eigenen Boss. Die Texturen sind eigene (Skript), keine Mojang-Dateien.
+  Nachtkristall (`golem_trophy`, bis alpha.41.1 Arbeitstitel „Golem-Trophäe“) für den späteren eigenen Boss. Die Texturen sind eigene (Skript), keine Mojang-Dateien.
 - **Sculk Enchanter** (alpha.40, eigener Block seit alpha.40.1): Ritual mit dem Charoit-Kern an einem Zaubertisch. Er
   hebt Verzauberungen bis 2 Stufen über das Vanilla-Maximum. Der Block hat eine eigene Optik (Charoit-Rune,
   seelenblaue Gravur, schwebender Kristall), aber nur für Java mit Resource Pack: **Bedrock-Spieler (Geyser) sehen

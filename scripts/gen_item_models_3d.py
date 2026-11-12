@@ -2,7 +2,7 @@
 """3D item models for the boss items, the Charoit-Kern and the enchanter crystal (phase 4, alpha.40.2).
 
 Karl's choice: massive raw boss drops (Herz des Wächters, Kern des Withers, Drachenschuppe), refined items in a
-Siftit setting (Golem-Trophäe, Charoit-Kern), and a charoite crystal cluster that floats above the Sculk Enchanter.
+Siftit setting (Nachtkristall = golem_trophy, Charoit-Kern), and a charoite crystal cluster that floats above the Sculk Enchanter.
 The models are built from elements (cuboids); the inventory shows the 3D model like a block. The item definition of
 the Charoit-Kern picks the crystal for the display context "none", which only item displays use (the enchanter's
 floating crystal is an item display of the Charoit-Kern), and the core everywhere else.
