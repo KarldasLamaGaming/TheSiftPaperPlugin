@@ -86,11 +86,11 @@ final class MobCommand {
         String id = StringArgumentType.getString(ctx, "mob");
         MobKind kind = mobs.kind(id);
         if (kind == null) {
-            sender.sendMessage(messages.get("mobs.unknown", "mob", id));
+            sender.sendMessage(messages.get(sender, "mobs.unknown", "mob", id));
             return 0;
         }
         if (!kind.enabled()) {
-            sender.sendMessage(messages.get("mobs.disabled", "mob", name(id), "id", id));
+            sender.sendMessage(messages.get(sender, "mobs.disabled", "mob", name(id), "id", id));
             return 0;
         }
         Location at = ctx.getSource().getLocation();
@@ -101,11 +101,11 @@ final class MobCommand {
             }
         }
         if (spawned == 0) {
-            sender.sendMessage(messages.get("mobs.spawn-failed", "mob", name(id),
-                    "reason", messages.raw("mobs.limit-world").replace("<limit>", String.valueOf(mobs.worldLimit()))));
+            sender.sendMessage(messages.get(sender, "mobs.spawn-failed", "mob", name(id),
+                    "reason", messages.raw(messages.lang(sender), "mobs.limit-world").replace("<limit>", String.valueOf(mobs.worldLimit()))));
             return 0;
         }
-        sender.sendMessage(messages.get("mobs.spawned", "count", String.valueOf(spawned), "mob", name(id)));
+        sender.sendMessage(messages.get(sender, "mobs.spawned", "count", String.valueOf(spawned), "mob", name(id)));
         return spawned;
     }
 

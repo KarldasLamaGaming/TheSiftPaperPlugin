@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.blood_of_the_gods.title",
-      "fallback": "Blut der Götter"
+      "fallback": "Blood of the Gods"
     },
     "description": {
       "translate": "advancement.the_sift.blood_of_the_gods.description",
-      "fallback": "Fülle einen Eimer mit Ichor"
+      "fallback": "Fill a bucket with Ichor"
     }
   },
   "criteria": {

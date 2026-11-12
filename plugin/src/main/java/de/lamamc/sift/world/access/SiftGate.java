@@ -156,8 +156,8 @@ public final class SiftGate implements Listener {
         lastRefusal.put(player.getUniqueId(), now);
         SiftAccess.State state = state();
         player.sendActionBar(state.opensAt() != null
-                ? messages.get("access.closed-until", "time", SiftAccess.remaining(state.opensAt() - now))
-                : messages.get("access.closed"));
+                ? messages.get(player, "access.closed-until", "time", SiftAccess.remaining(state.opensAt() - now, messages.lang(player)))
+                : messages.get(player, "access.closed"));
     }
 
     private void tick() {
@@ -176,13 +176,13 @@ public final class SiftGate implements Listener {
         }
         if (state.open() && !lastOpen) {
             countdown = -1;
-            Bukkit.broadcast(messages.get("access.opened"));
+            messages.broadcast("access.opened");
             logger.info("The Sift is open (" + state.reason() + ")");
         } else if (!state.open() && lastOpen) {
             countdown = warningSeconds;
             logger.info("The Sift closes in " + warningSeconds + " s (" + state.reason() + ")");
             for (Player player : insiders()) {
-                player.sendMessage(messages.get("access.closing", "seconds", String.valueOf(warningSeconds)));
+                player.sendMessage(messages.get(player, "access.closing", "seconds", String.valueOf(warningSeconds)));
             }
         }
         lastOpen = state.open();
@@ -192,7 +192,7 @@ public final class SiftGate implements Listener {
                 countdown = -1;
             } else {
                 for (Player player : insiders()) {
-                    player.sendActionBar(messages.get("access.countdown", "seconds", String.valueOf(countdown)));
+                    player.sendActionBar(messages.get(player, "access.countdown", "seconds", String.valueOf(countdown)));
                 }
                 countdown--;
             }
@@ -231,7 +231,7 @@ public final class SiftGate implements Listener {
         player.teleportAsync(target, PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(ok -> {
             if (Boolean.TRUE.equals(ok)) {
                 player.getPersistentDataContainer().remove(PortalService.RETURN_POINT);
-                player.sendMessage(messages.get("access.sent-back"));
+                player.sendMessage(messages.get(player, "access.sent-back"));
             }
         });
     }

@@ -26,10 +26,6 @@ Sift-Kompass.
    `/sift tp` bringt dich danach direkt ans Haupt-Portal.
    Danach können Spieler die Sift betreten.
 
-Hinweis zu 0.1.0-alpha.1: Eine von dieser Version angelegte Datei
-`<welt>/dimensions/the_sift/the_sift/paper-world.yml` mit `block-updates`-Einträgen ist wirkungslos
-und kann gelöscht werden.
-
 ## Resource Pack
 
 Spieler brauchen das Resource Pack der Sift (Texturen, Modelle, Sounds, deutsche Texte). Das Plugin
@@ -52,6 +48,39 @@ schickt es beim Betreten des Servers.
 
 Selbst bauen: `./gradlew :packgen:resourcePack` legt `packgen/build/pack/the-sift-pack.zip` und die
 `.sha1` an.
+
+### Sprachen (ab alpha.42c)
+
+Alle Texte gibt es auf Deutsch und Englisch; der Client zeigt sie in seiner Spracheinstellung, alle anderen Sprachen
+bekommen Englisch (Polnisch und Koreanisch nur für die Texte des Originals).
+- **Pack (alpha.42c.1):** Item-, Block- und Mobnamen, Advancements, Tooltips. Deutsch in
+  `assets/the_sift/lang/de_de.json`, Englisch in `assets/the_sift/lang/en_us.json` (Original, MIT) plus
+  `assets/lamakingdom/lang/en_us.json` (unsere eigenen Inhalte: Schlüssel, Kompass, Boss-Items, Enchanter, Tempel …;
+  eigener Namensraum, weil das Pack die Datei des Originals nicht überschreibt). Quellen in `pack-src/resourcepack-overlay`.
+- **Ohne Pack** (abgelehnt, `required: false`) zeigen Items und Advancements ihren Ersatztext, seit alpha.42c auf
+  **Englisch** (vorher Deutsch).
+- **Prüfung:** `/sift debug selftest` meldet „Sprachdateien des Packs: N Keys Deutsch, N Englisch, alle in beiden
+  Sprachen mit gleichen Platzhaltern“; ein Unit-Test prüft dasselbe beim Bauen. Wer einen Text ändert, ändert ihn in
+  beiden Dateien (danach neues Release).
+- **Meldungen des Plugins (alpha.42c.2):** Chat, Actionbar, Titel, Bossleiste, Kompass, Altar, Portal-Sperre,
+  Spawner, Boss, Enchanter-Menü kommen in der Sprache des Clients (`player.locale()`: `de_*` → Deutsch, alles andere →
+  Englisch). Texte in `plugins/TheSift/messages.yml` (Deutsch, die bisherige Datei; eigene Änderungen bleiben) und
+  `plugins/TheSift/messages_en.yml` (Englisch, neu). Neue Keys eines Updates kommen beim Start in beide Dateien.
+  - Der Bosskampf hat je Sprache eine eigene Bossleiste; jeder sieht die seiner Sprache.
+  - Mob-Namen (Todesmeldungen, `/kill`) sind übersetzbar (`entity.the_sift.<id>` im Pack); `mobs.names` in den
+    Meldungsdateien gilt nur noch für Admin-Ausgaben und als englischer Ersatz ohne Pack.
+  - Zeitangaben: „3 T 4 Std. 5 Min.“ bzw. „3 d 4 h 5 min“.
+  - Gerüchte-Zettel bekommen die Sprache dessen, der die Truhe öffnet (ohne Spieler: Englisch); der Text bleibt danach
+    am Zettel.
+- **Config-Texte zweisprachig:** `resource-pack.prompt`, `kick-on-decline`, `failed-message`,
+  `phase4.temples.altar-message`, `phase4.temples.hints.text` und `all-defeated` sind jetzt Abschnitte mit `de:` und `en:`.
+  Beim ersten Start mit alpha.42c ersetzt das Plugin die alten deutschen Standardtexte selbst (Log: „old defaults
+  replaced … (alpha42c)“). Wer einen eigenen Text hatte, behält ihn; er gilt dann für beide Sprachen, bis man ihn in
+  `de:`/`en:` aufteilt.
+- **Konsole:** `language: de` (oder `en`) in der config.yml bestimmt die Sprache der Plugin-Meldungen an die Konsole und
+  an Befehlsblöcke. Admin-Befehle (`/sift …`) antworten weiter auf Deutsch.
+- **Prüfung:** `/sift debug selftest` meldet zusätzlich „Spielertexte: N Keys Deutsch, N Englisch, alle in beiden
+  Sprachen mit gleichen Platzhaltern“ (die Dateien des Servers, alte Keys früherer Versionen zählen nicht).
 
 ## Wie eigene Blöcke funktionieren
 

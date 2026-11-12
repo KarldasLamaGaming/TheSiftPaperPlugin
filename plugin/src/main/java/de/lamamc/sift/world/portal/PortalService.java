@@ -227,7 +227,7 @@ public final class PortalService implements Listener {
             Location anchor = sift == null ? null : MainPortalBuilder.anchor(sift);
             if (anchor == null) {
                 if (entity instanceof Player player) {
-                    player.sendActionBar(net.kyori.adventure.text.Component.text("Das Haupt-Portal der Sift ist noch nicht gebaut."));
+                    player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "portals.main-not-built"));
                 }
                 guard.arrived(entity.getUniqueId());
                 return;

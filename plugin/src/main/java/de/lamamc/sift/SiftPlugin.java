@@ -83,6 +83,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         saveDefaultConfig();
         updateConfig();
+        messages = Messages.load(this); // before anything that talks to players (alpha.42c: German and English)
+        messages.console(de.lamamc.sift.core.lang.Lang.ofSetting(getConfig().getString("language", "de")));
         List<MappingEntry> mapping = MappingEntry.bundled();
         blocks = new CustomBlockRegistry(mapping);
         blockSettings = BlockSettings.load(getConfig(), getLogger());
@@ -156,7 +158,6 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         compass.start(this, getConfig().getInt("portals.compass.update-ticks", 40));
         registerTempleRumors();
-        messages = Messages.load(this);
         gate = new de.lamamc.sift.world.access.SiftGate(this, messages, getConfig().getConfigurationSection("access"));
         getServer().getPluginManager().registerEvents(gate, this);
         portals.setGate(gate);
@@ -239,7 +240,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private void startMobs() {
         org.bukkit.configuration.ConfigurationSection config = getConfig().getConfigurationSection("mobs");
         mobs = new de.lamamc.sift.mob.MobManager(this, config);
-        mobs.names(id -> messages.has("mobs.names." + id) ? messages.raw("mobs.names." + id) : null);
+        mobs.names(id -> messages.has("mobs.names." + id) ? messages.raw(de.lamamc.sift.core.lang.Lang.EN, "mobs.names." + id) : null);
         mobSpawner = new de.lamamc.sift.mob.MobSpawner(mobs);
         if (config == null || !config.getBoolean("enabled", true)) {
             getLogger().info("Sift mobs are off (mobs.enabled)");
@@ -398,13 +399,16 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
      */
     private void updateConfig() {
         org.bukkit.configuration.file.FileConfiguration config = getConfig();
-        java.io.InputStream migration = getResource("migrations/alpha37.yml");
-        if (migration != null && config.getDefaults() != null) {
-            org.bukkit.configuration.file.YamlConfiguration old = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
-                    new java.io.InputStreamReader(migration, java.nio.charset.StandardCharsets.UTF_8));
-            List<String> replaced = ConfigUpdate.dropOldDefaults(config, old);
-            if (!replaced.isEmpty()) {
-                getLogger().info("config.yml: old defaults replaced by the new ones (alpha.37): " + replaced);
+        // alpha.37: recipes and loot chances; alpha.42c: single German texts become de/en sections
+        for (String version : List.of("alpha37", "alpha42c")) {
+            java.io.InputStream migration = getResource("migrations/" + version + ".yml");
+            if (migration != null && config.getDefaults() != null) {
+                org.bukkit.configuration.file.YamlConfiguration old = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
+                        new java.io.InputStreamReader(migration, java.nio.charset.StandardCharsets.UTF_8));
+                List<String> replaced = ConfigUpdate.dropOldDefaults(config, old);
+                if (!replaced.isEmpty()) {
+                    getLogger().info("config.yml: old defaults replaced by the new ones (" + version + "): " + replaced);
+                }
             }
         }
         if (config.getDefaults() != null) {
@@ -553,7 +557,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         siftPopulator.temples(builder);
         temples = new de.lamamc.sift.world.temple.TempleRegistry(this, blocks, builder, c.getBoolean("protect-until-defeated", true),
                 getConfig().getBoolean("phase4.enchanter.temple-enchanter.requires-defeat", true),
-                c.getString("altar-message", "Der Seelen-Altar schweigt noch."), c.getInt("deferred-per-tick", 1));
+                LocalizedConfig.text(c, "altar-message", "Der Seelen-Altar schweigt noch.", "The Soul Altar is still silent."),
+                c.getInt("deferred-per-tick", 1));
         getServer().getPluginManager().registerEvents(temples, this);
         temples.start(world);
         startBroodSpawners(c.getConfigurationSection("spawners"));
@@ -654,7 +659,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         getServer().getPluginManager().registerEvents(new de.lamamc.sift.world.temple.TempleRumors(() -> temples, items,
                 new de.lamamc.sift.world.temple.TempleRumors.Settings(chances, Math.max(1, h.getInt("distance-step", 100)),
-                        h.getStringList("text"), h.getStringList("all-defeated"))), this);
+                        LocalizedConfig.lines(h, "text"), LocalizedConfig.lines(h, "all-defeated"))), this);
     }
 
     /** Temples (alpha.41a), null when phase4.temples.enabled is false or the Sift is not attached yet. */

@@ -120,7 +120,7 @@ public final class TempleRegistry implements Listener {
     private final Markers markers;
     private final boolean protect;
     private final boolean enchanterRequiresDefeat;
-    private final String altarMessage;
+    private final java.util.Map<de.lamamc.sift.core.lang.Lang, String> altarMessage;
     private final int perTick;
     private final Map<String, Temple> temples = new LinkedHashMap<>();
     private final Set<TempleBuilder.Slice> pending = new LinkedHashSet<>();
@@ -129,7 +129,8 @@ public final class TempleRegistry implements Listener {
     private World sift;
 
     public TempleRegistry(Plugin plugin, CustomBlockRegistry blocks, TempleBuilder builder, boolean protect,
-                          boolean enchanterRequiresDefeat, String altarMessage, int deferredPerTick) {
+                          boolean enchanterRequiresDefeat, java.util.Map<de.lamamc.sift.core.lang.Lang, String> altarMessage,
+                          int deferredPerTick) {
         this.plugin = plugin;
         this.blocks = blocks;
         this.builder = builder;
@@ -512,7 +513,7 @@ public final class TempleRegistry implements Listener {
                 || t.get().state() == State.DEFEATED) {
             return null;
         }
-        return "Der Sculk Enchanter des Tempels erwacht erst, wenn sein Wächter besiegt ist.";
+        return "enchanter.temple-locked"; // messages key (alpha.42c)
     }
 
     // ---- rebuild and inspection ------------------------------------------------------------------------------
@@ -705,8 +706,7 @@ public final class TempleRegistry implements Listener {
     public void onBreak(BlockBreakEvent event) {
         if (protectedBlock(event.getBlock()) && !event.getPlayer().hasPermission(BYPASS)) {
             event.setCancelled(true);
-            event.getPlayer().sendActionBar(Component.text("Der Tempel lässt sich nicht abtragen, solange sein Wächter schläft.",
-                    NamedTextColor.DARK_AQUA));
+            event.getPlayer().sendActionBar(de.lamamc.sift.Messages.current().get(event.getPlayer(), "temple.protected"));
         }
     }
 
@@ -752,9 +752,10 @@ public final class TempleRegistry implements Listener {
                 altarUse.use(player, t.get());
                 return;
             }
-            player.sendActionBar(Component.text(t.get().state() == State.DEFEATED ? "Der Wächter dieses Tempels ist besiegt."
-                    : awake > 0 ? "Der Seelen-Altar schweigt, solange " + awake + (awake == 1 ? " Brutkern wacht." : " Brutkerne wachen.")
-                    : altarMessage, NamedTextColor.DARK_AQUA));
+            de.lamamc.sift.Messages m = de.lamamc.sift.Messages.current();
+            player.sendActionBar(t.get().state() == State.DEFEATED ? m.get(player, "temple.defeated")
+                    : awake > 0 ? m.get(player, awake == 1 ? "temple.altar-gate-one" : "temple.altar-gate-many", "count", String.valueOf(awake))
+                    : Component.text(altarMessage.get(m.lang(player)), NamedTextColor.DARK_AQUA));
         }
     }
 

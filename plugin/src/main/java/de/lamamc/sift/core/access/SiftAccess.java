@@ -83,6 +83,12 @@ public final class SiftAccess {
 
     /** "3 T 4 Std. 5 Min." (at least minutes; seconds below a minute). */
     public static String remaining(long millis) {
+        return remaining(millis, de.lamamc.sift.core.lang.Lang.DE);
+    }
+
+    /** Time left in this language: "3 T 4 Std. 5 Min." / "3 d 4 h 5 min"; under a minute in seconds (alpha.42c). */
+    public static String remaining(long millis, de.lamamc.sift.core.lang.Lang lang) {
+        boolean german = lang == de.lamamc.sift.core.lang.Lang.DE;
         long seconds = Math.max(0, millis / 1000);
         if (seconds < 60) {
             return seconds + " s";
@@ -92,12 +98,12 @@ public final class SiftAccess {
         long minutes = seconds % 3600 / 60;
         StringBuilder text = new StringBuilder();
         if (days > 0) {
-            text.append(days).append(" T ");
+            text.append(days).append(german ? " T " : " d ");
         }
         if (days > 0 || hours > 0) {
-            text.append(hours).append(" Std. ");
+            text.append(hours).append(german ? " Std. " : " h ");
         }
-        return text.append(minutes).append(" Min.").toString();
+        return text.append(minutes).append(german ? " Min." : " min").toString();
     }
 
     /**

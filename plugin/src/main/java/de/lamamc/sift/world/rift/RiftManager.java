@@ -718,7 +718,7 @@ public final class RiftManager implements Listener {
                     return counter.location();
                 }
             }
-            player.sendMessage(messages.get("rifts.no-exit"));
+            player.sendMessage(messages.get(player, "rifts.no-exit"));
         }
         // no counter rift (or a mob or item): arrive at the anchor itself
         Location safe = anchor.clone();
@@ -776,7 +776,7 @@ public final class RiftManager implements Listener {
         }
         Block base = event.getClickedBlock().getRelative(event.getBlockFace());
         if (openFor(player, base) == null) {
-            player.sendActionBar(messages.get("rifts.no-space"));
+            player.sendActionBar(messages.get(player, "rifts.no-space"));
         }
     }
 }

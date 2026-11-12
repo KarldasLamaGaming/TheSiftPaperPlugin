@@ -212,7 +212,10 @@ public final class MobManager implements Listener {
         if (!de.lamamc.sift.core.mob.MobNames.apply(base.customName() != null, ours)) {
             return;
         }
-        base.customName(net.kyori.adventure.text.Component.text(de.lamamc.sift.core.mob.MobNames.nameFor(kind.id(), names)));
+        // translatable (alpha.42c): death messages show the name in each client's language (pack: entity.the_sift.<id>),
+        // the English name from messages_en.yml is the fallback without the pack
+        base.customName(net.kyori.adventure.text.Component.translatable().key("entity.the_sift." + kind.id())
+                .fallback(de.lamamc.sift.core.mob.MobNames.nameFor(kind.id(), names)).build());
         base.setCustomNameVisible(false);
         base.getPersistentDataContainer().set(AUTO_NAME, PersistentDataType.BOOLEAN, true);
     }

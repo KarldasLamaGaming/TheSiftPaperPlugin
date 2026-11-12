@@ -1,0 +1,22 @@
+{
+  "advancement.the_sift.great_echo_golem.title": "Silence in the Temple",
+  "advancement.the_sift.great_echo_golem.description": "Defeat a Great Echo Golem",
+  "item.the_sift.echo_resonator": "Echo Resonator",
+  "item.the_sift.soul_ember_core": "Soul Ember Core",
+  "item.the_sift.void_resonator": "Void Resonator",
+  "item.the_sift.sift_compass": "Sift Compass",
+  "item.the_sift.ancient_resonator": "Ancient Resonator",
+  "item.the_sift.warden_heart": "Heart of the Warden",
+  "item.the_sift.dragon_scale": "Dragon Scale",
+  "item.the_sift.wither_core": "Wither Core",
+  "item.the_sift.golem_trophy": "Night Crystal",
+  "item.the_sift.charoite_core": "Charoite Core",
+  "item.the_sift.sculk_enchanter": "Sculk Enchanter",
+  "item.the_sift.temple_rumor": "Temple Rumor",
+  "block.the_sift.siftite_block": "Block of Siftite",
+  "item.the_sift.siftite_block": "Block of Siftite",
+  "block.the_sift.charoite_block": "Block of Charoite",
+  "item.the_sift.charoite_block": "Block of Charoite",
+  "entity.the_sift.great_echo_golem": "Great Echo Golem",
+  "entity.the_sift.soul_helper": "Soul Helper"
+}

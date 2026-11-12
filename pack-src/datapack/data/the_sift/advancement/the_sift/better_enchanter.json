@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.better_enchanter.title",
-      "fallback": "Besserer Verzauberer"
+      "fallback": "Better Enchanter"
     },
     "description": {
       "translate": "advancement.the_sift.better_enchanter.description",
-      "fallback": "Verzaubere einen Gegenstand mit Charoit"
+      "fallback": "Enchant an item using Charoite"
     },
     "frame": "goal"
   },

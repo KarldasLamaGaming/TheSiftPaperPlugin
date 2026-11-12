@@ -123,14 +123,14 @@ public final class SiftCompass implements Listener {
             if (compass.hasData(DataComponentTypes.LODESTONE_TRACKER)) {
                 compass.unsetData(DataComponentTypes.LODESTONE_TRACKER);
             }
-            player.sendActionBar(Component.text("Alle Tempel sind verstummt", NamedTextColor.GRAY));
+            player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "compass.temples-silent"));
             return;
         }
         if (target == null) {
             if (compass.hasData(DataComponentTypes.LODESTONE_TRACKER)) {
                 compass.unsetData(DataComponentTypes.LODESTONE_TRACKER); // needle spins
             }
-            player.sendActionBar(Component.text("Kein Portal in dieser Welt", NamedTextColor.GRAY));
+            player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "compass.no-portal"));
             return;
         }
         LodestoneTracker current = compass.getData(DataComponentTypes.LODESTONE_TRACKER);
@@ -140,7 +140,7 @@ public final class SiftCompass implements Listener {
             compass.setData(DataComponentTypes.LODESTONE_TRACKER, LodestoneTracker.lodestoneTracker(target, false));
         }
         long distance = Math.round(Math.hypot(target.getX() - player.getX(), target.getZ() - player.getZ()));
-        player.sendActionBar(temple ? Component.text("Tempel: " + distance + " Blöcke", NamedTextColor.DARK_AQUA)
-                : Component.text("Portal: " + distance + " Blöcke", NamedTextColor.LIGHT_PURPLE));
+        player.sendActionBar(de.lamamc.sift.Messages.current().get(player, temple ? "compass.temple" : "compass.portal", "distance",
+                String.valueOf(distance)));
     }
 }

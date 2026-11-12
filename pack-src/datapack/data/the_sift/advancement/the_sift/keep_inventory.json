@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.keep_inventory.title",
-      "fallback": "Inventar behalten"
+      "fallback": "Keep Inventory"
     },
     "description": {
       "translate": "advancement.the_sift.keep_inventory.description",
-      "fallback": "Habe einen Siftit-Gegenstand im Inventar und … stirb. Dann schau einfach zu …"
+      "fallback": "Have any Siftite item in the inventory and... die. Then just watch..."
     }
   },
   "criteria": {

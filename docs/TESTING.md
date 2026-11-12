@@ -40,6 +40,62 @@ Hauptwelt, Nether, End und Spielerdaten bleiben.
 - [ ] Mit `required: true` und `/sift pack reload`: Ablehnen trennt mit `kick-on-decline`.
 - [ ] `/sift pack send <spieler>` schickt das Pack erneut.
 
+### Sprachen Deutsch/Englisch (ab alpha.42c.1: Pack)
+
+Smoke-Test ohne Spieler: Selbsttest „Sprachdateien des Packs: 291 Keys Deutsch, 291 Englisch, alle in beiden Sprachen
+mit gleichen Platzhaltern“; Pack enthält `assets/lamakingdom/lang/en_us.json`; Advancements des Originals haben jetzt
+englische Ersatztexte (z. B. „Tame the Blub“).
+
+**Nur mit Spieler** (zwei Durchgänge: Client auf Englisch, dann auf Deutsch; Optionen → Sprache):
+```
+/sift give @s golem_trophy
+/sift give @s echo_resonator
+/sift give @s sift_compass
+/sift give @s charoite_block
+/sift give @s temple_rumor
+/sift items
+```
+- [ ] **Englisch:** Night Crystal, Echo Resonator, Sift Compass, Block of Charoite, Temple Rumor; Sift-Items des
+      Originals englisch (z. B. Siftite Ingot). Advancement-Tab: „Silence in the Temple“ (vorher fälschlich deutsch).
+- [ ] **Deutsch:** dieselben Items als Nachtkristall, Echo-Resonator, Sift-Kompass, Charoit-Block, Gerücht vom Tempel;
+      Advancement „Stille im Tempel“.
+- [ ] **Ohne Pack** (ablehnen): Namen erscheinen englisch (Ersatztext).
+- [ ] **Andere Sprache** (z. B. Français): englische Namen.
+
+### Sprachen Deutsch/Englisch (ab alpha.42c.2: Meldungen des Plugins)
+
+Smoke-Test ohne Spieler: alte config.yml mit deutschen Einzeltexten → Log „old defaults replaced … (alpha42c):
+resource-pack.prompt, kick-on-decline, failed-message, altar-message, hints.text, hints.all-defeated“, danach `de:`/`en:`;
+`messages_en.yml` angelegt; Selbsttest „Spielertexte: 104 Keys Deutsch, 104 Englisch …“; ein Blub trägt den Namen
+`{translate: "entity.the_sift.blub", fallback: "Blub"}`; Bosskampf mit zwei Bossleisten ohne Fehler; Konsole bleibt
+deutsch (`language: de`).
+
+**Nur mit Spieler** (jeden Punkt zweimal: Client Englisch und Deutsch; Optionen → Sprache, dann neu verbinden):
+```
+/sift give @s sift_compass
+/sift give @s echo_resonator
+/sift give @s charoite_core
+/sift give @s soul_block 16
+/sift temple spawners clear temple-1
+/sift portal schedule lock overworld
+/sift portal schedule auto overworld
+```
+- [ ] **Pack-Abfrage:** beim Verbinden der Text der eigenen Sprache; mit `required: true` und Ablehnen der Kick-Text
+      der eigenen Sprache.
+- [ ] **Kompass:** „Temple: N blocks“ / „Tempel: N Blöcke“, „Portal: N blocks“ / „Portal: N Blöcke“.
+- [ ] **Konsole/Portal:** falscher Schlüssel, Konsole schläft, versiegeltes Portal mit Datum und „3 d 4 h“ / „3 T 4 Std.“.
+- [ ] **Zeitsperre:** `/sift close` → Countdown und „The Sift closes in …“ / „Die Sift schließt in …“; `/sift open`
+      → Ankündigung je Sprache (zwei Spieler mit verschiedenen Sprachen gleichzeitig).
+- [ ] **Enchanter:** Ritual ohne Level („The ritual needs 30 …“), Menütitel, Kosten-Zeile und „Click to raise“.
+- [ ] **Tempel:** Abbauen (Schutz-Text), Altar mit wachen Spawnern („… brood cores are awake“), Altar ohne Seelenblöcke.
+- [ ] **Boss:** Countdown, Titel „Great Echo Golem · 600 health · 1 players“, Bossleiste „Armour, 12 plates“, Phasen-Texte,
+      Sieg „You receive: a Night Crystal, Netherite … (enchanted)“; zu zweit mit verschiedenen Sprachen: jeder sieht die
+      Bossleiste in seiner Sprache.
+- [ ] **Gerüchte-Zettel:** Truhe mit englischem Client öffnen → englischer Zettel („… blocks to the northeast“), mit
+      deutschem Client deutscher.
+- [ ] **Todesmeldung:** von einem Sifter getötet → „… was slain by Sifter“ bzw. „… wurde von Sifter erschlagen“.
+- [ ] **Sonstiges:** Ichor in Wasser schütten („Ichor and water do not mix.“), Sift-Block in der Oberwelt setzen.
+
 ## Blöcke
 
 **Abbauzeit mit Äxten (Fix alpha.35).** Vorher bauten Eisen-, Diamant-, Netherit- und Goldäxte jeden Sift-Block auf

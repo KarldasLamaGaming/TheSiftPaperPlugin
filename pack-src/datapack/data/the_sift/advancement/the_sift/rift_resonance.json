@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.rift_resonance.title",
-      "fallback": "Riss-Resonanz"
+      "fallback": "Rift Resonance"
     },
     "description": {
       "translate": "advancement.the_sift.rift_resonance.description",
-      "fallback": "Höre die Rift-Schallplatte in der Nähe eines Sift-Risses"
+      "fallback": "Listen to the Rift Music Disc near a Sift Rift"
     }
   },
   "criteria": {

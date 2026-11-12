@@ -1,0 +1,17 @@
+# Defaults of alpha.42b that alpha.42c replaces when a server still has them unchanged (ConfigUpdate): one German text
+# becomes a section with de and en. Only values that are exactly these old defaults are replaced; an admin's own text
+# stays and then applies to every language.
+resource-pack:
+  prompt: "<gold>The Sift</gold> <gray>braucht ein Resource Pack für Blöcke, Items und Texte.</gray>"
+  kick-on-decline: "<red>Ohne das Resource Pack von The Sift kannst du hier nicht spielen.</red>\n<gray>Bitte nimm das Pack beim nächsten Verbinden an.</gray>"
+  failed-message: "<red>Das Resource Pack von The Sift konnte nicht geladen werden.</red> <gray>Melde dich bitte bei einem Admin.</gray>"
+phase4:
+  temples:
+    altar-message: "Der Seelen-Altar schweigt noch."
+    hints:
+      text:
+        - "<gray>Ein Gerücht aus der Sift:"
+        - "<dark_aqua>Ein schlafender Tempel liegt etwa <white><distance></white> Blöcke im <white><direction></white>."
+      all-defeated:
+        - "<gray>Ein Gerücht aus der Sift:"
+        - "<dark_aqua>Alle Tempel sind verstummt."

@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.cover_me_in_siftite.title",
-      "fallback": "Hüll mich in Siftit"
+      "fallback": "Cover Me in Siftite"
     },
     "description": {
       "translate": "advancement.the_sift.cover_me_in_siftite.description",
-      "fallback": "Erhalte eine vollständige Siftitrüstung"
+      "fallback": "Get a full suit of Siftite armor"
     },
     "frame": "challenge"
   },

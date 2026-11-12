@@ -136,16 +136,23 @@ public final class PortalUnlocks {
             return;
         }
         lastRefusal.put(player.getUniqueId(), now);
-        player.sendActionBar(Component.text(sealedText(status(group(portal, world))), NamedTextColor.DARK_PURPLE));
+        player.sendActionBar(sealed(de.lamamc.sift.Messages.current().lang(player), status(group(portal, world))));
     }
 
-    public String sealedText(PortalSchedule.Status status) {
+    /** The sealed message in this language (alpha.42c). */
+    public Component sealed(de.lamamc.sift.core.lang.Lang lang, PortalSchedule.Status status) {
+        de.lamamc.sift.Messages m = de.lamamc.sift.Messages.current();
         if (status.at() != null) {
-            return "Dieses Portal ist noch versiegelt. Es öffnet sich am " + SiftAccess.format(status.at(), zone()) + " (in "
-                    + SiftAccess.remaining(status.at() - System.currentTimeMillis()) + ").";
+            return m.get(lang, "portals.sealed-at", "date", SiftAccess.format(status.at(), zone()), "time",
+                    SiftAccess.remaining(status.at() - System.currentTimeMillis(), lang));
         }
-        return status.reason().equals("per Befehl versiegelt") ? "Dieses Portal ist versiegelt."
-                : "Dieses Portal ist noch versiegelt; es öffnet sich erst, wenn die Sift offen ist.";
+        return m.get(lang, status.reason().equals("per Befehl versiegelt") ? "portals.sealed" : "portals.sealed-until-open");
+    }
+
+    /** As plain text in the console language (/sift portal info). */
+    public String sealedText(PortalSchedule.Status status) {
+        return net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
+                .serialize(sealed(de.lamamc.sift.Messages.current().console(), status));
     }
 
     public java.time.ZoneId zone() {

@@ -9,11 +9,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.smells_creepy.title",
-      "fallback": "Riecht unheimlich"
+      "fallback": "Smells Creepy"
     },
     "description": {
       "translate": "advancement.the_sift.smells_creepy.description",
-      "fallback": "Erhalte Sculkblumensamen"
+      "fallback": "Obtain the Sculkflower Seeds"
     }
   },
   "criteria": {

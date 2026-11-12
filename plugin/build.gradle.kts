@@ -30,10 +30,18 @@ tasks.processResources {
     from(rootDir.resolve("pack-src/mob-data")) {
         into("mobs")
     }
-    // custom block <-> vanilla state mapping and the German names (fallback for item names)
+    // custom block <-> vanilla state mapping; the lang files: English names are the fallback for item names (players
+    // without the pack), both languages are checked by /sift debug selftest (alpha.42c)
     from(rootDir.resolve("pack-src/block-mapping.json"))
     from(rootDir.resolve("pack-src/resourcepack-overlay/assets/the_sift/lang/de_de.json")) {
         into("lang")
+    }
+    from(rootDir.resolve("pack-src/resourcepack/assets/the_sift/lang/en_us.json")) {
+        into("lang")
+    }
+    from(rootDir.resolve("pack-src/resourcepack-overlay/assets/lamakingdom/lang/en_us.json")) {
+        into("lang")
+        rename { "lamakingdom_en_us.json" }
     }
 }
 

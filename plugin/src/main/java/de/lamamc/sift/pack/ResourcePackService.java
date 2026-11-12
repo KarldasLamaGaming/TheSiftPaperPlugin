@@ -40,8 +40,19 @@ public final class ResourcePackService implements Listener {
     private volatile String sha1;
     private final Set<UUID> waiting = new HashSet<>();
 
-    private record Settings(boolean enabled, String url, String configuredSha1, boolean required, Component prompt,
-                            UUID id, Component kickMessage, Component failedMessage) {
+    /** Texts per language (alpha.42c): German for German clients, English for all others. */
+    private record Settings(boolean enabled, String url, String configuredSha1, boolean required, java.util.Map<de.lamamc.sift.core.lang.Lang, Component> prompt,
+                            UUID id, java.util.Map<de.lamamc.sift.core.lang.Lang, Component> kickMessage, java.util.Map<de.lamamc.sift.core.lang.Lang, Component> failedMessage) {
+    }
+
+    private static java.util.Map<de.lamamc.sift.core.lang.Lang, Component> texts(ConfigurationSection config, String path, String german, String english) {
+        java.util.Map<de.lamamc.sift.core.lang.Lang, Component> out = new java.util.EnumMap<>(de.lamamc.sift.core.lang.Lang.class);
+        de.lamamc.sift.LocalizedConfig.text(config, path, german, english).forEach((lang, text) -> out.put(lang, MiniMessage.miniMessage().deserialize(text)));
+        return out;
+    }
+
+    private static de.lamamc.sift.core.lang.Lang lang(Player player) {
+        return de.lamamc.sift.core.lang.Lang.of(player.locale().toString());
     }
 
     public ResourcePackService(JavaPlugin plugin) {
@@ -50,17 +61,16 @@ public final class ResourcePackService implements Listener {
 
     /** Reads the resource-pack section and (re)determines the SHA-1. */
     public void load(ConfigurationSection config) {
-        MiniMessage mm = MiniMessage.miniMessage();
         String version = plugin.getPluginMeta().getVersion();
         settings = new Settings(
                 config.getBoolean("enabled", true),
                 PackSource.resolveUrl(config.getString("url", ""), version),
                 PackSource.normalizeSha1(config.getString("sha1", "")),
                 config.getBoolean("required", false),
-                mm.deserialize(config.getString("prompt", "")),
+                texts(config, "prompt", "", ""),
                 UUID.fromString(config.getString("uuid", "5f1a7c2e-3b84-4d6e-9a10-7c3e2b9d4f61")),
-                mm.deserialize(config.getString("kick-on-decline", "")),
-                mm.deserialize(config.getString("failed-message", "")));
+                texts(config, "kick-on-decline", "", ""),
+                texts(config, "failed-message", "", ""));
         sha1 = null;
         if (!settings.enabled()) {
             plugin.getLogger().info("Resource pack is disabled (resource-pack.enabled)");
@@ -138,7 +148,7 @@ public final class ResourcePackService implements Listener {
         player.sendResourcePacks(ResourcePackRequest.resourcePackRequest()
                 .packs(info)
                 .required(settings.required())
-                .prompt(settings.prompt())
+                .prompt(settings.prompt().get(lang(player)))
                 .replace(false)
                 .build());
         return true;
@@ -163,12 +173,12 @@ public final class ResourcePackService implements Listener {
         switch (event.getStatus()) {
             case DECLINED -> {
                 if (settings.required()) {
-                    player.kick(settings.kickMessage());
+                    player.kick(settings.kickMessage().get(lang(player)));
                 }
             }
             case FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD -> {
                 plugin.getLogger().warning("Resource pack for " + player.getName() + ": " + event.getStatus());
-                player.sendMessage(settings.failedMessage());
+                player.sendMessage(settings.failedMessage().get(lang(player)));
             }
             default -> {
             }

@@ -6,11 +6,11 @@
     },
     "title": {
       "translate": "advancement.the_sift.friend_of_the_sift.title",
-      "fallback": "Freund der Sift"
+      "fallback": "Friend of the Sift"
     },
     "description": {
       "translate": "advancement.the_sift.friend_of_the_sift.description",
-      "fallback": "Gewinne die Zuneigung des Echogolems und nimm dann den Seelenblock"
+      "fallback": "Make the Echo Golem love you, then collect the Soul Block"
     }
   },
   "criteria": {

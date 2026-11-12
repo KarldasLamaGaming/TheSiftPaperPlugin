@@ -33,7 +33,8 @@ public final class TempleRumors implements Listener {
     public static final String ID = "temple_rumor";
 
     /** @param chances loot table key -> chance of one extra note; text lines with {@code <direction>} and {@code <distance>} */
-    public record Settings(Map<String, Double> chances, int distanceStep, List<String> text, List<String> allDefeated) {
+    public record Settings(Map<String, Double> chances, int distanceStep, Map<de.lamamc.sift.core.lang.Lang, List<String>> text,
+                           Map<de.lamamc.sift.core.lang.Lang, List<String>> allDefeated) {
     }
 
     private final Supplier<TempleRegistry> temples;
@@ -69,16 +70,20 @@ public final class TempleRumors implements Listener {
                 it.remove();
                 continue;
             }
-            write(stack, registry, where);
+            // in the language of the player who opens the chest (alpha.42c); English without one
+            de.lamamc.sift.core.lang.Lang lang = event.getEntity() instanceof org.bukkit.entity.Player p
+                    ? de.lamamc.sift.Messages.current().lang(p) : de.lamamc.sift.core.lang.Lang.EN;
+            write(stack, registry, where, lang);
         }
     }
 
     /** Puts the way to the nearest sleeping temple into the note's lore. */
-    public void write(ItemStack note, TempleRegistry registry, Location from) {
+    public void write(ItemStack note, TempleRegistry registry, Location from, de.lamamc.sift.core.lang.Lang lang) {
         String here = registry.at(from.getBlock()).map(TempleRegistry.Temple::id).orElse(null);
         TempleSites.Site site = registry.nearestOpenSite(from.getX(), from.getZ(), here);
-        List<String> lines = site == null ? settings.allDefeated() : settings.text();
-        String direction = site == null ? "" : TempleHints.direction(from.getX(), from.getZ(), site.x(), site.z());
+        List<String> lines = (site == null ? settings.allDefeated() : settings.text()).get(lang);
+        String direction = site == null ? "" : de.lamamc.sift.Messages.current().raw(lang,
+                "temple.directions." + TempleHints.directionKey(from.getX(), from.getZ(), site.x(), site.z()));
         String distance = site == null ? "" : String.valueOf(TempleHints.roundedDistance(from.getX(), from.getZ(), site.x(),
                 site.z(), settings.distanceStep()));
         List<Component> lore = new ArrayList<>();

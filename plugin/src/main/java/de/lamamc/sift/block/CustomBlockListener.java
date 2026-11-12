@@ -82,16 +82,13 @@ public final class CustomBlockListener implements Listener {
                 block.setBlockData(Bukkit.createBlockData(fallback), false);
             } else {
                 event.setCancelled(true);
-                player.sendActionBar(Component.text(
-                        "Sift-Blöcke lassen sich nur in der Sift platzieren.",
-                        NamedTextColor.RED));
+                player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "blocks.only-in-sift"));
             }
             return;
         }
         if (!supported(id, block)) {
             event.setCancelled(true);
-            player.sendActionBar(Component.text("Kann hier nicht wachsen.",
-                    NamedTextColor.RED));
+            player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "blocks.cannot-grow"));
             return;
         }
         if (custom.properties().containsKey("axis")) {

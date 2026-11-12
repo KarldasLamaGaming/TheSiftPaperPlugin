@@ -254,7 +254,7 @@ public final class IchorListener implements Listener {
             if (level >= 0 && level < 3) {
                 event.setCancelled(true);
                 if (marks != null && de.lamamc.sift.core.ichor.FluidIdentity.mixes(level, marks.ichor(clicked), true)) {
-                    player.sendActionBar(net.kyori.adventure.text.Component.text("Ichor und Wasser mischen sich nicht."));
+                    player.sendActionBar(de.lamamc.sift.Messages.current().get(player, "ichor.no-mix"));
                     return;
                 }
                 Levelled water = (Levelled) Material.WATER_CAULDRON.createBlockData();

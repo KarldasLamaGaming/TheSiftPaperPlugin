@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 class ItemDataImporterTest {
 
     private final ItemDataImporter importer = new ItemDataImporter(BlockMapping.loadDefault(),
-            Map.of("advancement.the_sift.x.title", "Titel"), new ImportReport());
+            Map.of("advancement.the_sift.x.title", "Title"), new ImportReport());
 
     private static Map<String, JsonElement> source(Map<String, String> files) {
         Map<String, JsonElement> source = new TreeMap<>();
@@ -58,7 +58,7 @@ class ItemDataImporterTest {
     }
 
     @Test
-    void advancementsMatchTheSiftIdAndGetGermanFallbacks() {
+    void advancementsMatchTheSiftIdAndGetEnglishFallbacks() {
         JsonObject adv = importer.datapackFiles(source(Map.of("advancement/the_sift/x.json", """
                 {"display": {"icon": {"id": "the_sift:siftite_ingot"},
                   "title": {"translate": "advancement.the_sift.x.title"}},
@@ -69,7 +69,7 @@ class ItemDataImporterTest {
         JsonObject icon = adv.getAsJsonObject("display").getAsJsonObject("icon");
         assertEquals("minecraft:paper", icon.get("id").getAsString());
         assertEquals("the_sift:siftite_ingot", icon.getAsJsonObject("components").get("minecraft:item_model").getAsString());
-        assertEquals("Titel", adv.getAsJsonObject("display").getAsJsonObject("title").get("fallback").getAsString());
+        assertEquals("Title", adv.getAsJsonObject("display").getAsJsonObject("title").get("fallback").getAsString());
         JsonObject predicate = adv.getAsJsonObject("criteria").getAsJsonObject("c").getAsJsonObject("conditions")
                 .getAsJsonArray("items").get(0).getAsJsonObject();
         assertFalse(predicate.has("items"));

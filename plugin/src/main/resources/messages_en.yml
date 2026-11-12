@@ -1,0 +1,155 @@
+# The Sift – player texts in English (MiniMessage: https://docs.advntr.dev/minimessage/format.html)
+# Players whose client language is German get messages.yml, everyone else gets this file (alpha.42c).
+# Placeholders are in <angle brackets>, e.g. <mob>. New texts of an update are added on start.
+
+mobs:
+  names:
+    blub: "Blub"
+    sifter: "Sifter"
+    singer: "Singer"
+    dark_sniffer: "Dark Sniffer"
+    echo_golem: "Echo Golem"
+    great_echo_golem: "Great Echo Golem"
+    soul_helper: "Soul Helper"
+  spawned: "<green><count> × <mob> spawned."
+  spawn-failed: "<red><mob> could not spawn here (<reason>)."
+  unknown: "<red>Unknown Sift mob: <mob>"
+  disabled: "<red><mob> is turned off in config.yml (mobs.<id>.enabled)."
+  limit-world: "limit of <limit> Sift mobs in this world reached"
+  echo_golem:
+    # Soul block handed over with a full inventory
+    inventory-full: "<yellow>Inventory full: the Echo Golem puts the soul block at your feet."
+
+# Time lock of the Sift (config access.*)
+access:
+  # Announcement to everyone when the Sift opens
+  opened: "<light_purple><bold>The Sift is open!</bold></light_purple> <gray>The portals lead inside now."
+  # Action bar when someone without access wants in
+  closed: "<red>The Sift is closed."
+  closed-until: "<red>The Sift is closed <gray>(opens in <time>)"
+  # Chat when the countdown starts and action bar every second
+  closing: "<red>The Sift closes in <seconds> seconds. <gray>Then you will be sent back."
+  countdown: "<red>The Sift closes in <seconds> s"
+  sent-back: "<gray>The Sift is closed, you were sent back."
+
+# Rifts (config rifts.*)
+rifts:
+  no-space: "<red>Not enough room for the rift"
+  no-exit: "<red>The rift could not open at a sensible distance, you land at the spawn point."
+  disabled: "<gray>Rifts are turned off."
+
+# Siftite keep-on-death (config siftite.keep-on-death.*)
+siftite:
+  inventory-full: "<yellow>Inventory full: your Siftite items wait until there is room."
+
+# General
+general:
+  # <item> = name of the item
+  you-receive: "<light_purple>You receive: <white><item>"
+  you-receive-list: "<light_purple>You receive: <white><items>"
+
+# Ichor (config ichor.*)
+ichor:
+  no-mix: "Ichor and water do not mix."
+
+# Own blocks (config custom-blocks.*)
+blocks:
+  only-in-sift: "<red>Sift blocks can only be placed in the Sift."
+  cannot-grow: "<red>Cannot grow here."
+
+# Portals, consoles, unlock schedule (config portals.*)
+portals:
+  sound: "<gray>Sound <white><bold><sound></bold></white> of <count>"
+  main-not-built: "The main portal of the Sift has not been built yet."
+  keys-disabled: "Keys are turned off; only an admin opens portals."
+  no-portal: "This console belongs to no portal."
+  already-open: "This portal is already open."
+  wrong-key: "This key does not fit this portal."
+  consoles-wake: "The consoles awaken."
+  console-sleeps: "The console sleeps. The right key opens the portal."
+  singer-echo: "<light_purple>The consoles echo and sleep on.</light_purple> <gray>Only the right key opens this portal."
+  # Unlock schedule: <date> = date, <time> = time left
+  sealed-at: "<dark_purple>This portal is still sealed. It opens on <date> (in <time>)."
+  sealed: "<dark_purple>This portal is sealed."
+  sealed-until-open: "<dark_purple>This portal is still sealed; it only opens once the Sift is open."
+
+# Sift compass (config portals.compass.*, phase4.temples.compass.*)
+compass:
+  temples-silent: "<gray>All temples have fallen silent"
+  no-portal: "<gray>No portal in this world"
+  temple: "<dark_aqua>Temple: <distance> blocks"
+  portal: "<light_purple>Portal: <distance> blocks"
+
+# Sculk Enchanter (config phase4.enchanter.*)
+enchanter:
+  menu-title: "Sculk Enchanter"
+  no-boost: "No enchantment to raise"
+  item-slot: "Item →"
+  charoite-slot: "Charoite →"
+  cost: "Cost: <charoite> Charoite, <levels> levels"
+  click: "Click to raise"
+  cannot-afford: "Not enough Charoite or levels"
+  ritual-levels: "<red>The ritual needs <levels> experience levels."
+  ritual-done: "<dark_aqua>The enchanting table is now a Sculk Enchanter."
+  temple-locked: "<dark_aqua>The temple's Sculk Enchanter only awakens once its guardian is defeated."
+
+# Temples (config phase4.temples.*)
+temple:
+  protected: "<dark_aqua>The temple cannot be torn down while its guardian sleeps."
+  defeated: "<dark_aqua>The guardian of this temple is defeated."
+  altar-gate-one: "<dark_aqua>The Soul Altar stays silent while <count> brood core is awake."
+  altar-gate-many: "<dark_aqua>The Soul Altar stays silent while <count> brood cores are awake."
+  # Compass directions for the temple rumors (<direction>)
+  directions:
+    n: "north"
+    ne: "northeast"
+    e: "east"
+    se: "southeast"
+    s: "south"
+    sw: "southwest"
+    w: "west"
+    nw: "northwest"
+    here: "here"
+
+# Great Echo Golem (config phase4.bosses.great-echo-golem.*)
+boss:
+  name: "Great Echo Golem"
+  altar-off: "<dark_aqua>The Soul Altar is still silent."
+  already-awake: "<dark_aqua>The guardian is already awake."
+  offering: "<dark_aqua>The Soul Altar demands <amount> soul blocks in your hand."
+  awakening: "<dark_aqua>The Soul Altar awakens …"
+  countdown: "<light_purple>The Great Echo Golem awakens in <seconds> …"
+  title: "<light_purple>Great Echo Golem"
+  subtitle: "<gray><health> health · <players> players"
+  enter: "<light_purple>You enter the arena of the Great Echo Golem."
+  bars-up: "<dark_aqua>Soul bars seal the gates."
+  bars-hold: "<dark_aqua>The soul bars keep you in the arena."
+  outside: "<dark_aqua>The golem only feels hits from inside the arena."
+  bounced: "<dark_aqua>The soul plates deflect projectiles."
+  armor-broken: "<yellow>The armour is broken!"
+  soul-call: "<yellow>The golem calls for souls – stop its helpers!"
+  rage: "<red>The golem rages!"
+  # Boss bar: <plates> = number of plates
+  bar:
+    armor: "<light_purple>Great Echo Golem · Armour, <plates>"
+    sound: "<light_purple>Great Echo Golem · Sound"
+    sound-plates: "<light_purple>Great Echo Golem · Sound, <plates>"
+    rage: "<light_purple>Great Echo Golem · Rage"
+    defeated: "<light_purple>Great Echo Golem · defeated"
+    plate-one: "1 plate"
+    plate-many: "<count> plates"
+  defeated-title: "<light_purple>The Great Echo Golem is defeated"
+  defeated-subtitle: "<gray>The temple is free."
+  night-crystal-one: "a Night Crystal"
+  night-crystal-many: "<count> Night Crystals"
+  enchanted: " (enchanted)"
+  # The fight is called off
+  nobody-at-start: "<dark_aqua>Nobody stood in the arena; the altar falls asleep again."
+  nobody-left: "<dark_aqua>Nobody left in the arena: the golem withdraws, the altar sleeps again."
+  vanished: "<dark_aqua>The golem has vanished; the fight is called off."
+  no-landing: "<dark_aqua>The golem did not find its way into the arena."
+  no-spawn: "<dark_aqua>The golem could not appear."
+  error: "<dark_aqua>The fight was called off (error)."
+  stopped-by-admin: "<dark_aqua>An admin called the fight off."
+  reset-by-admin: "<dark_aqua>An admin reset the temple; the fight is called off."
+  defeat-by-admin: "<dark_aqua>An admin marked the temple as defeated; the fight is over."
