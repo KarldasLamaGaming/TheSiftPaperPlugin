@@ -51,7 +51,8 @@ class TempleLayoutTest {
             assertEquals(TempleLayout.SPAWNER, LAYOUT.blocks().get(sp.pos()), sp.toString());
             assertEquals(sp.zone() == 1 ? 0 : -P.depth(), sp.pos().y(), "on the floor of its level: " + sp);
             var above = LAYOUT.blocks().get(new TempleLayout.Pos(sp.pos().x(), sp.pos().y() + 1, sp.pos().z()));
-            assertTrue(above == null || "air".equals(above), "room above " + sp);
+            boolean pillar = sp.zone() == 2 && sp.pos().x() != 0; // alpha.42e: in the middle of a pillar chamber, under its pillar
+            assertTrue(pillar ? "charoite_block".equals(above) : above == null || "air".equals(above), "above " + sp);
         }
         var inner = LAYOUT.spawners().stream().filter(sp -> sp.zone() == 3).toList();
         inner.forEach(sp -> assertTrue(Math.hypot(sp.pos().x(), sp.pos().z()) < 18, "zone 3 next to the arena: " + sp));
