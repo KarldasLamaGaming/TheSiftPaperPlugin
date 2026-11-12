@@ -1027,6 +1027,53 @@ phase4:
     # Tempel, dessen Wächter noch schläft (auch noch nicht generierte). Besiegte Tempel zeigt er nicht.
     compass:
       enabled: true
+    # Brut-Spawner (ab alpha.42a): 12 je Tempel (Prüfungsspawner-Optik), fest im Bauplan. Zone 1 in den Kasernen im Hof,
+    # Zone 2 in den Kammern der Prüfungsebene, Zone 3 im inneren Ringgang an der Arena. Ein Spieler im Umkreis weckt einen
+    # Spawner; er schickt Wellen von Sift-Mobs und ist nach der letzten erschöpft. Brut-Mobs geben keine Beute. Bestehende
+    # Tempel bekommen die Spawner mit /sift temple rebuild <id>. Nach dem Sieg sind alle Spawner aus.
+    spawners:
+      enabled: true
+      # Spieler in so vielen Blöcken wecken einen Spawner
+      activation-radius: 12
+      # Pause zwischen zwei Wellen, in Sekunden
+      wave-delay-seconds: 5
+      # Nach der letzten Welle ruht ein Spawner so lange (Minuten); 0 = bis /sift temple spawners reset oder Tempel-Reset
+      cooldown-minutes: 30
+      # Höchstens so viele lebende Brut-Mobs je Tempel
+      max-alive-per-temple: 16
+      # Brut-Mobs verschwinden, wenn so lange (Sekunden) kein Spieler in despawn-radius Blöcken war; der Spawner fängt
+      # dann beim nächsten Besuch wieder mit Welle 1 an
+      despawn-radius: 48
+      despawn-seconds: 30
+      # Mobs je Welle steigen mit jedem weiteren Spieler (bis zu so vielen Spielern)
+      max-players-scaled: 4
+      # Gegen Farmen: Erfahrung der Brut-Mobs mal diesem Faktor (0 = keine), Beute ja/nein
+      experience-factor: 0.0
+      drops: false
+      # Der Seelen-Altar erwacht erst, wenn alle Spawner seines Tempels erschöpft sind (Boss ab alpha.42b);
+      # hängt ein Spawner, beendet /sift temple spawners clear <id> alle
+      altar-gate: true
+      # Je Zone: Wellen, Mobs je Welle für einen Spieler, dazu je weiterem Spieler, Sift-Mobs (zufällig gewählt)
+      zones:
+        "1":
+          enabled: true
+          waves: 2
+          mobs-per-wave: 2
+          per-extra-player: 1
+          mobs: [sifter]
+        "2":
+          enabled: true
+          waves: 3
+          mobs-per-wave: 2
+          per-extra-player: 1
+          mobs: [sifter, dark_sniffer]
+        "3":
+          enabled: true
+          waves: 3
+          mobs-per-wave: 3
+          per-extra-player: 1
+          # alpha.42a.2 bringt das Charoit-Irrlicht für diese Zone
+          mobs: [dark_sniffer]
     # Gerüchte-Zettel (ab alpha.41b): Item "temple_rumor" mit Himmelsrichtung und gerundeter Entfernung vom Fundort zum
     # nächsten schlafenden Tempel (nie zum eigenen). Nur in der Sift; außerhalb und bei ausgeschalteten Tempeln wird
     # er aus der Beute genommen.

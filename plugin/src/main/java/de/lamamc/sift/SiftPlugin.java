@@ -529,6 +529,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 c.getString("altar-message", "Der Seelen-Altar schweigt noch."), c.getInt("deferred-per-tick", 1));
         getServer().getPluginManager().registerEvents(temples, this);
         temples.start(world);
+        startBroodSpawners(c.getConfigurationSection("spawners"));
         if (enchanters != null) {
             temples.onEnchanter(b -> {
                 if (enchanters.isEnchanter(b)) {
@@ -539,6 +540,49 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         }
         getLogger().info("Temples: " + sites.size() + " sites on the ring " + radii[0] + "-" + radii[1] + " around 0/0, "
                 + (2 * params.radius() + 1) + " x " + (2 * params.radius() + 1) + " blocks, closest two " + (int) closest + " apart");
+    }
+
+    /** Brood spawners in the temples (alpha.42a, phase4.temples.spawners). */
+    private void startBroodSpawners(org.bukkit.configuration.ConfigurationSection s) {
+        if (s == null || !s.getBoolean("enabled", true) || mobs == null) {
+            temples.altarGate(false);
+            return;
+        }
+        java.util.Map<Integer, de.lamamc.sift.core.temple.BroodSpawner.Zone> zones = new java.util.HashMap<>();
+        for (int z = 1; z <= 3; z++) {
+            org.bukkit.configuration.ConfigurationSection zone = s.getConfigurationSection("zones." + z);
+            if (zone == null || !zone.getBoolean("enabled", true)) {
+                continue;
+            }
+            java.util.List<String> kinds = zone.getStringList("mobs").stream().filter(id -> {
+                boolean known = mobs.kind(id) != null;
+                if (!known) {
+                    getLogger().warning("phase4.temples.spawners.zones." + zone.getName() + ".mobs: unknown or disabled Sift mob " + id);
+                }
+                return known;
+            }).toList();
+            if (!kinds.isEmpty()) {
+                zones.put(z, new de.lamamc.sift.core.temple.BroodSpawner.Zone(zone.getInt("waves", 2), zone.getInt("mobs-per-wave", 2),
+                        zone.getInt("per-extra-player", 1), s.getInt("max-players-scaled", 4), kinds));
+            }
+        }
+        brood = new de.lamamc.sift.world.temple.BroodSpawners(this, temples, mobs, new de.lamamc.sift.world.temple.BroodSpawners.Settings(
+                Math.max(1, s.getDouble("activation-radius", 12)), Math.max(8, s.getDouble("despawn-radius", 48)),
+                Math.max(5, s.getLong("despawn-seconds", 30)) * 1000L, Math.max(1, s.getInt("max-alive-per-temple", 16)),
+                new de.lamamc.sift.core.temple.BroodSpawner.Timing(Math.max(0, s.getLong("wave-delay-seconds", 5)) * 1000L,
+                        Math.max(0, s.getLong("cooldown-minutes", 30)) * 60_000L),
+                zones, Math.max(0, s.getDouble("experience-factor", 0)), s.getBoolean("drops", false)));
+        getServer().getPluginManager().registerEvents(brood, this);
+        brood.start();
+        temples.altarGate(s.getBoolean("altar-gate", true));
+        getLogger().info("Brood spawners: " + temples.spawners().size() + " per temple, zones " + zones.keySet());
+    }
+
+    private de.lamamc.sift.world.temple.BroodSpawners brood;
+
+    /** Brood spawner runtime (alpha.42a), null when off. */
+    public de.lamamc.sift.world.temple.BroodSpawners brood() {
+        return brood;
     }
 
     /** Rumour notes about the temples in chests (alpha.41b, phase4.temples.hints). */

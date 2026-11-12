@@ -34,6 +34,25 @@ final class TempleCommand {
                 .then(Commands.literal("reset-all").executes(ctx -> resetAll(ctx, false))
                         .then(Commands.literal("confirm").executes(ctx -> resetAll(ctx, true))))
                 .then(Commands.literal("rebuild").then(id().executes(ctx -> withTemple(ctx, this::rebuild))))
+                .then(Commands.literal("spawners")
+                        .then(id().executes(ctx -> withTemple(ctx, this::spawners)))
+                        .then(Commands.literal("clear").then(id().executes(ctx -> withTemple(ctx, (s, r, t) -> setSpawners(s, r, t, true)))))
+                        .then(Commands.literal("reset").then(id().executes(ctx -> withTemple(ctx, (s, r, t) -> setSpawners(s, r, t, false)))))
+                        // test aid without players: counts as N players at every spawner of the temple for a while
+                        .then(Commands.literal("simulate").then(id()
+                                .then(Commands.argument("players", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 8))
+                                        .then(Commands.argument("seconds", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 3600))
+                                                .executes(ctx -> withTemple(ctx, (s, r, t) -> {
+                                                    var brood = plugin.brood();
+                                                    if (brood == null) {
+                                                        s.sendRichMessage("<red>Brut-Spawner sind aus.");
+                                                        return 0;
+                                                    }
+                                                    brood.simulate(t, com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "players"),
+                                                            com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "seconds"));
+                                                    s.sendRichMessage("<yellow>Testhilfe: " + t.id() + " zählt so viele Spieler an jedem Spawner.");
+                                                    return Command.SINGLE_SUCCESS;
+                                                })))))))
                 .then(Commands.literal("inspect").then(id().executes(ctx -> withTemple(ctx, this::inspect))))
                 // test aid until the boss exists (alpha.42): the temple counts as defeated
                 .then(Commands.literal("defeat").then(id().executes(ctx -> withTemple(ctx, this::defeat))));
@@ -94,7 +113,7 @@ final class TempleCommand {
                 + "</white> Plätzen");
         for (var t : all) {
             sender.sendRichMessage("<gray>  <white>" + t.id() + "</white> " + state(t.state()) + " " + tp(t.x(), t.y(), t.z() + gate(temples))
-                    + (t.version() < TempleRegistry.CURRENT ? " <yellow>(alter Bau, rebuild)</yellow>" : ""));
+                    + (t.version() < TempleRegistry.CURRENT ? " <yellow>(älterer Bau, rebuild)</yellow>" : ""));
         }
         return Command.SINGLE_SUCCESS;
     }
@@ -138,6 +157,45 @@ final class TempleCommand {
             return 0;
         }
         sender.sendRichMessage("<yellow>Baue " + t.id() + " neu (alten Bau entfernen, dann Chunk für Chunk, je einer pro Tick) …");
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int spawners(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        if (!temples.hasSpawners(t)) {
+            sender.sendRichMessage("<yellow>" + t.id() + " hat keine Brut-Spawner (alter Bau: /sift temple rebuild " + t.id() + ").");
+            return 0;
+        }
+        var states = temples.spawnerStates(t);
+        var plan = temples.spawners();
+        var brood = plugin.brood();
+        sender.sendRichMessage("<gold>Brut-Spawner von " + t.id() + ": <white>" + temples.spawnersAwake(t) + "</white> wach, lebende Brut "
+                + (brood == null ? "– (aus)" : brood.alive(t)));
+        for (int i = 0; i < states.length; i++) {
+            var b = temples.spawnerBlock(t, i);
+            var s = states[i];
+            String until = s.phase() == de.lamamc.sift.core.temple.BroodSpawner.Phase.EXHAUSTED
+                    ? (s.until() == Long.MAX_VALUE ? " (bis zum Reset)" : " (bis " + java.time.Instant.ofEpochMilli(s.until()) + ")") : "";
+            sender.sendRichMessage("<gray>  #" + (i + 1) + " Zone " + plan.get(i).zone() + " " + tp(b.getX(), b.getY() + 1, b.getZ()) + " "
+                    + s.phase() + (s.wave() > 0 ? ", Welle " + s.wave() : "") + until);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** clear: all exhausted for good (the altar gate opens), reset: all waiting again; both remove the living brood. */
+    private int setSpawners(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t, boolean clear) {
+        if (!temples.hasSpawners(t)) {
+            sender.sendRichMessage("<yellow>" + t.id() + " hat keine Brut-Spawner.");
+            return 0;
+        }
+        var brood = plugin.brood();
+        int removed = brood == null ? 0 : brood.clearBrood(t);
+        temples.allSpawners(t, clear ? new de.lamamc.sift.core.temple.BroodSpawner.State(de.lamamc.sift.core.temple.BroodSpawner.Phase.EXHAUSTED,
+                0, 0, Long.MAX_VALUE) : de.lamamc.sift.core.temple.BroodSpawner.State.FRESH);
+        if (brood != null) {
+            brood.refresh(t);
+        }
+        sender.sendRichMessage("<green>Brut-Spawner von " + t.id() + (clear ? " beendet (Altar frei)" : " zurückgesetzt") + ", " + removed
+                + " Brut-Mobs entfernt.");
         return Command.SINGLE_SUCCESS;
     }
 

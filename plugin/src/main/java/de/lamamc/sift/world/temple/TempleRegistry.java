@@ -2,6 +2,7 @@ package de.lamamc.sift.world.temple;
 
 import de.lamamc.sift.block.CustomBlock;
 import de.lamamc.sift.block.CustomBlockRegistry;
+import de.lamamc.sift.core.temple.BroodSpawner;
 import de.lamamc.sift.core.temple.TempleLayout;
 import de.lamamc.sift.core.temple.TempleSites;
 import de.lamamc.sift.world.SiftWorlds;
@@ -58,9 +59,12 @@ public final class TempleRegistry implements Listener {
 
     public static final NamespacedKey KEY = new NamespacedKey("the_sift", "temples");
     public static final NamespacedKey PENDING = new NamespacedKey("the_sift", "temple_pending");
+    public static final NamespacedKey SPAWNERS = new NamespacedKey("the_sift", "temple_spawners");
     public static final String BYPASS = "thesift.temple.bypass";
-    /** Layout versions: 1 = alpha.41a (41 x 41, one chunk), 2 = alpha.41.1 bastion. */
-    public static final int CURRENT = 2;
+    /** Layout versions: 1 = alpha.41a (41 x 41, one chunk), 2 = alpha.41.1 bastion, 3 = with brood spawners (alpha.42a). */
+    public static final int CURRENT = 3;
+    /** Oldest version built with the bastion layout (markers, size). */
+    public static final int BASTION = 2;
 
     public enum State { SLEEPING, FIGHT, DEFEATED }
 
@@ -137,6 +141,7 @@ public final class TempleRegistry implements Listener {
         TempleLayout.Params p = builder.params();
         this.markers = new Markers(plan.altar(), plan.enchanter(), List.copyOf(plan.chambers().values()), p.extent(), p.bottom(),
                 p.top());
+        this.spawnerPlan = plan.spawners();
     }
 
     public TempleBuilder builder() {
@@ -149,7 +154,82 @@ public final class TempleRegistry implements Listener {
     }
 
     private Markers markers(Temple t) {
-        return t.version() >= CURRENT ? markers : LEGACY;
+        return t.version() >= BASTION ? markers : LEGACY;
+    }
+
+    // ---- brood spawners (alpha.42a) ---------------------------------------------------------------------------
+
+    private final Map<String, BroodSpawner.State[]> spawnerStates = new LinkedHashMap<>();
+    private Consumer<Temple> onDefeat = t -> { };
+    private boolean altarGate;
+
+    /** Brood spawners of the plan (relative); only temples of version 3 or later have them. */
+    public List<TempleLayout.Spawner> spawners() {
+        return spawnerPlan;
+    }
+
+    private List<TempleLayout.Spawner> spawnerPlan = List.of();
+
+    public boolean hasSpawners(Temple t) {
+        return t.version() >= CURRENT && !spawnerPlan.isEmpty();
+    }
+
+    /** The current states of a temple's spawners (a copy). */
+    public BroodSpawner.State[] spawnerStates(Temple t) {
+        BroodSpawner.State[] states = spawnerStates.computeIfAbsent(t.id(), id -> fresh(t));
+        return states.clone();
+    }
+
+    private BroodSpawner.State[] fresh(Temple t) {
+        BroodSpawner.State[] states = new BroodSpawner.State[spawnerPlan.size()];
+        java.util.Arrays.fill(states, t.state() == State.DEFEATED ? new BroodSpawner.State(BroodSpawner.Phase.OFF, 0, 0, 0)
+                : BroodSpawner.State.FRESH);
+        return states;
+    }
+
+    public void spawnerState(Temple t, int index, BroodSpawner.State state) {
+        BroodSpawner.State[] states = spawnerStates.computeIfAbsent(t.id(), id -> fresh(t));
+        if (!states[index].equals(state)) {
+            states[index] = state;
+            save();
+        }
+    }
+
+    /** Sets all spawners of a temple (admin clear/reset, defeat). */
+    public void allSpawners(Temple t, BroodSpawner.State state) {
+        BroodSpawner.State[] states = new BroodSpawner.State[spawnerPlan.size()];
+        java.util.Arrays.fill(states, state);
+        spawnerStates.put(t.id(), states);
+        save();
+    }
+
+    /** Spawners that are not exhausted (or off) yet; 0 for temples without spawners. */
+    public int spawnersAwake(Temple t) {
+        if (!hasSpawners(t)) {
+            return 0;
+        }
+        int awake = 0;
+        for (BroodSpawner.State s : spawnerStates(t)) {
+            if (!s.done()) {
+                awake++;
+            }
+        }
+        return awake;
+    }
+
+    /** The Seelen-Altar waits until all brood spawners of its temple are exhausted (phase4.temples.spawners.altar-gate). */
+    public void altarGate(boolean gate) {
+        this.altarGate = gate;
+    }
+
+    /** Called when a temple's boss is defeated (the spawner runtime turns everything off). */
+    public void onDefeat(Consumer<Temple> listener) {
+        this.onDefeat = listener;
+    }
+
+    public Block spawnerBlock(Temple t, int index) {
+        TempleLayout.Pos p = spawnerPlan.get(index).pos();
+        return sift.getBlockAt(t.x() + p.x(), t.y() + p.y(), t.z() + p.z());
     }
 
     public void start(World sift) {
@@ -160,7 +240,7 @@ public final class TempleRegistry implements Listener {
                 Temple t = Temple.parse(line);
                 if (t != null) {
                     temples.put(t.id(), t);
-                    if (t.version() >= CURRENT) {
+                    if (t.version() >= BASTION) {
                         builder.knownFloor(t.id(), t.y());
                     }
                 }
@@ -173,6 +253,23 @@ public final class TempleRegistry implements Listener {
                 if (p.length == 3) {
                     try {
                         pending.add(new TempleBuilder.Slice(p[0], Integer.parseInt(p[1]), Integer.parseInt(p[2])));
+                    } catch (NumberFormatException ignored) {
+                        // skip a broken line
+                    }
+                }
+            }
+        }
+        String spawnerText = sift.getPersistentDataContainer().get(SPAWNERS, PersistentDataType.STRING);
+        if (spawnerText != null) {
+            for (String line : spawnerText.split("\n")) {
+                String[] p = line.trim().split(" ", 3);
+                Temple t = p.length == 3 ? temples.get(p[0]) : null;
+                if (t != null) {
+                    try {
+                        int index = Integer.parseInt(p[1]);
+                        if (index >= 0 && index < spawnerPlan.size()) {
+                            spawnerStates.computeIfAbsent(t.id(), id -> fresh(t))[index] = BroodSpawner.State.parse(p[2]);
+                        }
                     } catch (NumberFormatException ignored) {
                         // skip a broken line
                     }
@@ -223,7 +320,7 @@ public final class TempleRegistry implements Listener {
         for (var it = pending.iterator(); it.hasNext() && done < perTick; ) {
             TempleBuilder.Slice slice = it.next();
             Temple t = temples.get(slice.siteId());
-            if (t == null || t.version() < CURRENT) {
+            if (t == null || t.version() < BASTION) {
                 continue; // floor not known yet (or an old temple, rebuilt by command)
             }
             if (!sift.isChunkLoaded(slice.chunkX(), slice.chunkZ())) {
@@ -265,6 +362,13 @@ public final class TempleRegistry implements Listener {
         StringBuilder waiting = new StringBuilder();
         pending.forEach(s -> waiting.append(s.siteId()).append(' ').append(s.chunkX()).append(' ').append(s.chunkZ()).append('\n'));
         sift.getPersistentDataContainer().set(PENDING, PersistentDataType.STRING, waiting.toString());
+        StringBuilder spawnerText = new StringBuilder();
+        spawnerStates.forEach((id, states) -> {
+            for (int i = 0; i < states.length; i++) {
+                spawnerText.append(id).append(' ').append(i).append(' ').append(states[i].serialize()).append('\n');
+            }
+        });
+        sift.getPersistentDataContainer().set(SPAWNERS, PersistentDataType.STRING, spawnerText.toString());
     }
 
     public List<Temple> all() {
@@ -320,6 +424,7 @@ public final class TempleRegistry implements Listener {
             return false;
         }
         temples.put(id, t.withState(State.SLEEPING, 0));
+        spawnerStates.remove(id); // fresh again
         save();
         return true;
     }
@@ -328,8 +433,13 @@ public final class TempleRegistry implements Listener {
     public void defeat(String id) {
         Temple t = temples.get(id);
         if (t != null) {
-            temples.put(id, t.withState(State.DEFEATED, System.currentTimeMillis()));
+            Temple defeated = t.withState(State.DEFEATED, System.currentTimeMillis());
+            temples.put(id, defeated);
+            if (!spawnerPlan.isEmpty()) {
+                allSpawners(defeated, new BroodSpawner.State(BroodSpawner.Phase.OFF, 0, 0, 0));
+            }
             save();
+            onDefeat.accept(defeated);
         }
     }
 
@@ -390,6 +500,7 @@ public final class TempleRegistry implements Listener {
         // 2. build the new one at the same floor
         rebuildSteps.add(() -> {
             temples.put(id, new Temple(id, old.x(), old.y(), old.z(), State.SLEEPING, 0, CURRENT));
+            spawnerStates.remove(id);
             builder.knownFloor(id, old.y());
             pending.removeIf(s -> s.siteId().equals(id));
             save();
@@ -460,9 +571,10 @@ public final class TempleRegistry implements Listener {
         if (t == null || site == null) {
             return out;
         }
-        out.add("Version " + t.version() + (t.version() < CURRENT ? " (alpha.41a, /sift temple rebuild " + id + " baut die Bastion)" : "")
+        out.add("Version " + t.version() + (t.version() < BASTION ? " (alpha.41a, /sift temple rebuild " + id + " baut die Bastion)"
+                : t.version() < CURRENT ? " (ohne Brut-Spawner, /sift temple rebuild " + id + " setzt sie)" : "")
                 + ", Boden y " + t.y() + ", wartende Teile " + pending(id));
-        if (t.version() < CURRENT) {
+        if (t.version() < BASTION) {
             return out;
         }
         TempleLayout.Layout plan = builder.layout(site);
@@ -586,7 +698,9 @@ public final class TempleRegistry implements Listener {
         if (t.isPresent() && t.get().at(markers(t.get()).altar(), block.getX(), block.getY(), block.getZ())) {
             event.setCancelled(true);
             Player player = event.getPlayer();
+            int awake = altarGate && t.get().state() != State.DEFEATED ? spawnersAwake(t.get()) : 0;
             player.sendActionBar(Component.text(t.get().state() == State.DEFEATED ? "Der Wächter dieses Tempels ist besiegt."
+                    : awake > 0 ? "Der Seelen-Altar schweigt, solange " + awake + (awake == 1 ? " Brutkern wacht." : " Brutkerne wachen.")
                     : altarMessage, NamedTextColor.DARK_AQUA));
         }
     }
