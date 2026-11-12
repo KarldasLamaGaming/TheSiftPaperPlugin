@@ -1094,7 +1094,11 @@ der Oberwelt → kein Zettel. Neue Config-Schlüssel kommen beim Start in eine b
 
 ## Overworld unberührt
 
-- [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla.
+- [ ] Riesenpilz per Knochenmehl wachsen lassen: sieht aus wie Vanilla, auch die Kappenwände (seit alpha.41.2; vorher sahen
+      rote Kappenwände teils wie Sift-Blöcke aus). Smoke-Test: `/sift debug mushrooms` an 64 roten und 64 braunen
+      Riesenpilzen sowie in Pilzland und Dunklem Wald: 0 Pilzblöcke in Sift-Zuständen.
+- [ ] Ein Sculk Enchanter aus alpha.40.1–41.1 (Oberwelt) ist nach dem Update weiter ein Enchanter mit Kristall (der
+      Block wird beim Laden des Chunks auf den neuen Zustand umgestellt).
 - [ ] Mehrere Pilzstiele/Pilzblöcke nebeneinander setzen: Innenseiten wie Vanilla (Hinweis: einzelne
       Kombinationen können wie Sift-Blöcke aussehen, siehe `docs/ADMIN.md`, Einschränkungen).
 - [ ] Stolperdraht-Falle mit Haken und Faden: löst aus wie Vanilla.

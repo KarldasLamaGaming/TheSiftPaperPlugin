@@ -62,7 +62,7 @@ normalen Spiel nicht vorkommen; das Resource Pack gibt ihnen das Aussehen aus de
 |---|---|
 | Pilzstiel (`mushroom_stem`) | Siftschiefer-Familie, Erze, Geröll, Seelenblock, Ichorschneeblock |
 | Brauner Pilzblock | Gesunder Sculk, Weidenstamm, -holz (entrindet und nicht, je Achse), -bretter, -laub |
-| Roter Pilzblock | Trockener gesunder Sculk |
+| Roter Pilzblock | Trockener gesunder Sculk (und Bewuchs), Sculk Enchanter, Siftit-Block, Charoit-Block |
 | Stolperdraht (`tripwire`) | Pflanzen, Lotus, hängende Wurzeln, Setzling, Sculkblume |
 | Chorus-Pflanze | Ichorglas |
 
@@ -134,9 +134,17 @@ Alle Abweichungen vom Original, die bewusst so bleiben, sammelt `docs/ABWEICHUNG
 - Explosionen werden vereinfacht: Sift-Blöcke ohne `explosion-proof` gehen bei jeder Explosion kaputt
   (keine Strahlstärke-Rechnung wie bei Vanilla).
 - Seelenblock leuchtet noch nicht, Sift-Geröll fällt noch nicht (folgen später).
-- In anderen Welten (mit Nachbar-Updates) können Spieler Pilzblöcke so aneinandersetzen, dass Vanilla
-  zufällig einen der verwendeten Zustände erzeugt; mit dem Resource Pack sieht der Block dann wie ein
-  Sift-Block aus. Er bleibt ein Pilzblock.
+- **Natürliche Riesenpilze kollidieren nicht** (seit alpha.41.2): In 26.3 haben alle Kappen-Blöcke `down=false`, rote
+  Kappen außerdem eine oder zwei benachbarte offene Seiten. Diese Zustände sind in `block-mapping.yml` ausgeschlossen.
+  Gemessen mit `/sift debug mushrooms` in Pilzland, Dunklem Wald und an je 64 per `/place feature` gewachsenen roten und
+  braunen Riesenpilzen: 0 Pilzblöcke in Sift-Zuständen. Bis alpha.41.1 sahen die Wände roter Kappen teils wie
+  Trockener-Sculk-Bewuchs, Sculk Enchanter, Siftit- oder Charoit-Block aus.
+  - Gesetzte Sculk Enchanter im alten Zustand stellt das Plugin beim Laden des Chunks um (sie sind im Chunk markiert).
+    Trockener-Sculk-Bewuchs, Siftit- und Charoit-Block gibt es nur in der Sift; dort hilft der Welt-Reset (GOLIVE.md).
+- Spieler können Pilzblöcke von Hand so aneinandersetzen, dass Vanilla jeden beliebigen Zustand erzeugt; mit dem
+  Resource Pack sieht der Block dann wie ein Sift-Block aus. Er bleibt ein Pilzblock.
+- Prüfen: `/sift debug mushrooms "minecraft:overworld" <radius> <chunkX> <chunkZ>` listet alle Pilzblock-Zustände der
+  Chunks (generiert sie, wenn nötig) und markiert Sift-Zustände.
 
 ## Item-Menü und Rechte
 
@@ -1132,5 +1140,6 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
 | `/sift debug heights <x> <z> <radius> <schritt>` | Höhenkarte der Sift als Text |
 | `/sift debug scan [radius] [chunkX chunkZ]` | Chunks der Sift laden/generieren und Sift-Blöcke zählen |
 | `/sift debug selftest` | Items, Rezepte, Siftit-Schutz, Loot und Advancements ohne Spieler prüfen |
+| `/sift debug mushrooms "<welt>" <radius> <chunkX> <chunkZ>` | Pilzblock-Zustände in Chunks einer Welt zählen und Sift-Zustände markieren (sollte 0 sein) |
 | `/sift debug shape <x> <y> <z>` | Kollisionsboxen eines Blocks in der Sift (Pixel, Anteil am Würfel) |
 | `/sift debug chorus <radius> <chunkX> <chunkZ>` | End-Chunks laden und zählen, ob Chorus dort Zustände der Sift hat (sollte 0 sein) |
