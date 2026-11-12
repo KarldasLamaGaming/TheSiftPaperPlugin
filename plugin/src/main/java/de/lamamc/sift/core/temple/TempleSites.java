@@ -38,11 +38,16 @@ public final class TempleSites {
      * @param borderHalfSize half the side of the world border (blocks from its centre to its edge)
      */
     public static List<Site> sites(long seed, Ring ring, int centerX, int centerZ, double borderHalfSize) {
+        return sites(seed, ring, centerX, centerZ, borderHalfSize, BORDER_MARGIN);
+    }
+
+    /** @param borderMargin distance kept from the world border (at least the temple's reach, alpha.41.1) */
+    public static List<Site> sites(long seed, Ring ring, int centerX, int centerZ, double borderHalfSize, int borderMargin) {
         List<Site> sites = new ArrayList<>();
         if (ring.count() <= 0) {
             return sites;
         }
-        int[] radii = effectiveRadii(ring, borderHalfSize);
+        int[] radii = effectiveRadii(ring, borderHalfSize, borderMargin);
         SplittableRandom random = new SplittableRandom(seed ^ SALT);
         double step = 360.0 / ring.count();
         double offset = random.nextDouble() * 360.0;
@@ -52,7 +57,7 @@ public final class TempleSites {
             double radius = radii[0] + random.nextDouble() * (radii[1] - radii[0]);
             int x = centerX + (int) Math.round(Math.cos(angle) * radius);
             int z = centerZ + (int) Math.round(Math.sin(angle) * radius);
-            // centre of its chunk: the whole temple (radius 20) is then built by that chunk's populator
+            // centre of its chunk: that chunk decides the floor height (alpha.41.1)
             sites.add(new Site(i, Math.floorDiv(x, 16) * 16 + 8, Math.floorDiv(z, 16) * 16 + 8));
         }
         return sites;
@@ -60,7 +65,11 @@ public final class TempleSites {
 
     /** {min, max} radius after pulling the ring inside the world border. */
     public static int[] effectiveRadii(Ring ring, double borderHalfSize) {
-        int limit = (int) Math.max(0, Math.min(Integer.MAX_VALUE, borderHalfSize - BORDER_MARGIN));
+        return effectiveRadii(ring, borderHalfSize, BORDER_MARGIN);
+    }
+
+    public static int[] effectiveRadii(Ring ring, double borderHalfSize, int borderMargin) {
+        int limit = (int) Math.max(0, Math.min(Integer.MAX_VALUE, borderHalfSize - Math.max(BORDER_MARGIN, borderMargin)));
         int max = Math.min(ring.maxRadius(), limit);
         int min = Math.min(Math.min(ring.minRadius(), ring.maxRadius()), max);
         return new int[] {min, Math.max(min, max)};
@@ -75,6 +84,17 @@ public final class TempleSites {
             }
         }
         return false;
+    }
+
+    /** The smallest distance between two sites (temples must not touch: at least twice their reach). */
+    public static double minDistance(List<Site> sites) {
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < sites.size(); i++) {
+            for (int j = i + 1; j < sites.size(); j++) {
+                min = Math.min(min, Math.sqrt(sites.get(i).distanceSquared(sites.get(j).x(), sites.get(j).z())));
+            }
+        }
+        return min;
     }
 
     /** The nearest site not yet defeated, or null. */

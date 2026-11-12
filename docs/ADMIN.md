@@ -1007,36 +1007,75 @@ Hebt Verzauberungen über das Vanilla-Maximum (`phase4.enchanter`, abschaltbar m
 - **Admin:** `/sift debug enchanter` setzt an der eigenen Position einen Sculk Enchanter (ohne Ritual; ersetzt den Block
   dort). Von der Konsole aus: `/execute in <welt> positioned <x y z> run sift debug enchanter`.
 
-## Tempel (Phase 4, ab alpha.41a)
+## Tempel (Phase 4, ab alpha.41a, Bastion ab alpha.41.1)
 
-Genau `count` (10) zerfallene Siftschiefer-Tempel je Sift (`phase4.temples`, abschaltbar mit `enabled: false`). Jeder
+Genau `count` (10) zerfallene Siftschiefer-Bastionen je Sift (`phase4.temples`, abschaltbar mit `enabled: false`). Jeder
 Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** besiegbar ist.
 
 - **Lage:** fest aus dem Seed berechnet, auf einem Ring um 0/0: gleiche Winkelabstände plus Seed-Versatz
   (`ring.angle-jitter`, ±15°), Abstand zwischen `ring.min-radius` (1500) und `ring.max-radius` (3000). Jeder Platz liegt
   in der Mitte eines Chunks. Die Plätze stehen schon vor dem Erkunden fest (`/sift temple sites`).
   - Gebaut wird nur in **neu generierten** Chunks. Liegt ein Platz in schon erkundetem Gebiet, fehlt dort der Tempel;
-    `/sift temple sites` meldet das rot. Deshalb kommt der Welt-Reset der Sift nach alpha.41a (GOLIVE.md).
-  - **Weltgrenze:** Ist die Weltgrenze der Sift kleiner als der Ring, zieht das Plugin den Ring auf die Grenze minus
-    200 Blöcke nach innen und warnt im Log. Die Zahl der Tempel bleibt gleich.
+    `/sift temple sites` meldet das rot. Deshalb kommt der Welt-Reset der Sift nach alpha.41.1 (GOLIVE.md).
+  - **Weltgrenze:** Ist die Weltgrenze der Sift kleiner als der Ring, zieht das Plugin den Ring nach innen (Abstand zur
+    Grenze: mindestens 200 Blöcke, bei großen Tempeln ihre Reichweite plus `clearance` plus 16) und warnt im Log. Die
+    Zahl der Tempel bleibt gleich.
+  - **Abstand der Tempel:** Das Log nennt beim Start den kleinsten Abstand zweier Plätze und warnt, wenn zwei Tempel
+    sich berühren könnten (dann `ring.max-radius` erhöhen oder `size.radius` / `count` senken).
   - Andere Strukturen (verlassene Portale, Schluchten, Monolithen, Bögen, Sniffer-Höhlen, Seen) halten
-    `clearance` (8) Blöcke Abstand zur Tempelfläche.
-- **Aufbau** (41 × 41 Blöcke, Boden auf der mittleren Geländehöhe, darunter ein Siftschiefer-Sockel bis 24 tief, darüber
-  12 Blöcke frei):
-  - Hof mit zerfallenen Außenmauern, vier Ecktürmen und offenem Eingang im Süden.
-  - Runde Arena (Radius 12) mit Seelenblock-Ring und acht zerbrochenen Säulen; in der Mitte der **Seelen-Altar**
-    (Seelenblock auf Sockel). Bis alpha.42 meldet ein Rechtsklick nur `altar-message`.
-  - Halle im Süden mit einem fest verbauten **Sculk Enchanter** und zwei Truhen (Beute `loot-table`, Datapack
-    `the_sift:chests/temple`: Charoit, Siftit-Nuggets, Ichor, Echo-Splitter, Erfahrung, verzauberte Bücher, Diamanten,
-    selten Antiker Schrott). Eigene Beute: Datei im Datapack überschreiben oder `loot-table` umstellen.
-  - Zwei **versiegelte Kammern** (Osten: Wither, Westen: Wächter), innen leer. Sie öffnen sich erst mit den späteren
-    Prüfungen (Option B nach dem Go-live).
-  - Jeder Tempel zerfällt etwas anders (aus Seed und Platz), ist aber bei jedem Generieren gleich.
+    `clearance` (8) Blöcke Abstand zur Tempelfläche samt Böschung.
+- **Aufbau** (Karls Variante „M“; Standard 81 × 81 Blöcke, Größe unter `size`):
+  - **Oben eine Bastion:** Ringmauer (4 dick, `size.wall-height` 14 hoch) mit Wehrgang, Zinnen und Strebepfeilern; vier
+    Treppen vom Hof auf den Wehrgang. Vier runde Ecktürme (`size.tower-height` 26) und drei Mauertürme (Norden, Osten,
+    Westen) mit Stockwerken, Schießscharten, Türen zum Wehrgang und zum Hof, Charoit-Wimpeln und Bannern aus Charoit-
+    und Siftit-Block. Schweres Torhaus im Süden mit halb hochgezogenem Fallgitter. Zerfallene Kasernen im Hof.
+  - **Spalte und Kern:** Um den erhöhten Kern (+5) läuft eine Spalte mit Seelenfeuer am Grund; vier Brücken steigen über
+    sie zum Kern an. Auf dem Kern vier Obelisken mit Charoit-Spitze.
+  - **Schacht:** In der Mitte geht ein offener Schacht (Radius 11) vom Kern hinab bis zur Arena der Prüfungsebene. Dort
+    steht der **Seelen-Altar** (Seelenblock auf Sockel, Seelenblock-Ring im Boden). Bis alpha.42 meldet ein Rechtsklick
+    nur `altar-message`.
+  - **Unten die Prüfungsebene** (`size.depth` 16 unter dem Hof): runder Ringgang um die Arena mit vier Toren hinein,
+    acht Speichen, Pfeilerkammern auf den Diagonalen (Ichorglas-Licht), ein äußerer Ringgang, eine Nordkammer. Vier
+    Treppen führen vom Hof hinab.
+  - **Schatzhalle** im Süden der Prüfungsebene: Säulen aus Siftit-Block mit Charoit-Kapitell, auf einem Podest der fest
+    verbaute **Sculk Enchanter**, zwei Truhen (Beute `loot-table`, Datapack `the_sift:chests/temple`: Charoit,
+    Siftit-Nuggets, Ichor, Echo-Splitter, Erfahrung, verzauberte Bücher, Diamanten, selten Antiker Schrott). Eigene
+    Beute: `loot-table` umstellen oder die Datei im Datapack ersetzen (`pack-src/datapack-overlay`, seit alpha.41.1;
+    packgen schreibt `pack-src/datapack` bei jedem Import neu).
+  - Zwei **versiegelte Prüfungsräume** (Osten: Wither, Westen: Wächter; 17 × 17, 9 hoch, verstärkter Siftschiefer, Siegel
+    aus Charoit), innen leer. Sie öffnen sich erst mit den späteren Prüfungen (Option B nach dem Go-live).
+  - **Ruine:** Je höher, desto mehr fehlt; dazu Mauerbrüche, Bruchstein, Bewuchs und Sculk. Gehflächen, Treppen und
+    Brücken bleiben ganz, damit alles begehbar ist (ein Test geht vom Tor zu Altar, Enchanter, Truhen, Wehrgang und Kern).
+    Jeder Tempel zerfällt etwas anders (aus Seed und Platz), ist aber bei jedem Generieren gleich.
+- **Bau über mehrere Chunks** (ab alpha.41.1): Ein Tempel reicht über 7 × 7 Chunks. Jeder Chunk baut nur seinen eigenen
+  Teil, kein Nachbar-Chunk wird angefasst oder geladen.
+  - Die Bodenhöhe legt der Chunk der Tempelmitte fest (Median der Geländehöhe um die Mitte). Chunks, die vor ihm
+    entstehen, kennen sie noch nicht: Sie werden vermerkt (`the_sift:temple_pending` in den Weltdaten) und auf dem
+    Main-Thread nachgebaut, sobald die Mitte steht und der Chunk geladen ist (`deferred-per-tick`, Standard 1 je Tick).
+    Ohne NMS gibt es keinen anderen Weg, die Geländehöhe eines noch nicht generierten Chunks zu kennen.
+  - **Kein Schweben:** Unter allem, was auf dem Hof steht, füllt ein Siftschiefer-Fundament bis zum ersten festen Block
+    auf (auch Höhlen und Seen direkt unter dem Hof, höchstens 64 tief).
+  - **Nicht im Berg:** Über dem Hof wird alles frei geräumt; rund um den Tempel wird das Gelände 8 Blöcke breit als
+    Böschung zurückgeschnitten.
+- **Siftit-Block und Charoit-Block** (ab alpha.41.1): eigene Blöcke (Zier der Tempel, auch Speicherblöcke: 9 Siftitbarren
+  bzw. 9 Charoit ↔ 1 Block, `extra-recipes`). Härte 5 bzw. 4, Spitzhacke, droppen sich selbst (`blocks.*`). Texturen
+  per Skript (`scripts/gen_storage_block_textures.py`), ersetzbar unter `textures/block/{siftite,charoite}_block.png`.
 - **Register:** in den Weltdaten der Sift (`the_sift:temples`): Id (`temple-1` … `temple-10`), Mitte, Zustand
-  (`schläft`, `Kampf`, `besiegt`), Zeitpunkt des Sieges. Ein Welt-Reset der Sift leert es mit.
-- **Schutz** (`protect-until-defeated: true`): Solange der Wächter schläft, lassen sich Tempelblöcke und Truhen weder
-  abbauen noch sprengen oder mit Kolben verschieben. Nach dem Sieg ist der Tempel frei, außer Enchanter, Altar und den
-  Kammern (immer geschützt). Ausnahme: Recht `thesift.temple.bypass` (auch für OPs nur, wenn vergeben), z. B.
+  (`schläft`, `Kampf`, `besiegt`), Zeitpunkt des Sieges, Version des Bauplans (1 = alpha.41a, 2 = Bastion). Ein
+  Welt-Reset der Sift leert es mit.
+- **Neu bauen** (`/sift temple rebuild <id>`, ab alpha.41.1): baut einen Tempel an seinem Platz mit dem aktuellen
+  Bauplan neu, etwa einen schon gebauten 41a-Tempel. Zuerst kommt der alte Bau weg (Tempelmaterial im alten und im neuen
+  Bereich: Siftschiefer-Mauerwerk, Zierblöcke, Treppen, Stufen, Mauern, Gitter, Ketten, Laternen und Truhen, Truhen
+  geleert; Gelände bleibt), dann der neue, ein Chunk je Tick. Der Tempel schläft danach wieder. Testserver-Messung: 49
+  Chunks in rund 5 s.
+- **Prüfen** (`/sift temple inspect <id>`): Version, Bodenhöhe, wartende Teile; Säulen auf dem Hof, die schweben (Luft
+  oder Flüssigkeit direkt unter dem Hofboden), und fremde Blöcke in den drei Blöcken über dem Hof (Gelände, das im Tempel
+  steckt). Zählt nur geladene Chunks.
+- **Schutz** (`protect-until-defeated: true`): Solange der Wächter schläft, lassen sich die Tempelmaterialien im
+  Tempelbereich (Siftschiefer-Mauerwerk, Siftit- und Charoit-Block, Seelenblock, Sculk, Ichorglas, Truhen und die
+  Vanilla-Treppen, -Stufen, -Mauern, -Gitter, -Ketten und -Laternen) weder abbauen noch sprengen oder mit Kolben
+  verschieben. Gelände im Bereich bleibt abbaubar. Nach dem Sieg ist der Tempel frei, außer Enchanter, Altar und den
+  Prüfungsräumen (immer geschützt). Ausnahme: Recht `thesift.temple.bypass` (auch für OPs nur, wenn vergeben), z. B.
   `lp user <spieler> permission set thesift.temple.bypass true`.
 - **Fest verbauter Enchanter:** wie ein hergestellter (Kristall, Menü), aber mit
   `phase4.enchanter.temple-enchanter.requires-defeat: true` erst nach dem Sieg nutzbar; vorher meldet er das.
@@ -1055,8 +1094,8 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
   - Nur in der Sift; außerhalb und bei ausgeschalteten Tempeln nimmt das Plugin den Zettel aus der Beute.
   - Textur: `scripts/gen_temple_rumor_texture.py` (Zettel mit Tempelbogen und Charoit-Siegel); eigene PNG gleichen
     Namens unter `textures/item/temple_rumor.png` ersetzt sie (danach neues Release).
-- **Zeit beim Generieren:** gemessen je Tempel; `/sift temple sites` zeigt Mittel und Maximum seit dem Start
-  (Smoke-Test: 3,7 ms im Mittel, höchstens 5,6 ms).
+- **Zeit beim Generieren:** gemessen je Chunk-Teil, getrennt nach Weltgenerierung und Nachbau auf dem Main-Thread;
+  `/sift temple sites` zeigt Mittel und Maximum seit dem Start (Messwerte im PR und in TESTING).
 
 ## Befehle (`thesift.admin`)
 
@@ -1073,6 +1112,8 @@ Tempel bekommt später genau einen Boss (alpha.42), der **einmal je Tempel** bes
 | `/sift temple sites` | Alle berechneten Plätze: gebaut, noch nicht generiert oder (rot) ohne Tempel erkundet; Zeit je Tempel |
 | `/sift temple info <id>` | Zustand, Mitte, Altar und Enchanter eines Tempels |
 | `/sift temple reset <id>`, `reset-all [confirm]` | Tempel wieder auf „schläft“ (der Boss kann erneut besiegt werden) |
+| `/sift temple rebuild <id>` | Tempel an seinem Platz mit dem aktuellen Bauplan neu bauen (alter Bau wird entfernt) |
+| `/sift temple inspect <id>` | Version, Bodenhöhe, wartende Teile, schwebende Säulen und fremde Blöcke über dem Hof |
 | `/sift temple defeat <id>` | Tempel als besiegt markieren (Testhilfe bis zum Boss in alpha.42) |
 | `/sift spawn <mob> [anzahl]` | Sift-Mob an der eigenen Position erscheinen lassen (z. B. `blub`) |
 | `/sift debug mobs` | Sift-Mobs je Welt und Art, Displays, Transformationen pro Sekunde, beim Laden entfernte verwaiste Modellteile, nächster Mob mit Hitbox |

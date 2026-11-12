@@ -16,7 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
-/** /sift temple list|info|tp|sites|reset|reset-all|defeat (phase 4, alpha.41a). */
+/** /sift temple list|info|sites|reset|reset-all|rebuild|inspect|defeat (phase 4, alpha.41a, rebuild/inspect alpha.41.1). */
 final class TempleCommand {
 
     private final SiftPlugin plugin;
@@ -33,6 +33,8 @@ final class TempleCommand {
                 .then(Commands.literal("reset").then(id().executes(ctx -> withTemple(ctx, this::reset))))
                 .then(Commands.literal("reset-all").executes(ctx -> resetAll(ctx, false))
                         .then(Commands.literal("confirm").executes(ctx -> resetAll(ctx, true))))
+                .then(Commands.literal("rebuild").then(id().executes(ctx -> withTemple(ctx, this::rebuild))))
+                .then(Commands.literal("inspect").then(id().executes(ctx -> withTemple(ctx, this::inspect))))
                 // test aid until the boss exists (alpha.42): the temple counts as defeated
                 .then(Commands.literal("defeat").then(id().executes(ctx -> withTemple(ctx, this::defeat))));
     }
@@ -91,7 +93,8 @@ final class TempleCommand {
         sender.sendRichMessage("<gold>Gebaute Tempel: <white>" + all.size() + "</white> von <white>" + temples.builder().sites().size()
                 + "</white> Plätzen");
         for (var t : all) {
-            sender.sendRichMessage("<gray>  <white>" + t.id() + "</white> " + state(t.state()) + " " + tp(t.x(), t.y() + 1, t.z() + 19));
+            sender.sendRichMessage("<gray>  <white>" + t.id() + "</white> " + state(t.state()) + " " + tp(t.x(), t.y(), t.z() + gate(temples))
+                    + (t.version() < TempleRegistry.CURRENT ? " <yellow>(alter Bau, rebuild)</yellow>" : ""));
         }
         return Command.SINGLE_SUCCESS;
     }
@@ -106,10 +109,12 @@ final class TempleCommand {
             return 0;
         }
         var stats = temples.builder().stats();
-        long built = stats.built.get();
-        sender.sendRichMessage(String.format(Locale.ROOT, "<gold>Tempel-Plätze (Ring um 0/0):</gold> <gray>gebaut seit dem Start %d, "
-                        + "Zeit je Tempel im Mittel %.1f ms, höchstens %.1f ms", built, built == 0 ? 0 : stats.nanos.get() / 1e6 / built,
-                stats.maxNanos.get() / 1e6));
+        long slices = stats.slices.get();
+        long late = stats.deferred.get();
+        sender.sendRichMessage(String.format(Locale.ROOT, "<gold>Tempel-Plätze (Ring um 0/0):</gold> <gray>seit dem Start %d Chunk-Teile "
+                        + "in der Weltgenerierung (im Mittel %.2f ms, höchstens %.2f ms), %d nachgebaut auf dem Main-Thread (im Mittel "
+                        + "%.2f ms, höchstens %.2f ms)", slices, slices == 0 ? 0 : stats.nanos.get() / 1e6 / slices, stats.maxNanos.get() / 1e6,
+                late, late == 0 ? 0 : stats.deferredNanos.get() / 1e6 / late, stats.deferredMaxNanos.get() / 1e6));
         for (TempleSites.Site site : temples.builder().sites()) {
             boolean generated = sift.isChunkGenerated(site.x() >> 4, site.z() >> 4);
             var temple = temples.get(site.id());
@@ -117,8 +122,28 @@ final class TempleCommand {
             sender.sendRichMessage("<gray>  <white>" + site.id() + "</white> bei " + site.x() + " " + site.z() + " (" + distance + " Blöcke): "
                     + (temple.isPresent() ? "gebaut, " + state(temple.get().state())
                     : generated ? "<red>Chunk schon generiert, aber kein Tempel (vor alpha.41a erkundet)</red>" : "noch nicht generiert")
-                    + " " + tp(site.x(), temple.map(t -> t.y() + 1).orElse(200), site.z() + 19));
+                    + " " + tp(site.x(), temple.map(TempleRegistry.Temple::y).orElse(200), site.z() + gate(temples)));
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** In front of the gate (south). */
+    private static int gate(TempleRegistry temples) {
+        return temples.builder().params().radius() + 3;
+    }
+
+    private int rebuild(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        if (!temples.rebuild(t.id(), message -> sender.sendRichMessage("<green>" + message))) {
+            sender.sendRichMessage("<red>Gerade läuft schon ein Neubau, oder der Platz ist unbekannt.");
+            return 0;
+        }
+        sender.sendRichMessage("<yellow>Baue " + t.id() + " neu (alten Bau entfernen, dann Chunk für Chunk, je einer pro Tick) …");
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int inspect(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        sender.sendRichMessage("<gold>Tempel " + t.id() + ":");
+        temples.inspect(t.id()).forEach(line -> sender.sendRichMessage("<gray>  " + line));
         return Command.SINGLE_SUCCESS;
     }
 

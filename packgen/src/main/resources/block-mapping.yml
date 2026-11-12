@@ -83,6 +83,9 @@ repurposed:
     # own block of the plugin, not in the original (phase 4, alpha.40.1); its blockstate is in the resource pack
     # overlay (assets/the_sift/blockstates/sculk_enchanter.json). Appended: all states above stay as they are.
     - sculk_enchanter
+    # own storage / ornament blocks (phase 4, alpha.41.1), blockstates in the overlay; appended
+    - siftite_block
+    - charoite_block
   tripwire:
     - siftslate_stalks
     - healthy_sculk_sprouts

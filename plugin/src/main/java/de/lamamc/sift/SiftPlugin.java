@@ -502,21 +502,31 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         var ring = new de.lamamc.sift.core.temple.TempleSites.Ring(Math.max(0, c.getInt("count", 10)),
                 Math.max(0, c.getInt("ring.min-radius", 1500)), Math.max(0, c.getInt("ring.max-radius", 3000)),
                 c.getDouble("ring.angle-jitter", 15));
+        var params = new de.lamamc.sift.core.temple.TempleLayout.Params(c.getInt("size.radius", 40), c.getInt("size.wall-height", 14),
+                c.getInt("size.tower-height", 26), c.getInt("size.depth", 16));
+        int clearance = Math.max(0, c.getInt("clearance", 8));
         double border = world.getWorldBorder().getSize() / 2;
-        int[] radii = de.lamamc.sift.core.temple.TempleSites.effectiveRadii(ring, border);
+        int reach = params.extent() + 8;
+        int[] radii = de.lamamc.sift.core.temple.TempleSites.effectiveRadii(ring, border, reach + clearance + 16);
         if (radii[1] < ring.maxRadius()) {
             getLogger().warning("Sift world border (" + (int) border + " blocks from the centre) is smaller than the temple ring; "
                     + "ring pulled in to " + radii[0] + "-" + radii[1]);
         }
-        var sites = de.lamamc.sift.core.temple.TempleSites.sites(world.getSeed(), ring, 0, 0, border);
+        var sites = de.lamamc.sift.core.temple.TempleSites.sites(world.getSeed(), ring, 0, 0, border, reach + clearance + 16);
+        double closest = de.lamamc.sift.core.temple.TempleSites.minDistance(sites);
+        if (closest < 2 * (reach + clearance)) {
+            getLogger().warning("Two temple sites are only " + (int) closest + " blocks apart (a temple needs " + (reach + clearance)
+                    + " around it); raise phase4.temples.ring.max-radius or lower phase4.temples.size.radius or count");
+        }
         org.bukkit.NamespacedKey lootKey = org.bukkit.NamespacedKey.fromString(c.getString("loot-table", "the_sift:chests/temple"));
-        var builder = new de.lamamc.sift.world.temple.TempleBuilder(world.getSeed(), sites,
-                lootKey == null ? null : getServer().getLootTable(lootKey));
-        reservation.reserveTemples(builder.reservedAreas(Math.max(0, c.getInt("clearance", 8))));
+        var builder = new de.lamamc.sift.world.temple.TempleBuilder(world.getSeed(), sites, params,
+                lootKey == null ? null : getServer().getLootTable(lootKey), blocks);
+        getServer().getScheduler().runTaskAsynchronously(this, builder::prepare);
+        reservation.reserveTemples(builder.reservedAreas(clearance));
         siftPopulator.temples(builder);
         temples = new de.lamamc.sift.world.temple.TempleRegistry(this, blocks, builder, c.getBoolean("protect-until-defeated", true),
                 getConfig().getBoolean("phase4.enchanter.temple-enchanter.requires-defeat", true),
-                c.getString("altar-message", "Der Seelen-Altar schweigt noch."));
+                c.getString("altar-message", "Der Seelen-Altar schweigt noch."), c.getInt("deferred-per-tick", 1));
         getServer().getPluginManager().registerEvents(temples, this);
         temples.start(world);
         if (enchanters != null) {
@@ -527,7 +537,8 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
             });
             enchanters.setLock(temples::lockReason);
         }
-        getLogger().info("Temples: " + sites.size() + " sites on the ring " + radii[0] + "-" + radii[1] + " around 0/0");
+        getLogger().info("Temples: " + sites.size() + " sites on the ring " + radii[0] + "-" + radii[1] + " around 0/0, "
+                + (2 * params.radius() + 1) + " x " + (2 * params.radius() + 1) + " blocks, closest two " + (int) closest + " apart");
     }
 
     /** Rumour notes about the temples in chests (alpha.41b, phase4.temples.hints). */

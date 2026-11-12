@@ -989,43 +989,81 @@ Neues Release mit dem Resource Pack nötig.
 - [ ] **Bedrock (falls Geyser im Einsatz):** Ein Bedrock-Spieler sieht einen roten Pilzblock; Rechtsklick öffnet trotzdem
       das Menü.
 
-## Tempel (ab alpha.41a)
+## Tempel (ab alpha.41a, Bastion ab alpha.41.1)
 
-Smoke-Test ohne Spieler (frische Sift, alle 10 Plätze per Forceload): 10 von 10 gebaut und eingetragen, 3,7 ms je
-Tempel im Mittel, höchstens 5,6 ms. Truhen tragen `the_sift:chests/temple`, die Tabelle liefert Beute
-(`/loot spawn`). Enchanter mit genau einem Kristall. Kammern innen leer, Hülle geschlossen. Explosion (Endkristall)
-und Kolben: Tempelblöcke bleiben, solange er schläft; nach `defeat` fallen Mauer und Truhe, Enchanter und Kammern
-bleiben. Register übersteht den Neustart.
+**Smoke-Test alpha.41.1** (frische Sift, alle 10 Tempelflächen komplett per Forceload, je 7 × 7 Chunks):
+- 10 von 10 Tempeln eingetragen (nach 15 s), keine wartenden Teile übrig.
+- **Zeit:** 250 Chunk-Teile in der Weltgenerierung, im Mittel 0,67 ms, höchstens 4,5 ms; 240 Teile, deren Chunk vor der
+  Tempelmitte entstand, auf dem Main-Thread nachgebaut, im Mittel 2,9 ms, ein Ausreißer 29 ms (1 Teil je Tick, kein
+  „Can't keep up“).
+- `/sift temple inspect` für alle 10: 5372 Säulen auf dem Hof, **0 schwebend**; fremde Blöcke über dem Hof bei 9 Tempeln
+  0, bei einem 2 Pflanzen auf einem Mauerstück. Bodenhöhen 83 bis 168 (temple-7 liegt im Gebirge und ist frei geräumt).
+- Alle 10 Enchanter mit genau einem Kristall, alle 20 Truhen mit `the_sift:chests/temple`.
+- **Schutz:** Endkristall vor der Nordmauer: Mauer und Hof bleiben gleich (1716 Blöcke verglichen); nach `defeat` nicht
+  mehr. Kolben, Abbau und Bypass wie in alpha.41a.
+- **Neu bauen:** der alte 41a-Tempel temple-1 der Testwelt mit `/sift temple rebuild temple-1` → Version 2, 49 Chunks
+  in rund 5 s (1 je Tick), danach 0 schwebend, 0 fremd; ein zweites `rebuild` auf eine Bastion ebenso.
+- **Im Test gefunden und behoben:**
+  - Das Fundament richtete sich nach der Heightmap; eine Höhle direkt unter dem Hof blieb offen. Jetzt füllt es bis zum
+    ersten festen Block auf.
+  - Pflanzen schwebten über dem Hof: Die Worldgen-Heightmap kennt keine von Features gesetzten Pflanzen, das Räumen
+    endete zu tief. Jetzt wird jede Säule bis über die Turmspitzen geräumt.
+  - Die Pflanzenfeatures der Sift wachsen auf jedem Pilzstiel-Zustand (aller Siftschiefer); Nachbar-Chunks streuten sie
+    auf den Hof. Der Hofboden ist deshalb Vanilla-Tiefenschiefer, und in Tempel-Chunks laufen die übrigen Schritte des
+    Sift-Populators nicht mehr.
+  - Die Tempel-Loot-Tabelle lag in `pack-src/datapack`, das packgen bei jedem Import neu schreibt; sie liegt jetzt in
+    `pack-src/datapack-overlay`.
+- Unit-Tests: Bauplan mit Markern, versiegelten Prüfungsräumen, Größe aus der Config und einem Weg zu Fuß vom Tor zu
+  Arena, Enchanter, Truhen, Wehrgang und Kern.
 
-**Nur mit Spieler** (Überlebensmodus, ohne `thesift.temple.bypass`; OP reicht nicht als Ausnahme):
+**Nur mit Spieler** (Überlebensmodus, ohne `thesift.temple.bypass`; OP reicht nicht als Ausnahme; neues Release mit
+Resource Pack für Siftit- und Charoit-Block):
 ```
 /sift temple sites
 /sift temple list
+/sift temple inspect temple-1
 /give @s diamond_pickaxe
 /give @s tnt 8
 /give @s flint_and_steel
 /give @s piston 2
 /give @s redstone_block
 /sift give @s charoite 64
+/sift give @s siftite_ingot 9
 /xp add @s 100 levels
 ```
-- [ ] **Hinkommen:** In `/sift temple list` auf den Teleport-Klick eines Tempels (landet am Eingang im Süden).
-- [ ] **Aussehen:** zerfallene Siftschiefer-Mauern, vier Ecktürme, runde Arena mit Seelenblock-Ring und Säulen, Altar
-      in der Mitte, Halle im Süden mit Enchanter (Kristall dreht sich) und zwei Truhen. Zwei geschlossene Kammern im
-      Osten und Westen ohne Zugang. Der Tempel schwebt nicht und steckt nicht im Berg (Sockel unter Kanten in Hängen).
-      Bitte von zwei, drei Tempeln einen Screenshot.
-- [ ] **Truhen:** öffnen, Beute aus Charoit, Siftit-Nuggets, Ichor usw. Die zweite Truhe hat andere Beute.
-- [ ] **Schutz:** Mauer, Boden und Truhe abbauen: geht nicht, Actionbar-Hinweis. TNT an der Mauer: die Mauer bleibt.
-      Kolben gegen die Mauer: fährt nicht aus.
-- [ ] **Altar:** Rechtsklick auf den Seelenblock in der Mitte: „Der Seelen-Altar schweigt noch.“
+- [ ] **Alter Tempel auf dem Testserver:** `sift temple list` zeigt die 41a-Tempel mit „(alter Bau, rebuild)“.
+      `sift temple rebuild temple-1` (Konsole): Meldung mit Zahl der entfernten Blöcke und Dauer; der alte Tempel ist weg,
+      die Bastion steht, kein Rest vom alten Bau (Säulen, Kammern) im Hof.
+- [ ] **Hinkommen:** Teleport-Klick in `/sift temple list` (landet vor dem Tor im Süden).
+- [ ] **Aussehen** (bitte 2–3 Screenshots, auch von oben):
+  - Ringmauer mit Wehrgang und Zinnen, Strebepfeiler, vier runde Ecktürme und drei Mauertürme mit Charoit-Wimpeln und
+    Bannern aus Charoit- und Siftit-Block, Torhaus mit halbem Fallgitter, zerfallene Kasernen.
+  - Spalte mit Seelenfeuer um den erhöhten Kern, vier ansteigende Brücken, Obelisken mit Charoit-Spitze.
+  - In der Mitte der offene Schacht hinab zur Arena; unten der Altar, Seelenlaternen an Ketten.
+  - Der Tempel schwebt nicht und steckt nicht im Berg; ringsum eine Böschung.
+- [ ] **Begehbar:**
+  - Treppen vom Hof auf den Wehrgang, Türen vom Wehrgang in die Türme, Türen vom Hof in die Türme.
+  - Über eine Brücke auf den Kern, von dort in den Schacht schauen.
+  - Eine der vier Treppen vom Hof hinab in die Prüfungsebene: äußerer Ringgang, Pfeilerkammern mit Ichorglas-Licht,
+    Speichen zum inneren Ring, durch eins der vier Tore in die Arena zum Altar.
+  - Schatzhalle im Süden unten: Siftit-Säulen mit Charoit-Kapitell, Enchanter auf dem Podest (Kristall), zwei Truhen.
+  - Die Prüfungsräume im Osten und Westen sind zu (Charoit-Siegel), kein Weg hinein.
+- [ ] **Truhen:** Beute aus Charoit, Siftit-Nuggets, Ichor usw.; die zweite Truhe hat andere Beute.
+- [ ] **Schutz:** Mauer, Hofboden, Treppe, Laterne und Truhe abbauen: geht nicht, Actionbar-Hinweis. TNT an der Mauer:
+      die Mauer bleibt (Gelände ringsum darf kaputtgehen). Kolben gegen die Mauer: fährt nicht aus.
+- [ ] **Altar:** Rechtsklick auf den Seelenblock: „Der Seelen-Altar schweigt noch.“
 - [ ] **Enchanter gesperrt:** Rechtsklick: Hinweis, dass er erst nach dem Sieg erwacht, kein Menü.
 - [ ] **Nach dem Sieg** (Konsole `sift temple defeat temple-1`):
   - Enchanter öffnet das Menü und steigert wie ein hergestellter.
-  - Mauern und Truhen lassen sich abbauen; Enchanter, Altar und Kammerwände weiterhin nicht.
+  - Mauern und Truhen lassen sich abbauen; Enchanter, Altar und die Wände der Prüfungsräume weiterhin nicht.
   - `sift temple reset temple-1`: wieder geschützt, Enchanter wieder gesperrt.
 - [ ] **Bypass:** `lp user <spieler> permission set thesift.temple.bypass true`: Mauer lässt sich abbauen. Danach wieder
       entfernen.
-- [ ] **Andere Strukturen:** Um den Tempel stehen keine verlassenen Portale, Schluchten oder Monolithen in der Fläche.
+- [ ] **Neue Blöcke:** 9 Siftitbarren → Siftit-Block, 9 Charoit → Charoit-Block, jeweils zurück zu 9; eigene Texturen
+      (blau-silberne Platten, violett gemaserter Charoit). Mit der Spitzhacke abbaubar, droppen sich selbst.
+- [ ] **Neu erkunden:** einen noch nicht generierten Tempel anlaufen (`/sift temple sites` zeigt „noch nicht generiert“):
+      Beim Näherkommen kein Ruckeln; der Tempel steht vollständig, keine fehlenden Chunk-Stücke. Danach
+      `sift temple inspect <id>`: 0 schwebend, wartende Teile 0.
 
 ### Kompass und Gerüchte-Zettel (ab alpha.41b)
 

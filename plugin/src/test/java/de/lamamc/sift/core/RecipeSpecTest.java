@@ -26,7 +26,9 @@ class RecipeSpecTest {
     void allRecipesOfTheOriginalAreRead() {
         // 76 of the original + 3 of the plugin (willow planks and logs where the original uses vanilla tags)
         // + 42 willow variants of plank/log recipes (scripts/gen_willow_recipes.py, issue #14)
-        assertEquals(121, RECIPES.size());
+        // + 4 storage block recipes (Siftit-Block, Charoit-Block, both ways; alpha.41.1)
+        assertEquals(125, RECIPES.size());
+        assertEquals(new RecipeSpec.Result("siftite_block", true, 1), BY_NAME.get("siftite_block").result());
     }
 
     @Test
