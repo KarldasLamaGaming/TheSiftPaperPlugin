@@ -27,6 +27,21 @@ class TempleLayoutTest {
     }
 
     @Test
+    void broodSpawnersStandInTheirZones() {
+        assertEquals(12, LAYOUT.spawners().size());
+        assertEquals(java.util.Map.of(1, 3L, 2, 5L, 3, 4L), LAYOUT.spawners().stream()
+                .collect(java.util.stream.Collectors.groupingBy(TempleLayout.Spawner::zone, java.util.stream.Collectors.counting())));
+        for (var sp : LAYOUT.spawners()) {
+            assertEquals(TempleLayout.SPAWNER, LAYOUT.blocks().get(sp.pos()), sp.toString());
+            assertEquals(sp.zone() == 1 ? 0 : -P.depth(), sp.pos().y(), "on the floor of its level: " + sp);
+            var above = LAYOUT.blocks().get(new TempleLayout.Pos(sp.pos().x(), sp.pos().y() + 1, sp.pos().z()));
+            assertTrue(above == null || "air".equals(above), "room above " + sp);
+        }
+        var inner = LAYOUT.spawners().stream().filter(sp -> sp.zone() == 3).toList();
+        inner.forEach(sp -> assertTrue(Math.hypot(sp.pos().x(), sp.pos().z()) < 18, "zone 3 next to the arena: " + sp));
+    }
+
+    @Test
     void theTrialRoomsAreEmptyAndSealed() {
         assertEquals(Set.of("wither", "warden"), LAYOUT.chambers().keySet());
         assertTrue(LAYOUT.chambers().get("wither").min().x() > 0 && LAYOUT.chambers().get("warden").max().x() < 0);
