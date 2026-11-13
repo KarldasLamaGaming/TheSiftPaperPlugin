@@ -153,6 +153,8 @@ public final class EnchanterMenu implements InventoryHolder, Listener {
         }
         item.addUnsafeEnchantment(enchantment, option.to());
         inventory.setItem(ITEM_SLOT, item);
+        // "Better Enchanter" (alpha.42h): enchant an item using Charoite – in the datapack, but never awarded before
+        de.lamamc.sift.item.SiftAdvancements.grant(player, "the_sift/better_enchanter");
         player.playSound(player, Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 0.7f);
         player.playSound(player, Sound.BLOCK_SCULK_CATALYST_BLOOM, 0.6f, 1.2f);
         refresh(player);

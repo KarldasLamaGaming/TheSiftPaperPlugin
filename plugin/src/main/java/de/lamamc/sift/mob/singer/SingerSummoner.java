@@ -38,11 +38,29 @@ public final class SingerSummoner implements Listener {
     /** The horn's cooldown starts when it is blown. */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHorn(PlayerItemCooldownEvent event) {
+        if (event.getType() == Material.GOAT_HORN) {
+            songOfThePast(event.getPlayer());
+        }
         if (event.getType() != Material.GOAT_HORN || !kind.enabled() || !kind.config().getBoolean("summon.enabled", true)) {
             return;
         }
         Location origin = event.getPlayer().getLocation();
         Bukkit.getScheduler().runTaskLater(plugin, () -> summon(origin), kind.config().getInt("summon.delay-ticks", 60));
+    }
+
+    /**
+     * "Song of the Past" (alpha.42h; in the datapack, but never awarded before): the goat horn blown in the centre of an
+     * Ancient City, i.e. within 24 blocks of its portal (in any state).
+     */
+    private void songOfThePast(org.bukkit.entity.Player player) {
+        Location at = player.getLocation();
+        for (SiftPortal portal : kind.portals().registry().all(at.getWorld())) {
+            double[] c = portal.frame().bottomCenter();
+            if (portal.kind() == SiftPortal.Kind.ANCIENT_CITY && at.distanceSquared(new Location(at.getWorld(), c[0], c[1], c[2])) <= 24 * 24) {
+                de.lamamc.sift.item.SiftAdvancements.grant(player, "story/song_of_the_past");
+                return;
+            }
+        }
     }
 
     /** Calls the Singer to the nearest sleeping portal; returns its base mob (attached a tick later) or null. */

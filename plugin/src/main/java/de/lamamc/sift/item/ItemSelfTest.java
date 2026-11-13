@@ -57,6 +57,7 @@ public final class ItemSelfTest {
         templeWalk(world);
         bossBalance();
         blockStates();
+        advancementSources();
         loot(world);
         lines.add(failures == 0 ? "Selbsttest bestanden" : "Selbsttest: " + failures + " Fehler");
         return lines;
@@ -232,6 +233,63 @@ public final class ItemSelfTest {
     }
 
     /** alpha.42d: the Charoite Wisp is registered with its rig, animations, names and is in the zone 3 mix. */
+    /**
+     * alpha.42h: every Sift advancement can be earned with the current config. Datapack criteria (other than "impossible")
+     * need nothing; the plugin awards the others, each only while its feature is on. An advancement the plugin never
+     * awards is an error; one whose feature is off (rifts) or missing is listed for a decision.
+     */
+    private void advancementSources() {
+        var c = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class).getConfig();
+        boolean mobs = c.getBoolean("mobs.enabled", true);
+        java.util.Map<String, Boolean> byPlugin = new java.util.LinkedHashMap<>();
+        byPlugin.put("the_sift/kinda_purpleish", true); // charoite ore broken
+        byPlugin.put("the_sift/sifted_nugget", true); // siftite ore broken
+        byPlugin.put("the_sift/spicewood", true); // wood lit in the Sift
+        byPlugin.put("the_sift/better_enchanter", c.getBoolean("phase4.enchanter.enabled", true));
+        byPlugin.put("the_sift/keep_inventory", c.getBoolean("siftite.keep-on-death.enabled", true));
+        byPlugin.put("the_sift/false_alarm", c.getBoolean("ichor.enabled", true));
+        byPlugin.put("the_sift/blub", mobs && c.getBoolean("mobs.blub.enabled", true));
+        byPlugin.put("the_sift/food_chain", mobs && c.getBoolean("mobs.blub.enabled", true) && c.getBoolean("mobs.dark_sniffer.enabled", true));
+        byPlugin.put("the_sift/like_father_and_son", mobs && c.getBoolean("mobs.echo_golem.enabled", true));
+        byPlugin.put("the_sift/friend_of_the_sift", mobs && c.getBoolean("mobs.echo_golem.enabled", true));
+        byPlugin.put("the_sift/pitch_perfect", mobs && c.getBoolean("mobs.singer.enabled", true));
+        byPlugin.put("story/song_of_the_past", true); // goat horn at an Ancient City portal
+        byPlugin.put("the_sift/great_echo_golem", c.getBoolean("phase4.bosses.great-echo-golem.enabled", true)
+                && c.getBoolean("phase4.bosses.great-echo-golem.advancement", true));
+        byPlugin.put("the_sift/rifter", c.getBoolean("rifts.enabled", false)); // through a rift
+        java.util.Map<String, String> open = java.util.Map.of("the_sift/planting_the_dark",
+                "Sculkblume auf Sculk pflanzen – Anbau der Sculkblume fehlt noch");
+        int total = 0;
+        List<String> unknown = new ArrayList<>();
+        List<String> off = new ArrayList<>();
+        for (Iterator<Advancement> it = Bukkit.advancementIterator(); it.hasNext(); ) {
+            Advancement a = it.next();
+            String path = a.getKey().getKey();
+            if (!a.getKey().getNamespace().equals("the_sift") || path.startsWith("recipes/")) {
+                continue;
+            }
+            total++;
+            // getCriteria() is an unmodifiable view without equals(): compare as a set
+            boolean datapack = !new java.util.HashSet<>(a.getCriteria()).equals(java.util.Set.of("event"));
+            if (datapack) {
+                continue;
+            }
+            Boolean on = byPlugin.get(path);
+            if (open.containsKey(path)) {
+                off.add(path + " (" + open.get(path) + ")");
+            } else if (on == null) {
+                unknown.add(path);
+            } else if (!on) {
+                off.add(path + " (Funktion aus)");
+            }
+        }
+        check(unknown.isEmpty() && total > 0, "Advancements erreichbar: " + (total - unknown.size() - off.size()) + " von " + total
+                + (unknown.isEmpty() ? "" : ", ohne Vergabe: " + String.join(", ", unknown)));
+        if (!off.isEmpty()) {
+            lines.add("HINWEIS mit dieser Config nicht erreichbar: " + String.join("; ", off));
+        }
+    }
+
     /**
      * alpha.42g: every Sift block item carries the block state component with exactly its registered state, so the client
      * predicts the Sift block when placing it (no vanilla mushroom block flashing up).
