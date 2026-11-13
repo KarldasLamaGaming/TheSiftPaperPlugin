@@ -15,7 +15,8 @@
       "translate": "advancement.the_sift.planting_the_dark.description",
       "fallback": "Plant the Sculkflower on Sculk"
     },
-    "frame": "goal"
+    "frame": "goal",
+    "hidden": true
   },
   "criteria": {
     "event": {

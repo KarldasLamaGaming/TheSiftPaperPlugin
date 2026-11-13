@@ -407,7 +407,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private void updateConfig() {
         org.bukkit.configuration.file.FileConfiguration config = getConfig();
         // alpha.37: recipes and loot chances; alpha.42c: single German texts become de/en sections
-        for (String version : List.of("alpha37", "alpha42c", "alpha42d", "alpha42f")) {
+        for (String version : List.of("alpha37", "alpha42c", "alpha42d", "alpha42f", "alpha42i")) {
             java.io.InputStream migration = getResource("migrations/" + version + ".yml");
             if (migration != null && config.getDefaults() != null) {
                 org.bukkit.configuration.file.YamlConfiguration old = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
@@ -612,7 +612,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 Math.max(5, s.getLong("despawn-seconds", 30)) * 1000L, Math.max(1, s.getInt("max-alive-per-temple", 16)),
                 new de.lamamc.sift.core.temple.BroodSpawner.Timing(Math.max(0, s.getLong("wave-delay-seconds", 5)) * 1000L,
                         Math.max(0, s.getLong("cooldown-minutes", 30)) * 60_000L),
-                zones, Math.max(0, s.getDouble("experience-factor", 0)), s.getBoolean("drops", false)));
+                zones, Math.max(0, s.getDouble("experience-factor", 0)), s.getBoolean("drops", false), broodExperience(s)));
         getServer().getPluginManager().registerEvents(brood, this);
         brood.start();
         temples.altarGate(s.getBoolean("altar-gate", true));
@@ -792,5 +792,17 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     public void reloadResourcePack() {
         reloadConfig();
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
+    }
+
+    /** phase4.temples.spawners.experience (alpha.42i): Sift mob id -> experience of one brood mob killed by a player. */
+    private static java.util.Map<String, Integer> broodExperience(org.bukkit.configuration.ConfigurationSection s) {
+        java.util.Map<String, Integer> out = new java.util.HashMap<>();
+        org.bukkit.configuration.ConfigurationSection e = s.getConfigurationSection("experience");
+        if (e != null) {
+            for (String id : e.getKeys(false)) {
+                out.put(id, Math.max(0, e.getInt(id)));
+            }
+        }
+        return java.util.Map.copyOf(out);
     }
 }

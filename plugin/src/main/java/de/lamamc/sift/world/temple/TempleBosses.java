@@ -68,7 +68,7 @@ public final class TempleBosses implements Listener {
 
     public record Settings(boolean enabled, String offeringItem, int offeringAmount, int countdownTicks, int leaveTicks, double arenaHeight,
                            boolean sealGates, boolean refundOffering, boolean platesDrop, int helpers, int lootNightCrystals,
-                           GearTable gear, int gearRolls, boolean advancement) {
+                           GearTable gear, int gearRolls, boolean advancement, int lootExperience, int experienceOrb) {
 
         public static Settings of(ConfigurationSection c) {
             ConfigurationSection start = sub(c, "start");
@@ -81,7 +81,8 @@ public final class TempleBosses implements Listener {
                     sub(c, "phases").getBoolean("plates-drop", true), Math.max(0, sub(c, "phases").getInt("helpers", 2)),
                     Math.max(0, sub(c, "loot").getInt("night-crystal", 1)), gear(sub(c, "loot.gear")),
                     sub(c, "loot.gear").getBoolean("enabled", true) ? Math.max(0, sub(c, "loot.gear").getInt("rolls", 1)) : 0,
-                    c.getBoolean("advancement", true));
+                    c.getBoolean("advancement", true), Math.max(0, sub(c, "loot").getInt("experience", 500)),
+                    Math.max(1, sub(c, "loot").getInt("experience-orb", 20)));
         }
 
         /** loot.gear.table: list of {item, weight, enchantments: {id: level | [min, max]}}; broken entries are skipped. */
@@ -718,6 +719,15 @@ public final class TempleBosses implements Listener {
                     }
                 }
                 given++;
+            }
+            // alpha.42i: experience shared among those who earn loot, as orbs at their feet (Mending repairs with them)
+            List<Player> earners = eligible.stream().map(Bukkit::getPlayer).filter(p -> p != null && p.getWorld().equals(world)).toList();
+            List<List<Integer>> shares = GolemBoss.experienceShares(settings.lootExperience(), earners.size(), settings.experienceOrb());
+            for (int i = 0; i < shares.size(); i++) {
+                Location feet = earners.get(i).getLocation();
+                for (int orb : shares.get(i)) {
+                    world.spawn(feet, org.bukkit.entity.ExperienceOrb.class, o -> o.setExperience(orb));
+                }
             }
             if (base != null) {
                 Location at = base.getLocation().add(0, base.getHeight() * 0.6, 0);

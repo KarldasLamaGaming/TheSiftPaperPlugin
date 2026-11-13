@@ -3,6 +3,7 @@ package de.lamamc.sift.core.boss;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -322,6 +323,31 @@ public final class GolemBoss {
         public double distance(double x, double z) {
             return Math.hypot(x - cx, z - cz);
         }
+    }
+
+    /**
+     * The golem's experience (alpha.42i) split evenly among the players who earn loot (the remainder to the first ones),
+     * each share as orbs of at most {@code orbSize} points so Mending spreads over several items. Empty without players.
+     */
+    public static List<List<Integer>> experienceShares(int total, int players, int orbSize) {
+        List<List<Integer>> out = new java.util.ArrayList<>();
+        if (players <= 0 || total <= 0) {
+            return out;
+        }
+        int each = total / players;
+        int rest = total % players;
+        int size = Math.max(1, orbSize);
+        for (int i = 0; i < players; i++) {
+            int share = each + (i < rest ? 1 : 0);
+            List<Integer> orbs = new java.util.ArrayList<>();
+            while (share > 0) {
+                int orb = Math.min(size, share);
+                orbs.add(orb);
+                share -= orb;
+            }
+            out.add(orbs);
+        }
+        return out;
     }
 
     private GolemBoss() {
