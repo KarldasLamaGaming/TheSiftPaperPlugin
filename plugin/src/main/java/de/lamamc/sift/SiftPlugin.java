@@ -94,6 +94,10 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         blocks.restrictWorlds(blockSettings::allowedIn);
         items = new SiftItems(ItemRegistry.loadFromJar(mapping), Translations.loadFromJar(),
                 ItemSettings.load(getConfig().getConfigurationSection("items")));
+        items.placedStates(id -> { // alpha.42g: block items predict their Sift state on the client
+            var state = blocks.defaultState(id);
+            return state == null ? null : state.data();
+        });
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new CustomBlockListener(this, blocks, blockSettings, items), this);
         BreakSpeedListener breakSpeed = new BreakSpeedListener(blocks, blockSettings);
