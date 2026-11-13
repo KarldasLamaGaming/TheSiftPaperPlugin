@@ -963,7 +963,7 @@ mobs:
       # Getroffen blinkt es so viele Blöcke weg, danach erst wieder nach der Abklingzeit
       blink-distance: 4
       blink-cooldown-ticks: 120
-    # Erfahrung, wenn ein Spieler es tötet (außerhalb der Brut, z. B. /sift spawn; ab alpha.42h, wie die Brut 8)
+    # Erfahrung, wenn ein Spieler es tötet (außerhalb der Brut, z. B. /sift spawn; ab alpha.42i, wie die Brut 8)
     experience: 8
 
 recipes:
@@ -1125,7 +1125,7 @@ phase4:
       max-players-scaled: 4
       # Beute der Brut-Mobs ja/nein (aus, gegen Farmen)
       drops: false
-      # Erfahrung je Brut-Mob, wenn ein Spieler ihn tötet (ab alpha.42h, damit Reparatur im Tempel wirkt). Je Mob-Art, nicht
+      # Erfahrung je Brut-Mob, wenn ein Spieler ihn tötet (ab alpha.42i, damit Reparatur im Tempel wirkt). Je Mob-Art, nicht
       # mehr für Zone oder Welle; vergleichbar mit Vanilla: Zombie/Skelett 5, Lohe 10. Sifter 5 (Nahkämpfer wie ein
       # Zombie), Dunkler Schnüffler 10 (40 Leben, Schallangriff), Charoit-Irrlicht 8 (fliegender Fernkämpfer, 18 Leben).
       experience:
@@ -1255,7 +1255,7 @@ phase4:
         min-damage-share: 0.05
         # Nachtkristalle je berechtigtem Spieler
         night-crystal: 1
-        # Erfahrung (ab alpha.42h), gleich verteilt auf alle Berechtigten, als Kugeln von höchstens experience-orb Punkten
+        # Erfahrung (ab alpha.42i), gleich verteilt auf alle Berechtigten, als Kugeln von höchstens experience-orb Punkten
         # vor ihren Füßen, damit Reparatur sich auf mehrere Teile verteilt. 500 Punkte reparieren mit Reparatur bis zu
         # 1000 Haltbarkeit (fast zwei Netherit-Brustpanzer); zu viert 125 je Spieler. Vorher: 300 als eine Kugel am Golem.
         experience: 500
@@ -1296,7 +1296,7 @@ phase4:
         crown: true
       attributes:
         movement-speed: 0.24
-      # Erfahrung beim Tod wie ein Mob (eine Kugel am Golem); ab alpha.42h 0, die Erfahrung kommt als Beute (loot.experience)
+      # Erfahrung beim Tod wie ein Mob (eine Kugel am Golem); ab alpha.42i 0, die Erfahrung kommt als Beute (loot.experience)
       experience: 0
       # Seelenhelfer (Echo Golems des Seelenrufs)
       helper:

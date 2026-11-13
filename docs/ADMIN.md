@@ -797,7 +797,7 @@ Sculk-Licht mit acht kreisenden Charoit-Splittern, Schieferring darüber, leucht
   `shard-turn-degrees` 4° je Tick zum Ziel nach, verschwindet an Blöcken), nur mit Sichtlinie und in `shoot-range` (18).
   Getroffen blinkt es `blink-distance` (4) Blöcke weg, danach erst wieder nach `blink-cooldown-ticks` (120). Ohne Ziel
   schwebt es gut einen Block über dem Boden. Auf Friedlich greift es nicht an.
-- **Herkunft:** nur aus den Brut-Spawnern (als Brut ohne Beute, seit alpha.42h mit 8 Erfahrung; Despawn ohne Spieler, nach Neustart
+- **Herkunft:** nur aus den Brut-Spawnern (als Brut ohne Beute, seit alpha.42i mit 8 Erfahrung; Despawn ohne Spieler, nach Neustart
   entfernt, zählt zu `max-alive-per-temple`) und per `/sift spawn charoite_wisp`. Kein natürlicher Spawn, kein Spawn-Ei.
 - **Mischung in Zone 3:** `phase4.temples.spawners.zones.3.mobs`, Standard `[charoite_wisp, dark_sniffer]`; jeder
   Eintrag zählt einmal (`[charoite_wisp, charoite_wisp, dark_sniffer]` = zwei Drittel Irrlichter). Eine unveränderte
@@ -1216,7 +1216,7 @@ ist.
     `wave-delay-seconds`), mit mehr Spielern mehr Mobs (bis `max-players-scaled`). Nach der letzten Welle ist er erschöpft,
     bis `cooldown-minutes` (30; 0 = bis zum Zurücksetzen) um sind. Gehen alle Spieler und verschwindet seine Brut, fängt
     er beim nächsten Besuch wieder mit Welle 1 an.
-  - **Erfahrung** (ab alpha.42h, `experience`): fest je Mob-Art, nur wenn ein Spieler den Mob tötet, damit Reparatur
+  - **Erfahrung** (ab alpha.42i, `experience`): fest je Mob-Art, nur wenn ein Spieler den Mob tötet, damit Reparatur
     (Mending) im Tempel wirkt. Sifter 5 (wie ein Zombie), Dunkler Schnüffler 10 (wie eine Lohe), Charoit-Irrlicht 8. Zone
     und Welle ändern daran nichts. Für Arten, die dort nicht stehen, gilt `experience-factor` (0 = keine).
   - **Gegen Farmen:**
@@ -1324,7 +1324,7 @@ Abschalten: `enabled: false` (der Altar meldet dann `altar-message`), Werte sieh
   - ab alpha.42b.2 das Advancement **„Stille im Tempel“** (`the_sift:the_sift/great_echo_golem`, Herausforderung, unter
     „Freund der Sift“), abschaltbar mit `advancement: false`.
 
-  Dazu ab alpha.42h **Erfahrung** (`loot.experience`, 500), gleich verteilt auf alle Berechtigten, als Kugeln von
+  Dazu ab alpha.42i **Erfahrung** (`loot.experience`, 500), gleich verteilt auf alle Berechtigten, als Kugeln von
   höchstens 20 Punkten vor ihren Füßen. So repariert Mending mehrere Teile. 500 Punkte reparieren bis zu 1000 Haltbarkeit;
   zu viert bekommt jeder 125. Vorher gab es 300 als eine Kugel am Golem (`experience`, jetzt 0).
 - **Anzeige:** Die Bossleiste nennt Phase und Plattenzahl („Panzer, 8 Platten“), Farbe je Phase (blau, gelb, rot). Ab

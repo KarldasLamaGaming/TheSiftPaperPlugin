@@ -720,7 +720,7 @@ public final class TempleBosses implements Listener {
                 }
                 given++;
             }
-            // alpha.42h: experience shared among those who earn loot, as orbs at their feet (Mending repairs with them)
+            // alpha.42i: experience shared among those who earn loot, as orbs at their feet (Mending repairs with them)
             List<Player> earners = eligible.stream().map(Bukkit::getPlayer).filter(p -> p != null && p.getWorld().equals(world)).toList();
             List<List<Integer>> shares = GolemBoss.experienceShares(settings.lootExperience(), earners.size(), settings.experienceOrb());
             for (int i = 0; i < shares.size(); i++) {

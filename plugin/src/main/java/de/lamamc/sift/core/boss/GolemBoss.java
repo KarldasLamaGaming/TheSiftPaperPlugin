@@ -326,7 +326,7 @@ public final class GolemBoss {
     }
 
     /**
-     * The golem's experience (alpha.42h) split evenly among the players who earn loot (the remainder to the first ones),
+     * The golem's experience (alpha.42i) split evenly among the players who earn loot (the remainder to the first ones),
      * each share as orbs of at most {@code orbSize} points so Mending spreads over several items. Empty without players.
      */
     public static List<List<Integer>> experienceShares(int total, int players, int orbSize) {

@@ -291,7 +291,7 @@ public final class BroodSpawners implements Listener {
     }
 
     /**
-     * Brood never drops loot (drops: false); since alpha.42h it gives a fixed amount of experience per kind when a player
+     * Brood never drops loot (drops: false); since alpha.42i it gives a fixed amount of experience per kind when a player
      * killed it, so Mending works in a temple. No farm: limited waves, rest afterwards, at most 16 alive, despawn without
      * players, and only mobs the spawners made carry the brood marker (spawn eggs and /sift spawn do not).
      */

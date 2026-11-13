@@ -407,7 +407,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private void updateConfig() {
         org.bukkit.configuration.file.FileConfiguration config = getConfig();
         // alpha.37: recipes and loot chances; alpha.42c: single German texts become de/en sections
-        for (String version : List.of("alpha37", "alpha42c", "alpha42d", "alpha42f", "alpha42h")) {
+        for (String version : List.of("alpha37", "alpha42c", "alpha42d", "alpha42f", "alpha42i")) {
             java.io.InputStream migration = getResource("migrations/" + version + ".yml");
             if (migration != null && config.getDefaults() != null) {
                 org.bukkit.configuration.file.YamlConfiguration old = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
@@ -794,7 +794,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
         resourcePack.load(getConfig().getConfigurationSection("resource-pack"));
     }
 
-    /** phase4.temples.spawners.experience (alpha.42h): Sift mob id -> experience of one brood mob killed by a player. */
+    /** phase4.temples.spawners.experience (alpha.42i): Sift mob id -> experience of one brood mob killed by a player. */
     private static java.util.Map<String, Integer> broodExperience(org.bukkit.configuration.ConfigurationSection s) {
         java.util.Map<String, Integer> out = new java.util.HashMap<>();
         org.bukkit.configuration.ConfigurationSection e = s.getConfigurationSection("experience");

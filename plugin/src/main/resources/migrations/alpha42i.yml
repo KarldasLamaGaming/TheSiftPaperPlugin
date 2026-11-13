@@ -1,4 +1,4 @@
-# Defaults of alpha.42g that alpha.42h replaces when a server still has them unchanged (ConfigUpdate): Sift mobs give
+# Defaults of alpha.42g that alpha.42i replaces when a server still has them unchanged (ConfigUpdate): Sift mobs give
 # experience in the temples (Mending). The golem's 300 at its feet become 500 shared as loot. Values an admin changed stay.
 mobs:
   charoite_wisp:

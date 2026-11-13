@@ -1276,7 +1276,7 @@ Speichen und Ring zu schmal für die Diagonale, Turmtüren 1–2 breit, Spawner 
 - [ ] **Optik:** Die offenen Treppenschächte im Hof mit Geländer, die Türen der Pfeilerkammern, die Spawner unter den
       Kammersäulen sehen stimmig aus.
 
-### Erfahrung der Sift-Mobs (ab alpha.42h)
+### Erfahrung der Sift-Mobs (ab alpha.42i)
 
 | Mob | normal (Spieler-Kill) | als Brut-Mob | Quelle |
 |---|---|---|---|
@@ -1290,7 +1290,7 @@ Speichen und Ring zu schmal für die Diagonale, Turmtüren 1–2 breit, Spawner 
 | Großer Echo-Golem | 500 als Beute, verteilt (vorher 300 als eine Kugel) | – | eigener Boss |
 
 **Smoke-Test** (ohne Spieler):
-- Alte Config: „old defaults replaced … (alpha42h): [mobs.charoite_wisp.experience, phase4.bosses.great-echo-golem.experience]“.
+- Alte Config: „old defaults replaced … (alpha42i): [mobs.charoite_wisp.experience, phase4.bosses.great-echo-golem.experience]“.
 - `sift debug selftest`: „Brut-Mobs: Erfahrung charoite_wisp 8, dark_sniffer 10, sifter 5; Beute aus“, bestanden.
 - Unit-Tests: Brut-Erfahrung je Art, nur bei Spieler-Kill, Faktor für den Rest; Boss-Erfahrung für 1 und 3 Spieler, Kugeln
   höchstens 20.

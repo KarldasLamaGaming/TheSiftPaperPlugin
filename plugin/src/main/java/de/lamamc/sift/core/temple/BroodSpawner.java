@@ -66,7 +66,7 @@ public final class BroodSpawner {
     }
 
     /**
-     * Experience of a brood mob (alpha.42h): only when a player killed it (like vanilla), a fixed amount per kind
+     * Experience of a brood mob (alpha.42i): only when a player killed it (like vanilla), a fixed amount per kind
      * (phase4.temples.spawners.experience), else the mob's normal experience times {@code factor}. Never more for zone or
      * wave: the waves are limited and the spawner rests afterwards, so a temple is no farm.
      */
