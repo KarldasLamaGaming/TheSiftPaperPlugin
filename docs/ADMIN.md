@@ -272,7 +272,7 @@ ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-It
     Portale.
   - **Nicht erreichbar mit der Standard-Config** (der Selbsttest nennt sie als Hinweis):
     - „Rissgänger“ braucht `rifts.enabled: true`.
-    - „Pflanz die Dunkelheit“ (Sculkblume auf Sculk pflanzen) braucht den Anbau der Sculkblume, den es noch nicht gibt.
+    - „Das Dunkel pflanzen“ (Sculkblume auf Sculk pflanzen) braucht den Anbau der Sculkblume, den es noch nicht gibt.
 
 ## Weltgenerierung
 

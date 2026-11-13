@@ -1291,7 +1291,7 @@ Plattenspieler):
       „Rissgänger“ erreicht ist.
 - [ ] **Besserer Verzauberer:** am Sculk Enchanter eine Verzauberung mit Charoit anheben.
 - [ ] **Nahrungskette:** ein gezähmter Blub besiegt einen Dunklen Schnüffler; der Besitzer bekommt es.
-- [ ] **Lied der Vergangenheit:** Ziegenhorn im Zentrum einer Antiken Stadt blasen (nach „Untergegangene Zivilisation“).
+- [ ] **Lied der Vergangenheit:** Ziegenhorn im Zentrum einer Antiken Stadt blasen (nach „Gefallene Zivilisation“).
 
 ### Boss-Balance und ein Altar je Spieler (ab alpha.42f)
 

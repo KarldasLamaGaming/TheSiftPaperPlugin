@@ -311,7 +311,7 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   - „Riss-Resonanz“: Die Rift-Schallplatte zählt in jedem Plattenspieler der Sift, nicht nur in 16 Blöcken um einen Riss.
     Die Risse sind auf Lama Kingdom aus.
   - „Rissgänger“ bleibt ohne Risse unerreichbar (Entscheidung offen).
-  - „Pflanz die Dunkelheit“ bleibt unerreichbar, solange der Anbau der Sculkblume fehlt.
+  - „Das Dunkel pflanzen“ bleibt unerreichbar, solange der Anbau der Sculkblume fehlt.
 - **Ein Altar je Spieler** (alpha.42f): Jeder Spieler darf den Großen Echo-Golem nur an einem Tempel wecken (Bindung an
   den Auslöser, Mitkämpfer frei, abschaltbar). Eigene Regel, nicht im Original. Gespeichert in den Weltdaten der Sift
   statt im Spieler, damit Admins sie auch für Offline-Spieler sehen und aufheben können.
