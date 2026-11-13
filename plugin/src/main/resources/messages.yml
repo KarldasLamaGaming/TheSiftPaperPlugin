@@ -96,6 +96,9 @@ enchanter:
 
 # Tempel (config phase4.temples.*)
 temple:
+  altar-chosen: "<dark_aqua>Du hast deinen Tempel schon gewählt: <white><temple></white>. Nur dort erwacht der Wächter für dich."
+  altar-won: "<dark_aqua>Du hast deinen Tempel schon besiegt (<white><temple></white>). Ein weiterer Altar antwortet dir nicht."
+  altar-won-here: "<dark_aqua>Du hast diesen Tempel bereits besiegt."
   protected: "<dark_aqua>Der Tempel lässt sich nicht abtragen, solange sein Wächter schläft."
   defeated: "<dark_aqua>Der Wächter dieses Tempels ist besiegt."
   altar-gate-one: "<dark_aqua>Der Seelen-Altar schweigt, solange <count> Brutkern wacht."

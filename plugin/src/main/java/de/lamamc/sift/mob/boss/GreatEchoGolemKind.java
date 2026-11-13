@@ -48,6 +48,7 @@ public final class GreatEchoGolemKind extends MobKind {
     private final SiftItems items;
     private final GolemBoss.Settings settings;
     private final GolemBoss.Attacks attacks;
+    private final GolemBoss.Scaling scaling;
     private Function<UUID, BossArena> arenas = id -> null;
     private List<RigPart> parts;
 
@@ -72,6 +73,12 @@ public final class GreatEchoGolemKind extends MobKind {
                 s.getInt("interval-ticks-rage", a.slamIntervalRage()), w.getDouble("damage", a.sonicDamage()),
                 w.getInt("windup-ticks", a.sonicWindup()), w.getInt("interval-ticks", a.sonicInterval()),
                 w.getInt("interval-ticks-rage", a.sonicIntervalRage()), section(config, "attacks").getDouble("rage-speed", a.rageSpeed()));
+        GolemBoss.Scaling z = GolemBoss.Scaling.defaults();
+        ConfigurationSection c = section(config, "scaling");
+        this.scaling = new GolemBoss.Scaling(c.getDouble("damage-per-extra-player", z.damagePerExtraPlayer()),
+                c.getDouble("damage-max-bonus", z.damageMaxBonus()), c.getDouble("helpers-per-extra-player", z.helpersPerExtraPlayer()),
+                c.getInt("max-extra-helpers", z.maxExtraHelpers()), c.getDouble("attack-speedup-per-extra-player", z.speedupPerExtraPlayer()),
+                c.getDouble("attack-max-speedup", z.maxSpeedup()));
     }
 
     static ConfigurationSection section(ConfigurationSection config, String path) {
@@ -85,6 +92,16 @@ public final class GreatEchoGolemKind extends MobKind {
 
     public GolemBoss.Attacks attacks() {
         return attacks;
+    }
+
+    /** How damage, helpers and attack pace grow with the players at the start (alpha.42f). */
+    public GolemBoss.Scaling scaling() {
+        return scaling;
+    }
+
+    /** The attacks of a fight that started with this many players. */
+    public GolemBoss.Attacks attacks(int players) {
+        return attacks.scaled(scaling.damageFactor(players), scaling.intervalFactor(players));
     }
 
     /** Which fight a golem (base mob UUID) belongs to; set by the temple module. */

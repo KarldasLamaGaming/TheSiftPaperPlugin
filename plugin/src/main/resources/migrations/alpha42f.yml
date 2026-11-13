@@ -1,0 +1,13 @@
+# Defaults of alpha.42e that alpha.42f replaces when a server still has them unchanged (ConfigUpdate): the Great Echo
+# Golem gets harder (700 health, +10 % damage) and grows more with every further player. Values an admin changed stay.
+phase4:
+  bosses:
+    great-echo-golem:
+      health:
+        base: 600
+        per-extra-player: 0.5
+        max-players-scaled: 4
+      attacks:
+        melee: {damage: 14, reach: 3.5, cooldown-ticks: 30}
+        slam: {damage: 8, radius: 6, windup-ticks: 20, interval-ticks: 240, interval-ticks-rage: 120}
+        sonic: {damage: 10, windup-ticks: 40, interval-ticks: 200, interval-ticks-rage: 140}

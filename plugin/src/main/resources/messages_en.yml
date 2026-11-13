@@ -96,6 +96,9 @@ enchanter:
 
 # Temples (config phase4.temples.*)
 temple:
+  altar-chosen: "<dark_aqua>You have already chosen your temple: <white><temple></white>. Only there does the guardian wake for you."
+  altar-won: "<dark_aqua>You have already defeated your temple (<white><temple></white>). No other altar answers you."
+  altar-won-here: "<dark_aqua>You have already defeated this temple."
   protected: "<dark_aqua>The temple cannot be torn down while its guardian sleeps."
   defeated: "<dark_aqua>The guardian of this temple is defeated."
   altar-gate-one: "<dark_aqua>The Soul Altar stays silent while <count> brood core is awake."
