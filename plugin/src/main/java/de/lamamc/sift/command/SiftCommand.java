@@ -267,7 +267,7 @@ public final class SiftCommand {
         if (!confirm) {
             reset.request();
             sender.sendRichMessage("<gold>Achtung:</gold> <gray>Das setzt <white>alle Spieler</white> für die Sift auf null: Intro, "
-                    + "Siftit-Sicherungen, Rückkehrpunkte und alle anderen Sift-Daten im Spieler, alle Sift-Advancements, alle "
+                    + "Siftit-Sicherungen, Rückkehrpunkte und alle anderen Sift-Daten im Spieler, die Altar-Bindungen der Tempel, alle Sift-Advancements, alle "
                     + "Sift-Gegenstände in Inventar, Endertruhe und Shulkerkisten darin. Online-Spieler sofort, alle anderen beim "
                     + "nächsten Login. Nicht rückgängig zu machen (außer mit dem Backup von <white>playerdata</white>). Bisherige "
                     + "Resets: <white>" + reset.serverReset() + "</white>.</gray> "
@@ -279,8 +279,14 @@ public final class SiftCommand {
             return 0;
         }
         int online = reset.resetOnline();
+        int altars = 0;
+        if (plugin.temples() != null) {
+            altars = plugin.temples().bindings().clear(); // alpha.42f: the altar bindings go with it
+            plugin.temples().saveBindings();
+        }
         sender.sendRichMessage("<green>Reset " + reset.serverReset() + " ausgelöst:</green> <gray><white>" + online
-                + "</white> Spieler online zurückgesetzt, alle anderen beim nächsten Login (Details im Server-Log).");
+                + "</white> Spieler online zurückgesetzt, alle anderen beim nächsten Login, <white>" + altars
+                + "</white> Altar-Bindungen gelöscht (Details im Server-Log).");
         plugin.getLogger().warning("Sift player reset " + reset.serverReset() + " ordered by " + sender.getName());
         return Command.SINGLE_SUCCESS;
     }

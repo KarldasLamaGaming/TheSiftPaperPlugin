@@ -41,7 +41,7 @@ public final class GreatEchoGolem extends SiftMob {
 
     private final Sheep sheep;
     private final GreatEchoGolemKind golemKind;
-    private final GolemBoss.Attacks attacks;
+    private GolemBoss.Attacks attacks;
     private final DarkSnifferRules wave = new DarkSnifferRules(48, 0, 0, 0, 0, 0, 0, 1.4, 1.0, 6.0, 10.0, 0);
     private boolean landed;
     private Action action = Action.NONE;
@@ -66,6 +66,11 @@ public final class GreatEchoGolem extends SiftMob {
         this.attacks = kind.attacks();
         this.slamCooldown = attacks.slamInterval(Phase.ARMOR) / 2;
         this.sonicCooldown = attacks.sonicInterval(Phase.SOUND) / 2;
+    }
+
+    /** The fight's attacks, scaled with its players (alpha.42f); timers already running keep going. */
+    public void attacks(GolemBoss.Attacks scaled) {
+        this.attacks = scaled;
     }
 
     @Override

@@ -55,6 +55,7 @@ public final class ItemSelfTest {
         messages();
         charoiteWisp();
         templeWalk(world);
+        bossBalance();
         loot(world);
         lines.add(failures == 0 ? "Selbsttest bestanden" : "Selbsttest: " + failures + " Fehler");
         return lines;
@@ -230,6 +231,37 @@ public final class ItemSelfTest {
     }
 
     /** alpha.42d: the Charoite Wisp is registered with its rig, animations, names and is in the zone 3 mix. */
+    /** alpha.42f: the golem's numbers for 1 to 5 players and the texts of the one-altar rule in both languages. */
+    private void bossBalance() {
+        de.lamamc.sift.SiftPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class);
+        var kind = plugin.mobs() == null ? null : plugin.mobs().kind(de.lamamc.sift.mob.boss.GreatEchoGolemKind.ID);
+        if (kind instanceof de.lamamc.sift.mob.boss.GreatEchoGolemKind golem) {
+            StringBuilder s = new StringBuilder();
+            boolean grows = true;
+            double before = 0;
+            for (int players = 1; players <= 5; players++) {
+                double health = golem.settings().maxHealth(players);
+                grows &= health >= before;
+                before = health;
+                s.append(players == 1 ? "" : ", ").append(players).append(": ").append(Math.round(health)).append(" LP ×")
+                        .append(String.format(java.util.Locale.ROOT, "%.2f", golem.scaling().damageFactor(players))).append(" Schaden +")
+                        .append(golem.scaling().extraHelpers(players)).append(" Helfer");
+            }
+            check(grows, "Großer Echo-Golem je Spieler – " + s);
+        }
+        var m = de.lamamc.sift.Messages.current();
+        boolean texts = true;
+        for (String key : List.of("temple.altar-chosen", "temple.altar-won", "temple.altar-won-here")) {
+            for (var lang : de.lamamc.sift.core.lang.Lang.values()) {
+                String raw = m.raw(lang, key);
+                texts &= raw != null && !raw.isBlank() && !raw.equals(key);
+            }
+        }
+        var temples = plugin.temples();
+        check(texts, "Ein Altar je Spieler: " + (temples == null ? "Tempel aus" : (temples.altarOnePerPlayer() ? "an" : "aus") + ", "
+                + temples.bindings().size() + " Bindungen") + "; Texte Deutsch und Englisch " + (texts ? "vorhanden" : "fehlen"));
+    }
+
     /** alpha.42e: the planned temple (configured size) can be walked by a 3 x 3 x 3 body, zone 3 and the arena 4 high. */
     private void templeWalk(World world) {
         de.lamamc.sift.SiftPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class);

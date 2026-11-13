@@ -2,6 +2,7 @@ package de.lamamc.sift.world.temple;
 
 import de.lamamc.sift.block.CustomBlock;
 import de.lamamc.sift.block.CustomBlockRegistry;
+import de.lamamc.sift.core.temple.AltarBindings;
 import de.lamamc.sift.core.temple.BroodSpawner;
 import de.lamamc.sift.core.temple.TempleLayout;
 import de.lamamc.sift.core.temple.TempleSites;
@@ -61,6 +62,8 @@ public final class TempleRegistry implements Listener {
     public static final NamespacedKey KEY = new NamespacedKey("the_sift", "temples");
     public static final NamespacedKey PENDING = new NamespacedKey("the_sift", "temple_pending");
     public static final NamespacedKey SPAWNERS = new NamespacedKey("the_sift", "temple_spawners");
+    /** Who woke which temple's altar (alpha.42f, one altar per player). */
+    public static final NamespacedKey ALTAR_BINDINGS = new NamespacedKey("the_sift", "temple_altar_bindings");
     public static final String BYPASS = "thesift.temple.bypass";
     /**
      * Layout versions: 1 = alpha.41a (41 x 41, one chunk), 2 = alpha.41.1 bastion, 3 = with brood spawners (alpha.42a),
@@ -248,6 +251,7 @@ public final class TempleRegistry implements Listener {
 
     public void start(World sift) {
         this.sift = sift;
+        this.bindings = AltarBindings.parse(sift.getPersistentDataContainer().get(ALTAR_BINDINGS, PersistentDataType.STRING));
         String stored = sift.getPersistentDataContainer().get(KEY, PersistentDataType.STRING);
         if (stored != null) {
             for (String line : stored.split("\n")) {
@@ -390,6 +394,31 @@ public final class TempleRegistry implements Listener {
 
     public List<Temple> all() {
         return new ArrayList<>(temples.values());
+    }
+
+    // ---- one altar per player (alpha.42f) -------------------------------------------------------------------
+
+    private AltarBindings bindings = new AltarBindings();
+    private boolean altarOnePerPlayer = true;
+
+    /** phase4.temples.altar-one-per-player.enabled */
+    public void altarOnePerPlayer(boolean enabled) {
+        this.altarOnePerPlayer = enabled;
+    }
+
+    public boolean altarOnePerPlayer() {
+        return altarOnePerPlayer;
+    }
+
+    /** The bindings in the Sift's world data; temple reset and rebuild leave them alone. */
+    public AltarBindings bindings() {
+        return bindings;
+    }
+
+    public void saveBindings() {
+        if (sift != null) {
+            sift.getPersistentDataContainer().set(ALTAR_BINDINGS, PersistentDataType.STRING, bindings.serialize());
+        }
     }
 
     public Optional<Temple> get(String id) {

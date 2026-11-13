@@ -15,10 +15,40 @@ import org.junit.jupiter.api.Test;
 
 class GolemBossTest {
 
-    private static final Settings S = Settings.defaults();
+    /** The numbers of alpha.42b (round numbers for the fight rules below); the defaults since alpha.42f are tested apart. */
+    private static final Settings S = new Settings(600, 0.5, 4, 0.6, 0.25, 12, 6, 0.05);
     private static final UUID A = new UUID(0, 1);
     private static final UUID B = new UUID(0, 2);
     private static final UUID C = new UUID(0, 3);
+
+    @Test
+    void defaultsSinceAlpha42fScaleHarderWithMorePlayers() {
+        Settings d = Settings.defaults();
+        double[] expected = {700, 1225, 1750, 2275, 2800, 2800, 2800, 2800}; // +75 % each, at most x4 (5 players)
+        for (int players = 1; players <= 8; players++) {
+            assertEquals(expected[players - 1], d.maxHealth(players), 1e-9, players + " players");
+        }
+        GolemBoss.Scaling s = GolemBoss.Scaling.defaults();
+        double[] damage = {1.0, 1.1, 1.2, 1.3, 1.4, 1.4, 1.4, 1.4}; // +10 % each, at most +40 %
+        int[] helpers = {0, 0, 1, 1, 2, 2, 2, 2}; // +1 per two further players, at most +2
+        double[] interval = {1.0, 0.95, 0.9, 0.85, 0.8, 0.8, 0.8, 0.8}; // 5 % more often each, at most 20 %
+        for (int players = 1; players <= 8; players++) {
+            assertEquals(damage[players - 1], s.damageFactor(players), 1e-9, "damage, " + players + " players");
+            assertEquals(helpers[players - 1], s.extraHelpers(players), "helpers, " + players + " players");
+            assertEquals(interval[players - 1], s.intervalFactor(players), 1e-9, "interval, " + players + " players");
+        }
+        assertEquals(1.0, s.damageFactor(0), 1e-9, "nobody counted as one");
+        assertEquals(1.0, GolemBoss.Scaling.none().damageFactor(8), 1e-9);
+        // solo: 10 % more than alpha.42b; three players: 20 % on top and a fifth more often
+        var a = GolemBoss.Attacks.defaults();
+        assertEquals(15.4, a.meleeDamage(), 1e-9);
+        var three = a.scaled(s.damageFactor(3), s.intervalFactor(3));
+        assertEquals(15.4 * 1.2, three.meleeDamage(), 1e-9);
+        assertEquals(11 * 1.2, three.sonicDamage(), 1e-9);
+        assertEquals(216, three.slamInterval(Phase.SOUND));
+        assertEquals(27, three.meleeCooldown());
+        assertEquals(20, three.slamWindup(), "wind-ups stay");
+    }
 
     @Test
     void healthScalesWithPlayersUpToTheCap() {
@@ -110,8 +140,8 @@ class GolemBossTest {
         assertEquals(240, a.slamInterval(Phase.SOUND));
         assertEquals(120, a.slamInterval(Phase.RAGE));
         assertEquals(1.3, a.speed(Phase.RAGE), 1e-9);
-        assertEquals(8, a.slamDamageAt(0), 1e-9);
-        assertEquals(4, a.slamDamageAt(6), 1e-9);
+        assertEquals(8.8, a.slamDamageAt(0), 1e-9);
+        assertEquals(4.4, a.slamDamageAt(6), 1e-9);
         assertEquals(0, a.slamDamageAt(6.1), 1e-9);
     }
 

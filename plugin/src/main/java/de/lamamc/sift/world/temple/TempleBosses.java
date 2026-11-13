@@ -233,6 +233,24 @@ public final class TempleBosses implements Listener {
             player.sendActionBar(msg().get(player, "boss.already-awake"));
             return;
         }
+        // alpha.42f: one altar per player (before the offering is taken)
+        var bindings = registry.bindings();
+        var verdict = bindings.check(player.getUniqueId(), temple.id(), registry.altarOnePerPlayer(),
+                player.hasPermission(TempleRegistry.BYPASS));
+        var bound = bindings.get(player.getUniqueId());
+        switch (verdict) {
+            case OTHER_TEMPLE -> {
+                player.sendActionBar(msg().get(player, "temple.altar-chosen", "temple", bound.temple()));
+                return;
+            }
+            case DEFEATED -> {
+                player.sendActionBar(bound.temple().equals(temple.id()) ? msg().get(player, "temple.altar-won-here")
+                        : msg().get(player, "temple.altar-won", "temple", bound.temple()));
+                return;
+            }
+            default -> {
+            }
+        }
         ItemStack hand = player.getInventory().getItemInMainHand();
         boolean creative = player.getGameMode() == GameMode.CREATIVE;
         if (settings.offeringAmount() > 0 && !creative
@@ -243,6 +261,10 @@ public final class TempleBosses implements Listener {
         if (settings.offeringAmount() > 0 && !creative) {
             hand.setAmount(hand.getAmount() - settings.offeringAmount());
             player.getInventory().setItemInMainHand(hand.getAmount() > 0 ? hand : null);
+        }
+        if (verdict == de.lamamc.sift.core.temple.AltarBindings.Verdict.ALLOW && bindings.woke(player.getUniqueId(), temple.id())) {
+            registry.saveBindings();
+            plugin.getLogger().info("Temple " + temple.id() + ": altar bound to " + player.getName());
         }
         begin(temple, player.getUniqueId(), 0, false);
     }
@@ -414,6 +436,8 @@ public final class TempleBosses implements Listener {
         final UUID offerer;
         final int simulated;
         final boolean practice;
+        /** Players the fight started with (health, damage, helpers and pace, alpha.42f). */
+        int players = 1;
         final Set<UUID> fighters = new LinkedHashSet<>();
         final Map<UUID, Location> lastInside = new HashMap<>();
         /** One boss bar per language (alpha.42c): each viewer sees the one of their client language. */
@@ -524,6 +548,7 @@ public final class TempleBosses implements Listener {
                 return;
             }
             fight = new GolemBoss.Fight(kind.settings(), players);
+            this.players = players;
             Location spawn = landing.clone();
             spawn.setY(registry.keepTop(temple) + 3);
             spawn.setYaw(0); // facing south, towards the altar
@@ -554,6 +579,9 @@ public final class TempleBosses implements Listener {
             if (golem == null) {
                 SiftMob mob = mobs.mob(base);
                 golem = mob instanceof GreatEchoGolem g ? g : null;
+                if (golem != null) {
+                    golem.attacks(kind.attacks(players));
+                }
             }
             if (stage == Stage.DESCENT && ticks > 400) {
                 end(false, "boss.no-landing");
@@ -650,6 +678,13 @@ public final class TempleBosses implements Listener {
             List<UUID> present = fighters().stream().map(Player::getUniqueId).toList();
             Set<UUID> eligible = fight.eligible(present);
             registry.defeat(temple.id());
+            if (offerer != null) {
+                // alpha.42f: whoever woke this temple's altar has used up the place (not the fellow fighters)
+                int used = registry.bindings().defeated(temple.id());
+                if (used > 0) {
+                    registry.saveBindings();
+                }
+            }
             int given = 0;
             java.util.SplittableRandom random = new java.util.SplittableRandom();
             for (UUID id : eligible) {
@@ -853,8 +888,9 @@ public final class TempleBosses implements Listener {
 
         @Override
         public void soulCall(GreatEchoGolem golem) {
-            for (int i = 0; i < settings.helpers(); i++) {
-                double a = Math.PI / 2 + i * Math.PI; // east and west
+            int count = settings.helpers() + kind.scaling().extraHelpers(players);
+            for (int i = 0; i < count; i++) {
+                double a = Math.PI / 2 + i * 2 * Math.PI / count; // east and west, more spread around the arena
                 Location at = new Location(world, bounds.cx() + Math.cos(a) * 9, bounds.floorY(), bounds.cz() + Math.sin(a) * 9);
                 Mob helper = mobs.spawn(helperKind, at, false, m -> m.getPersistentDataContainer().set(SoulHelperKind.BOSS,
                         PersistentDataType.STRING, golem.sheep().getUniqueId().toString()));

@@ -18,7 +18,7 @@ import org.bukkit.command.CommandSender;
 
 /**
  * /sift temple list|info|sites|reset|reset-all|rebuild|inspect|validate|defeat|spawners|boss (phase 4, alpha.41a; rebuild/inspect
- * alpha.41.1, spawners alpha.42a, boss alpha.42b, validate alpha.42e).
+ * alpha.41.1, spawners alpha.42a, boss alpha.42b, validate alpha.42e, altar alpha.42f).
  */
 final class TempleCommand {
 
@@ -57,6 +57,10 @@ final class TempleCommand {
                                                     return Command.SINGLE_SUCCESS;
                                                 })))))))
                 .then(Commands.literal("inspect").then(id().executes(ctx -> withTemple(ctx, this::inspect))))
+                // alpha.42f: one altar per player
+                .then(Commands.literal("altar")
+                        .then(Commands.literal("status").then(playerName().executes(ctx -> altar(ctx, false))))
+                        .then(Commands.literal("reset").then(playerName().executes(ctx -> altar(ctx, true)))))
                 // alpha.42e: can a 3 x 3 x 3 body walk the built temple (from the gate to every spawner, the altar, chests)?
                 .then(Commands.literal("validate").executes(this::validateAll).then(id().executes(ctx -> withTemple(ctx, this::validate))))
                 // test aid: the temple counts as defeated (no fight, no loot)
@@ -97,6 +101,50 @@ final class TempleCommand {
             }
             return builder.buildFuture();
         });
+    }
+
+    private RequiredArgumentBuilder<CommandSourceStack, String> playerName() {
+        return Commands.argument("player", StringArgumentType.word()).suggests((ctx, builder) -> {
+            Bukkit.getOnlinePlayers().forEach(p -> builder.suggest(p.getName()));
+            return builder.buildFuture();
+        });
+    }
+
+    /** /sift temple altar status|reset <player> (alpha.42f); offline players by their cached name (no web lookup). */
+    private int altar(CommandContext<CommandSourceStack> ctx, boolean reset) {
+        CommandSender sender = ctx.getSource().getSender();
+        TempleRegistry temples = plugin.temples();
+        if (temples == null) {
+            sender.sendRichMessage("<red>Tempel sind aus (phase4.temples.enabled) oder die Sift ist nicht geladen.");
+            return 0;
+        }
+        String name = StringArgumentType.getString(ctx, "player");
+        org.bukkit.OfflinePlayer target = Bukkit.getPlayerExact(name);
+        if (target == null) {
+            target = Bukkit.getOfflinePlayerIfCached(name);
+        }
+        if (target == null) {
+            sender.sendRichMessage("<red>Spieler „" + name + "“ ist diesem Server unbekannt.");
+            return 0;
+        }
+        String shown = target.getName() != null ? target.getName() : name;
+        var bindings = temples.bindings();
+        var b = bindings.get(target.getUniqueId());
+        String rule = temples.altarOnePerPlayer() ? "" : " <yellow>(Regel aus: altar-one-per-player.enabled)</yellow>";
+        if (!reset) {
+            sender.sendRichMessage(b == null ? "<gray>" + shown + " ist an keinen Tempel gebunden (darf jeden Altar wecken)." + rule
+                    : "<gray>" + shown + " ist an <white>" + b.temple() + "</white> gebunden"
+                            + (b.defeated() ? ", Boss besiegt: <red>kein Altar mehr</red>" : ": nur dieser Altar") + "." + rule);
+            return Command.SINGLE_SUCCESS;
+        }
+        if (bindings.reset(target.getUniqueId())) {
+            temples.saveBindings();
+            plugin.getLogger().info("Altar binding of " + shown + " (" + b.temple() + ") lifted by " + sender.getName());
+            sender.sendRichMessage("<green>Bindung von " + shown + " an " + b.temple() + " aufgehoben.");
+        } else {
+            sender.sendRichMessage("<gray>" + shown + " war an keinen Tempel gebunden.");
+        }
+        return Command.SINGLE_SUCCESS;
     }
 
     private interface Action {

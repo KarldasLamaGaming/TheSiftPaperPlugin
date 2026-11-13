@@ -1086,6 +1086,11 @@ phase4:
     deferred-per-tick: 1
     # Tempelblöcke lassen sich bis zum Sieg nicht abbauen oder sprengen (Enchanter, Altar und Kammern immer)
     protect-until-defeated: true
+    # Ein Altar je Spieler (ab alpha.42f): Wer den Seelen-Altar zum ersten Mal auslöst, ist an diesen Tempel gebunden.
+    # Nach Tod oder Abbruch darf er denselben Tempel wieder wecken, nach dem Sieg keinen mehr. Mitkämpfer bleiben frei;
+    # Recht thesift.temple.bypass und Admin-Befehle binden niemanden. Befehle: /sift temple altar status|reset <Spieler>.
+    altar-one-per-player:
+      enabled: true
     # Beute der zwei Truhen in der Schatzhalle (Datapack)
     loot-table: "the_sift:chests/temple"
     # Text beim Rechtsklick auf den Seelen-Altar, solange der Boss aus ist (phase4.bosses.great-echo-golem.enabled);
@@ -1188,10 +1193,22 @@ phase4:
         # Countdown nach der Opfergabe; wer dann in der Arena steht, zählt für die Lebenspunkte
         countdown-seconds: 5
       health:
-        # Lebenspunkte: Grundwert, +Anteil je weiterem Spieler beim Start, gezählt bis zu so vielen Spielern
-        base: 600
-        per-extra-player: 0.5
-        max-players-scaled: 4
+        # Lebenspunkte: Grundwert, +Anteil je weiterem Spieler beim Start, gezählt bis zu so vielen Spielern.
+        # Ab alpha.42f: 700, +75 % je weiterem Spieler, bis 5 Spieler (höchstens × 4): 700 / 1225 / 1750 / 2275 / 2800.
+        # Je Spieler bleibt so fast so viel zu tun wie allein (zu zweit 612, zu fünft 560 statt 450 / 375 vorher).
+        base: 700
+        per-extra-player: 0.75
+        max-players-scaled: 5
+      # Mit mehr Spielern beim Start (ab alpha.42f): Schaden +10 % je weiterem Spieler (höchstens +40 %), Seelenhelfer
+      # +1 je zwei weiteren Spielern (höchstens +2), Angriffe (Faust, Stampfer, Schall) je weiterem Spieler 5 % öfter
+      # (höchstens 20 %). Die Vorwarnzeiten bleiben gleich, jeder Angriff ist weiter zu sehen. Alles 0 = keine Skalierung.
+      scaling:
+        damage-per-extra-player: 0.1
+        damage-max-bonus: 0.4
+        helpers-per-extra-player: 0.5
+        max-extra-helpers: 2
+        attack-speedup-per-extra-player: 0.05
+        attack-max-speedup: 0.2
       phases:
         # Panzer bis 60 % (endet erst mit der letzten Platte), Wut unter 25 %
         armor-until: 0.6
@@ -1205,12 +1222,13 @@ phase4:
         helpers: 2
         rearmor-plates: 6
       attacks:
+        # Schaden ab alpha.42f +10 % (vorher 14 / 8 / 10)
         # Faustschlag: Schaden, Reichweite ab Körpermitte (Blöcke), Abklingzeit (Ticks)
-        melee: {damage: 14, reach: 3.5, cooldown-ticks: 30}
+        melee: {damage: 15.4, reach: 3.5, cooldown-ticks: 30}
         # Stampfer: Schaden in der Mitte (am Rand die Hälfte), Umkreis, Vorwarnung (roter Ring), Abstand normal / in Wut
-        slam: {damage: 8, radius: 6, windup-ticks: 20, interval-ticks: 240, interval-ticks-rage: 120}
+        slam: {damage: 8.8, radius: 6, windup-ticks: 20, interval-ticks: 240, interval-ticks-rage: 120}
         # Schallwelle (ab Phase 2): Schaden, Aufladen, Abstand normal / in Wut
-        sonic: {damage: 10, windup-ticks: 40, interval-ticks: 200, interval-ticks-rage: 140}
+        sonic: {damage: 11, windup-ticks: 40, interval-ticks: 200, interval-ticks-rage: 140}
         # Tempo in der Wut (Faktor)
         rage-speed: 1.3
       arena:

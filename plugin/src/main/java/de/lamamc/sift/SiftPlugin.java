@@ -403,7 +403,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
     private void updateConfig() {
         org.bukkit.configuration.file.FileConfiguration config = getConfig();
         // alpha.37: recipes and loot chances; alpha.42c: single German texts become de/en sections
-        for (String version : List.of("alpha37", "alpha42c", "alpha42d")) {
+        for (String version : List.of("alpha37", "alpha42c", "alpha42d", "alpha42f")) {
             java.io.InputStream migration = getResource("migrations/" + version + ".yml");
             if (migration != null && config.getDefaults() != null) {
                 org.bukkit.configuration.file.YamlConfiguration old = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
@@ -562,6 +562,7 @@ public final class SiftPlugin extends JavaPlugin implements Listener {
                 getConfig().getBoolean("phase4.enchanter.temple-enchanter.requires-defeat", true),
                 LocalizedConfig.text(c, "altar-message", "Der Seelen-Altar schweigt noch.", "The Soul Altar is still silent."),
                 c.getInt("deferred-per-tick", 1));
+        temples.altarOnePerPlayer(c.getBoolean("altar-one-per-player.enabled", true));
         getServer().getPluginManager().registerEvents(temples, this);
         temples.start(world);
         startBroodSpawners(c.getConfigurationSection("spawners"));

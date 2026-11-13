@@ -39,7 +39,8 @@ public final class GolemBoss {
         }
 
         public static Settings defaults() {
-            return new Settings(600, 0.5, 4, 0.6, 0.25, 12, 6, 0.05);
+            // alpha.42f: 700 (was 600), +75 % per further player (was +50 %), counted up to 5 players = at most x4 (was x2.5)
+            return new Settings(700, 0.75, 5, 0.6, 0.25, 12, 6, 0.05);
         }
 
         /** Health for this many players in the arena at the start (at least one, scaled up to maxPlayersScaled). */
@@ -53,13 +54,74 @@ public final class GolemBoss {
         }
     }
 
+    /**
+     * How the fight grows with the players in the arena at the start (alpha.42f), besides the health in {@link Settings}:
+     * damage +{@code damagePerExtraPlayer} per further player up to +{@code damageMaxBonus}; souls helpers +
+     * {@code helpersPerExtraPlayer} per further player (rounded down) up to +{@code maxExtraHelpers}; the time between
+     * attacks −{@code speedupPerExtraPlayer} per further player down to −{@code maxSpeedup}.
+     */
+    public record Scaling(double damagePerExtraPlayer, double damageMaxBonus, double helpersPerExtraPlayer, int maxExtraHelpers,
+                          double speedupPerExtraPlayer, double maxSpeedup) {
+
+        public Scaling {
+            damagePerExtraPlayer = Math.max(0, damagePerExtraPlayer);
+            damageMaxBonus = Math.max(0, damageMaxBonus);
+            helpersPerExtraPlayer = Math.max(0, helpersPerExtraPlayer);
+            maxExtraHelpers = Math.max(0, maxExtraHelpers);
+            speedupPerExtraPlayer = Math.max(0, speedupPerExtraPlayer);
+            maxSpeedup = Math.max(0, Math.min(0.9, maxSpeedup));
+        }
+
+        public static Scaling defaults() {
+            return new Scaling(0.1, 0.4, 0.5, 2, 0.05, 0.2);
+        }
+
+        public static Scaling none() {
+            return new Scaling(0, 0, 0, 0, 0, 0);
+        }
+
+        private static int extra(int players) {
+            return Math.max(0, players - 1);
+        }
+
+        /** Factor on all damage of the golem. */
+        public double damageFactor(int players) {
+            return 1 + Math.min(damageMaxBonus, damagePerExtraPlayer * extra(players));
+        }
+
+        /** Soul helpers on top of the configured ones. */
+        public int extraHelpers(int players) {
+            return Math.min(maxExtraHelpers, (int) Math.floor(helpersPerExtraPlayer * extra(players) + 1e-9));
+        }
+
+        /** Factor on the time between attacks (below 1 = more often). */
+        public double intervalFactor(int players) {
+            return 1 - Math.min(maxSpeedup, speedupPerExtraPlayer * extra(players));
+        }
+    }
+
     /** Attack timings and numbers (ticks, hearts × 2, blocks). */
     public record Attacks(double meleeDamage, double meleeReach, int meleeCooldown, double slamDamage, double slamRadius, int slamWindup,
                           int slamInterval, int slamIntervalRage, double sonicDamage, int sonicWindup, int sonicInterval,
                           int sonicIntervalRage, double rageSpeed) {
 
         public static Attacks defaults() {
-            return new Attacks(14, 3.5, 30, 8, 6, 20, 240, 120, 10, 40, 200, 140, 1.3);
+            // alpha.42f: damage +10 % (was 14 / 8 / 10)
+            return new Attacks(15.4, 3.5, 30, 8.8, 6, 20, 240, 120, 11, 40, 200, 140, 1.3);
+        }
+
+        /**
+         * The attacks of one fight (alpha.42f): damage times {@code damage}, the time between attacks (fist, stomp, sound
+         * wave) times {@code interval}; wind-ups stay, so every attack can still be seen coming.
+         */
+        public Attacks scaled(double damage, double interval) {
+            return new Attacks(meleeDamage * damage, meleeReach, ticks(meleeCooldown, interval), slamDamage * damage, slamRadius,
+                    slamWindup, ticks(slamInterval, interval), ticks(slamIntervalRage, interval), sonicDamage * damage, sonicWindup,
+                    ticks(sonicInterval, interval), ticks(sonicIntervalRage, interval), rageSpeed);
+        }
+
+        private static int ticks(int t, double factor) {
+            return Math.max(1, (int) Math.round(t * factor));
         }
 
         /** Ticks between stomps in this phase. */

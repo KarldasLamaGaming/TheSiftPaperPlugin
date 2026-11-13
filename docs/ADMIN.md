@@ -1252,6 +1252,16 @@ Abschalten: `enabled: false` (der Altar meldet dann `altar-message`), Werte sieh
   (Altar-Gate), mit `start.amount` (8) Seelenblöcken in der Haupthand; sie werden verbraucht (Kreativmodus: ohne).
   Danach 5 s Countdown; wer dann in der Arena steht, bestimmt die Lebenspunkte. Der Golem fällt durch den Schacht und
   landet 6 Blöcke nördlich vor dem Altar. Bossleiste für alle Kämpfer.
+- **Ein Altar je Spieler** (ab alpha.42f, `phase4.temples.altar-one-per-player.enabled: true`): Wer einen Altar zum ersten
+  Mal auslöst (die Opfergabe gibt), ist an diesen Tempel gebunden. Nach Tod oder Abbruch darf er denselben Tempel wieder
+  wecken; ist dessen Boss besiegt, ist sein Platz verbraucht und **kein** Altar antwortet ihm mehr. Ein anderer Altar
+  reagiert nicht (Actionbar „Du hast deinen Tempel schon gewählt: temple-N“ bzw. „… schon besiegt“), die Opfergabe bleibt.
+  Mitkämpfer werden nie gebunden und bekommen Beute wie bisher. Gebunden wird nur über den Altar: das Recht
+  `thesift.temple.bypass` und die Admin-Befehle (`boss start/stop/damage/loot`, `defeat`) binden niemanden. Gespeichert in
+  den Weltdaten der Sift (`the_sift:temple_altar_bindings`), damit Status und Aufheben auch für Offline-Spieler gehen;
+  ein Welt-Reset der Sift leert sie mit, `/sift admin reset-players` ebenso. `/sift temple rebuild` und `reset` lassen
+  sie stehen. Befehle: `/sift temple altar status <Spieler>`, `/sift temple altar reset <Spieler>` (Offline-Spieler über
+  den Namen, den der Server kennt).
 - **Arena:** Zylinder Radius 11,5 um den Altar, vom Boden bis `arena.height` (10) Blöcke hoch. Wer darin steht (Überleben
   oder Abenteuer), kämpft; wer später hineingeht, kämpft mit. **Nur Treffer aus der Arena zählen** (kein Beschuss vom
   Kern oder aus dem Ringgang; Actionbar-Hinweis). Fall-, Feuer- und Mob-Schaden wirken nicht.
@@ -1259,20 +1269,28 @@ Abschalten: `enabled: false` (der Altar meldet dann `altar-message`), Werte sieh
   die Kämpfer in der Arena: Wer hinausläuft oder zu hoch klettert, wird an seinen letzten Platz in der Arena gesetzt;
   Enderperlen und Chorusfrüchte hinaus gehen nicht. Hinein geht immer. Frei wird man durch Sieg, Abbruch, Tod oder ein
   Teleport eines Admins (`/tp`, `/sift tp`: dann zählt man nicht mehr als Kämpfer).
-- **Lebenspunkte:** `health.base` (600) +50 % je weiterem Spieler, gezählt bis 4 (1500). Eigener Lebenspool des Kampfes;
-  der Schaden der Spieler zählt wie angezeigt (Schärfe, Stärke, Kritisch eingerechnet).
+- **Lebenspunkte:** `health.base` (700, bis alpha.42e 600) +75 % je weiterem Spieler, gezählt bis 5: 700 / 1225 / 1750 /
+  2275 / 2800 (höchstens × 4). Eigener Lebenspool des Kampfes; der Schaden der Spieler zählt wie angezeigt (Schärfe,
+  Stärke, Kritisch eingerechnet).
+- **Mehr Spieler** (ab alpha.42f, `scaling`): Schaden +10 % je weiterem Spieler beim Start (höchstens +40 %), Seelenhelfer
+  +1 je zwei weiteren Spielern (höchstens +2), Faust, Stampfer und Schall je weiterem Spieler 5 % öfter (höchstens 20 %);
+  die Vorwarnzeiten bleiben. Gezählt wird, wer beim Ende des Countdowns in der Arena steht. Begründung: Je Spieler bleibt
+  fast so viel zu tun wie allein (zu zweit 612 Leben je Spieler, zu fünft 560; vorher 450 bzw. 375), und mehr Spieler
+  verteilen den Schaden des Golems, deshalb steigt er mit. Allein: 700 Leben und +10 % Schaden, fordernd, aber machbar.
+  Bestehende Server: Die Migration `alpha42f` ersetzt nur unveränderte alte Standardwerte.
 - **Phasen:**
   1. **Panzer** (100 → 60 %): Jeder Nahkampftreffer bricht eine Platte ab (je 1/12 von 40 % der Leben) und gibt dem
      Spieler einen Seelenblock (`plates-drop`). Pfeile und Dreizacke prallen ab. Die Phase endet mit der letzten Platte.
-  2. **Schall** (60 → 25 %): normaler Schaden, auch Fernkampf. Schallwelle (`attacks.sonic`, 10 Schaden, ignoriert
+  2. **Schall** (60 → 25 %): normaler Schaden, auch Fernkampf. Schallwelle (`attacks.sonic`, 11 Schaden, ignoriert
      Rüstung wie die des Wärters). Einmal ruft er 2 **Seelenhelfer** (`helpers`): kleine Echo Golems holen Seelen aus dem
      Ring im Arenaboden und bringen sie ihm; jede wird eine Platte (höchstens `rearmor-plates` = 6), die einen
      Nahkampftreffer schluckt und Geschosse abprallen lässt. Ein Treffer lässt einen Helfer die Seele fallen (kein Item),
      34 Leben, keine Beute. Nach jeder gebrachten Seele ruht ein Helfer `helper.rest-ticks` (60) Ticks; Tempo
      `helper.movement-speed` (0,2).
   3. **Wut** (unter 25 %): +30 % Tempo, rötlicher Ton, Platten und Helfer weg, Stampfer und Schall öfter.
-- **Angriffe:** Faustschlag 14 (Reichweite 3,5 ab Körpermitte), Stampfer alle 12 s (Wut 6 s) mit 1 s Vorwarnung durch
-  einen roten Ring: Umkreis 6, 8 Schaden in der Mitte, 4 am Rand, schleudert hoch (wer springt, entgeht ihm).
+- **Angriffe** (allein; ab alpha.42f +10 %): Faustschlag 15,4 (Reichweite 3,5 ab Körpermitte), Stampfer alle 12 s (Wut 6 s)
+  mit 1 s Vorwarnung durch einen roten Ring: Umkreis 6, 8,8 Schaden in der Mitte, 4,4 am Rand, schleudert hoch (wer
+  springt, entgeht ihm). Schallwelle 11.
 - **Sieg:** Tempel BESIEGT (Spawner aus, Enchanter frei, Kompass und Zettel zeigen ihn nicht mehr). Berechtigt ist,
   wer mindestens `loot.min-damage-share` (5 %) der Lebenspunkte abgezogen hat **oder** beim Tod in der Arena steht.
   Jeder Berechtigte bekommt eigene Beute ins Inventar (voll: vor die Füße, nur er kann sie aufheben) und eine
@@ -1312,6 +1330,9 @@ Abschalten: `enabled: false` (der Altar meldet dann `altar-message`), Werte sieh
 | `/sift temple reset <id>`, `reset-all [confirm]` | Tempel wieder auf „schläft“ (der Boss kann erneut besiegt werden) |
 | `/sift temple rebuild <id>` | Tempel an seinem Platz mit dem aktuellen Bauplan neu bauen (alter Bau wird entfernt) |
 | `/sift temple inspect <id>` | Version, Bodenhöhe, wartende Teile, schwebende Säulen und fremde Blöcke über dem Hof |
+| `/sift temple validate [id]` | Begehbarkeit des gebauten Tempels für 3 × 3 × 3 (ab alpha.42e), ohne Id der nächste |
+| `/sift temple altar status <spieler>` | An welchen Tempel ein Spieler gebunden ist und ob sein Boss besiegt ist (ab alpha.42f) |
+| `/sift temple altar reset <spieler>` | Hebt die Altar-Bindung eines Spielers auf (ab alpha.42f) |
 | `/sift portal schedule` | Gestaffelte Freischaltung: Tag 0, je Gruppe Tag, Datum, Zustand, Override |
 | `/sift portal schedule set-open <datum\|now\|clear>` | Tag 0 von Hand setzen (z. B. `2026-12-01T18:00`), `clear` = wieder aus `access.*` bzw. der ersten Öffnung |
 | `/sift portal schedule shift <tage>` | Tag 0 verschieben (negativ = alle Gruppen früher, positiv = später) |
