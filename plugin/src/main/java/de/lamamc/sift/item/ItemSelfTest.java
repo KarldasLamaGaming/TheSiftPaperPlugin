@@ -56,6 +56,7 @@ public final class ItemSelfTest {
         charoiteWisp();
         templeWalk(world);
         bossBalance();
+        blockStates();
         loot(world);
         lines.add(failures == 0 ? "Selbsttest bestanden" : "Selbsttest: " + failures + " Fehler");
         return lines;
@@ -231,6 +232,50 @@ public final class ItemSelfTest {
     }
 
     /** alpha.42d: the Charoite Wisp is registered with its rig, animations, names and is in the zone 3 mix. */
+    /**
+     * alpha.42g: every Sift block item carries the block state component with exactly its registered state, so the client
+     * predicts the Sift block when placing it (no vanilla mushroom block flashing up).
+     */
+    private void blockStates() {
+        int states = 0;
+        int ok = 0;
+        int standIns = 0;
+        List<String> wrong = new java.util.ArrayList<>();
+        List<String> otherKind = new java.util.ArrayList<>();
+        for (String id : items.ids()) {
+            var def = items.registry().get(id);
+            if (def == null || def.category() == null) {
+                continue;
+            }
+            org.bukkit.block.data.BlockData state = items.placedState(id);
+            if (state == null) {
+                if (def.kind() == ItemKind.PLAIN && org.bukkit.Material.matchMaterial(def.baseItem()) != null
+                        && org.bukkit.Material.matchMaterial(def.baseItem()).isBlock()) {
+                    standIns++; // a vanilla block standing in (stairs, slabs, walls ...): the vanilla item places it
+                }
+                continue;
+            }
+            ItemStack stack = items.create(id, 1);
+            if (stack.getType() != state.getPlacementMaterial()) {
+                // ichor glass: chorus needs end stone below, so its item places glass; the client predicts glass
+                otherKind.add(id + " (" + stack.getType().getKey().getKey() + ")");
+                continue;
+            }
+            states++;
+            var data = stack.getData(io.papermc.paper.datacomponent.DataComponentTypes.BLOCK_DATA);
+            String placed = data == null ? null : data.createBlockData(state.getMaterial().asBlockType()).getAsString();
+            if (state.getAsString().equals(placed) && stack.getType() == state.getPlacementMaterial()) {
+                ok++;
+            } else if (wrong.size() < 5) {
+                wrong.add(id + " (" + (placed == null ? "ohne Komponente" : placed) + ")");
+            }
+        }
+        check(ok == states && states > 0, "Block-Zustand im Item (Vorhersage beim Platzieren): " + ok + " von " + states
+                + " Sift-Blöcken" + (wrong.isEmpty() ? "" : ", falsch: " + String.join(", ", wrong)) + "; " + standIns
+                + " Vanilla-Ersatzblöcke ohne eigenen Zustand"
+                + (otherKind.isEmpty() ? "" : "; mit anderem Item gesetzt (Vorhersage dieses Blocks): " + String.join(", ", otherKind)));
+    }
+
     /** alpha.42f: the golem's numbers for 1 to 5 players and the texts of the one-altar rule in both languages. */
     private void bossBalance() {
         de.lamamc.sift.SiftPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class);
