@@ -757,16 +757,7 @@ public final class RiftManager implements Listener {
         }
         String id = SiftItems.idOf(event.getItem());
         Player player = event.getPlayer();
-        if ("music_disc_rift".equals(id) && event.getClickedBlock().getType() == Material.JUKEBOX
-                && event.getClickedBlock().getState() instanceof Jukebox box && !box.hasRecord()) {
-            Location at = event.getClickedBlock().getLocation();
-            boolean near = rifts.stream().anyMatch(r -> !r.closing() && r.world.equals(at.getWorld())
-                    && r.location().distanceSquared(at) <= 16 * 16);
-            if (near) {
-                advancements.award(player, "the_sift/rift_resonance");
-            }
-            return;
-        }
+        // "Rift Resonance" (since alpha.42h): a datapack criterion, the disc in a jukebox anywhere in the Sift, rifts or not
         if (!"sift_rift".equals(id)) {
             return;
         }

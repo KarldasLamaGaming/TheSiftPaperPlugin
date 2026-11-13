@@ -1276,6 +1276,23 @@ Speichen und Ring zu schmal für die Diagonale, Turmtüren 1–2 breit, Spawner 
 - [ ] **Optik:** Die offenen Treppenschächte im Hof mit Geländer, die Türen der Pfeilerkammern, die Spawner unter den
       Kammersäulen sehen stimmig aus.
 
+### Advancements ohne Risse (ab alpha.42h)
+
+**Smoke-Test:** Datapack lädt ohne Fehler (das neue Kriterium nutzt das 26.x-Format `type` / `all_of`). `sift debug
+selftest`: „Advancements erreichbar: 21 von 23“, Hinweis „planting_the_dark (Anbau der Sculkblume fehlt noch);
+rifter (Funktion aus)“, bestanden.
+
+**Nur mit Spieler** (Rift-Schallplatte aus einer Truhe eines verlassenen Portals oder `/sift give <name> music_disc_rift`,
+Plattenspieler):
+- [ ] **Riss-Resonanz:** Schallplatte in der Sift in einen Plattenspieler legen → Advancement „Riss-Resonanz“ kommt; der
+      Text lautet auf Englisch „Play the Rift Music Disc in a jukebox in The Sift“, auf Deutsch „Spiele die
+      Rift-Schallplatte in einem Plattenspieler in der Sift“. In der Oberwelt: kein Advancement.
+- [ ] In der Advancement-Ansicht steht „Riss-Resonanz“ unter der Wurzel „The Sift“ und ist sichtbar, ohne dass
+      „Rissgänger“ erreicht ist.
+- [ ] **Besserer Verzauberer:** am Sculk Enchanter eine Verzauberung mit Charoit anheben.
+- [ ] **Nahrungskette:** ein gezähmter Blub besiegt einen Dunklen Schnüffler; der Besitzer bekommt es.
+- [ ] **Lied der Vergangenheit:** Ziegenhorn im Zentrum einer Antiken Stadt blasen (nach „Gefallene Zivilisation“).
+
 ### Boss-Balance und ein Altar je Spieler (ab alpha.42f)
 
 **Unit-Tests:** Lebenspunkte für 1 bis 8 Spieler (700 / 1225 / 1750 / 2275 / 2800, ab 5 gedeckelt), Schaden ×1,0 bis ×1,4,

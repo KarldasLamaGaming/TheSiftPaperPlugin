@@ -307,6 +307,11 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   - Hofboden, Treppen, Stufen, Mauern, Gitter, Ketten und Laternen sind Vanilla-Tiefenschiefer bzw. Vanilla-Blöcke: Auf
     Siftschiefer (Pilzstiel-Zustände) würden die Pflanzen der Sift-Weltgenerierung wachsen.
   - In den Chunks eines Tempels setzt der Sift-Populator keine Bäume, Pflanzen, Sculk-Flecken oder Quellen.
+- **Advancements** (alpha.42h):
+  - „Riss-Resonanz“: Die Rift-Schallplatte zählt in jedem Plattenspieler der Sift, nicht nur in 16 Blöcken um einen Riss.
+    Die Risse sind auf Lama Kingdom aus.
+  - „Rissgänger“ bleibt ohne Risse unerreichbar (Entscheidung offen).
+  - „Das Dunkel pflanzen“ bleibt unerreichbar, solange der Anbau der Sculkblume fehlt.
 - **Ein Altar je Spieler** (alpha.42f): Jeder Spieler darf den Großen Echo-Golem nur an einem Tempel wecken (Bindung an
   den Auslöser, Mitkämpfer frei, abschaltbar). Eigene Regel, nicht im Original. Gespeichert in den Weltdaten der Sift
   statt im Spieler, damit Admins sie auch für Offline-Spieler sehen und aufheben können.

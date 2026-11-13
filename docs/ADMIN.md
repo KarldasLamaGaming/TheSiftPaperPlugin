@@ -259,10 +259,20 @@ ihrer Sift-Id erkannt (auch umbenannt); Vanilla-Zutaten nur als echte Vanilla-It
 
 - Truhen-Loot verlassener Portale (`the_sift:chests/abandoned_portal`) kommt mit dem Datapack; das Plugin
   ersetzt die Sift-Items beim Erzeugen der Beute durch die echten Items.
-- Die 22 Advancements des Originals sind im Datapack. Automatisch: Sift betreten, Biome erkunden, Siftit-
-  Rüstung, Sculkblumensamen, antike Stätte. Vom Plugin vergeben: Charoiterz und Siftiterz abbauen, Holz in
-  der Sift anzünden. Die übrigen (Mobs, Riss, Ichor, Charoit-Verzaubern; Siftit-Erhalt seit alpha.23) kommen mit ihren
-  Funktionen.
+- Die 22 Advancements des Originals sind im Datapack, dazu „Stille im Tempel“ (Boss).
+  - **Datapack:** Sift betreten, Biome erkunden, Siftit-Rüstung, Sculkblumensamen, antike Stätte, Ichor-Eimer,
+    „Riss-Resonanz“.
+  - **Vom Plugin vergeben**, solange die Funktion an ist: Charoiterz und Siftiterz abbauen, Holz in der Sift anzünden,
+    Mobs (Blub zähmen, Singer-Tausch, Echo Golem), Ichor-Schneeball am Wärter, Siftit-Erhalt, Boss.
+  - **Ab alpha.42h:** „Besserer Verzauberer“ (am Sculk Enchanter mit Charoit verzaubern), „Nahrungskette“ (eigener Blub
+    besiegt einen Dunklen Schnüffler) und „Lied der Vergangenheit“ (Ziegenhorn im Zentrum einer Antiken Stadt, 24 Blöcke
+    um ihr Portal). Diese drei waren im Datapack, wurden aber nie vergeben.
+  - **„Riss-Resonanz“ (ab alpha.42h):** Rift-Schallplatte in einem Plattenspieler irgendwo in der Sift, ohne Riss in der
+    Nähe; hängt jetzt unter der Wurzel statt unter „Rissgänger“. Die Schallplatte gibt es in den Truhen verlassener
+    Portale.
+  - **Nicht erreichbar mit der Standard-Config** (der Selbsttest nennt sie als Hinweis):
+    - „Rissgänger“ braucht `rifts.enabled: true`.
+    - „Das Dunkel pflanzen“ (Sculkblume auf Sculk pflanzen) braucht den Anbau der Sculkblume, den es noch nicht gibt.
 
 ## Weltgenerierung
 

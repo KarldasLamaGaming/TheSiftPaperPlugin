@@ -123,7 +123,63 @@ public final class ItemDataImporter {
         if (advancement.get("criteria") instanceof JsonObject criteria) {
             criteria.entrySet().forEach(e -> rewriteItemPredicates(path, e.getValue()));
         }
+        if (path.endsWith("the_sift/rift_resonance.json")) {
+            riftResonanceInTheSift(advancement);
+        }
         return advancement;
+    }
+
+    /** New English description of "Rift Resonance" (alpha.42h); German in the pack overlay. */
+    static final String RIFT_RESONANCE_KEY = "advancement.the_sift.rift_resonance.description_sift";
+    static final String RIFT_RESONANCE_TEXT = "Play the Rift Music Disc in a jukebox in The Sift";
+
+    /**
+     * alpha.42h: in the original "Rift Resonance" needs a rift within 16 blocks of the jukebox. Rifts are off on Lama Kingdom
+     * (rifts.enabled: false), so the disc counts in a jukebox anywhere in the Sift: a plain datapack criterion, no rift and
+     * no plugin code. It hangs under the root instead of "Rifter", so it stays visible without rifts. The title stays.
+     */
+    private static void riftResonanceInTheSift(JsonObject advancement) {
+        advancement.addProperty("parent", "the_sift:the_sift/root");
+        if (advancement.get("display") instanceof JsonObject display) {
+            JsonObject description = new JsonObject();
+            description.addProperty("translate", RIFT_RESONANCE_KEY);
+            description.addProperty("fallback", RIFT_RESONANCE_TEXT);
+            display.add("description", description);
+        }
+        JsonObject block = new JsonObject();
+        block.addProperty("blocks", "minecraft:jukebox");
+        JsonObject where = new JsonObject();
+        where.addProperty("dimension", "the_sift:the_sift");
+        where.add("block", block);
+        JsonObject inTheSift = new JsonObject();
+        inTheSift.addProperty("type", "minecraft:location_check");
+        inTheSift.add("predicate", where);
+        JsonObject predicates = new JsonObject();
+        predicates.addProperty("minecraft:custom_data", customDataSnbt(NS + "music_disc_rift"));
+        JsonObject tool = new JsonObject();
+        tool.add("predicates", predicates);
+        JsonObject disc = new JsonObject();
+        disc.addProperty("type", "minecraft:match_tool");
+        disc.add("predicate", tool);
+        JsonArray terms = new JsonArray();
+        terms.add(inTheSift);
+        terms.add(disc);
+        JsonObject location = new JsonObject(); // 26.x: one condition object, several via all_of
+        location.addProperty("type", "minecraft:all_of");
+        location.add("terms", terms);
+        JsonObject conditions = new JsonObject();
+        conditions.add("location", location);
+        JsonObject criterion = new JsonObject();
+        criterion.addProperty("trigger", "minecraft:item_used_on_block");
+        criterion.add("conditions", conditions);
+        JsonObject criteria = new JsonObject();
+        criteria.add("play_rift_disc", criterion);
+        advancement.add("criteria", criteria);
+        JsonArray requirement = new JsonArray();
+        requirement.add("play_rift_disc");
+        JsonArray requirements = new JsonArray();
+        requirements.add(requirement);
+        advancement.add("requirements", requirements);
     }
 
     /** Item predicates {"items": "the_sift:x"} anywhere in a criterion. */

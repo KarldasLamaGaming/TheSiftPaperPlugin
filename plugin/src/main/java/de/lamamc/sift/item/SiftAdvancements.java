@@ -37,6 +37,33 @@ public final class SiftAdvancements implements Listener {
         this.logger = logger;
     }
 
+    /** Awards {@code the_sift:<path>} without the registry (menus, mob code); false if the advancement is missing. */
+    public static boolean grant(Player player, String path) {
+        Advancement advancement = Bukkit.getAdvancement(new NamespacedKey("the_sift", path));
+        if (advancement == null) {
+            return false;
+        }
+        var progress = player.getAdvancementProgress(advancement);
+        progress.getRemainingCriteria().forEach(progress::awardCriteria);
+        return true;
+    }
+
+    /**
+     * "Food Chain" (alpha.42h; in the datapack since the import, but never awarded): a tamed Blub kills a Dark Sniffer;
+     * its owner gets it, if online.
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onSnifferDeath(org.bukkit.event.entity.EntityDeathEvent event) {
+        if (!"dark_sniffer".equals(de.lamamc.sift.mob.MobManager.kindOf(event.getEntity()))
+                || !(event.getEntity().getLastDamageCause() instanceof org.bukkit.event.entity.EntityDamageByEntityEvent hit)
+                || !"blub".equals(de.lamamc.sift.mob.MobManager.kindOf(hit.getDamager()))
+                || !(hit.getDamager() instanceof org.bukkit.entity.Tameable pet) || !pet.isTamed()
+                || !(pet.getOwner() instanceof Player owner) || !owner.isOnline()) {
+            return;
+        }
+        award(owner, "the_sift/food_chain");
+    }
+
     /** Awards {@code the_sift:<path>}; unknown advancements are logged once per call. */
     public void award(Player player, String path) {
         Advancement advancement = Bukkit.getAdvancement(new NamespacedKey("the_sift", path));
