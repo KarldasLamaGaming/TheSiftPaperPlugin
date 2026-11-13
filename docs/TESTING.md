@@ -1264,6 +1264,43 @@ Speichen und Ring zu schmal für die Diagonale, Turmtüren 1–2 breit, Spawner 
 - [ ] **Optik:** Die offenen Treppenschächte im Hof mit Geländer, die Türen der Pfeilerkammern, die Spawner unter den
       Kammersäulen sehen stimmig aus.
 
+### Boss-Balance und ein Altar je Spieler (ab alpha.42f)
+
+**Unit-Tests:** Lebenspunkte für 1 bis 8 Spieler (700 / 1225 / 1750 / 2275 / 2800, ab 5 gedeckelt), Schaden ×1,0 bis ×1,4,
+Helfer +0 / +0 / +1 / +1 / +2, Angriffsabstand ×1,0 bis ×0,8, Vorwarnzeiten unverändert. Bindung: erstes Auslösen
+bindet, nach Abbruch derselbe Tempel wieder, anderer Tempel gesperrt, nach dem Sieg alles gesperrt, Mitkämpfer frei,
+Bypass und Schalter binden niemanden, Admin-Reset und Spieler-Reset heben auf, übersteht den Neustart. Texte: Schlüssel
+und Platzhalter in `messages.yml` und `messages_en.yml` gleich (MessagesLangTest).
+
+**Smoke-Test** (ohne Spieler):
+- Alte Config mit 600 / 0,5 / 4 und 14 / 8 / 10: „old defaults replaced … (alpha42f)“, danach 700 / 0,75 / 5 und
+  15,4 / 8,8 / 11; neuer Abschnitt `scaling` und `phase4.temples.altar-one-per-player` ergänzt.
+- `sift debug selftest`: „Großer Echo-Golem je Spieler – 1: 700 LP ×1.00 Schaden +0 Helfer … 5: 2800 LP ×1.40 Schaden +2
+  Helfer“, „Ein Altar je Spieler: an, 0 Bindungen; Texte Deutsch und Englisch vorhanden“, bestanden.
+- `boss start temple-1 3` → „falls (3 players, 1750 health)“; `boss stop` → abgebrochen, keine Bindung (Admin-Befehl).
+- `temple altar status <unbekannt>` → „ist diesem Server unbekannt“ (kein Web-Lookup).
+
+**Nur mit Spieler** (zwei Spieler A und B, zwei schlafende Tempel mit erschöpften Spawnern: `/sift temple spawners clear <id>`,
+je 8 Seelenblöcke):
+```
+/sift temple altar status <A>
+/sift temple altar reset <A>
+/sift temple spawners clear temple-1
+/sift temple spawners clear temple-2
+```
+- [ ] **Bindung:** A löst den Altar von temple-1 aus → `altar status A`: an temple-1 gebunden. B kämpft mit, löst nicht aus →
+      `altar status B`: nicht gebunden.
+- [ ] **Abbruch:** A stirbt bzw. alle verlassen die Arena (30 s) → Abbruch; A darf temple-1 erneut auslösen.
+- [ ] **Zweiter Tempel gesperrt:** A am Altar von temple-2: keine Reaktion, Actionbar „Du hast deinen Tempel schon gewählt:
+      temple-1“ (englischer Client: „You have already chosen your temple: temple-1“), Seelenblöcke bleiben in der Hand.
+- [ ] **Nach dem Sieg:** temple-1 besiegen → A am Altar von temple-2: „Du hast deinen Tempel schon besiegt (temple-1)“;
+      B (Mitkämpfer) bekam Beute und kann temple-2 auslösen.
+- [ ] **Bypass:** Mit `thesift.temple.bypass` löst A temple-2 aus, `altar status A` bleibt bei temple-1.
+- [ ] **Reset:** `altar reset A` → A darf wieder einen Tempel wählen.
+- [ ] **Skalierung allein:** fordernd, aber machbar (700 Leben, Faust 15,4).
+- [ ] **Zu zweit und zu dritt:** spürbar zäher (1225 / 1750 Leben), mehr Schaden, Angriffe etwas öfter; zu dritt 3
+      Seelenhelfer in der Schallphase.
+
 ### Großer Echo-Golem (ab alpha.42b.1)
 
 **Smoke-Test** (ohne Spieler, temple-1, mit `/sift temple boss start temple-1 1` und `boss damage`):

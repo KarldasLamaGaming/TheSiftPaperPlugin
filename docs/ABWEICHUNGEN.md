@@ -292,6 +292,9 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   - Hofboden, Treppen, Stufen, Mauern, Gitter, Ketten und Laternen sind Vanilla-Tiefenschiefer bzw. Vanilla-Blöcke: Auf
     Siftschiefer (Pilzstiel-Zustände) würden die Pflanzen der Sift-Weltgenerierung wachsen.
   - In den Chunks eines Tempels setzt der Sift-Populator keine Bäume, Pflanzen, Sculk-Flecken oder Quellen.
+- **Ein Altar je Spieler** (alpha.42f): Jeder Spieler darf den Großen Echo-Golem nur an einem Tempel wecken (Bindung an
+  den Auslöser, Mitkämpfer frei, abschaltbar). Eigene Regel, nicht im Original. Gespeichert in den Weltdaten der Sift
+  statt im Spieler, damit Admins sie auch für Offline-Spieler sehen und aufheben können.
 - **Tempel-Wege** (alpha.42e, Layout-Version 4): Alle Wege, Räume und Spawner-Zonen sind für Mobs bis 3 × 3 × 3 gebaut
   (Zone 3 4 hoch), weil die Sift-Mobs breiter als Spieler sind (Dunkler Schnüffler 1,9 × 1,9) und in 1 breiten Gängen
   erstickten. Die Hitbox der Mobs bleibt, wie sie ist (keine Verkleinerung per Config). Weniger Treppen auf den Wehrgang
