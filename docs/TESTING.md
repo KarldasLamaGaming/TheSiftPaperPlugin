@@ -98,6 +98,18 @@ deutsch (`language: de`).
 
 ## Blöcke
 
+**Platzieren ohne Aufblitzen (ab alpha.42g):**
+- **Smoke-Test:** `sift debug selftest` meldet „Block-Zustand im Item (Vorhersage beim Platzieren): 40 von 40
+  Sift-Blöcken; … mit anderem Item gesetzt: ichor_glass (glass)“ – bestanden.
+- **Nur mit Spieler** (frisch geholte Items, `/sift give`):
+  - [ ] Je ein Block aus jeder Familie mehrmals abbauen und sofort wieder setzen, auch an Kanten und neben gleichen
+        Blöcken: Siftschiefer, ein Erz, Seelenblock, Siftit-Block, Charoit-Block, Sculk Enchanter, eine Pflanze (Lotus)
+        und Weidenbretter. Es blitzt kein Vanilla-Pilzblock und kein Faden mehr auf.
+  - [ ] Dasselbe mit etwas Ping (z. B. vom anderen Ende der Welt oder mit Clumsy).
+  - [ ] Weidenstamm liegend setzen: höchstens ein kurzer Wechsel der Achse, keine Pilz-Optik.
+  - [ ] Ichorglas: kurz klares Glas, dann Ichorglas (bekannt, siehe ABWEICHUNGEN).
+  - [ ] Ein Block aus einer Truhe verlassener Portale verhält sich genauso.
+
 **Abbauzeit mit Äxten (Fix alpha.35).** Vorher bauten Eisen-, Diamant-, Netherit- und Goldäxte jeden Sift-Block auf
 einem Pilzblock-Ersatz sofort ab (Siftschiefer, Erze, Sculk, Weidenholz …). In der Sift, Überlebensmodus:
 ```

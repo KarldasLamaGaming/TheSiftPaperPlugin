@@ -57,6 +57,21 @@ Pilzblöcken). Alle Sift-Items, seit alpha.6 auch die Block-Items (siehe `docs/A
 sich nicht wie ihre Basis. Im Original gibt es diese Frage nicht,
 weil die Items eigene Item-Typen sind.
 
+**Platzieren ohne Aufblitzen (alpha.42g):**
+- **Bisher:** Der Client sagt beim Setzen den Block des Basis-Items in dessen Standardzustand voraus, also einen
+  Vanilla-Pilzblock mit allen Seiten. Bis der Server den Sift-Zustand schickte, blitzte er kurz auf.
+- **Jetzt:** Jedes Sift-Block-Item trägt die Komponente `minecraft:block_state` mit genau den Eigenschaften seines
+  Sift-Zustands. Damit sagt der Client gleich den richtigen Block voraus.
+  - Die Paper-API kann diese Komponente in 26.3 noch nicht bauen (`BlockItemDataProperties` ohne Setter). Das Plugin
+    lässt sie deshalb vom Item-Parser des Servers erzeugen, wie bei `/give` – kein NMS.
+  - Alle Wege, auf denen ein Sift-Block-Item entsteht, laufen über dieselbe Stelle: Drops, Crafting, Truhen-Loot,
+    `/sift give`, das Item-Menü und die Boss-Beute.
+- **Ausnahmen:**
+  - **Ichorglas:** Chorus braucht Endstein, deshalb setzt das Item Glas. Es blitzt kurz als Glas auf, nicht als Pilz.
+  - **Weidenstämme:** Sie sagen die stehende Achse voraus; liegend gesetzt dreht der Server sie im selben Tick.
+  - **Ältere Items:** Items von vor alpha.42g haben die Komponente noch nicht. Der Spieler-Reset vor beta.1 entfernt
+    sie ohnehin.
+
 ## Weidenholz brennt (seit alpha.5)
 
 Im Original stehen die Weidenblöcke im `FlammableBlockRegistry` und in den Vanilla-Tags `#logs_that_burn`,
