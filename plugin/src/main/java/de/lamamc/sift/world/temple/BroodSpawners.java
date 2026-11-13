@@ -46,7 +46,7 @@ public final class BroodSpawners implements Listener {
     /** @param zones zone 1..3 -> what it sends */
     public record Settings(double activationRadius, double despawnRadius, long despawnMillis, int maxAlivePerTemple,
                            BroodSpawner.Timing timing, Map<Integer, BroodSpawner.Zone> zones, double experienceFactor,
-                           boolean drops) {
+                           boolean drops, Map<String, Integer> experience) {
     }
 
     private final Plugin plugin;
@@ -75,6 +75,10 @@ public final class BroodSpawners implements Listener {
         this.mobs = mobs;
         this.settings = settings;
         temples.onDefeat(this::defeated);
+    }
+
+    public Settings settings() {
+        return settings;
     }
 
     public void start() {
@@ -286,7 +290,11 @@ public final class BroodSpawners implements Listener {
         }
     }
 
-    /** Brood never drops loot and gives little or no experience, so a temple is no farm. */
+    /**
+     * Brood never drops loot (drops: false); since alpha.42h it gives a fixed amount of experience per kind when a player
+     * killed it, so Mending works in a temple. No farm: limited waves, rest afterwards, at most 16 alive, despawn without
+     * players, and only mobs the spawners made carry the brood marker (spawn eggs and /sift spawn do not).
+     */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDeath(EntityDeathEvent event) {
         if (!event.getEntity().getPersistentDataContainer().has(BROOD, PersistentDataType.STRING)) {
@@ -295,7 +303,9 @@ public final class BroodSpawners implements Listener {
         if (!settings.drops()) {
             event.getDrops().clear();
         }
-        event.setDroppedExp((int) Math.floor(event.getDroppedExp() * settings.experienceFactor()));
+        String kind = MobManager.kindOf(event.getEntity());
+        event.setDroppedExp(BroodSpawner.experience(kind == null ? "" : kind, event.getDroppedExp(), event.getEntity().getKiller() != null,
+                settings.experience(), settings.experienceFactor()));
     }
 
     /** Brood left over from an earlier fight (chunk unloaded, restart) is removed when it loads again. */

@@ -58,6 +58,7 @@ public final class ItemSelfTest {
         bossBalance();
         blockStates();
         advancementSources();
+        mobExperience();
         loot(world);
         lines.add(failures == 0 ? "Selbsttest bestanden" : "Selbsttest: " + failures + " Fehler");
         return lines;
@@ -233,6 +234,37 @@ public final class ItemSelfTest {
     }
 
     /** alpha.42d: the Charoite Wisp is registered with its rig, animations, names and is in the zone 3 mix. */
+    /**
+     * alpha.42h: experience of the Sift mobs (killed by a player), and of every brood mob the zones can send: each gives some,
+     * so Mending works in a temple; brood never drops items.
+     */
+    private void mobExperience() {
+        de.lamamc.sift.SiftPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getPlugin(de.lamamc.sift.SiftPlugin.class);
+        if (plugin.mobs() == null) {
+            return;
+        }
+        List<String> normal = new ArrayList<>();
+        plugin.mobs().kinds().forEach((id, kind) -> normal.add(id + " " + kind.experience()));
+        lines.add("INFO    Erfahrung der Sift-Mobs (Spieler-Kill, Wert oder Zufall aus [min, max]): " + String.join(", ", normal));
+        var brood = plugin.brood();
+        if (brood == null) {
+            return;
+        }
+        var s = brood.settings();
+        List<String> perKind = new ArrayList<>();
+        boolean all = true;
+        java.util.Set<String> sent = new java.util.TreeSet<>();
+        s.zones().values().forEach(z -> sent.addAll(z.mobs()));
+        for (String id : sent) {
+            var kind = plugin.mobs().kind(id);
+            int xp = de.lamamc.sift.core.temple.BroodSpawner.experience(id, kind == null ? 0 : kind.experience(), true, s.experience(),
+                    s.experienceFactor());
+            all &= xp > 0;
+            perKind.add(id + " " + xp);
+        }
+        check(all && !s.drops(), "Brut-Mobs: Erfahrung " + String.join(", ", perKind) + "; Beute " + (s.drops() ? "AN" : "aus"));
+    }
+
     /**
      * alpha.42h: every Sift advancement can be earned with the current config. Datapack criteria (other than "impossible")
      * need nothing; the plugin awards the others, each only while its feature is on. An advancement the plugin never

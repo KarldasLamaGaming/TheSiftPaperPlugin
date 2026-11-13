@@ -307,6 +307,11 @@ Nicht im Original. Karls eigene Ideen nach dem Port, alle unter `phase4.*` absch
   - Hofboden, Treppen, Stufen, Mauern, Gitter, Ketten und Laternen sind Vanilla-Tiefenschiefer bzw. Vanilla-Blöcke: Auf
     Siftschiefer (Pilzstiel-Zustände) würden die Pflanzen der Sift-Weltgenerierung wachsen.
   - In den Chunks eines Tempels setzt der Sift-Populator keine Bäume, Pflanzen, Sculk-Flecken oder Quellen.
+- **Erfahrung** (alpha.42h):
+  - Brut-Mobs der Tempel geben feste Erfahrung je Art (Sifter 5, Schnüffler 10, Irrlicht 8), aber keine Beute.
+  - Das Charoit-Irrlicht gibt auch außerhalb der Brut 8.
+  - Der Boss verteilt 500 Erfahrung auf die Berechtigten.
+  - Der Dunkle Schnüffler behält als normaler Mob die 1–3 des Originals.
 - **Advancements** (alpha.42h):
   - „Riss-Resonanz“: Die Rift-Schallplatte zählt in jedem Plattenspieler der Sift, nicht nur in 16 Blöcken um einen Riss.
     Die Risse sind auf Lama Kingdom aus.

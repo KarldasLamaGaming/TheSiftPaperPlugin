@@ -933,7 +933,7 @@ mobs:
       enabled: true
   # Charoit-Irrlicht (ab alpha.42d, eigener Mob, nicht im Original): schwebender Fernkämpfer der Tempel-Brut (Zone 3).
   # Kommt nur aus den Brut-Spawnern (phase4.temples.spawners.zones) und per /sift spawn charoite_wisp; als Brut-Mob ohne
-  # Beute und Erfahrung, verschwindet ohne Spieler. Basis: unsichtbare Biene.
+  # Beute, verschwindet ohne Spieler. Basis: unsichtbare Biene. Erfahrung als Brut-Mob: phase4.temples.spawners.experience.
   charoite_wisp:
     enabled: true
     # Größe der Basis-Biene (1,5 ergibt etwa 1,05 × 0,9 Blöcke); das Modell ist etwa 1,2 Blöcke hoch
@@ -963,7 +963,8 @@ mobs:
       # Getroffen blinkt es so viele Blöcke weg, danach erst wieder nach der Abklingzeit
       blink-distance: 4
       blink-cooldown-ticks: 120
-    experience: 0
+    # Erfahrung, wenn ein Spieler es tötet (außerhalb der Brut, z. B. /sift spawn; ab alpha.42h, wie die Brut 8)
+    experience: 8
 
 recipes:
   # Rezepte der Sift beim Betreten im Rezeptbuch freischalten
@@ -1122,9 +1123,17 @@ phase4:
       despawn-seconds: 30
       # Mobs je Welle steigen mit jedem weiteren Spieler (bis zu so vielen Spielern)
       max-players-scaled: 4
-      # Gegen Farmen: Erfahrung der Brut-Mobs mal diesem Faktor (0 = keine), Beute ja/nein
-      experience-factor: 0.0
+      # Beute der Brut-Mobs ja/nein (aus, gegen Farmen)
       drops: false
+      # Erfahrung je Brut-Mob, wenn ein Spieler ihn tötet (ab alpha.42h, damit Reparatur im Tempel wirkt). Je Mob-Art, nicht
+      # mehr für Zone oder Welle; vergleichbar mit Vanilla: Zombie/Skelett 5, Lohe 10. Sifter 5 (Nahkämpfer wie ein
+      # Zombie), Dunkler Schnüffler 10 (40 Leben, Schallangriff), Charoit-Irrlicht 8 (fliegender Fernkämpfer, 18 Leben).
+      experience:
+        sifter: 5
+        dark_sniffer: 10
+        charoite_wisp: 8
+      # Für Brut-Mobs, die oben nicht stehen: ihre normale Erfahrung mal diesem Faktor (0 = keine)
+      experience-factor: 0.0
       # Der Seelen-Altar erwacht erst, wenn alle Spawner seines Tempels erschöpft sind (Boss ab alpha.42b);
       # hängt ein Spawner, beendet /sift temple spawners clear <id> alle
       altar-gate: true
@@ -1246,6 +1255,11 @@ phase4:
         min-damage-share: 0.05
         # Nachtkristalle je berechtigtem Spieler
         night-crystal: 1
+        # Erfahrung (ab alpha.42h), gleich verteilt auf alle Berechtigten, als Kugeln von höchstens experience-orb Punkten
+        # vor ihren Füßen, damit Reparatur sich auf mehrere Teile verteilt. 500 Punkte reparieren mit Reparatur bis zu
+        # 1000 Haltbarkeit (fast zwei Netherit-Brustpanzer); zu viert 125 je Spieler. Vorher: 300 als eine Kugel am Golem.
+        experience: 500
+        experience-orb: 20
         # Verzaubertes Netherit (ab alpha.42b.2): je berechtigtem Spieler `rolls` Teile, jedes zufällig nach Gewicht aus der
         # Tabelle. Verzauberungen: Stufe fest (3) oder [min, max]; min 0 = darf fehlen. Über dem Vanilla-Maximum wird
         # gekappt. Ids ohne Namensraum gelten als minecraft:. Unbekannte Items oder Verzauberungen meldet das Log beim Start.
@@ -1282,7 +1296,8 @@ phase4:
         crown: true
       attributes:
         movement-speed: 0.24
-      experience: 300
+      # Erfahrung beim Tod wie ein Mob (eine Kugel am Golem); ab alpha.42h 0, die Erfahrung kommt als Beute (loot.experience)
+      experience: 0
       # Seelenhelfer (Echo Golems des Seelenrufs)
       helper:
         max-health: 34

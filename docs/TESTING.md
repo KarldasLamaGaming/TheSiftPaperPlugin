@@ -1276,6 +1276,36 @@ Speichen und Ring zu schmal für die Diagonale, Turmtüren 1–2 breit, Spawner 
 - [ ] **Optik:** Die offenen Treppenschächte im Hof mit Geländer, die Türen der Pfeilerkammern, die Spawner unter den
       Kammersäulen sehen stimmig aus.
 
+### Erfahrung der Sift-Mobs (ab alpha.42h)
+
+| Mob | normal (Spieler-Kill) | als Brut-Mob | Quelle |
+|---|---|---|---|
+| Blub | 1–3 | – (keine Brut) | Original (zähmbares Tier) |
+| Sifter | 7 | 5 (vorher 0) | Original 7; Brut wie ein Zombie |
+| Dunkler Schnüffler | 1–3 | 10 (vorher 0) | Original 1–3 (Schnüffler-Basis); Brut wie eine Lohe |
+| Charoit-Irrlicht | 8 (vorher 0) | 8 (vorher 0) | eigener Mob, wie ein kleiner Fernkämpfer |
+| Singer | 8–12 | – | Original |
+| Echo Golem | 4–7 | – | Original |
+| Seelenhelfer | 0 | – | Teil des Bosskampfs |
+| Großer Echo-Golem | 500 als Beute, verteilt (vorher 300 als eine Kugel) | – | eigener Boss |
+
+**Smoke-Test** (ohne Spieler):
+- Alte Config: „old defaults replaced … (alpha42h): [mobs.charoite_wisp.experience, phase4.bosses.great-echo-golem.experience]“.
+- `sift debug selftest`: „Brut-Mobs: Erfahrung charoite_wisp 8, dark_sniffer 10, sifter 5; Beute aus“, bestanden.
+- Unit-Tests: Brut-Erfahrung je Art, nur bei Spieler-Kill, Faktor für den Rest; Boss-Erfahrung für 1 und 3 Spieler, Kugeln
+  höchstens 20.
+- Ohne Spieler nicht prüfbar: Kugeln beim Kill und beim Sieg.
+
+**Nur mit Spieler** (Rüstung und Schwert mit Reparatur/Mending, etwas beschädigt; ein Tempel mit wachen Spawnern):
+```
+/sift temple spawners reset temple-1
+```
+- [ ] In Zone 1 bis 3 kämpfen: Jeder getötete Brut-Mob lässt Erfahrungskugeln fallen, keine Items. Die Haltbarkeit der
+      Rüstung steigt spürbar.
+- [ ] Brut-Mob in Lava oder in die Tiefe locken (ohne Treffer des Spielers): keine Kugeln.
+- [ ] Boss besiegen: Kugeln erscheinen vor den Füßen jedes Berechtigten (zu zweit je 250), die Reparatur ist deutlich.
+- [ ] Mit `/sift spawn sifter` erzeugt: normale Erfahrung (7), mit Beute.
+
 ### Advancements ohne Risse (ab alpha.42h)
 
 **Smoke-Test:** Datapack lädt ohne Fehler (das neue Kriterium nutzt das 26.x-Format `type` / `all_of`). `sift debug
