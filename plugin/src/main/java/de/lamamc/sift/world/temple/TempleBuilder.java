@@ -154,6 +154,11 @@ public final class TempleBuilder {
         return packed(site).layout();
     }
 
+    /** The plan of a site before weathering (alpha.42e, the walk check measures the ways on it). */
+    public TempleLayout.Layout unweathered(TempleSites.Site site) {
+        return TempleLayout.unweathered(seed ^ (long) site.index() * 0x9E3779B97F4A7C15L, params);
+    }
+
     /** Chunks a temple touches. */
     public List<long[]> chunks(TempleSites.Site site) {
         List<long[]> out = new ArrayList<>();

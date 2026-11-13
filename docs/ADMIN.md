@@ -1128,8 +1128,8 @@ ist.
   - Andere Strukturen (verlassene Portale, Schluchten, Monolithen, Bögen, Sniffer-Höhlen, Seen) halten
     `clearance` (8) Blöcke Abstand zur Tempelfläche samt Böschung.
 - **Aufbau** (Karls Variante „M“; Standard 81 × 81 Blöcke, Größe unter `size`):
-  - **Oben eine Bastion:** Ringmauer (4 dick, `size.wall-height` 14 hoch) mit Wehrgang, Zinnen und Strebepfeilern; vier
-    Treppen vom Hof auf den Wehrgang. Vier runde Ecktürme (`size.tower-height` 26) und drei Mauertürme (Norden, Osten,
+  - **Oben eine Bastion:** Ringmauer (4 dick, `size.wall-height` 14 hoch, höchstens `size.radius` − 19) mit 3 breitem
+    Wehrgang, Zinnen und Strebepfeilern; zwei Treppen (Ost- und Westmauer, 3 breit, mit Absatz) vom Hof auf den Wehrgang. Vier runde Ecktürme (`size.tower-height` 26) und drei Mauertürme (Norden, Osten,
     Westen) mit Stockwerken, Schießscharten, Türen zum Wehrgang und zum Hof, Charoit-Wimpeln und Bannern aus Charoit-
     und Siftit-Block. Schweres Torhaus im Süden mit halb hochgezogenem Fallgitter. Zerfallene Kasernen im Hof.
   - **Spalte und Kern:** Um den erhöhten Kern (+5) läuft eine Spalte mit Seelenfeuer am Grund; vier Brücken steigen über
@@ -1138,8 +1138,13 @@ ist.
     steht der **Seelen-Altar** (Seelenblock auf Sockel, Seelenblock-Ring im Boden). Dort erwacht der Boss; ist er aus,
     meldet ein Rechtsklick nur `altar-message`.
   - **Unten die Prüfungsebene** (`size.depth` 16 unter dem Hof): runder Ringgang um die Arena mit vier Toren hinein,
-    acht Speichen, Pfeilerkammern auf den Diagonalen (Ichorglas-Licht), ein äußerer Ringgang, eine Nordkammer. Vier
-    Treppen führen vom Hof hinab.
+    acht Speichen, Pfeilerkammern auf den Diagonalen (Ichorglas-Licht), eine Nordkammer. Vier Treppen führen vom Hof
+    hinab (bei x ±31, oben mit Geländer offen zum Hof); unten geht es geradeaus in einen Gang und durch eine Tür in die
+    Pfeilerkammer des Viertels.
+  - **Mindestmaße** (ab alpha.42e, Layout-Version 4): Alle Wege, Räume und Spawner-Zonen sind mindestens 3 breit und
+    3 hoch, Treppen 3 breit mit 5 frei über jeder Stufe (ein breiter Mob liegt auf der Stufe dahinter auf), Zone 3 und
+    die Arena-Tore 4 hoch (Charoit-Irrlicht). Jede Treppe endet auf einem Absatz oder Boden mit Anschluss. Ein
+    Selbsttest geht den Bauplan mit einem Körper von 3 × 3 × 3 ab (siehe „Wege prüfen“).
   - **Schatzhalle** im Süden der Prüfungsebene: Säulen aus Siftit-Block mit Charoit-Kapitell, auf einem Podest der fest
     verbaute **Sculk Enchanter**, zwei Truhen (Beute `loot-table`, Datapack `the_sift:chests/temple`: Charoit,
     Siftit-Nuggets, Ichor, Echo-Splitter, Erfahrung, verzauberte Bücher, Diamanten, selten Antiker Schrott). Eigene
@@ -1164,13 +1169,24 @@ ist.
   bzw. 9 Charoit ↔ 1 Block, `extra-recipes`). Härte 5 bzw. 4, Spitzhacke, droppen sich selbst (`blocks.*`). Texturen
   per Skript (`scripts/gen_storage_block_textures.py`), ersetzbar unter `textures/block/{siftite,charoite}_block.png`.
 - **Register:** in den Weltdaten der Sift (`the_sift:temples`): Id (`temple-1` … `temple-10`), Mitte, Zustand
-  (`schläft`, `Kampf`, `besiegt`), Zeitpunkt des Sieges, Version des Bauplans (1 = alpha.41a, 2 = Bastion). Ein
-  Welt-Reset der Sift leert es mit.
+  (`schläft`, `Kampf`, `besiegt`), Zeitpunkt des Sieges, Version des Bauplans (1 = alpha.41a, 2 = Bastion, 3 = mit
+  Brut-Spawnern, 4 = Wege 3 × 3 × 3 ab alpha.42e). Ein Welt-Reset der Sift leert es mit.
 - **Neu bauen** (`/sift temple rebuild <id>`, ab alpha.41.1): baut einen Tempel an seinem Platz mit dem aktuellen
   Bauplan neu, etwa einen schon gebauten 41a-Tempel. Zuerst kommt der alte Bau weg (Tempelmaterial im alten und im neuen
   Bereich: Siftschiefer-Mauerwerk, Zierblöcke, Treppen, Stufen, Mauern, Gitter, Ketten, Laternen und Truhen, Truhen
   geleert; Gelände bleibt), dann der neue, ein Chunk je Tick. Der Tempel schläft danach wieder. Testserver-Messung: 49
   Chunks in rund 5 s.
+  - **Nach alpha.42e** brauchen nur **schon gebaute** Tempel (Version 3 oder älter) einen `rebuild`, um die neuen Wege zu
+    bekommen; `/sift temple list` markiert sie als „älterer Bau“. Tempel, die nach dem Update entstehen (oder nach dem
+    Welt-Reset vor dem Go-live), sind sofort Version 4. Ein `rebuild` setzt den Tempel auf „schläft“ zurück (auch einen
+    besiegten) und entfernt was in den neuen Gängen steht. Bis dahin laufen die Brut-Spawner alter Tempel an ihren alten
+    Stellen weiter.
+- **Wege prüfen** (`/sift temple validate [id]`, ab alpha.42e; ohne Id der nächste Tempel): geht den **gebauten** Tempel
+  vom Tor aus mit einem Körper von 3 × 3 × 3 ab (Zone 3 und Arena mit 4 hoch) und meldet: nicht erreichbare Ziele (Hof,
+  alle 12 Spawner, Altar, Truhen, Enchanter), Treppenstufen ohne Anschluss und Stellen, an die nur ein Spieler passt
+  (unter 3 breit oder hoch; Mauerbrüche der Ruine zählen nicht). Die Blöcke werden auf dem Main-Thread aus den Chunks
+  kopiert (die Chunks des Tempels werden dafür geladen), gerechnet wird asynchron (rund 0,2 s). Baut nichts. Derselbe
+  Check läuft auf dem Bauplan in `/sift debug selftest`.
 - **Prüfen** (`/sift temple inspect <id>`): Version, Bodenhöhe, wartende Teile; Säulen auf dem Hof, die schweben (Luft
   oder Flüssigkeit direkt unter dem Hofboden), und fremde Blöcke in den drei Blöcken über dem Hof (Gelände, das im Tempel
   steckt). Zählt nur geladene Chunks.
@@ -1183,8 +1199,8 @@ ist.
 - **Brut-Spawner** (ab alpha.42a, `spawners`): 12 je Tempel, fest im Bauplan (Version 3 des Bauplans; ältere Tempel
   bekommen sie mit `/sift temple rebuild <id>`).
   - **Zonen:** 1 = drei Kasernen im Hof (leicht, Sifter, 2 Wellen); 2 = vier Pfeilerkammern und die Nordkammer (Sifter
-    und Dunkler Schnüffler, 3 Wellen); 3 = vier im inneren Ringgang an der Arena (am stärksten, vorerst Dunkler
-    Schnüffler, ab alpha.42a.3 das Charoit-Irrlicht). Je Zone in `zones.1` bis `zones.3`: an/aus, Wellen, Mobs je Welle,
+    und Dunkler Schnüffler, 3 Wellen); 3 = vier im inneren Ringgang an der Arena (am stärksten, Charoit-Irrlicht und
+    Dunkler Schnüffler, ab alpha.42d). Je Zone in `zones.1` bis `zones.3`: an/aus, Wellen, Mobs je Welle,
     je weiterem Spieler, welche Sift-Mobs.
   - **Ablauf:** Ein Spieler in `activation-radius` (12) weckt einen Spawner. Er schickt Welle für Welle (Pause
     `wave-delay-seconds`), mit mehr Spielern mehr Mobs (bis `max-players-scaled`). Nach der letzten Welle ist er erschöpft,
@@ -1194,6 +1210,10 @@ ist.
     Höchstens `max-alive-per-temple` (16) leben gleichzeitig; ist der Tempel voll, wartet die Welle (sie wird nicht
     übersprungen). Brut verschwindet, wenn `despawn-seconds` lang kein Spieler in `despawn-radius` war, und nach einem
     Neustart oder Chunk-Entladen beim nächsten Laden.
+  - **Platz** (ab alpha.42e): Ein Brut-Mob erscheint nur, wo er Platz hat: Sifter 1 × 1 × 2, Dunkler Schnüffler
+    3 × 3 × 2 (1,9 breit), Charoit-Irrlicht 3 × 3 × 3. Findet sich keiner, wartet die Welle. Seit Version 4 stehen die
+    Spawner der Pfeilerkammern in der Kammermitte unter der Säule und der Spawner der mittleren Kaserne neben dem
+    Durchgang.
   - **Optik:** ein Vanilla-Prüfungsspawner ohne Mob-Daten (Vanilla lässt ihn in Ruhe, geprüft). Wach: blaue
     (ominöse) Flammen; erschöpft oder aus: dunkel. Dazu Klänge und Partikel beim Erwachen, Spawnen und Erschöpfen.
   - **Schutz:** Spawner sind Tempelmaterial (bis zum Sieg geschützt). Nach dem Sieg sind alle Spawner aus und die

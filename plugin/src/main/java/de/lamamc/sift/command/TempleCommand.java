@@ -17,8 +17,8 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
 /**
- * /sift temple list|info|sites|reset|reset-all|rebuild|inspect|defeat|spawners|boss (phase 4, alpha.41a; rebuild/inspect alpha.41.1,
- * spawners alpha.42a, boss alpha.42b).
+ * /sift temple list|info|sites|reset|reset-all|rebuild|inspect|validate|defeat|spawners|boss (phase 4, alpha.41a; rebuild/inspect
+ * alpha.41.1, spawners alpha.42a, boss alpha.42b, validate alpha.42e).
  */
 final class TempleCommand {
 
@@ -57,6 +57,8 @@ final class TempleCommand {
                                                     return Command.SINGLE_SUCCESS;
                                                 })))))))
                 .then(Commands.literal("inspect").then(id().executes(ctx -> withTemple(ctx, this::inspect))))
+                // alpha.42e: can a 3 x 3 x 3 body walk the built temple (from the gate to every spawner, the altar, chests)?
+                .then(Commands.literal("validate").executes(this::validateAll).then(id().executes(ctx -> withTemple(ctx, this::validate))))
                 // test aid: the temple counts as defeated (no fight, no loot)
                 .then(Commands.literal("defeat").then(id().executes(ctx -> withTemple(ctx, this::defeat))))
                 // the Great Echo Golem (alpha.42b): start without offering and gate, call off, state, damage as a test aid
@@ -195,7 +197,7 @@ final class TempleCommand {
             return 0;
         }
         var states = temples.spawnerStates(t);
-        var plan = temples.spawners();
+        var plan = temples.spawners(t);
         var brood = plugin.brood();
         sender.sendRichMessage("<gold>Brut-Spawner von " + t.id() + ": <white>" + temples.spawnersAwake(t) + "</white> wach, lebende Brut "
                 + (brood == null ? "– (aus)" : brood.alive(t)));
@@ -226,6 +228,40 @@ final class TempleCommand {
         sender.sendRichMessage("<green>Brut-Spawner von " + t.id() + (clear ? " beendet (Altar frei)" : " zurückgesetzt") + ", " + removed
                 + " Brut-Mobs entfernt.");
         return Command.SINGLE_SUCCESS;
+    }
+
+    private int validate(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {
+        boolean started = temples.validate(t.id(), lines -> {
+            sender.sendRichMessage("<gold>Begehbarkeit " + t.id() + ": " + lines.get(0));
+            lines.subList(1, lines.size()).forEach(l -> sender.sendRichMessage("  " + l));
+        });
+        if (!started) {
+            sender.sendRichMessage("<yellow>" + t.id() + " ist ein Bau von alpha.41a: /sift temple rebuild " + t.id() + ".");
+            return 0;
+        }
+        sender.sendRichMessage("<gray>Prüfe " + t.id() + " (3 x 3 x 3 vom Tor aus, Zone 3 und Arena 4 hoch) …");
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Without an id: the temple the sender stands in, else the nearest built one. */
+    private int validateAll(CommandContext<CommandSourceStack> ctx) {
+        CommandSender sender = ctx.getSource().getSender();
+        TempleRegistry temples = plugin.temples();
+        if (temples == null) {
+            sender.sendRichMessage("<red>Tempel sind aus (phase4.temples.enabled) oder die Sift ist nicht geladen.");
+            return 0;
+        }
+        var all = temples.all();
+        if (all.isEmpty()) {
+            sender.sendRichMessage("<yellow>Noch kein Tempel gebaut.");
+            return 0;
+        }
+        TempleRegistry.Temple pick = all.iterator().next();
+        if (sender instanceof org.bukkit.entity.Entity e) {
+            var at = e.getLocation();
+            pick = all.stream().min(java.util.Comparator.comparingDouble(t -> Math.hypot(t.x() - at.getX(), t.z() - at.getZ()))).orElse(pick);
+        }
+        return validate(sender, temples, pick);
     }
 
     private int inspect(CommandSender sender, TempleRegistry temples, TempleRegistry.Temple t) {

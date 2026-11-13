@@ -97,7 +97,7 @@ public final class BroodSpawners implements Listener {
                 continue;
             }
             int aliveInTemple = 0;
-            List<TempleLayout.Spawner> plan = temples.spawners();
+            List<TempleLayout.Spawner> plan = temples.spawners(t);
             int[] living = new int[plan.size()];
             boolean present = simulated(t.id(), now) > 0;
             for (int i = 0; i < plan.size(); i++) {
@@ -177,7 +177,7 @@ public final class BroodSpawners implements Listener {
         for (int n = 0; n < count; n++) {
             String id = zone.mobs().get(ThreadLocalRandom.current().nextInt(zone.mobs().size()));
             MobKind kind = mobs.kind(id);
-            Location at = spot(block);
+            Location at = kind == null ? null : spot(block, kind.spawnRoom());
             if (kind == null || at == null) {
                 continue;
             }
@@ -196,17 +196,34 @@ public final class BroodSpawners implements Listener {
         return done;
     }
 
-    /** A free spot next to the spawner: two blocks of air above a solid floor. */
-    private static Location spot(Block block) {
+    /**
+     * A free spot next to the spawner: a solid floor and above it {@code room} = {width, height} blocks free (alpha.42e: the
+     * Dark Sniffer is 1.9 wide and suffocated when it appeared beside a wall).
+     */
+    private static Location spot(Block block, int[] room) {
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        for (int tries = 0; tries < 16; tries++) {
+        int half = room[0] / 2;
+        for (int tries = 0; tries < 24; tries++) {
             Block b = block.getRelative(r.nextInt(-3, 4), r.nextInt(-1, 2), r.nextInt(-3, 4));
-            if (b.isPassable() && b.getRelative(0, 1, 0).isPassable() && b.getRelative(0, -1, 0).getType().isSolid()
-                    && !b.isLiquid()) {
+            if (b.getRelative(0, -1, 0).getType().isSolid() && free(b, half, room[1])) {
                 return b.getLocation().add(0.5, 0, 0.5);
             }
         }
         return null;
+    }
+
+    private static boolean free(Block feet, int half, int height) {
+        for (int dx = -half; dx <= half; dx++) {
+            for (int dz = -half; dz <= half; dz++) {
+                for (int dy = 0; dy < height; dy++) {
+                    Block b = feet.getRelative(dx, dy, dz);
+                    if (!b.isPassable() || b.isLiquid()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /** Blue (ominous) flames while awake, dark when exhausted or off; only on an intact trial spawner. */

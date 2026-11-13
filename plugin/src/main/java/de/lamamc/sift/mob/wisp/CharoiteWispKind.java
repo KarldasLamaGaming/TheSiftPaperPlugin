@@ -25,6 +25,12 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class CharoiteWispKind extends MobKind {
 
+    /** About 1.05 x 0.9, hovering over the floor: 3 x 3 and 3 high. */
+    @Override
+    public int[] spawnRoom() {
+        return new int[] {3, 3};
+    }
+
     public static final String ID = "charoite_wisp";
 
     private final CharoiteWispRules rules;

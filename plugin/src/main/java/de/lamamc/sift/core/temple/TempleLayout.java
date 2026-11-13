@@ -16,11 +16,13 @@ import java.util.SplittableRandom;
  * the court, a square chasm with soul fire around the raised keep, crossed by four bridges that climb to the keep,
  * obelisks with charoite tips on the keep;</li>
  * <li>in the middle an open shaft from the keep down to the arena with the Seelen-Altar;</li>
- * <li>below (depth blocks down): round ring corridor with eight spokes, pillar chambers on the diagonals, an outer
- * ring corridor, the sealed trial rooms of the wither (east) and the warden (west, both empty until their trials), the
- * treasure hall in the south with the Sculk Enchanter and two chests, a north chamber; four stairways lead down from
- * the court.</li>
+ * <li>below (depth blocks down): round ring corridor with eight spokes, pillar chambers on the diagonals, the sealed
+ * trial rooms of the wither (east) and the warden (west, both empty until their trials), the treasure hall in the south
+ * with the Sculk Enchanter and two chests, a north chamber; four stairways lead down from the court into the pillar
+ * chambers.</li>
  * </ul>
+ * Since alpha.42e (layout version 4) every way, room and spawner zone is at least 3 wide and 3 high (zone 3 and the arena
+ * gates 4 high) and every stair ends on a landing; {@link TempleWalk} checks that.
  * Blocks: Sift ids, "air" or vanilla states "minecraft:...". Positions not in the plan keep the terrain (below the
  * court) or are cleared by the builder (above it). Weathering (missing blocks, breaches, cobbled and overgrown bricks,
  * sculk) comes from the seed; walk surfaces, stairs and the markers are never weathered.
@@ -48,7 +50,8 @@ public final class TempleLayout {
 
         public Params {
             radius = Math.max(40, Math.min(64, radius));
-            wallHeight = Math.max(10, Math.min(24, wallHeight));
+            // the stairs up to the wall walk need wall height + 2 blocks between the wall tower and the corner tower
+            wallHeight = Math.max(10, Math.min(Math.min(24, radius - 19), wallHeight));
             towerHeight = Math.max(wallHeight + 6, Math.min(48, towerHeight));
             depth = Math.max(16, Math.min(24, depth));
         }
@@ -158,7 +161,15 @@ public final class TempleLayout {
     }
 
     public static Layout build(long seed, Params params) {
-        return new Plan(seed, params).build();
+        return new Plan(seed, params).build(true);
+    }
+
+    /**
+     * The plan before it is weathered (alpha.42e): the ways as designed. The walk check measures widths on it, so a breach
+     * in a ruined wall is not reported as a narrow way.
+     */
+    public static Layout unweathered(long seed, Params params) {
+        return new Plan(seed, params).build(false);
     }
 
     /** The plan being drawn; later writes replace earlier ones. */
@@ -248,7 +259,7 @@ public final class TempleLayout {
 
         // ------------------------------------------------------------------------------------------- above
 
-        Layout build() {
+        Layout build(boolean weathered) {
             for (int x = -r; x <= r; x++) {
                 for (int z = -r; z <= r; z++) {
                     set(x, -1, z, courtFloor(), true);
@@ -272,11 +283,14 @@ public final class TempleLayout {
             gatehouse();
             chasmAndBridges();
             raisedKeep();
-            for (int[] h : new int[][] {{-33, -33, -25, -26}, {25, -33, 33, -26}, {-12, -34, 12, -27}}) {
+            for (int[] h : new int[][] {{-33, -33, -25, -26}, {25, -33, 33, -26}, {-12, -33, 12, -26}}) {
                 hollow(h[0], -1, h[1], h[2], 6, h[3], BRICKS, FLOOR);
                 int mid = (h[0] + h[2]) / 2;
                 carve(mid - 1, 0, h[3], mid + 1, 2, h[3]);
                 carve(mid - 1, 0, h[1], mid + 1, 2, h[1]);
+            }
+            for (int sx = -1; sx <= 1; sx += 2) {
+                box(sx * 4, 0, -34, sx * 4, 2, -34, BRICKS, false); // closes the pocket between the north tower and the barracks
             }
             for (int i = 0; i < 160; i++) {
                 int x = rnd.nextInt(-r, r + 1);
@@ -288,30 +302,21 @@ public final class TempleLayout {
                     }
                 }
             }
-            int landing = r - 5 - p.depth();
-            // ---- below
+            // ---- below (alpha.42e, layout version 4: every way 3 wide and at least 3 high, see TempleWalk)
             Pos altar = shaft();
             ringAndSpokes();
             arenaGates();
-            int k = r - 9;
-            openCorridor(-k, -k, k, -k);
-            openCorridor(-k, k, k, k);
-            openCorridor(-k, -k, -k, k);
-            openCorridor(k, -k, k, k);
             openCorridor(0, -(r - 6), 0, -16);
             openCorridor(0, 16, 0, 20);
-            for (int sz = -22; sz <= 22; sz += 44) {
-                openCorridor(-landing, sz, -k, sz);
-                openCorridor(landing, sz, k, sz);
-            }
             for (int sx = -1; sx <= 1; sx += 2) {
                 for (int sz = -1; sz <= 1; sz += 2) {
+                    // diagonal spokes from the ring into the pillar chambers, 5 x 5 so they are 3 wide across
                     for (int i = 13; i < 22; i++) {
                         int x0 = sx * i;
                         int z0 = sz * i;
-                        carve(x0 - 1, ug, z0 - 1, x0 + 1, ug + 4, z0 + 1);
-                        for (int dx = -1; dx <= 1; dx++) {
-                            for (int dz = -1; dz <= 1; dz++) {
+                        carve(x0 - 2, ug, z0 - 2, x0 + 2, ug + 4, z0 + 2);
+                        for (int dx = -2; dx <= 2; dx++) {
+                            for (int dz = -2; dz <= 2; dz++) {
                                 set(x0 + dx, ug - 1, z0 + dz, FLOOR, true);
                             }
                         }
@@ -327,12 +332,15 @@ public final class TempleLayout {
             openCorridor(-18, 0, -16, 0);
             Pos[] hall = treasureHall(-9, 19, 9, r - 3);
             List<Spawner> spawners = spawners();
-            // stairways last: where they pass through a chamber the steps stand free in the room
-            stairTunnel(-(r - 5), 22, 1);
-            stairTunnel(r - 5, 22, -1);
-            stairTunnel(-(r - 5), -22, 1);
-            stairTunnel(r - 5, -22, -1);
-            weather();
+            // stairways last: from the court down to a corridor that leads on into each pillar chamber
+            for (int sx = -1; sx <= 1; sx += 2) {
+                for (int sz = -1; sz <= 1; sz += 2) {
+                    descent(sx, sz);
+                }
+            }
+            if (weathered) {
+                weather();
+            }
             for (Pos marker : List.of(altar, hall[0], hall[1], hall[2])) {
                 if (b.get(marker) == null) {
                     throw new IllegalStateException("marker lost: " + marker);
@@ -354,11 +362,9 @@ public final class TempleLayout {
                     }
                     if (m == r) {
                         crenel(x, wall, z, x + z);
-                    } else if (m == r - 3) {
-                        set(x, wall, z, SLAB);
                     }
-                    if (m == r - 1 || m == r - 2) {
-                        set(x, wall - 1, z, FLOOR, true); // wall walk
+                    if (m >= r - 3 && m <= r - 1) {
+                        set(x, wall - 1, z, FLOOR, true); // wall walk, 3 wide (alpha.42e)
                     }
                 }
             }
@@ -385,7 +391,8 @@ public final class TempleLayout {
                     }
                     boolean shell = d > radius - 0.7;
                     for (int y = 0; y < h; y++) {
-                        boolean level = Math.floorMod(y - walk, 7) == 0;
+                        // a floor every 7 blocks, one level with the wall walk; none so low the room below is under 3 high
+                        boolean level = Math.floorMod(y - walk, 7) == 0 && y >= 3;
                         if (shell) {
                             boolean slit = Math.floorMod(y - walk, 7) == 4 && (x == cx || z == cz);
                             set(x, y, z, slit ? AIR : level ? CHISELED : BRICKS);
@@ -396,14 +403,17 @@ public final class TempleLayout {
                     if (shell) {
                         crenel(x, h, z, x + z);
                         int m = Math.max(Math.abs(x), Math.abs(z));
-                        // door from the wall walk
-                        if ((m == r - 1 || m == r - 2) && h > walk + 3) {
-                            carve(x, walk + 1, z, x, walk + 2, z);
+                        // door from the wall walk, 3 wide and 3 high
+                        if (m >= r - 3 && m <= r - 1 && h > walk + 4) {
+                            carve(x, walk + 1, z, x, walk + 3, z);
                         }
-                        // door from the court (on the side facing the centre)
+                        // door from the court (on the side facing the centre), 3 wide, moved one block towards the
+                        // centre so the curtain wall does not stand in front of it (alpha.42e)
+                        int dcx = cx - Integer.signum(cx);
+                        int dcz = cz - Integer.signum(cz);
                         if (Math.abs(x) + Math.abs(z) < Math.abs(cx) + Math.abs(cz) - radius + 1.5
-                                && (Math.abs(x - cx) <= 1 || Math.abs(z - cz) <= 1)) {
-                            carve(x, 0, z, x, 1, z);
+                                && (Math.abs(x - dcx) <= 1 || Math.abs(z - dcz) <= 1)) {
+                            carve(x, 0, z, x, 2, z);
                         }
                     }
                 }
@@ -412,20 +422,29 @@ public final class TempleLayout {
             set(cx, h + 5, cz, CHAROITE);
         }
 
-        /** Stairs from the court up to the wall walk along the inner face of the north and south walls. */
+        /**
+         * Stairs from the court up to the wall walk along the inner face of the east and west walls (alpha.42e): 3 wide,
+         * 5 free above every step, a 3 x 3 landing at the top level with the walk beside it.
+         */
         void wallStairs() {
-            int wall = p.wallHeight();
-            for (int sz = -1; sz <= 1; sz += 2) {
-                for (int sx = -1; sx <= 1; sx += 2) {
-                    int z = sz * (r - 4);
-                    for (int i = 0; i < wall - 1; i++) {
-                        int x = sx * (17 + i);
+            int walk = p.wallHeight() - 1;
+            for (int sx = -1; sx <= 1; sx += 2) {
+                int xc = sx * (r - 5);
+                int z0 = 7; // clear of the wall tower in the middle of the wall
+                for (int i = 0; i < walk; i++) {
+                    int z = z0 + i;
+                    for (int x = xc - 1; x <= xc + 1; x++) {
                         box(x, 0, z, x, i - 1, z, BRICKS, false);
-                        set(x, i, z, stairs(sx > 0 ? "east" : "west"), true);
-                        carve(x, i + 1, z, x, i + 3, z);
+                        set(x, i, z, stairs("south"), true);
+                        carve(x, i + 1, z, x, i + 5, z);
                     }
-                    int x = sx * (17 + wall - 2);
-                    carve(x, wall, sz * (r - 3), x, wall + 1, sz * (r - 3)); // no lip where the stairs arrive
+                }
+                for (int z = z0 + walk; z < z0 + walk + 3; z++) {
+                    for (int x = xc - 1; x <= xc + 1; x++) {
+                        box(x, 0, z, x, walk - 1, z, BRICKS, false);
+                        set(x, walk, z, FLOOR, true);
+                        carve(x, walk + 1, z, x, walk + 3, z);
+                    }
                 }
             }
         }
@@ -444,7 +463,7 @@ public final class TempleLayout {
                     crenel(x, wall + 7, r - 6, x);
                     crenel(x, wall + 7, r, x);
                 }
-                carve((x1 + x2) / 2, 0, r - 6, (x1 + x2) / 2, 2, r - 6); // door from the court
+                carve((x1 + x2) / 2 - 1, 0, r - 6, (x1 + x2) / 2 + 1, 2, r - 6); // door from the court, 3 wide
             }
             box(-7, 0, r - 3, 7, wall + 2, r, BRICKS, false);
             carve(-3, 0, r - 3, 3, 7, r);
@@ -484,7 +503,7 @@ public final class TempleLayout {
                         if (across <= 2) {
                             int y = 21 - m; // -1 at the outer edge ... 4 at the keep
                             String facing = Math.abs(x) > Math.abs(z) ? (x > 0 ? "west" : "east") : (z > 0 ? "north" : "south");
-                            set(x, y, z, y > -1 ? stairs(facing) : FLOOR, true);
+                            set(x, y, z, across == 2 ? BRICKS : y > -1 ? stairs(facing) : FLOOR, true);
                             box(x, y + 1, z, x, y + 4, z, AIR, false);
                             if (across == 2) {
                                 set(x, y + 1, z, WALL);
@@ -526,17 +545,30 @@ public final class TempleLayout {
             }
         }
 
-        /** Straight stairs from the court (y -1) down to the trial level, along x (dx = +-1), 3 wide. */
-        void stairTunnel(int x0, int z0, int dx) {
-            String facing = dx > 0 ? "west" : "east"; // they rise towards the court
+        /**
+         * Stairs from the court (y -1) down to the trial level (alpha.42e): along z at x = +-31, 3 wide, 5 free above
+         * every step (a 3 x 3 body on a stair rests on the step behind it, so it needs 2 more than its height). At the foot the way goes straight on into a corridor and through a door into the pillar chamber of
+         * the quadrant, so no stair ends at a wall.
+         */
+        void descent(int sx, int sz) {
+            int x0 = sx * 31; // beside the pillar chambers (21..29), whatever the size
+            int top = sz * 12;
             int length = p.depth();
+            String facing = sz > 0 ? "north" : "south"; // they rise back towards the court
             for (int i = 0; i <= length; i++) {
-                int x = x0 + dx * i;
+                int z = top + sz * i;
                 int y = -1 - i;
-                for (int z = z0 - 2; z <= z0 + 2; z++) {
-                    boolean edge = Math.abs(z - z0) == 2;
-                    for (int yy = y; yy <= y + 5; yy++) {
-                        if (edge || yy == y + 5) {
+                for (int x = x0 - 2; x <= x0 + 2; x++) {
+                    boolean edge = Math.abs(x - x0) == 2;
+                    for (int yy = y; yy <= y + 6; yy++) {
+                        if (yy >= 0) {
+                            // open to the court at the top: a railing instead of side walls, no roof
+                            if (edge && yy == 0) {
+                                set(x, yy, z, WALL, true);
+                            } else if (!edge) {
+                                set(x, yy, z, AIR);
+                            }
+                        } else if (edge || yy == y + 6) {
                             if (!AIR.equals(get(x, yy, z))) {
                                 set(x, yy, z, BRICKS);
                             }
@@ -548,6 +580,17 @@ public final class TempleLayout {
                         set(x, y, z, i < length ? stairs(facing) : FLOOR, true);
                     }
                 }
+            }
+            int foot = top + sz * length;
+            // deeper levels: the stairs are longer, the turn comes after the last step (its corridor is 3 wide around outer)
+            int outer = sz * Math.max(31, Math.abs(foot) + 1);
+            openCorridor(x0, foot, x0, outer);
+            openCorridor(x0 + sx, outer, sx * 24, outer); // past the stair corridor so the corner is 3 x 3
+            openCorridor(sx * 25, outer, sx * 25, sz * 30);
+            int wall = sz * 29; // outer wall of the pillar chamber
+            for (int x = Math.min(sx * 24, sx * 26); x <= Math.max(sx * 24, sx * 26); x++) {
+                carve(x, ug, wall, x, ug + 3, wall);
+                set(x, ug - 1, wall, FLOOR, true);
             }
         }
 
@@ -607,14 +650,15 @@ public final class TempleLayout {
         }
 
         void ringAndSpokes() {
-            for (int x = -19; x <= 19; x++) {
-                for (int z = -19; z <= 19; z++) {
+            for (int x = -20; x <= 20; x++) {
+                for (int z = -20; z <= 20; z++) {
                     double d = Math.hypot(x, z);
-                    if (d >= 14.5 && d <= 17.5) {
+                    // about 4.6 wide: a 3 x 3 body also fits where the ring runs diagonally (alpha.42e)
+                    if (d >= 14.0 && d <= 18.6) {
                         carve(x, ug, z, x, ug + 4, z);
                         set(x, ug - 1, z, Math.floorMod(x + z, 4) == 0 ? GRID : FLOOR, true);
                         set(x, ug + 5, z, BRICKS);
-                    } else if ((d >= 13.5 && d < 14.5) || (d > 17.5 && d <= 18.6)) {
+                    } else if ((d >= 13.0 && d < 14.0) || (d > 18.6 && d <= 19.6)) {
                         for (int y = ug - 1; y <= ug + 5; y++) {
                             if (!AIR.equals(get(x, y, z))) {
                                 set(x, y, z, BRICKS);
@@ -684,7 +728,7 @@ public final class TempleLayout {
             int h = 9;
             hollow(x1, ug - 1, z1, x2, ug + h, z2, REINFORCED, CHISELED);
             int cx = (x1 + x2) / 2;
-            for (int z = z1 + 3; z < z2 - 1; z += 4) {
+            for (int z = z1 + 4; z < z2 - 3; z += 4) { // no pockets under 3 x 3 in the corners (alpha.42e)
                 for (int x : new int[] {x1 + 2, x2 - 2}) {
                     box(x, ug, z, x, ug + h - 1, z, SIFTITE, false);
                     set(x, ug + h - 1, z, CHAROITE);
@@ -707,12 +751,13 @@ public final class TempleLayout {
         /** Brood spawners: 3 in the barracks, 4 in the pillar chambers and 1 in the north chamber, 4 in the inner ring. */
         List<Spawner> spawners() {
             List<Spawner> out = new java.util.ArrayList<>();
-            for (int[] c : new int[][] {{-29, -30}, {29, -30}, {0, -30}}) {
+            for (int[] c : new int[][] {{-29, -30}, {29, -30}, {-6, -29}}) { // the middle one beside the way through
                 out.add(new Spawner(new Pos(c[0], 0, c[1]), 1));
             }
             for (int sx = -1; sx <= 1; sx += 2) {
                 for (int sz = -1; sz <= 1; sz += 2) {
-                    out.add(new Spawner(new Pos(sx * 23, ug, sz * 23), 2));
+                    // in the middle of the pillar chamber (alpha.42e): the corner where the spoke comes in stays free
+                    out.add(new Spawner(new Pos(sx * 25, ug, sz * 25), 2));
                 }
             }
             out.add(new Spawner(new Pos(0, ug, -(r - 4)), 2));
@@ -721,7 +766,11 @@ public final class TempleLayout {
             }
             for (Spawner sp : out) {
                 set(sp.pos().x(), sp.pos().y(), sp.pos().z(), SPAWNER, true);
-                set(sp.pos().x(), sp.pos().y() + 1, sp.pos().z(), AIR, false);
+                if (sp.zone() == 2 && sp.pos().x() != 0) {
+                    set(sp.pos().x(), sp.pos().y() + 1, sp.pos().z(), CHAROITE, true); // the chamber's pillar stands on it
+                } else {
+                    set(sp.pos().x(), sp.pos().y() + 1, sp.pos().z(), AIR, false);
+                }
             }
             return List.copyOf(out);
         }
@@ -772,6 +821,28 @@ public final class TempleLayout {
      * Columns that stand on the ground (a solid block of the plan at y -1 or 0): the builder fills a foundation below
      * them down to the terrain, so nothing floats. Banners and other parts higher up hang on the towers.
      */
+    /**
+     * The brood spawners of layout version 3 (alpha.42a to 42d): in the pillar chambers at the corner the spoke comes in
+     * and in the middle barracks on the way through. Temples built then keep them until /sift temple rebuild.
+     */
+    public static List<Spawner> spawnersOfVersion3(Params p) {
+        int ug = -p.depth();
+        List<Spawner> out = new java.util.ArrayList<>();
+        for (int[] c : new int[][] {{-29, -30}, {29, -30}, {0, -30}}) {
+            out.add(new Spawner(new Pos(c[0], 0, c[1]), 1));
+        }
+        for (int sx = -1; sx <= 1; sx += 2) {
+            for (int sz = -1; sz <= 1; sz += 2) {
+                out.add(new Spawner(new Pos(sx * 23, ug, sz * 23), 2));
+            }
+        }
+        out.add(new Spawner(new Pos(0, ug, -(p.radius() - 4)), 2));
+        for (int[] c : new int[][] {{15, 6}, {-15, -6}, {6, -15}, {-6, 15}}) {
+            out.add(new Spawner(new Pos(c[0], ug, c[1]), 3));
+        }
+        return List.copyOf(out);
+    }
+
     public static Set<Long> standingColumns(Layout layout) {
         Set<Long> columns = new HashSet<>();
         for (Map.Entry<Pos, String> e : layout.blocks().entrySet()) {
