@@ -239,6 +239,6 @@ public final class GreatEchoGolemKind extends MobKind {
 
     @Override
     public int experience() {
-        return config.getInt("experience", 300);
+        return config.getInt("experience", 0); // alpha.42i: the experience is shared as loot (loot.experience)
     }
 }

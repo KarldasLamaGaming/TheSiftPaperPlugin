@@ -171,4 +171,16 @@ class GolemBossTest {
         f.takeSoulCall();
         return f;
     }
+
+    @Test
+    void theGolemsExperienceIsSharedAsOrbs() {
+        var solo = GolemBoss.experienceShares(500, 1, 20);
+        assertEquals(1, solo.size());
+        assertEquals(25, solo.get(0).size(), "500 in orbs of 20");
+        var three = GolemBoss.experienceShares(500, 3, 20);
+        assertEquals(List.of(167, 167, 166), three.stream().map(o -> o.stream().mapToInt(Integer::intValue).sum()).toList());
+        assertTrue(three.stream().flatMap(List::stream).allMatch(o -> o <= 20 && o > 0));
+        assertTrue(GolemBoss.experienceShares(500, 0, 20).isEmpty());
+        assertTrue(GolemBoss.experienceShares(0, 2, 20).isEmpty());
+    }
 }

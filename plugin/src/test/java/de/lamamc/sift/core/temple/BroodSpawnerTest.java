@@ -69,4 +69,15 @@ class BroodSpawnerTest {
         assertEquals(exhausted, State.parse(exhausted.serialize()));
         assertEquals(State.FRESH, State.parse("nonsense"));
     }
+
+    @Test
+    void broodExperienceIsFixedPerKindAndOnlyForPlayerKills() {
+        java.util.Map<String, Integer> perKind = java.util.Map.of("sifter", 5, "dark_sniffer", 10, "charoite_wisp", 8);
+        org.junit.jupiter.api.Assertions.assertEquals(5, BroodSpawner.experience("sifter", 7, true, perKind, 0));
+        org.junit.jupiter.api.Assertions.assertEquals(10, BroodSpawner.experience("dark_sniffer", 2, true, perKind, 0));
+        org.junit.jupiter.api.Assertions.assertEquals(8, BroodSpawner.experience("charoite_wisp", 0, true, perKind, 0));
+        org.junit.jupiter.api.Assertions.assertEquals(0, BroodSpawner.experience("sifter", 7, false, perKind, 1), "no player: none");
+        org.junit.jupiter.api.Assertions.assertEquals(0, BroodSpawner.experience("blub", 3, true, perKind, 0), "not listed, factor 0");
+        org.junit.jupiter.api.Assertions.assertEquals(1, BroodSpawner.experience("blub", 3, true, perKind, 0.5), "factor for the rest");
+    }
 }

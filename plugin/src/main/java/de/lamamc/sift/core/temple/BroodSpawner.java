@@ -65,6 +65,19 @@ public final class BroodSpawner {
     public record Step(State state, int spawn) {
     }
 
+    /**
+     * Experience of a brood mob (alpha.42i): only when a player killed it (like vanilla), a fixed amount per kind
+     * (phase4.temples.spawners.experience), else the mob's normal experience times {@code factor}. Never more for zone or
+     * wave: the waves are limited and the spawner rests afterwards, so a temple is no farm.
+     */
+    public static int experience(String kind, int normal, boolean byPlayer, java.util.Map<String, Integer> perKind, double factor) {
+        if (!byPlayer) {
+            return 0;
+        }
+        Integer fixed = perKind.get(kind);
+        return fixed != null ? Math.max(0, fixed) : (int) Math.floor(Math.max(0, normal) * Math.max(0, factor));
+    }
+
     private BroodSpawner() {
     }
 

@@ -14,7 +14,8 @@
     "description": {
       "translate": "advancement.the_sift.rifter.description",
       "fallback": "Travel through a Sift Rift"
-    }
+    },
+    "hidden": true
   },
   "criteria": {
     "event": {

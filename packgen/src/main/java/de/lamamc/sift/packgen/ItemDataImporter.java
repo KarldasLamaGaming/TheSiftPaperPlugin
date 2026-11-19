@@ -126,6 +126,12 @@ public final class ItemDataImporter {
         if (path.endsWith("the_sift/rift_resonance.json")) {
             riftResonanceInTheSift(advancement);
         }
+        // alpha.42i (Karl): not reachable on Lama Kingdom yet, so not shown until earned. "Rifter" needs rifts
+        // (rifts.enabled: false); "Planting the Dark" needs the Sculkflower crop, which comes after beta.1.
+        if ((path.endsWith("the_sift/rifter.json") || path.endsWith("the_sift/planting_the_dark.json"))
+                && advancement.get("display") instanceof JsonObject display) {
+            display.addProperty("hidden", true);
+        }
         return advancement;
     }
 
